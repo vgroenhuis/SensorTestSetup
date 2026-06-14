@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Potentiometer Live Value</title>
+		<link rel="stylesheet" href="/stylesheet.css">
+	</head>
+	<body>
+		<div class="container">
+			<h1>Potentiometer</h1>
+			<div class="card">
+				<p>Live potentiometer voltage.</p>
+				<div class="graph-controls">
+					<label for="timeWindowSec">Time window (s)</label>
+					<input id="timeWindowSec" class="time-window-input" type="text" value="60" inputmode="numeric" aria-label="Time window in seconds">
+				</div>
+				<div class="value-panel">
+					<span id="potValue" class="value-number">--</span>
+					<span class="value-unit">V</span>
+				</div>
+				<div class="graph-card">
+					<canvas id="historyCanvas" class="history-canvas" aria-label="Potentiometer history graph"></canvas>
+					<div id="graphCaption" class="graph-caption">Time axis: -60 to 0 s. Voltage axis: 0 to 3.3 V.</div>
+				</div>
+				<div id="wsStatus" class="status">Connecting...</div>
+				<a href="/" class="btn">Back to control panel</a>
+			</div>
+		</div>
+		<script type="module" src="/potentiometer.ts"></script>
+	</body>
+</html>

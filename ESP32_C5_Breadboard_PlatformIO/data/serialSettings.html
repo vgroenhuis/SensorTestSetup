@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Serial Monitor Settings</title>
+		<link rel="stylesheet" href="/stylesheet.css">
+	</head>
+	<body>
+		<div class="container">
+			<h1>Serial Monitor Settings</h1>
+
+			<div class="card">
+				<p>Settings are synchronized directly with the ESP32-C5.</p>
+
+				<label class="setting-row">
+					<input type="checkbox" id="serialOutputEnabled">
+					<span>Enable serial output</span>
+				</label>
+
+				<label class="setting-row">
+					<input type="checkbox" id="includePotentiometerValue">
+					<span>Include potentiometer value (A4)</span>
+				</label>
+
+				<div id="status" class="status">Loading settings...</div>
+				<a class="btn" href="/">Back to control panel</a>
+			</div>
+		</div>
+		<script type="module" src="/serialSettings.ts"></script>
+	</body>
+</html>
