@@ -8,6 +8,11 @@ void loadSerialSettingsFromNvs() {
     Preferences preferences;
     if (!preferences.begin(SERIAL_SETTINGS_NAMESPACE, true)) {
         Serial.println("NVS open failed for reading serial settings");
+        if (!saveSerialSettingsToNvs()) {
+            Serial.println("NVS also failed for writing serial settings");
+            return;
+        }
+
         return;
     }
 
