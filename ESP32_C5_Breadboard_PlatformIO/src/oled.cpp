@@ -1,4 +1,5 @@
 #include "oled.h"
+// consider changing to olikraus' u8g2 library
 #include <Adafruit_SSD1306.h>
 #include <SPI.h>
 #include <Fonts/FreeSans9pt7b.h>

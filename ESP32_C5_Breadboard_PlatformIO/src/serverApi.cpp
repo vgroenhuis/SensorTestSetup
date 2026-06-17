@@ -260,8 +260,6 @@ String serialSettingsJson() {
 }
 
 void initServer(RoamingWiFiManager& manager) {
-    //pinMode(motorIn1Pin, OUTPUT);
-    //pinMode(motorIn2Pin, OUTPUT);
     loadMotorSettingsFromNvs();
     applyMotorOutputs();
 
