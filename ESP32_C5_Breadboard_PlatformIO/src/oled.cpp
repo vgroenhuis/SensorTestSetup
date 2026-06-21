@@ -9,7 +9,7 @@
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
 #define OLED_DC     9
-#define OLED_CS     26
+#define OLED_CS     25
 #define OLED_RESET  -1
 
 bool ipDisplayed = false;

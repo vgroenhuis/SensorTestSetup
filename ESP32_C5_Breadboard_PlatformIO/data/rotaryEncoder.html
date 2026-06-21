@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Rotary Encoder Interrupts</title>
+		<link rel="stylesheet" href="/stylesheet.css">
+	</head>
+	<body>
+		<div class="container">
+			<h1>Rotary Encoder</h1>
+			<div class="card">
+				<p>Live encoder counters.</p>
+				<div class="setting-row">
+					<strong>Interrupt count:</strong>
+					<span id="interruptCount" class="value-number">--</span>
+				</div>
+				<div class="setting-row">
+					<strong>Encoder count:</strong>
+					<span id="encoderCount" class="value-number">--</span>
+				</div>
+				<div class="setting-row">
+					<strong>Double-step count:</strong>
+					<span id="encoderDoubleStepCount" class="value-number">--</span>
+				</div>
+				<div class="setting-row">
+					<strong>Channel A:</strong>
+					<span id="encABit" class="value-number">--</span>
+				</div>
+				<div class="setting-row">
+					<strong>Channel B:</strong>
+					<span id="encBBit" class="value-number">--</span>
+				</div>
+				<div class="graph-card">
+					<div class="graph-controls">
+						<label for="timeWindowSec">Time window (s)</label>
+						<input id="timeWindowSec" class="time-window-input" type="text" value="60" inputmode="numeric" aria-label="Time window in seconds">
+					</div>
+					<canvas id="historyCanvas" class="history-canvas" aria-label="Encoder position history graph"></canvas>
+					<div id="graphCaption" class="graph-caption">Time axis: -60 to 0 s. Position axis auto-scales.</div>
+				</div>
+				<div id="encoderStatus" class="status">Loading...</div>
+				<a href="/" class="btn">Back to control panel</a>
+			</div>
+		</div>
+		<script type="module" src="/rotaryEncoder.ts"></script>
+	</body>
+</html>

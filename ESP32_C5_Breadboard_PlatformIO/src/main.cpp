@@ -10,6 +10,7 @@
 #include "serialComms.h"
 #include "oled.h"
 #include <SPI.h>
+#include <Wire.h>
 
 RoamingWiFiManager manager;
 
@@ -22,6 +23,9 @@ void initFileSystem() {
 void setup() {
     Serial.begin(115200);
     SPI.begin(7,0,8);
+    //Wire.begin();
+    Wire.begin(2,3); // SDA pin 2, SCL pin 3
+    
     loadSerialSettingsFromNvs();
     initFileSystem();
     gpioDirectSetup();

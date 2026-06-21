@@ -8,8 +8,11 @@
 
 namespace {
     AsyncWebSocket potentiometerWebSocket("/ws/potentiometer");
+    AsyncWebSocket rotaryEncoderWebSocket("/ws/rotaryEncoder");
     unsigned long lastPotentiometerPublishMs = 0;
+    unsigned long lastRotaryEncoderPublishMs = 0;
     const unsigned long potentiometerPublishIntervalMs = 50;
+    const unsigned long rotaryEncoderPublishIntervalMs = 50;
 
     enum class MotorMode {
         Direct,
@@ -44,6 +47,13 @@ namespace {
         return String("{\"millis\":") + millis() + ",\"voltage\":" + String(readAnalogVolt(A4), 3) + "}";
     }
 
+    String rotaryEncoderJson() {
+        return String("{\"interruptCount\":") + getEncoderInterruptCount() +
+               ",\"encoderCount\":" + getEncoderPos() +
+               ",\"encoderDoubleStepCount\":" + getencoderDoubleStepCount() +
+               ",\"encABBits\":" + getEncABPins() + "}";
+    }
+
     void onPotentiometerWebSocketEvent(AsyncWebSocket *server,
                                        AsyncWebSocketClient *client,
                                        AwsEventType type,
@@ -57,6 +67,22 @@ namespace {
 
         if (type == WS_EVT_CONNECT) {
             client->text(potentiometerJson());
+        }
+    }
+
+    void onRotaryEncoderWebSocketEvent(AsyncWebSocket *server,
+                                       AsyncWebSocketClient *client,
+                                       AwsEventType type,
+                                       void *arg,
+                                       uint8_t *data,
+                                       size_t len) {
+        (void)server;
+        (void)arg;
+        (void)data;
+        (void)len;
+
+        if (type == WS_EVT_CONNECT) {
+            client->text(rotaryEncoderJson());
         }
     }
 
@@ -265,6 +291,8 @@ void initServer(RoamingWiFiManager& manager) {
 
     potentiometerWebSocket.onEvent(onPotentiometerWebSocketEvent);
     manager.server.addHandler(&potentiometerWebSocket);
+    rotaryEncoderWebSocket.onEvent(onRotaryEncoderWebSocketEvent);
+    manager.server.addHandler(&rotaryEncoderWebSocket);
 
     manager.server.on("/", [] (AsyncWebServerRequest *request) {
         handleRoot(request);
@@ -304,6 +332,23 @@ void initServer(RoamingWiFiManager& manager) {
         } else {
             request->send(404, "text/plain", "potentiometer.ts not found");
         }
+    });
+    manager.server.on("/rotaryEncoder", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        if (LittleFS.exists("/rotaryEncoder.html")) {
+            request->send(LittleFS, "/rotaryEncoder.html", "text/html");
+        } else {
+            request->send(404, "text/plain", "rotaryEncoder.html not found");
+        }
+    });
+    manager.server.on("/rotaryEncoder.ts", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        if (LittleFS.exists("/rotaryEncoder.ts")) {
+            request->send(LittleFS, "/rotaryEncoder.ts", "application/javascript");
+        } else {
+            request->send(404, "text/plain", "rotaryEncoder.ts not found");
+        }
+    });
+    manager.server.on("/api/rotaryEncoder", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        request->send(200, "application/json", rotaryEncoderJson());
     });
     manager.server.on("/dcMotor", HTTP_GET, [] (AsyncWebServerRequest *request) {
         if (LittleFS.exists("/dcMotor.html")) {
@@ -451,18 +496,24 @@ void initServer(RoamingWiFiManager& manager) {
 
 void serverApiLoop() {
     potentiometerWebSocket.cleanupClients();
+    rotaryEncoderWebSocket.cleanupClients();
 
     if (motorMode == MotorMode::Potentiometer) {
         applyMotorOutputs();
     }
 
     const unsigned long now = millis();
-    if (now - lastPotentiometerPublishMs < potentiometerPublishIntervalMs) {
-        return;
+    if (now - lastPotentiometerPublishMs >= potentiometerPublishIntervalMs) {
+        lastPotentiometerPublishMs = now;
+        if (potentiometerWebSocket.count() > 0) {
+            potentiometerWebSocket.textAll(potentiometerJson());
+        }
     }
 
-    lastPotentiometerPublishMs = now;
-    if (potentiometerWebSocket.count() > 0) {
-        potentiometerWebSocket.textAll(potentiometerJson());
+    if (now - lastRotaryEncoderPublishMs >= rotaryEncoderPublishIntervalMs) {
+        lastRotaryEncoderPublishMs = now;
+        if (rotaryEncoderWebSocket.count() > 0) {
+            rotaryEncoderWebSocket.textAll(rotaryEncoderJson());
+        }
     }
 }
