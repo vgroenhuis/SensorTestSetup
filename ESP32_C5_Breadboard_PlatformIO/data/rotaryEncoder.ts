@@ -4,8 +4,11 @@ const encoderCountElement = document.getElementById("encoderCount");
 const encoderDoubleStepCountElement = document.getElementById("encoderDoubleStepCount");
 const encABitElement = document.getElementById("encABit");
 const encBBitElement = document.getElementById("encBBit");
+const binaryHistoryCanvas = document.getElementById("binaryHistoryCanvas");
 const historyCanvas = document.getElementById("historyCanvas");
 const timeWindowInput = document.getElementById("timeWindowSec");
+const pauseGraphButton = document.getElementById("pauseGraphButton");
+const binaryGraphCaptionElement = document.getElementById("binaryGraphCaption");
 const graphCaptionElement = document.getElementById("graphCaption");
 const statusElement = document.getElementById("encoderStatus");
 
@@ -14,21 +17,28 @@ if (!interruptCountElement ||
 	!encoderDoubleStepCountElement ||
 	!encABitElement ||
 	!encBBitElement ||
+	!binaryHistoryCanvas ||
 	!historyCanvas ||
 	!timeWindowInput ||
+	!pauseGraphButton ||
+	!binaryGraphCaptionElement ||
 	!graphCaptionElement ||
 	!statusElement) {
 	throw new Error("Rotary encoder page elements are missing");
 }
 
+const binaryHistoryContext = binaryHistoryCanvas.getContext("2d");
 const historyContext = historyCanvas.getContext("2d");
-if (!historyContext) {
+if (!binaryHistoryContext || !historyContext) {
 	throw new Error("Canvas context is unavailable");
 }
 
 let socket = null;
 let reconnectTimer = null;
 let historyDurationSec = 60;
+let graphPaused = false;
+let graphTimeOffsetSec = 0;
+let graphPausedAtRealTimeSec = null;
 const storageKeyTimeWindowSec = "rotaryEncoder.timeWindowSec";
 const historySamples = [];
 
@@ -80,9 +90,27 @@ function storeTimeWindow(windowSec) {
 	}
 }
 
+function setGraphPaused(paused) {
+	if (paused === graphPaused) {
+		return;
+	}
+
+	const nowSec = Date.now() / 1000;
+	if (paused) {
+		graphPausedAtRealTimeSec = nowSec;
+	} else if (graphPausedAtRealTimeSec !== null) {
+		graphTimeOffsetSec += nowSec - graphPausedAtRealTimeSec;
+		graphPausedAtRealTimeSec = null;
+	}
+
+	graphPaused = paused;
+	pauseGraphButton.textContent = graphPaused ? "Resume graph" : "Pause graph";
+}
+
 function applyTimeWindowFromInput() {
 	historyDurationSec = parseTimeWindowInput();
 	timeWindowInput.value = String(historyDurationSec);
+	binaryGraphCaptionElement.textContent = "Time axis: -" + historyDurationSec + " to 0 s. Channel A/B lanes show LOW/HIGH state.";
 	graphCaptionElement.textContent = "Time axis: -" + historyDurationSec + " to 0 s. Position axis auto-scales.";
 	storeTimeWindow(historyDurationSec);
 }
@@ -95,6 +123,12 @@ function setStatus(text, isError) {
 
 function resizeHistoryCanvas() {
 	const dpr = window.devicePixelRatio || 1;
+	const binaryWidth = Math.max(10, binaryHistoryCanvas.clientWidth);
+	const binaryHeight = Math.max(10, binaryHistoryCanvas.clientHeight);
+	binaryHistoryCanvas.width = Math.floor(binaryWidth * dpr);
+	binaryHistoryCanvas.height = Math.floor(binaryHeight * dpr);
+	binaryHistoryContext.setTransform(dpr, 0, 0, dpr, 0, 0);
+
 	const width = Math.max(10, historyCanvas.clientWidth);
 	const height = Math.max(10, historyCanvas.clientHeight);
 	historyCanvas.width = Math.floor(width * dpr);
@@ -153,9 +187,106 @@ function computeYRange() {
 	return { min, max };
 }
 
+function drawBinaryGraph(virtualNowSec) {
+	const width = binaryHistoryCanvas.clientWidth;
+	const height = binaryHistoryCanvas.clientHeight;
+	const ctx = binaryHistoryContext;
+	const laneCount = 2;
+	const laneLabels = ["A", "B"];
+	const laneColors = ["#2f67ff", "#d1495b"];
+
+	const padLeft = 54;
+	const padRight = 12;
+	const padTop = 10;
+	const padBottom = 24;
+	const graphWidth = width - padLeft - padRight;
+	const graphHeight = height - padTop - padBottom;
+	const laneHeight = graphHeight / laneCount;
+
+	ctx.clearRect(0, 0, width, height);
+	ctx.fillStyle = "#ffffff";
+	ctx.fillRect(0, 0, width, height);
+
+	ctx.strokeStyle = "#d9dfef";
+	ctx.lineWidth = 1;
+	ctx.beginPath();
+	ctx.rect(padLeft, padTop, graphWidth, graphHeight);
+	ctx.stroke();
+
+	ctx.font = "11px Arial, sans-serif";
+	ctx.fillStyle = "#5a6075";
+	ctx.strokeStyle = "#e8ecf6";
+
+	const tickStepSec = xTickStep(historyDurationSec);
+	for (let sec = -historyDurationSec; sec <= 0; sec += tickStepSec) {
+		const x = padLeft + ((sec + historyDurationSec) / historyDurationSec) * graphWidth;
+		ctx.beginPath();
+		ctx.moveTo(x, padTop);
+		ctx.lineTo(x, padTop + graphHeight);
+		ctx.stroke();
+		ctx.fillText(String(Math.round(sec)), x - 8, padTop + graphHeight + 16);
+	}
+
+	for (let lane = 0; lane < laneCount; lane += 1) {
+		const top = padTop + lane * laneHeight;
+		ctx.strokeStyle = "#eef1f9";
+		ctx.beginPath();
+		ctx.moveTo(padLeft, top);
+		ctx.lineTo(padLeft + graphWidth, top);
+		ctx.stroke();
+
+		ctx.fillStyle = "#5a6075";
+		ctx.fillText(laneLabels[lane], 18, top + laneHeight * 0.62);
+	}
+
+	ctx.fillStyle = "#3f4e9e";
+	ctx.fillText("s", width - 8, padTop + graphHeight + 16);
+
+	for (let lane = 0; lane < laneCount; lane += 1) {
+		const top = padTop + lane * laneHeight;
+		const yLow = top + laneHeight * 0.78;
+		const yHigh = top + laneHeight * 0.22;
+		const color = laneColors[lane];
+
+		ctx.strokeStyle = color;
+		ctx.lineWidth = 2;
+		ctx.beginPath();
+
+		let hasPoint = false;
+		let previousY = null;
+		for (let i = 0; i < historySamples.length; i += 1) {
+			const sample = historySamples[i];
+			const state = lane === 0 ? sample.a : sample.b;
+			const y = state ? yHigh : yLow;
+			const ageSec = sample.t - virtualNowSec;
+			const x = padLeft + ((ageSec + historyDurationSec) / historyDurationSec) * graphWidth;
+
+			if (!hasPoint) {
+				ctx.moveTo(x, y);
+				hasPoint = true;
+			} else {
+				if (previousY !== y) {
+					ctx.lineTo(x, previousY);
+				}
+				ctx.lineTo(x, y);
+			}
+			previousY = y;
+		}
+
+		if (hasPoint) {
+			ctx.stroke();
+		}
+	}
+}
+
 function drawGraph() {
 	const nowSec = Date.now() / 1000;
-	pruneHistory(nowSec);
+	const pausedElapsedSec = graphPaused && graphPausedAtRealTimeSec !== null ? nowSec - graphPausedAtRealTimeSec : 0;
+	const virtualNowSec = nowSec - graphTimeOffsetSec - pausedElapsedSec;
+
+	if (!graphPaused) {
+		pruneHistory(virtualNowSec);
+	}
 
 	const width = historyCanvas.clientWidth;
 	const height = historyCanvas.clientHeight;
@@ -217,7 +348,7 @@ function drawGraph() {
 
 		for (let i = 0; i < historySamples.length; i += 1) {
 			const sample = historySamples[i];
-			const ageSec = sample.t - nowSec;
+			const ageSec = sample.t - virtualNowSec;
 			const x = padLeft + ((ageSec + historyDurationSec) / historyDurationSec) * graphWidth;
 			const ratio = (sample.p - yRange.min) / totalRange;
 			const y = padTop + graphHeight - ratio * graphHeight;
@@ -232,6 +363,7 @@ function drawGraph() {
 		ctx.stroke();
 	}
 
+	drawBinaryGraph(virtualNowSec);
 	requestAnimationFrame(drawGraph);
 }
 
@@ -277,7 +409,14 @@ function connectSocket() {
 			encoderDoubleStepCountElement.textContent = String(payload.encoderDoubleStepCount);
 			encABitElement.textContent = aBit;
 			encBBitElement.textContent = bBit;
-			historySamples.push({ t: Date.now() / 1000, p: payload.encoderCount });
+			if (!graphPaused) {
+				historySamples.push({
+					t: Date.now() / 1000 - graphTimeOffsetSec,
+					p: payload.encoderCount,
+					a: aBit === "1",
+					b: bBit === "1"
+				});
+			}
 		} catch (error) {
 			setStatus("Invalid data received", true);
 		}
@@ -297,6 +436,9 @@ function connectSocket() {
 window.addEventListener("resize", resizeHistoryCanvas);
 timeWindowInput.addEventListener("change", applyTimeWindowFromInput);
 timeWindowInput.addEventListener("blur", applyTimeWindowFromInput);
+pauseGraphButton.addEventListener("click", function () {
+	setGraphPaused(!graphPaused);
+});
 timeWindowInput.value = String(readStoredTimeWindow());
 applyTimeWindowFromInput();
 resizeHistoryCanvas();

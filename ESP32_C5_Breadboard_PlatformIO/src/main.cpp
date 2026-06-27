@@ -1,16 +1,18 @@
 #include <Arduino.h>
+#include <SPI.h>
+#include <Wire.h>
+#include <LittleFS.h>
+#include <Preferences.h>
+
 #include "RoamingWiFiManager.h"
 #include "websiteRoot.h"
 #include "credentials.h"
-#include <LittleFS.h>
-#include <Preferences.h>
-#include "gpioDirect.h"
+#include "gpioExpanders.h"
 #include "nvsSettings.h"
 #include "serverApi.h"
 #include "serialComms.h"
 #include "oled.h"
-#include <SPI.h>
-#include <Wire.h>
+#include "pressureSensor.h"
 
 RoamingWiFiManager manager;
 
@@ -28,7 +30,8 @@ void setup() {
     
     loadSerialSettingsFromNvs();
     initFileSystem();
-    gpioDirectSetup();
+    gpioExpandersSetup();
+    initPressureSensor();
     initOledDisplay();
     manager.init(knownNetworks, adminCredentials, aliasUrl);
     initServer(manager);

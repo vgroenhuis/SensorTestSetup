@@ -5,5 +5,7 @@
 #include <Arduino.h>
 #include "RoamingWiFiManager.h"
 
+constexpr int POTMETER_ADC_PIN = 7;
+
 void initServer(RoamingWiFiManager& manager);
 void serverApiLoop();

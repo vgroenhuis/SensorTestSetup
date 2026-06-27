@@ -51,6 +51,12 @@ h1 {
     background: #5568d3;
 }
 
+button.btn {
+    border: 0;
+    cursor: pointer;
+    font: inherit;
+}
+
 /* Footer */
 .footer {
     text-align: center;
@@ -107,6 +113,10 @@ h1 {
     margin: 8px 0 10px 0;
 }
 
+.graph-actions {
+    margin: 8px 0 10px 0;
+}
+
 .graph-controls label {
     font-size: 14px;
     color: #333;
@@ -138,6 +148,186 @@ h1 {
     margin-top: 8px;
     font-size: 12px;
     color: #5f6274;
+}
+
+/* MCP3008 page */
+.channel-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0;
+}
+
+.channel-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    border: 1px solid #d8dcef;
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-size: 13px;
+    color: #2f3d8a;
+    user-select: none;
+}
+
+.channel-chip input {
+    margin: 0;
+}
+
+.channel-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.channel-values {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.channel-value-row {
+    background: #ffffff;
+    border: 1px solid #d8dcef;
+    border-radius: 8px;
+    padding: 7px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+}
+
+.channel-value-name {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.channel-value-number {
+    font-size: 13px;
+    color: #333;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Pressure sensors page */
+.pressure-reading-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 8px;
+    margin: 10px 0 8px 0;
+}
+
+.calibration-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 8px 0 10px 0;
+}
+
+.calibration-actions .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.pressure-reading-card {
+    background: #ffffff;
+    border: 1px solid #d8dcef;
+    border-radius: 8px;
+    padding: 8px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.pressure-reading-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #2f3d8a;
+}
+
+.pressure-reading-number {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1f2d6b;
+    font-variant-numeric: tabular-nums;
+}
+
+.pressure-reading-unit {
+    font-size: 12px;
+    color: #555;
+    margin-left: 4px;
+}
+
+/* MCP23017 inputs page */
+.digital-value-panel {
+    margin: 10px 0 8px 0;
+}
+
+.digital-main-value {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 12px;
+    background: #ffffff;
+    border: 1px solid #d8dcef;
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+
+.digital-main-number {
+    font-size: 30px;
+    font-weight: 700;
+    color: #2f3d8a;
+    font-variant-numeric: tabular-nums;
+}
+
+.digital-main-binary {
+    font-size: 18px;
+    color: #444;
+    font-family: Consolas, "Courier New", monospace;
+    letter-spacing: 1px;
+}
+
+.digital-bit-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 8px;
+    margin: 8px 0;
+}
+
+.digital-bit-row {
+    background: #ffffff;
+    border: 1px solid #d8dcef;
+    border-radius: 8px;
+    padding: 7px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.digital-bit-name {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.digital-bit-state {
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 3px 8px;
+}
+
+.digital-bit-state.high {
+    color: #0b6a39;
+    background: #daf5e6;
+}
+
+.digital-bit-state.low {
+    color: #8a3b12;
+    background: #fde8dc;
 }
 
 /* DC motor page */

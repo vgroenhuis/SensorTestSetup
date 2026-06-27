@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Pressure Sensors Live Value</title>
+		<link rel="stylesheet" href="/stylesheet.css">
+	</head>
+	<body>
+		<div class="container">
+			<h1>Pressure Sensors</h1>
+			<div class="card">
+				<p>Live pressure readings from pressure sensors 0 and 1.</p>
+				<div class="graph-controls">
+					<label for="pressureTimeWindowSec">Time window (s)</label>
+					<input id="pressureTimeWindowSec" class="time-window-input" type="text" value="60" inputmode="numeric" aria-label="Time window in seconds">
+				</div>
+				<div class="graph-actions">
+					<button id="pauseGraphButton" class="btn" type="button">Pause graph</button>
+				</div>
+				<div class="calibration-actions">
+					<button id="zeroCalibrateSensor0Button" class="btn" type="button">Zero-calibrate sensor 0</button>
+					<button id="zeroCalibrateSensor1Button" class="btn" type="button">Zero-calibrate sensor 1</button>
+				</div>
+				<div id="pressureValues" class="pressure-reading-grid" aria-live="polite"></div>
+				<div class="graph-card">
+					<canvas id="pressureHistoryCanvas" class="history-canvas" aria-label="Pressure sensor history graph"></canvas>
+					<div id="pressureGraphCaption" class="graph-caption">Time axis: -60 to 0 s. Pressure axis auto-scales (barG).</div>
+				</div>
+				<div id="pressureWsStatus" class="status">Connecting...</div>
+				<a href="/" class="btn">Back to control panel</a>
+			</div>
+		</div>
+		<script type="module" src="/pressureSensors.ts"></script>
+	</body>
+</html>

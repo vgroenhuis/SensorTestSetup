@@ -12,16 +12,16 @@
 			<div class="card">
 				<p>Live encoder counters.</p>
 				<div class="setting-row">
-					<strong>Interrupt count:</strong>
-					<span id="interruptCount" class="value-number">--</span>
-				</div>
-				<div class="setting-row">
 					<strong>Encoder count:</strong>
 					<span id="encoderCount" class="value-number">--</span>
 				</div>
 				<div class="setting-row">
 					<strong>Double-step count:</strong>
 					<span id="encoderDoubleStepCount" class="value-number">--</span>
+				</div>
+				<div class="setting-row">
+					<strong>Interrupt count:</strong>
+					<span id="interruptCount" class="value-number">--</span>
 				</div>
 				<div class="setting-row">
 					<strong>Channel A:</strong>
@@ -36,8 +36,15 @@
 						<label for="timeWindowSec">Time window (s)</label>
 						<input id="timeWindowSec" class="time-window-input" type="text" value="60" inputmode="numeric" aria-label="Time window in seconds">
 					</div>
+					<div class="graph-actions">
+						<button id="pauseGraphButton" class="btn" type="button">Pause graph</button>
+					</div>
 					<canvas id="historyCanvas" class="history-canvas" aria-label="Encoder position history graph"></canvas>
 					<div id="graphCaption" class="graph-caption">Time axis: -60 to 0 s. Position axis auto-scales.</div>
+				</div>
+				<div class="graph-card">
+					<canvas id="binaryHistoryCanvas" class="history-canvas" aria-label="Rotary encoder binary channel history graph"></canvas>
+					<div id="binaryGraphCaption" class="graph-caption">Time axis: -60 to 0 s. Channel A/B lanes show LOW/HIGH state.</div>
 				</div>
 				<div id="encoderStatus" class="status">Loading...</div>
 				<a href="/" class="btn">Back to control panel</a>

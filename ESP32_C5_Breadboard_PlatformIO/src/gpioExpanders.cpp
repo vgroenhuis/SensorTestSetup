@@ -1,9 +1,13 @@
-#include "gpioDirect.h"
+#include "gpioExpanders.h"
 #include <Arduino.h>
 #include <Wire.h>
 #include <MCP23017.h>
+#include <MCP_ADC.h>
 
 MCP23017 mcp(0x20); // A0, A1, A2 all pulled LOW
+
+//SPIClass* mySPI = new SPIClass(VSPI);
+MCP3008 adc(&SPI);
 
 volatile int interruptTriggerCount = 0;
 volatile int encoderDoubleStepCount = 0; // it can increase if an interrupt is missed
@@ -59,7 +63,7 @@ int getEncoderPos() {
     return encoderPos;
 }
 
-void gpioDirectSetup() {
+void gpioExpandersSetup() {
     // Wire already has been initialized at this point
     pinMode(motorIn1Pin, OUTPUT); // L298N 1
     pinMode(motorIn2Pin, OUTPUT); // L298N 2
@@ -69,14 +73,51 @@ void gpioDirectSetup() {
 
     mcp.pinMode8(0, 0x00); // output
     mcp.pinMode8(1, 0xff); // input
+    mcp.setPullup8(1, 0xff); // all eight inputs have pull-up enabled
+    
+    setDigitalBankB(0x03); // LEDs ON
 
-    mcp.write8(0, 0x03); // LEDs ON
+    adc.begin(MCP3088_CS);
+    /*
+    Serial.println("ADC\tCHAN\tMAXVALUE");
+    Serial.print("adc\t");
+    Serial.print(adc.channels());
+    Serial.print("\t");
+    Serial.println(adc.maxValue());
+    Serial.printf("ch 0: %f V\n",readAdcAnalogVolt(0));
+    */
 
     attachInterrupt(digitalPinToInterrupt(encAPin), handleEncoderInterrupt, CHANGE);
     attachInterrupt(digitalPinToInterrupt(encBPin), handleEncoderInterrupt, CHANGE);
 }
 
+float readAdcAnalogVolt(int pin) {
+    int x = adc.read(pin);
+    return x*3.3/adc.maxValue();
+}
+
+std::array<float, 8> readAdcAnalogVoltAll() {
+    int16_t rawAdc[8];
+    uint8_t channels[8] = {0, 1, 2, 3, 4, 5, 6, 7};
+    adc.readMultiple(channels, 8, rawAdc);
+    std::array<float, 8> adcVolt;
+    for (int i=0;i<8;i++) {
+        adcVolt[i]=rawAdc[i]*3.3/adc.maxValue();
+    }
+    return adcVolt;
+}
+
 float readAnalogVolt(int pin) {
     int x = analogReadMilliVolts(pin);
     return x/1000.0;
+}
+
+// Sets output pins of MCP23017 I/O expander, bank A.
+void setDigitalBankB(uint8_t values) {
+    mcp.write8(0, values);
+}
+
+// Returns state of MCP23017 I/O expander, bank B.
+uint8_t getDigitalBankA() {
+    return mcp.read8(1);
 }

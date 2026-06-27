@@ -4,15 +4,25 @@
 #include <LittleFS.h>
 #include <Preferences.h>
 #include "websiteRoot.h"
-#include "gpioDirect.h"
+#include "gpioExpanders.h"
+#include "pressureSensor.h"
 
 namespace {
     AsyncWebSocket potentiometerWebSocket("/ws/potentiometer");
+    AsyncWebSocket mcp3008WebSocket("/ws/mcp3008");
+    AsyncWebSocket mcp23017InputsWebSocket("/ws/mcp23017inputs");
     AsyncWebSocket rotaryEncoderWebSocket("/ws/rotaryEncoder");
+    AsyncWebSocket pressureSensorsWebSocket("/ws/pressureSensors");
     unsigned long lastPotentiometerPublishMs = 0;
+    unsigned long lastMcp3008PublishMs = 0;
+    unsigned long lastMcp23017InputsPublishMs = 0;
     unsigned long lastRotaryEncoderPublishMs = 0;
+    unsigned long lastPressureSensorsPublishMs = 0;
     const unsigned long potentiometerPublishIntervalMs = 50;
+    const unsigned long mcp3008PublishIntervalMs = 50;
+    const unsigned long mcp23017InputsPublishIntervalMs = 50;
     const unsigned long rotaryEncoderPublishIntervalMs = 50;
+    const unsigned long pressureSensorsPublishIntervalMs = 50;
 
     enum class MotorMode {
         Direct,
@@ -44,7 +54,7 @@ namespace {
     const char *KEY_FORWARD_SENSE = "fwd";
 
     String potentiometerJson() {
-        return String("{\"millis\":") + millis() + ",\"voltage\":" + String(readAnalogVolt(A4), 3) + "}";
+        return String("{\"millis\":") + millis() + ",\"voltage\":" + String(readAdcAnalogVolt(POTMETER_ADC_PIN), 3) + "}";
     }
 
     String rotaryEncoderJson() {
@@ -52,6 +62,51 @@ namespace {
                ",\"encoderCount\":" + getEncoderPos() +
                ",\"encoderDoubleStepCount\":" + getencoderDoubleStepCount() +
                ",\"encABBits\":" + getEncABPins() + "}";
+    }
+
+    String mcp3008Json() {
+        const std::array<float, 8> values = readAdcAnalogVoltAll();
+        String json = String("{\"millis\":") + millis() + ",\"channels\":[";
+        for (size_t i = 0; i < values.size(); ++i) {
+            if (i > 0) {
+                json += ",";
+            }
+            json += String(values[i], 3);
+        }
+        json += "]}";
+        return json;
+    }
+
+    String mcp23017InputsJson() {
+        const uint8_t bankValue = getDigitalBankA();
+        String json = String("{\"millis\":") + millis() +
+                      ",\"bankValue\":" + String(bankValue) +
+                      ",\"bits\":[";
+        for (int bit = 0; bit < 8; ++bit) {
+            if (bit > 0) {
+                json += ",";
+            }
+            json += ((bankValue >> bit) & 0x01) ? "1" : "0";
+        }
+        json += "]}";
+        return json;
+    }
+
+    String pressureSensorsJson() {
+        const std::array<float, PRESSURE_SENSOR_COUNT> values = readPressureSensorsSingleShot();
+        String json = String("{\"millis\":") + millis() + ",\"pressures\":[";
+        for (size_t i = 0; i < values.size(); ++i) {
+            if (i > 0) {
+                json += ",";
+            }
+            if (isnan(values[i])) {
+                json += "null";
+            } else {
+                json += String(values[i], 3);
+            }
+        }
+        json += "]}";
+        return json;
     }
 
     void onPotentiometerWebSocketEvent(AsyncWebSocket *server,
@@ -83,6 +138,54 @@ namespace {
 
         if (type == WS_EVT_CONNECT) {
             client->text(rotaryEncoderJson());
+        }
+    }
+
+    void onMcp3008WebSocketEvent(AsyncWebSocket *server,
+                                 AsyncWebSocketClient *client,
+                                 AwsEventType type,
+                                 void *arg,
+                                 uint8_t *data,
+                                 size_t len) {
+        (void)server;
+        (void)arg;
+        (void)data;
+        (void)len;
+
+        if (type == WS_EVT_CONNECT) {
+            client->text(mcp3008Json());
+        }
+    }
+
+    void onMcp23017InputsWebSocketEvent(AsyncWebSocket *server,
+                                        AsyncWebSocketClient *client,
+                                        AwsEventType type,
+                                        void *arg,
+                                        uint8_t *data,
+                                        size_t len) {
+        (void)server;
+        (void)arg;
+        (void)data;
+        (void)len;
+
+        if (type == WS_EVT_CONNECT) {
+            client->text(mcp23017InputsJson());
+        }
+    }
+
+    void onPressureSensorsWebSocketEvent(AsyncWebSocket *server,
+                                       AsyncWebSocketClient *client,
+                                       AwsEventType type,
+                                       void *arg,
+                                       uint8_t *data,
+                                       size_t len) {
+        (void)server;
+        (void)arg;
+        (void)data;
+        (void)len;
+
+        if (type == WS_EVT_CONNECT) {
+            client->text(pressureSensorsJson());
         }
     }
 
@@ -203,7 +306,7 @@ namespace {
             return;
         }
 
-        const float voltage = readAnalogVolt(A4);
+        const float voltage = readAdcAnalogVolt(POTMETER_ADC_PIN);
         const float centered = voltage - motorCenterVoltage;
         if (centered > -motorDeadbandVoltage && centered < motorDeadbandVoltage) {
             applyMotorStop();
@@ -280,6 +383,26 @@ bool parseBoolParam(const String &value, bool &outValue) {
     return false;
 }
 
+bool parseSensorIdParam(const String &value, int &outSensorId) {
+    if (value.length() == 0) {
+        return false;
+    }
+
+    for (size_t i = 0; i < value.length(); ++i) {
+        if (!isDigit(value[i])) {
+            return false;
+        }
+    }
+
+    const int parsed = value.toInt();
+    if (parsed < 0 || parsed >= PRESSURE_SENSOR_COUNT) {
+        return false;
+    }
+
+    outSensorId = parsed;
+    return true;
+}
+
 String serialSettingsJson() {
     return String("{\"serialOutputEnabled\":") + (serialOutputEnabled ? "true" : "false") +
            ",\"includePotentiometerValue\":" + (includePotentiometerValue ? "true" : "false") + "}";
@@ -291,8 +414,14 @@ void initServer(RoamingWiFiManager& manager) {
 
     potentiometerWebSocket.onEvent(onPotentiometerWebSocketEvent);
     manager.server.addHandler(&potentiometerWebSocket);
+    mcp3008WebSocket.onEvent(onMcp3008WebSocketEvent);
+    manager.server.addHandler(&mcp3008WebSocket);
+    mcp23017InputsWebSocket.onEvent(onMcp23017InputsWebSocketEvent);
+    manager.server.addHandler(&mcp23017InputsWebSocket);
     rotaryEncoderWebSocket.onEvent(onRotaryEncoderWebSocketEvent);
     manager.server.addHandler(&rotaryEncoderWebSocket);
+    pressureSensorsWebSocket.onEvent(onPressureSensorsWebSocketEvent);
+    manager.server.addHandler(&pressureSensorsWebSocket);
 
     manager.server.on("/", [] (AsyncWebServerRequest *request) {
         handleRoot(request);
@@ -331,6 +460,48 @@ void initServer(RoamingWiFiManager& manager) {
             request->send(LittleFS, "/potentiometer.ts", "application/javascript");
         } else {
             request->send(404, "text/plain", "potentiometer.ts not found");
+        }
+    });
+    manager.server.on("/mcp3008", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        if (LittleFS.exists("/mcp3008.html")) {
+            request->send(LittleFS, "/mcp3008.html", "text/html");
+        } else {
+            request->send(404, "text/plain", "mcp3008.html not found");
+        }
+    });
+    manager.server.on("/pressureSensors", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        if (LittleFS.exists("/pressureSensors.html")) {
+            request->send(LittleFS, "/pressureSensors.html", "text/html");
+        } else {
+            request->send(404, "text/plain", "pressureSensors.html not found");
+        }
+    });
+    manager.server.on("/pressureSensors.ts", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        if (LittleFS.exists("/pressureSensors.ts")) {
+            request->send(LittleFS, "/pressureSensors.ts", "application/javascript");
+        } else {
+            request->send(404, "text/plain", "pressureSensors.ts not found");
+        }
+    });
+    manager.server.on("/mcp3008.ts", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        if (LittleFS.exists("/mcp3008.ts")) {
+            request->send(LittleFS, "/mcp3008.ts", "application/javascript");
+        } else {
+            request->send(404, "text/plain", "mcp3008.ts not found");
+        }
+    });
+    manager.server.on("/mcp23017Inputs", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        if (LittleFS.exists("/mcp23017Inputs.html")) {
+            request->send(LittleFS, "/mcp23017Inputs.html", "text/html");
+        } else {
+            request->send(404, "text/plain", "mcp23017Inputs.html not found");
+        }
+    });
+    manager.server.on("/mcp23017Inputs.ts", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        if (LittleFS.exists("/mcp23017Inputs.ts")) {
+            request->send(LittleFS, "/mcp23017Inputs.ts", "application/javascript");
+        } else {
+            request->send(404, "text/plain", "mcp23017Inputs.ts not found");
         }
     });
     manager.server.on("/rotaryEncoder", HTTP_GET, [] (AsyncWebServerRequest *request) {
@@ -492,11 +663,30 @@ void initServer(RoamingWiFiManager& manager) {
 
         request->send(200, "application/json", serialSettingsJson());
     });
+        manager.server.on("/api/pressureSensors/zeroCalibrate", HTTP_POST, [] (AsyncWebServerRequest *request) {
+            if (!request->hasParam("sensorId", true)) {
+                request->send(400, "application/json", "{\"error\":\"missing sensorId\"}");
+                return;
+            }
+
+            int sensorId = 0;
+            const String value = request->getParam("sensorId", true)->value();
+            if (!parseSensorIdParam(value, sensorId)) {
+                request->send(400, "application/json", "{\"error\":\"invalid sensorId\"}");
+                return;
+            }
+
+            zeroCalibratePressure(sensorId);
+            request->send(200, "application/json", String("{\"ok\":true,\"sensorId\":") + sensorId + "}");
+        });
 }
 
 void serverApiLoop() {
     potentiometerWebSocket.cleanupClients();
+    mcp3008WebSocket.cleanupClients();
+    mcp23017InputsWebSocket.cleanupClients();
     rotaryEncoderWebSocket.cleanupClients();
+    pressureSensorsWebSocket.cleanupClients();
 
     if (motorMode == MotorMode::Potentiometer) {
         applyMotorOutputs();
@@ -510,10 +700,31 @@ void serverApiLoop() {
         }
     }
 
+    if (now - lastMcp3008PublishMs >= mcp3008PublishIntervalMs) {
+        lastMcp3008PublishMs = now;
+        if (mcp3008WebSocket.count() > 0) {
+            mcp3008WebSocket.textAll(mcp3008Json());
+        }
+    }
+
+    if (now - lastMcp23017InputsPublishMs >= mcp23017InputsPublishIntervalMs) {
+        lastMcp23017InputsPublishMs = now;
+        if (mcp23017InputsWebSocket.count() > 0) {
+            mcp23017InputsWebSocket.textAll(mcp23017InputsJson());
+        }
+    }
+
     if (now - lastRotaryEncoderPublishMs >= rotaryEncoderPublishIntervalMs) {
         lastRotaryEncoderPublishMs = now;
         if (rotaryEncoderWebSocket.count() > 0) {
             rotaryEncoderWebSocket.textAll(rotaryEncoderJson());
+        }
+    }
+
+    if (now - lastPressureSensorsPublishMs >= pressureSensorsPublishIntervalMs) {
+        lastPressureSensorsPublishMs = now;
+        if (pressureSensorsWebSocket.count() > 0) {
+            pressureSensorsWebSocket.textAll(pressureSensorsJson());
         }
     }
 }

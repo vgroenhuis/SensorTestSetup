@@ -1,6 +1,6 @@
 #include "serialComms.h"
 #include "nvsSettings.h"
-#include "gpioDirect.h"
+#include "gpioExpanders.h"
 
 void printSerialData() {
     if (!serialOutputEnabled) {

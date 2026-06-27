@@ -3,9 +3,10 @@ const potValueElement = document.getElementById("potValue");
 const statusElement = document.getElementById("wsStatus");
 const historyCanvas = document.getElementById("historyCanvas");
 const timeWindowInput = document.getElementById("timeWindowSec");
+const pauseGraphButton = document.getElementById("pauseGraphButton");
 const graphCaptionElement = document.getElementById("graphCaption");
 
-if (!potValueElement || !statusElement || !historyCanvas || !timeWindowInput || !graphCaptionElement) {
+if (!potValueElement || !statusElement || !historyCanvas || !timeWindowInput || !pauseGraphButton || !graphCaptionElement) {
 	throw new Error("Potentiometer page elements are missing");
 }
 
@@ -17,6 +18,9 @@ if (!historyContext) {
 let socket = null;
 let reconnectTimer = null;
 let historyDurationSec = 60;
+let graphPaused = false;
+let graphTimeOffsetSec = 0;
+let graphPausedAtRealTimeSec = null;
 const storageKeyTimeWindowSec = "potentiometer.timeWindowSec";
 const minVoltage = 0.0;
 const maxVoltage = 3.3;
@@ -70,6 +74,23 @@ function storeTimeWindow(windowSec) {
 	}
 }
 
+function setGraphPaused(paused) {
+	if (paused === graphPaused) {
+		return;
+	}
+
+	const nowSec = Date.now() / 1000;
+	if (paused) {
+		graphPausedAtRealTimeSec = nowSec;
+	} else if (graphPausedAtRealTimeSec !== null) {
+		graphTimeOffsetSec += nowSec - graphPausedAtRealTimeSec;
+		graphPausedAtRealTimeSec = null;
+	}
+
+	graphPaused = paused;
+	pauseGraphButton.textContent = graphPaused ? "Resume graph" : "Pause graph";
+}
+
 function applyTimeWindowFromInput() {
 	historyDurationSec = parseTimeWindowInput();
 	timeWindowInput.value = String(historyDurationSec);
@@ -110,7 +131,12 @@ function pruneHistory(nowSec) {
 
 function drawGraph() {
 	const nowSec = Date.now() / 1000;
-	pruneHistory(nowSec);
+	const pausedElapsedSec = graphPaused && graphPausedAtRealTimeSec !== null ? nowSec - graphPausedAtRealTimeSec : 0;
+	const virtualNowSec = nowSec - graphTimeOffsetSec - pausedElapsedSec;
+
+	if (!graphPaused) {
+		pruneHistory(virtualNowSec);
+	}
 
 	const width = historyCanvas.clientWidth;
 	const height = historyCanvas.clientHeight;
@@ -170,7 +196,7 @@ function drawGraph() {
 
 		for (let i = 0; i < historySamples.length; i += 1) {
 			const sample = historySamples[i];
-			const ageSec = sample.t - nowSec;
+			const ageSec = sample.t - virtualNowSec;
 			const x = padLeft + ((ageSec + historyDurationSec) / historyDurationSec) * graphWidth;
 			const ratio = (sample.v - minVoltage) / (maxVoltage - minVoltage);
 			const y = padTop + graphHeight - ratio * graphHeight;
@@ -216,7 +242,9 @@ function connectSocket() {
 			if (typeof payload.voltage === "number") {
 				const clampedVoltage = clampVoltage(payload.voltage);
 				potValueElement.textContent = clampedVoltage.toFixed(3);
-				historySamples.push({ t: Date.now() / 1000, v: clampedVoltage });
+					if (!graphPaused) {
+						historySamples.push({ t: Date.now() / 1000 - graphTimeOffsetSec, v: clampedVoltage });
+					}
 			}
 		} catch (error) {
 			setStatus("Invalid data received", true);
@@ -237,6 +265,9 @@ function connectSocket() {
 window.addEventListener("resize", resizeHistoryCanvas);
 timeWindowInput.addEventListener("change", applyTimeWindowFromInput);
 timeWindowInput.addEventListener("blur", applyTimeWindowFromInput);
+pauseGraphButton.addEventListener("click", function () {
+	setGraphPaused(!graphPaused);
+});
 timeWindowInput.value = String(readStoredTimeWindow());
 applyTimeWindowFromInput();
 resizeHistoryCanvas();
