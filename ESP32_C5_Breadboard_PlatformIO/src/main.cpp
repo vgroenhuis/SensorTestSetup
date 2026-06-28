@@ -13,6 +13,7 @@
 #include "serialComms.h"
 #include "oled.h"
 #include "pressureSensor.h"
+#include "tofSensor.h"
 
 RoamingWiFiManager manager;
 
@@ -24,23 +25,27 @@ void initFileSystem() {
 
 void setup() {
     Serial.begin(115200);
+    Serial.println("Setup started");
     SPI.begin(7,0,8);
-    //Wire.begin();
     Wire.begin(2,3); // SDA pin 2, SCL pin 3
+    Wire.setClock(400000);
     
     loadSerialSettingsFromNvs();
     initFileSystem();
     gpioExpandersSetup();
     initPressureSensor();
     initOledDisplay();
+    initTofSensor();
     manager.init(knownNetworks, adminCredentials, aliasUrl);
     initServer(manager);
+    Serial.println("Setup finished");
 }
 
 void loop() {
     manager.loop();
     serverApiLoop();
     serialManagerLoop();
+    tofSensorLoop();
 
     if (manager.isConnected() && !isIpDisplayed()) {
         displayIp(manager.getConnectedIp());

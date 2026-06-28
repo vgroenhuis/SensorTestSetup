@@ -9,16 +9,19 @@
 
 namespace {
     AsyncWebSocket potentiometerWebSocket("/ws/potentiometer");
+    AsyncWebSocket mhSensorWebSocket("/ws/mhSensor");
     AsyncWebSocket mcp3008WebSocket("/ws/mcp3008");
     AsyncWebSocket mcp23017InputsWebSocket("/ws/mcp23017inputs");
     AsyncWebSocket rotaryEncoderWebSocket("/ws/rotaryEncoder");
     AsyncWebSocket pressureSensorsWebSocket("/ws/pressureSensors");
     unsigned long lastPotentiometerPublishMs = 0;
+    unsigned long lastMhSensorPublishMs = 0;
     unsigned long lastMcp3008PublishMs = 0;
     unsigned long lastMcp23017InputsPublishMs = 0;
     unsigned long lastRotaryEncoderPublishMs = 0;
     unsigned long lastPressureSensorsPublishMs = 0;
     const unsigned long potentiometerPublishIntervalMs = 50;
+    const unsigned long mhSensorPublishIntervalMs = 50;
     const unsigned long mcp3008PublishIntervalMs = 50;
     const unsigned long mcp23017InputsPublishIntervalMs = 50;
     const unsigned long rotaryEncoderPublishIntervalMs = 50;
@@ -55,6 +58,10 @@ namespace {
 
     String potentiometerJson() {
         return String("{\"millis\":") + millis() + ",\"voltage\":" + String(readAdcAnalogVolt(POTMETER_ADC_PIN), 3) + "}";
+    }
+
+    String mhSensorJson() {
+        return String("{\"millis\":") + millis() + ",\"voltage\":" + String(readAdcAnalogVolt(6), 3) + "}";
     }
 
     String rotaryEncoderJson() {
@@ -138,6 +145,22 @@ namespace {
 
         if (type == WS_EVT_CONNECT) {
             client->text(rotaryEncoderJson());
+        }
+    }
+
+    void onMhSensorWebSocketEvent(AsyncWebSocket *server,
+                                  AsyncWebSocketClient *client,
+                                  AwsEventType type,
+                                  void *arg,
+                                  uint8_t *data,
+                                  size_t len) {
+        (void)server;
+        (void)arg;
+        (void)data;
+        (void)len;
+
+        if (type == WS_EVT_CONNECT) {
+            client->text(mhSensorJson());
         }
     }
 
@@ -414,6 +437,8 @@ void initServer(RoamingWiFiManager& manager) {
 
     potentiometerWebSocket.onEvent(onPotentiometerWebSocketEvent);
     manager.server.addHandler(&potentiometerWebSocket);
+    mhSensorWebSocket.onEvent(onMhSensorWebSocketEvent);
+    manager.server.addHandler(&mhSensorWebSocket);
     mcp3008WebSocket.onEvent(onMcp3008WebSocketEvent);
     manager.server.addHandler(&mcp3008WebSocket);
     mcp23017InputsWebSocket.onEvent(onMcp23017InputsWebSocketEvent);
@@ -460,6 +485,20 @@ void initServer(RoamingWiFiManager& manager) {
             request->send(LittleFS, "/potentiometer.ts", "application/javascript");
         } else {
             request->send(404, "text/plain", "potentiometer.ts not found");
+        }
+    });
+    manager.server.on("/mhSensor", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        if (LittleFS.exists("/mhSensor.html")) {
+            request->send(LittleFS, "/mhSensor.html", "text/html");
+        } else {
+            request->send(404, "text/plain", "mhSensor.html not found");
+        }
+    });
+    manager.server.on("/mhSensor.ts", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        if (LittleFS.exists("/mhSensor.ts")) {
+            request->send(LittleFS, "/mhSensor.ts", "application/javascript");
+        } else {
+            request->send(404, "text/plain", "mhSensor.ts not found");
         }
     });
     manager.server.on("/mcp3008", HTTP_GET, [] (AsyncWebServerRequest *request) {
@@ -683,6 +722,7 @@ void initServer(RoamingWiFiManager& manager) {
 
 void serverApiLoop() {
     potentiometerWebSocket.cleanupClients();
+    mhSensorWebSocket.cleanupClients();
     mcp3008WebSocket.cleanupClients();
     mcp23017InputsWebSocket.cleanupClients();
     rotaryEncoderWebSocket.cleanupClients();
@@ -697,6 +737,13 @@ void serverApiLoop() {
         lastPotentiometerPublishMs = now;
         if (potentiometerWebSocket.count() > 0) {
             potentiometerWebSocket.textAll(potentiometerJson());
+        }
+    }
+
+    if (now - lastMhSensorPublishMs >= mhSensorPublishIntervalMs) {
+        lastMhSensorPublishMs = now;
+        if (mhSensorWebSocket.count() > 0) {
+            mhSensorWebSocket.textAll(mhSensorJson());
         }
     }
 
