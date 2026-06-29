@@ -1,11 +1,20 @@
 /*
+ * [1] VL53L7CX brief datasheet: https://www.st.com/resource/en/datasheet/vl53l7cx.pdf
+ * [2] VL53L7CX communication datasheet: https://www.st.com/resource/en/user_manual/um3038-a-guide-to-using-the-vl53l7cx-timeofflight-multizone-ranging-sensor-with-90-fov-stmicroelectronics.pdf
+ * [3] Breakout board datasheet: https://www.mouser.lt/datasheet/2/389/satel_vl53l7cx-3073828.pdf
+ * 60° x 60° square FOV
+ * 4x4 (max 60 Hz) or 8x8 (max 15 Hz) grid
+ * Ranging distance: up to 3500 mm in dark, around 500 mm outdoors in shadow (a bit less for 8x8 and in corner), accuracy +/- 10 mm
+ * Continuous ranging is recommended.
+ * Target status: 5 and 9 are valid. Rest can be discarded. See 5.5 Results interpretation [3].
+ * 
  * Connection
  * INT
- * I2C_RST --> GND
+ * I2C_RST --> GND (leave unconnected, is pulled up down with 47K to GND)
  * SDA --> SDA
  * SCL --> SCL
- * LPn
- * PWREN
+ * LPn (leave unconnected, is pulled up high with 47K)
+ * PWREN (connect to 3.3V, there is no 47K pullup resistor soldered on R3 by default)
  * AVDD --> 5V (or 3.3V but then solder SB1)
  * DVDD --> 3.3V
  * GND --> GND
@@ -73,8 +82,8 @@
 #define DEV_I2C Wire
 #define SerialPort Serial
 
-#define LPN_PIN 9
-#define I2C_RST_PIN 5
+#define LPN_PIN -1
+#define I2C_RST_PIN -1
 
 void print_result(VL53L7CX_ResultsData *Result);
 void clear_screen(void);
@@ -123,12 +132,13 @@ void initTofSensor()
 
   //Serial.println("ToF sensor initializing");
   
-  pinMode(I2C_RST_PIN, OUTPUT);
-  digitalWrite(I2C_RST_PIN, LOW);
-  pinMode(LPN_PIN, OUTPUT);
-  digitalWrite(LPN_PIN, LOW); // LOW: comms disabled, HIGH: comms enabled
+  //pinMode(I2C_RST_PIN, OUTPUT);
+  //digitalWrite(I2C_RST_PIN, LOW);
+  //pinMode(LPN_PIN, OUTPUT);
+  //digitalWrite(LPN_PIN, LOW); // LOW: comms disabled, HIGH: comms enabled
 
   // Test the I2C bus by sending random data to a dummy address (e.g., 0x55)
+  /*
   if (0) {
     for (int j=0;j<10;j++) {
       DEV_I2C.beginTransmission(0x55);
@@ -139,17 +149,17 @@ void initTofSensor()
       SerialPort.printf("I2C test write to 0x55, error code: %d\n", error);
       delay(1000);
     }
-  }
+  }*/
 
   //SerialPort.println("I2C started\n");
   
 
   // Configure VL53L7CX component.
   sensor_vl53l7cx_top.begin();
-  SerialPort.println("ToF sensor initializing...\n");
+  SerialPort.println("Initializing Time-of-Flight sensor");
 
   sensor_vl53l7cx_top.init_sensor();
-  SerialPort.println("ToF sensor initialized\n");
+  //SerialPort.println("ToF sensor initialized");
 
   //return;
 
@@ -158,12 +168,29 @@ void initTofSensor()
 
   // Start Measurements
   sensor_vl53l7cx_top.vl53l7cx_start_ranging();
-  SerialPort.println("ToF sensor start ranging\n");
+  //SerialPort.println("ToF sensor start ranging");
 }
 
+VL53L7CX_ResultsData getToFData() {
+  VL53L7CX_ResultsData tofResults;
+  uint8_t NewDataReady = 0;
+  uint8_t status;
 
+  do {
+    status = sensor_vl53l7cx_top.vl53l7cx_check_data_ready(&NewDataReady);
+  } while (!NewDataReady);
 
-void tofSensorLoop()
+  if ((status == VL53L7CX_STATUS_OK) && (NewDataReady)) {
+    status = sensor_vl53l7cx_top.vl53l7cx_get_ranging_data(&tofResults);
+  }
+  if (status != VL53L7CX_STATUS_OK) {
+    Serial.printf("getToFData: invalid status: %d\n", status);
+  }
+
+  return tofResults;
+}
+
+void tofSensorLoopPrintSerial()
 {
   static int counter = 0;
   static unsigned long lastTime = 0;
@@ -234,9 +261,9 @@ void print_result(VL53L7CX_ResultsData *Result)
 
   //SerialPort.print("\n\n");
 
-  for (j = 0; j < number_of_zones; j += zones_per_line)
+  for (j = 0; j < number_of_zones; j += zones_per_line) // normally 16 zones (4 zones per line)
   {
-    for (i = 0; i < zones_per_line; i++) 
+    //for (i = 0; i < zones_per_line; i++) 
       //SerialPort.print(" -----------------");
     //SerialPort.print("\n");
     
@@ -244,7 +271,7 @@ void print_result(VL53L7CX_ResultsData *Result)
     //  SerialPort.print("|                 ");
     //SerialPort.print("|\n");
   
-    for (l = 0; l < VL53L7CX_NB_TARGET_PER_ZONE; l++)
+    for (l = 0; l < VL53L7CX_NB_TARGET_PER_ZONE; l++) // normally one target per zone
     {
       // Print distance and status 
       for (k = (zones_per_line - 1); k >= 0; k--)

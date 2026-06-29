@@ -261,6 +261,155 @@ button.btn {
     margin-left: 4px;
 }
 
+/* Time-of-Flight sensor page */
+.tof-page-container {
+    max-width: 840px;
+}
+
+.tof-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin: 10px 0 8px 0;
+}
+
+.tof-summary-card {
+    background: #ffffff;
+    border: 1px solid #d8dcef;
+    border-radius: 8px;
+    padding: 8px 10px;
+}
+
+.tof-summary-label {
+    display: block;
+    font-size: 12px;
+    color: #5f6274;
+    margin-bottom: 4px;
+}
+
+.tof-summary-value {
+    display: block;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1f2d6b;
+    font-variant-numeric: tabular-nums;
+}
+
+.tof-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    margin: 10px 0 8px 0;
+}
+
+.tof-tile {
+    background: #ffffff;
+    border: 1px solid #d8dcef;
+    border-left-width: 5px;
+    border-radius: 10px;
+    padding: 14px 10px;
+    min-height: 84px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.tof-tile.valid {
+    border-left-color: #1f8a70;
+    background: #cfeedd;
+}
+
+.tof-tile.invalid {
+    border-left-color: #d1495b;
+    background: #fdecef;
+}
+
+.tof-tile.masked-invalid {
+    border-left-color: #8b93a9;
+    background: #edf1f5;
+}
+
+.tof-tile.empty {
+    border-left-color: #b2b8c8;
+    background: #f8f9fc;
+}
+
+.tof-distance {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    justify-content: center;
+}
+
+.tof-distance-number {
+    font-size: 24px;
+    line-height: 1;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: #1f2d6b;
+}
+
+.tof-status-code {
+    margin-bottom: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    color: #5f6274;
+    font-variant-numeric: tabular-nums;
+}
+
+.tof-distance-unit {
+    font-size: 12px;
+    color: #5f6274;
+}
+
+@media (max-width: 760px) {
+    .tof-page-container {
+        padding: 16px;
+    }
+
+    .tof-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .tof-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 6px;
+    }
+
+    .tof-tile {
+        min-height: 64px;
+        padding: 10px 4px;
+        border-left-width: 4px;
+    }
+
+    .tof-distance-number {
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 420px) {
+    .tof-page-container {
+        padding: 12px;
+    }
+
+    .tof-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 4px;
+    }
+
+    .tof-tile {
+        min-height: 52px;
+        padding: 8px 2px;
+        border-left-width: 3px;
+    }
+
+    .tof-distance-number {
+        font-size: 14px;
+    }
+}
+
 /* MCP23017 inputs page */
 .digital-value-panel {
     margin: 10px 0 8px 0;

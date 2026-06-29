@@ -58,6 +58,7 @@ namespace {
 }
 
 void initPressureSensor() {
+    Serial.println("Initializing pressure sensor");
     loadPressureOffsetsFromNvs();
 
     if(!pressureSensorMultiplexer.begin()) {

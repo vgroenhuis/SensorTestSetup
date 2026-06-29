@@ -5,6 +5,7 @@ bool serialOutputEnabled = false;
 bool includePotentiometerValue = true;
 
 void loadSerialSettingsFromNvs() {
+    Serial.println("Loading settings from NVS");
     Preferences preferences;
     if (!preferences.begin(SERIAL_SETTINGS_NAMESPACE, true)) {
         Serial.println("NVS open failed for reading serial settings");

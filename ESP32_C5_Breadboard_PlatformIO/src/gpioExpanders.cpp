@@ -64,6 +64,7 @@ int getEncoderPos() {
 }
 
 void gpioExpandersSetup() {
+    Serial.println("Setting up GPIO expanders");
     // Wire already has been initialized at this point
     pinMode(motorIn1Pin, OUTPUT); // L298N 1
     pinMode(motorIn2Pin, OUTPUT); // L298N 2

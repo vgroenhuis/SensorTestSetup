@@ -6,6 +6,7 @@
 #include "websiteRoot.h"
 #include "gpioExpanders.h"
 #include "pressureSensor.h"
+#include "tofSensor.h"
 
 namespace {
     AsyncWebSocket potentiometerWebSocket("/ws/potentiometer");
@@ -14,18 +15,21 @@ namespace {
     AsyncWebSocket mcp23017InputsWebSocket("/ws/mcp23017inputs");
     AsyncWebSocket rotaryEncoderWebSocket("/ws/rotaryEncoder");
     AsyncWebSocket pressureSensorsWebSocket("/ws/pressureSensors");
+    AsyncWebSocket tofSensorWebSocket("/ws/tofSensor");
     unsigned long lastPotentiometerPublishMs = 0;
     unsigned long lastMhSensorPublishMs = 0;
     unsigned long lastMcp3008PublishMs = 0;
     unsigned long lastMcp23017InputsPublishMs = 0;
     unsigned long lastRotaryEncoderPublishMs = 0;
     unsigned long lastPressureSensorsPublishMs = 0;
+    unsigned long lastTofSensorPublishMs = 0;
     const unsigned long potentiometerPublishIntervalMs = 50;
     const unsigned long mhSensorPublishIntervalMs = 50;
     const unsigned long mcp3008PublishIntervalMs = 50;
     const unsigned long mcp23017InputsPublishIntervalMs = 50;
     const unsigned long rotaryEncoderPublishIntervalMs = 50;
     const unsigned long pressureSensorsPublishIntervalMs = 50;
+    const unsigned long tofSensorPublishIntervalMs = 50;
 
     enum class MotorMode {
         Direct,
@@ -112,6 +116,45 @@ namespace {
                 json += String(values[i], 3);
             }
         }
+        json += "]}";
+        return json;
+    }
+
+    bool tofStatusIsValid(uint8_t status) {
+        return status == 5 || status == 9;
+    }
+
+    String tofSensorJson() {
+        constexpr uint8_t tofZonesPerLine = 4;
+        constexpr uint8_t tofZoneCount = 16;
+
+        const VL53L7CX_ResultsData results = getToFData();
+        String json = String("{\"millis\":") + millis() +
+                      ",\"resolution\":\"4x4\"" +
+                      ",\"gridSide\":4" +
+                      ",\"zones\":[";
+
+        for (uint8_t zone = 0; zone < tofZoneCount; ++zone) {
+            if (zone > 0) {
+                json += ",";
+            }
+
+            const uint8_t targetIndex = zone * VL53L7CX_NB_TARGET_PER_ZONE;
+            const uint8_t targetCount = results.nb_target_detected[zone];
+            const bool hasTarget = targetCount > 0;
+            const uint8_t status = hasTarget ? results.target_status[targetIndex] : 0;
+            const bool valid = hasTarget && tofStatusIsValid(status);
+
+            json += String("{\"index\":") + zone +
+                    ",\"row\":" + (zone / tofZonesPerLine) +
+                    ",\"col\":" + (zone % tofZonesPerLine) +
+                    ",\"targetCount\":" + targetCount +
+                    ",\"status\":" + status +
+                    ",\"valid\":" + (valid ? "true" : "false") +
+                    ",\"distanceMm\":" + (hasTarget ? String((long)results.distance_mm[targetIndex]) : String("null")) +
+                    "}";
+        }
+
         json += "]}";
         return json;
     }
@@ -209,6 +252,22 @@ namespace {
 
         if (type == WS_EVT_CONNECT) {
             client->text(pressureSensorsJson());
+        }
+    }
+
+    void onTofSensorWebSocketEvent(AsyncWebSocket *server,
+                                   AsyncWebSocketClient *client,
+                                   AwsEventType type,
+                                   void *arg,
+                                   uint8_t *data,
+                                   size_t len) {
+        (void)server;
+        (void)arg;
+        (void)data;
+        (void)len;
+
+        if (type == WS_EVT_CONNECT) {
+            client->text(tofSensorJson());
         }
     }
 
@@ -447,6 +506,8 @@ void initServer(RoamingWiFiManager& manager) {
     manager.server.addHandler(&rotaryEncoderWebSocket);
     pressureSensorsWebSocket.onEvent(onPressureSensorsWebSocketEvent);
     manager.server.addHandler(&pressureSensorsWebSocket);
+    tofSensorWebSocket.onEvent(onTofSensorWebSocketEvent);
+    manager.server.addHandler(&tofSensorWebSocket);
 
     manager.server.on("/", [] (AsyncWebServerRequest *request) {
         handleRoot(request);
@@ -521,6 +582,23 @@ void initServer(RoamingWiFiManager& manager) {
         } else {
             request->send(404, "text/plain", "pressureSensors.ts not found");
         }
+    });
+    manager.server.on("/tofSensor", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        if (LittleFS.exists("/tofSensor.html")) {
+            request->send(LittleFS, "/tofSensor.html", "text/html");
+        } else {
+            request->send(404, "text/plain", "tofSensor.html not found");
+        }
+    });
+    manager.server.on("/tofSensor.ts", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        if (LittleFS.exists("/tofSensor.ts")) {
+            request->send(LittleFS, "/tofSensor.ts", "application/javascript");
+        } else {
+            request->send(404, "text/plain", "tofSensor.ts not found");
+        }
+    });
+    manager.server.on("/api/tofSensor", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        request->send(200, "application/json", tofSensorJson());
     });
     manager.server.on("/mcp3008.ts", HTTP_GET, [] (AsyncWebServerRequest *request) {
         if (LittleFS.exists("/mcp3008.ts")) {
@@ -727,6 +805,7 @@ void serverApiLoop() {
     mcp23017InputsWebSocket.cleanupClients();
     rotaryEncoderWebSocket.cleanupClients();
     pressureSensorsWebSocket.cleanupClients();
+    tofSensorWebSocket.cleanupClients();
 
     if (motorMode == MotorMode::Potentiometer) {
         applyMotorOutputs();
@@ -772,6 +851,13 @@ void serverApiLoop() {
         lastPressureSensorsPublishMs = now;
         if (pressureSensorsWebSocket.count() > 0) {
             pressureSensorsWebSocket.textAll(pressureSensorsJson());
+        }
+    }
+
+    if (now - lastTofSensorPublishMs >= tofSensorPublishIntervalMs) {
+        lastTofSensorPublishMs = now;
+        if (tofSensorWebSocket.count() > 0) {
+            tofSensorWebSocket.textAll(tofSensorJson());
         }
     }
 }

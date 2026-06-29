@@ -33,6 +33,7 @@ void displayIp(String ip) {
 }
 
 void initOledDisplay() {
+    Serial.println("Initializing OLED display");
     pinMode(OLED_CS, OUTPUT);
     digitalWrite(OLED_CS, HIGH);
 

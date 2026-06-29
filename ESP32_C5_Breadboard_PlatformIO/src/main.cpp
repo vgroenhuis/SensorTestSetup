@@ -45,7 +45,7 @@ void loop() {
     manager.loop();
     serverApiLoop();
     serialManagerLoop();
-    tofSensorLoop();
+    //tofSensorLoopPrintSerial();
 
     if (manager.isConnected() && !isIpDisplayed()) {
         displayIp(manager.getConnectedIp());

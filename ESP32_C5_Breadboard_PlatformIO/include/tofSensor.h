@@ -1,5 +1,8 @@
 #pragma once
+#include "vl53l7cx_api.h"
 
 void initTofSensor();
 
-void tofSensorLoop();
+VL53L7CX_ResultsData getToFData();
+
+void tofSensorLoopPrintSerial();

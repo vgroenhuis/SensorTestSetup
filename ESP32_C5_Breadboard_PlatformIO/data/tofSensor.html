@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>VL53L7CX ToF Sensor</title>
+		<link rel="stylesheet" href="/stylesheet.css">
+	</head>
+	<body>
+		<div class="container tof-page-container">
+			<h1>VL53L7CX Time-of-Flight Sensor</h1>
+			<div class="card">
+				<p>Live 4x4 distance map from the VL53L7CX. Tiles are highlighted when target status is valid (5 or 9).</p>
+				<div class="graph-controls">
+					<label for="tofThresholdMm">Distance threshold (mm)</label>
+					<input id="tofThresholdMm" class="time-window-input" type="text" value="3500" inputmode="numeric" aria-label="Distance threshold in millimeters">
+				</div>
+				<label class="setting-row tof-setting-row">
+					<input id="tofShowStatusCode" type="checkbox">
+					<span>Show status code in cells</span>
+				</label>
+				<label class="setting-row tof-setting-row">
+					<input id="tofHideInvalidDistance" type="checkbox">
+					<span>Hide distance if status is invalid</span>
+				</label>
+				<div class="graph-actions">
+					<button id="pauseTofButton" class="btn" type="button">Pause map</button>
+				</div>
+				<div class="tof-summary-grid" aria-live="polite">
+					<div class="tof-summary-card">
+						<span class="tof-summary-label">Resolution</span>
+						<span id="tofResolutionValue" class="tof-summary-value">--</span>
+					</div>
+					<div class="tof-summary-card">
+						<span class="tof-summary-label">Valid zones</span>
+						<span id="tofValidZonesValue" class="tof-summary-value">--</span>
+					</div>
+					<div class="tof-summary-card">
+						<span class="tof-summary-label">Last update</span>
+						<span id="tofLastUpdateValue" class="tof-summary-value">--</span>
+					</div>
+				</div>
+				<div id="tofGrid" class="tof-grid" aria-live="polite"></div>
+				<div id="tofStatus" class="status">Connecting...</div>
+				<a href="/" class="btn">Back to control panel</a>
+			</div>
+		</div>
+		<script type="module" src="/tofSensor.ts"></script>
+	</body>
+</html>
