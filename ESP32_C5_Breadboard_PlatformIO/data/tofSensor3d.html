@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>VL53L7CX ToF Sensor 3D</title>
+		<link rel="stylesheet" href="/stylesheet.css">
+	</head>
+	<body>
+		<div class="container tof-page-container">
+			<h1>VL53L7CX Time-of-Flight Sensor 3D</h1>
+			<div class="card">
+				<p>3D surface reconstruction from the live VL53L7CX 4x4 grid.</p>
+				<div class="graph-controls">
+					<label for="tof3dThresholdMm">Distance threshold (mm)</label>
+					<input id="tof3dThresholdMm" class="time-window-input" type="text" value="3500" inputmode="numeric" aria-label="Distance threshold in millimeters">
+				</div>
+				<label class="setting-row tof-setting-row">
+					<input id="tof3dHideInvalidDistance" type="checkbox">
+					<span>Hide distance if status is invalid</span>
+				</label>
+				<label class="setting-row tof-setting-row">
+					<input id="tof3dUseOrthographic" type="checkbox">
+					<span>Use orthographic projection</span>
+				</label>
+				<div id="tof3dCanvasWrap" class="tof-3d-canvas-wrap">
+					<canvas id="tof3dCanvas" class="tof-3d-canvas" aria-label="3D ToF surface view"></canvas>
+				</div>
+				<div class="tof-3d-hint">Drag to orbit, wheel/pinch to zoom. Floor is at sensor base level; sensor looks upward with 60 degree x 60 degree field of view.</div>
+				<div id="tof3dStatus" class="status">Connecting...</div>
+				<a href="/tofSensor" class="btn">Open 2D map</a>
+				<a href="/" class="btn">Back to control panel</a>
+			</div>
+		</div>
+		<script type="module" src="/tofSensor3d.ts"></script>
+	</body>
+</html>

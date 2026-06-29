@@ -597,6 +597,20 @@ void initServer(RoamingWiFiManager& manager) {
             request->send(404, "text/plain", "tofSensor.ts not found");
         }
     });
+    manager.server.on("/tofSensor3d", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        if (LittleFS.exists("/tofSensor3d.html")) {
+            request->send(LittleFS, "/tofSensor3d.html", "text/html");
+        } else {
+            request->send(404, "text/plain", "tofSensor3d.html not found");
+        }
+    });
+    manager.server.on("/tofSensor3d.ts", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        if (LittleFS.exists("/tofSensor3d.ts")) {
+            request->send(LittleFS, "/tofSensor3d.ts", "application/javascript");
+        } else {
+            request->send(404, "text/plain", "tofSensor3d.ts not found");
+        }
+    });
     manager.server.on("/api/tofSensor", HTTP_GET, [] (AsyncWebServerRequest *request) {
         request->send(200, "application/json", tofSensorJson());
     });
