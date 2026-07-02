@@ -7,9 +7,12 @@
 #include "gpioExpanders.h"
 #include "pressureSensor.h"
 #include "tofSensor.h"
+#include "globalVars.h"
+#include <array>
 
 namespace {
     AsyncWebSocket potentiometerWebSocket("/ws/potentiometer");
+    AsyncWebSocket statisticsWebSocket("/ws/statistics");
     AsyncWebSocket mhSensorWebSocket("/ws/mhSensor");
     AsyncWebSocket mcp3008WebSocket("/ws/mcp3008");
     AsyncWebSocket mcp23017InputsWebSocket("/ws/mcp23017inputs");
@@ -17,6 +20,7 @@ namespace {
     AsyncWebSocket pressureSensorsWebSocket("/ws/pressureSensors");
     AsyncWebSocket tofSensorWebSocket("/ws/tofSensor");
     unsigned long lastPotentiometerPublishMs = 0;
+    unsigned long lastStatisticsPublishMs = 0;
     unsigned long lastMhSensorPublishMs = 0;
     unsigned long lastMcp3008PublishMs = 0;
     unsigned long lastMcp23017InputsPublishMs = 0;
@@ -24,6 +28,7 @@ namespace {
     unsigned long lastPressureSensorsPublishMs = 0;
     unsigned long lastTofSensorPublishMs = 0;
     const unsigned long potentiometerPublishIntervalMs = 50;
+    const unsigned long statisticsPublishIntervalMs = 50;
     const unsigned long mhSensorPublishIntervalMs = 50;
     const unsigned long mcp3008PublishIntervalMs = 50;
     const unsigned long mcp23017InputsPublishIntervalMs = 50;
@@ -62,6 +67,10 @@ namespace {
 
     String potentiometerJson() {
         return String("{\"millis\":") + millis() + ",\"voltage\":" + String(readAdcAnalogVolt(POTMETER_ADC_PIN), 3) + "}";
+    }
+
+    String statisticsJson() {
+        return String("{\"millis\":") + millis() + ",\"mainLoopFps\":" + String(mainLoopFps, 2) + "}";
     }
 
     String mhSensorJson() {
@@ -124,14 +133,32 @@ namespace {
         return status == 5 || status == 9;
     }
 
-    String tofSensorJson() {
-        constexpr uint8_t tofZonesPerLine = 4;
-        constexpr uint8_t tofZoneCount = 16;
+    bool parseTofMode(const String &value, uint8_t &outResolution) {
+        if (value == "4x4") {
+            outResolution = VL53L7CX_RESOLUTION_4X4;
+            return true;
+        }
+        if (value == "8x8") {
+            outResolution = VL53L7CX_RESOLUTION_8X8;
+            return true;
+        }
+        return false;
+    }
 
-        const VL53L7CX_ResultsData results = getToFData();
+    String tofModeToString(uint8_t resolution) {
+        return resolution == VL53L7CX_RESOLUTION_8X8 ? "8x8" : "4x4";
+    }
+
+    String tofSensorJson() {
+        const uint8_t tofZonesPerLine = getTofGridSide();
+        const uint8_t tofZoneCount = getTofZoneCount();
+
+        VL53L7CX_ResultsData results;
+        const TofServerSettings settings = getTofServerSettings();
+        const bool hasData = getLatestTofDataForPublish(results);
         String json = String("{\"millis\":") + millis() +
-                      ",\"resolution\":\"4x4\"" +
-                      ",\"gridSide\":4" +
+                      ",\"resolution\":\"" + tofModeToString(settings.resolution) + "\"" +
+                      ",\"gridSide\":" + tofZonesPerLine +
                       ",\"zones\":[";
 
         for (uint8_t zone = 0; zone < tofZoneCount; ++zone) {
@@ -140,9 +167,9 @@ namespace {
             }
 
             const uint8_t targetIndex = zone * VL53L7CX_NB_TARGET_PER_ZONE;
-            const uint8_t targetCount = results.nb_target_detected[zone];
+            const uint8_t targetCount = hasData ? results.nb_target_detected[zone] : 0;
             const bool hasTarget = targetCount > 0;
-            const uint8_t status = hasTarget ? results.target_status[targetIndex] : 0;
+            const uint8_t status = hasData ? results.target_status[targetIndex] : 0;
             const bool valid = hasTarget && tofStatusIsValid(status);
 
             json += String("{\"index\":") + zone +
@@ -188,6 +215,22 @@ namespace {
 
         if (type == WS_EVT_CONNECT) {
             client->text(rotaryEncoderJson());
+        }
+    }
+
+    void onStatisticsWebSocketEvent(AsyncWebSocket *server,
+                                    AsyncWebSocketClient *client,
+                                    AwsEventType type,
+                                    void *arg,
+                                    uint8_t *data,
+                                    size_t len) {
+        (void)server;
+        (void)arg;
+        (void)data;
+        (void)len;
+
+        if (type == WS_EVT_CONNECT) {
+            client->text(statisticsJson());
         }
     }
 
@@ -417,10 +460,24 @@ namespace {
                "\",\"forwardSense\":\"" + forwardSenseToString(forwardSense) + "\"}";
     }
 
+    bool saveMotorSettingsToNvs() {
+        Preferences preferences;
+        if (!preferences.begin(MOTOR_SETTINGS_NAMESPACE, false)) {
+            Serial.println("NVS open failed for writing motor settings");
+            return false;
+        }
+
+        bool okMode = preferences.putString(KEY_MOTOR_MODE, motorModeToString(motorMode)) > 0;
+        bool okSense = preferences.putString(KEY_FORWARD_SENSE, forwardSenseToString(forwardSense)) > 0;
+        preferences.end();
+        return okMode && okSense;
+    }
+
     void loadMotorSettingsFromNvs() {
         Preferences preferences;
         if (!preferences.begin(MOTOR_SETTINGS_NAMESPACE, true)) {
             Serial.println("NVS open failed for reading motor settings");
+            saveMotorSettingsToNvs();
             return;
         }
 
@@ -437,19 +494,6 @@ namespace {
         }
 
         preferences.end();
-    }
-
-    bool saveMotorSettingsToNvs() {
-        Preferences preferences;
-        if (!preferences.begin(MOTOR_SETTINGS_NAMESPACE, false)) {
-            Serial.println("NVS open failed for writing motor settings");
-            return false;
-        }
-
-        bool okMode = preferences.putString(KEY_MOTOR_MODE, motorModeToString(motorMode)) > 0;
-        bool okSense = preferences.putString(KEY_FORWARD_SENSE, forwardSenseToString(forwardSense)) > 0;
-        preferences.end();
-        return okMode && okSense;
     }
 }
 
@@ -490,12 +534,21 @@ String serialSettingsJson() {
            ",\"includePotentiometerValue\":" + (includePotentiometerValue ? "true" : "false") + "}";
 }
 
+String tofServerSettingsJson() {
+    const TofServerSettings settings = getTofServerSettings();
+    return String("{\"outlierEnabled\":") + (settings.outlierEnabled ? "true" : "false") +
+           ",\"outlierThresholdMm\":" + settings.outlierThresholdMm +
+           ",\"mode\":\"" + tofModeToString(settings.resolution) + "\"}";
+}
+
 void initServer(RoamingWiFiManager& manager) {
     loadMotorSettingsFromNvs();
     applyMotorOutputs();
 
     potentiometerWebSocket.onEvent(onPotentiometerWebSocketEvent);
     manager.server.addHandler(&potentiometerWebSocket);
+    statisticsWebSocket.onEvent(onStatisticsWebSocketEvent);
+    manager.server.addHandler(&statisticsWebSocket);
     mhSensorWebSocket.onEvent(onMhSensorWebSocketEvent);
     manager.server.addHandler(&mhSensorWebSocket);
     mcp3008WebSocket.onEvent(onMcp3008WebSocketEvent);
@@ -548,6 +601,23 @@ void initServer(RoamingWiFiManager& manager) {
             request->send(404, "text/plain", "potentiometer.ts not found");
         }
     });
+    manager.server.on("/statistics", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        if (LittleFS.exists("/statistics.html")) {
+            request->send(LittleFS, "/statistics.html", "text/html");
+        } else {
+            request->send(404, "text/plain", "statistics.html not found");
+        }
+    });
+    manager.server.on("/statistics.ts", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        if (LittleFS.exists("/statistics.ts")) {
+            request->send(LittleFS, "/statistics.ts", "application/javascript");
+        } else {
+            request->send(404, "text/plain", "statistics.ts not found");
+        }
+    });
+    manager.server.on("/api/statistics", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        request->send(200, "application/json", statisticsJson());
+    });
     manager.server.on("/mhSensor", HTTP_GET, [] (AsyncWebServerRequest *request) {
         if (LittleFS.exists("/mhSensor.html")) {
             request->send(LittleFS, "/mhSensor.html", "text/html");
@@ -597,13 +667,6 @@ void initServer(RoamingWiFiManager& manager) {
             request->send(404, "text/plain", "tofSensor.ts not found");
         }
     });
-    manager.server.on("/tofSensor3d", HTTP_GET, [] (AsyncWebServerRequest *request) {
-        if (LittleFS.exists("/tofSensor3d.html")) {
-            request->send(LittleFS, "/tofSensor3d.html", "text/html");
-        } else {
-            request->send(404, "text/plain", "tofSensor3d.html not found");
-        }
-    });
     manager.server.on("/tofSensor3d.ts", HTTP_GET, [] (AsyncWebServerRequest *request) {
         if (LittleFS.exists("/tofSensor3d.ts")) {
             request->send(LittleFS, "/tofSensor3d.ts", "application/javascript");
@@ -611,8 +674,79 @@ void initServer(RoamingWiFiManager& manager) {
             request->send(404, "text/plain", "tofSensor3d.ts not found");
         }
     });
+    manager.server.on("/tofServerSettings.ts", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        if (LittleFS.exists("/tofServerSettings.ts")) {
+            request->send(LittleFS, "/tofServerSettings.ts", "application/javascript");
+        } else {
+            request->send(404, "text/plain", "tofServerSettings.ts not found");
+        }
+    });
     manager.server.on("/api/tofSensor", HTTP_GET, [] (AsyncWebServerRequest *request) {
         request->send(200, "application/json", tofSensorJson());
+    });
+    manager.server.on("/api/tofServerSettings", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        request->send(200, "application/json", tofServerSettingsJson());
+    });
+    manager.server.on("/api/tofServerSettings", HTTP_POST, [] (AsyncWebServerRequest *request) {
+        bool hasAnyUpdate = false;
+
+        if (request->hasParam("outlierThresholdMm", true)) {
+            String value = request->getParam("outlierThresholdMm", true)->value();
+            for (size_t i = 0; i < value.length(); ++i) {
+                if (!isDigit(value[i])) {
+                    request->send(400, "application/json", "{\"error\":\"invalid outlierThresholdMm\"}");
+                    return;
+                }
+            }
+
+            const int parsedThreshold = value.toInt();
+            if (parsedThreshold <= 0) {
+                request->send(400, "application/json", "{\"error\":\"invalid outlierThresholdMm\"}");
+                return;
+            }
+
+            if (!setTofOutlierThresholdMm((uint16_t)parsedThreshold)) {
+                request->send(500, "application/json", "{\"error\":\"failed to persist outlierThresholdMm\"}");
+                return;
+            }
+            hasAnyUpdate = true;
+        }
+
+        if (request->hasParam("outlierEnabled", true)) {
+            bool parsedValue = false;
+            String value = request->getParam("outlierEnabled", true)->value();
+            if (!parseBoolParam(value, parsedValue)) {
+                request->send(400, "application/json", "{\"error\":\"invalid outlierEnabled\"}");
+                return;
+            }
+            if (!setTofOutlierEnabled(parsedValue)) {
+                request->send(500, "application/json", "{\"error\":\"failed to persist outlierEnabled\"}");
+                return;
+            }
+            hasAnyUpdate = true;
+        }
+
+        if (request->hasParam("mode", true)) {
+            uint8_t parsedResolution = VL53L7CX_RESOLUTION_4X4;
+            String value = request->getParam("mode", true)->value();
+            if (!parseTofMode(value, parsedResolution)) {
+                request->send(400, "application/json", "{\"error\":\"invalid mode\"}");
+                return;
+            }
+
+            if (!setTofResolution(parsedResolution)) {
+                request->send(500, "application/json", "{\"error\":\"failed to set mode\"}");
+                return;
+            }
+            hasAnyUpdate = true;
+        }
+
+        if (!hasAnyUpdate) {
+            request->send(400, "application/json", "{\"error\":\"no valid parameters provided\"}");
+            return;
+        }
+
+        request->send(200, "application/json", tofServerSettingsJson());
     });
     manager.server.on("/mcp3008.ts", HTTP_GET, [] (AsyncWebServerRequest *request) {
         if (LittleFS.exists("/mcp3008.ts")) {
@@ -814,6 +948,7 @@ void initServer(RoamingWiFiManager& manager) {
 
 void serverApiLoop() {
     potentiometerWebSocket.cleanupClients();
+    statisticsWebSocket.cleanupClients();
     mhSensorWebSocket.cleanupClients();
     mcp3008WebSocket.cleanupClients();
     mcp23017InputsWebSocket.cleanupClients();
@@ -830,6 +965,13 @@ void serverApiLoop() {
         lastPotentiometerPublishMs = now;
         if (potentiometerWebSocket.count() > 0) {
             potentiometerWebSocket.textAll(potentiometerJson());
+        }
+    }
+
+    if (now - lastStatisticsPublishMs >= statisticsPublishIntervalMs) {
+        lastStatisticsPublishMs = now;
+        if (statisticsWebSocket.count() > 0) {
+            statisticsWebSocket.textAll(statisticsJson());
         }
     }
 
@@ -870,7 +1012,7 @@ void serverApiLoop() {
 
     if (now - lastTofSensorPublishMs >= tofSensorPublishIntervalMs) {
         lastTofSensorPublishMs = now;
-        if (tofSensorWebSocket.count() > 0) {
+        if (tofSensorWebSocket.count() > 0 && tofSensorWebSocket.availableForWriteAll()) {
             tofSensorWebSocket.textAll(tofSensorJson());
         }
     }

@@ -3,7 +3,7 @@
 #include <Adafruit_SSD1306.h>
 #include <SPI.h>
 #include <Fonts/FreeSans9pt7b.h>
-
+#include "globalVars.h"
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
@@ -20,13 +20,15 @@ bool isIpDisplayed() {
     return ipDisplayed;
 }
 
-void displayIp(String ip) {
+void displayStatus(String ip) {
     oled.clearDisplay();
     oled.setTextSize(1);
     oled.setTextColor(SSD1306_WHITE);
     oled.setCursor(0, 12);
 
     oled.printf("%s\n", ip.c_str());
+    oled.printf("%d fps\n",int(mainLoopFps));
+
     oled.display();
 
     ipDisplayed = true;

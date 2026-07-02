@@ -5,11 +5,12 @@ import { OrbitControls } from "https://esm.sh/three@0.166.1/examples/jsm/control
 const statusElement = document.getElementById("tof3dStatus");
 const canvasWrap = document.getElementById("tof3dCanvasWrap");
 const canvas = document.getElementById("tof3dCanvas");
-const thresholdInput = document.getElementById("tof3dThresholdMm");
-const hideInvalidDistanceInput = document.getElementById("tof3dHideInvalidDistance");
+const hideInvalidDistanceInput = document.getElementById("tof3dHideInvalidDistance") || document.getElementById("tofHideInvalidDistance");
 const useOrthographicInput = document.getElementById("tof3dUseOrthographic");
+const viewEnabledInput = document.getElementById("tof3dViewEnabled");
+const sectionBody = document.getElementById("tof3dSectionBody");
 
-if (!statusElement || !canvasWrap || !canvas || !thresholdInput || !hideInvalidDistanceInput || !useOrthographicInput) {
+if (!statusElement || !canvasWrap || !canvas || !hideInvalidDistanceInput || !useOrthographicInput || !viewEnabledInput || !sectionBody) {
 	throw new Error("ToF 3D page elements are missing");
 }
 
@@ -18,11 +19,9 @@ const defaultGridSide = 4;
 const minDistanceMeters = 0.03;
 const maxDistanceMeters = 3.5;
 const fovGuideDistanceMeters = 0.2;
-const defaultThresholdMm = 3500;
-const maxThresholdMm = 10000;
-const storageKeyThresholdMm = "tofSensor.thresholdMm";
 const storageKeyHideInvalidDistance = "tofSensor.hideInvalidDistance";
 const storageKeyUseOrthographic = "tofSensor3d.useOrthographic";
+const storageKeyViewEnabled = "tofSensor.view3dEnabled";
 
 // World frame used for ToF visualization:
 // X = right, Y = back, Z = up.
@@ -35,15 +34,14 @@ function worldDirToThree(x, y, z) {
 	return new THREE.Vector3(x, z, -y).normalize();
 }
 
-let socket = null;
-let reconnectTimer = null;
+let viewEnabled = true;
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xf7f8fc);
 
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: false });
 renderer.setPixelRatio(window.devicePixelRatio || 1);
-renderer.shadowMap.enabled = true;
+renderer.shadowMap.enabled = false;
 
 const perspectiveCamera = new THREE.PerspectiveCamera(48, 1, 0.01, 30);
 perspectiveCamera.position.set(1.1, 1.2, 1.1);
@@ -71,7 +69,7 @@ scene.add(ambientLight);
 
 const keyLight = new THREE.DirectionalLight(0xffffff, 0.9);
 keyLight.position.set(2.5, 4.5, 2.5);
-keyLight.castShadow = true;
+keyLight.castShadow = false;
 scene.add(keyLight);
 
 const floor = new THREE.Mesh(
@@ -79,7 +77,7 @@ const floor = new THREE.Mesh(
 	new THREE.MeshStandardMaterial({ color: 0xe8ecf5, roughness: 0.95, metalness: 0.02 })
 );
 floor.rotation.x = -Math.PI / 2;
-floor.receiveShadow = true;
+floor.receiveShadow = false;
 scene.add(floor);
 
 // 100 mm grid: 0.1 m spacing in scene units.
@@ -99,8 +97,8 @@ const sensorBody = new THREE.Mesh(
 	new THREE.MeshStandardMaterial({ color: 0x374151, roughness: 0.5, metalness: 0.2 })
 );
 sensorBody.position.set(0, 0.015, 0);
-sensorBody.castShadow = true;
-sensorBody.receiveShadow = true;
+sensorBody.castShadow = false;
+sensorBody.receiveShadow = false;
 scene.add(sensorBody);
 
 const sensorTop = new THREE.Mesh(
@@ -108,7 +106,7 @@ const sensorTop = new THREE.Mesh(
 	new THREE.MeshStandardMaterial({ color: 0x0ea5e9, roughness: 0.35, metalness: 0.15 })
 );
 sensorTop.position.set(0, 0.035, 0);
-sensorTop.castShadow = true;
+sensorTop.castShadow = false;
 scene.add(sensorTop);
 
 const axisLength = 0.28;
@@ -146,41 +144,6 @@ scene.add(fovGroup);
 
 const zoneMeshByIndex = new Map();
 
-function parseThresholdInput() {
-	const parsed = Number(thresholdInput.value.trim());
-	if (!Number.isFinite(parsed) || parsed < 0) {
-		return defaultThresholdMm;
-	}
-
-	return Math.min(maxThresholdMm, Math.max(0, Math.round(parsed)));
-}
-
-function readStoredThreshold() {
-	try {
-		const raw = localStorage.getItem(storageKeyThresholdMm);
-		if (raw === null) {
-			return defaultThresholdMm;
-		}
-
-		const parsed = Number(raw);
-		if (!Number.isFinite(parsed) || parsed < 0) {
-			return defaultThresholdMm;
-		}
-
-		return Math.min(maxThresholdMm, Math.max(0, Math.round(parsed)));
-	} catch (error) {
-		return defaultThresholdMm;
-	}
-}
-
-function storeThreshold(thresholdMm) {
-	try {
-		localStorage.setItem(storageKeyThresholdMm, String(thresholdMm));
-	} catch (error) {
-		// Ignore storage failures.
-	}
-}
-
 function shouldHideInvalidDistance() {
 	return Boolean(hideInvalidDistanceInput.checked);
 }
@@ -201,23 +164,8 @@ function storeHideInvalidDistance(hideInvalidDistance) {
 	}
 }
 
-function zonePassesThreshold(zone) {
-	if (!zone || zone.targetCount <= 0 || !zone.valid) {
-		return false;
-	}
-
-	const distanceMm = Number(zone.distanceMm);
-	if (!Number.isFinite(distanceMm)) {
-		return false;
-	}
-
-	return distanceMm <= parseThresholdInput();
-}
-
-function applyThresholdFromInput() {
-	const thresholdMm = parseThresholdInput();
-	thresholdInput.value = String(thresholdMm);
-	storeThreshold(thresholdMm);
+function zoneIsValid(zone) {
+	return Boolean(zone && zone.targetCount > 0 && zone.valid);
 }
 
 function applyHideInvalidDistanceSetting() {
@@ -227,6 +175,37 @@ function applyHideInvalidDistanceSetting() {
 function setStatus(text, isError) {
 	statusElement.textContent = text;
 	statusElement.classList.toggle("error", Boolean(isError));
+}
+
+function readStoredViewEnabled() {
+	try {
+		const stored = localStorage.getItem(storageKeyViewEnabled);
+		if (stored === null) {
+			return true;
+		}
+		return stored === "true";
+	} catch (error) {
+		return true;
+	}
+}
+
+function storeViewEnabled(enabled) {
+	try {
+		localStorage.setItem(storageKeyViewEnabled, enabled ? "true" : "false");
+	} catch (error) {
+		// Ignore storage failures.
+	}
+}
+
+function setViewEnabled(enabled) {
+	viewEnabled = Boolean(enabled);
+	viewEnabledInput.checked = viewEnabled;
+	sectionBody.classList.toggle("tof-section-collapsed", !viewEnabled);
+	if (!viewEnabled) {
+		clearZones();
+	}
+	setStatus(viewEnabled ? "Connected (shared stream)" : "Connected (3D view disabled)", false);
+	storeViewEnabled(viewEnabled);
 }
 
 function resizeRenderer() {
@@ -342,13 +321,9 @@ function createZoneMesh(zone, gridSide) {
 	geometry.setIndex(indices);
 	geometry.computeVertexNormals();
 
-	const material = new THREE.MeshStandardMaterial({
-		color: zoneColor(zonePassesThreshold(zone)),
-		opacity: 0.52,
-		transparent: true,
-		side: THREE.DoubleSide,
-		roughness: 0.35,
-		metalness: 0.02
+	const material = new THREE.MeshBasicMaterial({
+		color: zoneColor(zoneIsValid(zone)),
+		side: THREE.FrontSide
 	});
 
 	const mesh = new THREE.Mesh(geometry, material);
@@ -369,7 +344,7 @@ function updateZones(payload) {
 			continue;
 		}
 
-		if (shouldHideInvalidDistance() && !zonePassesThreshold(zone)) {
+		if (shouldHideInvalidDistance() && !zoneIsValid(zone)) {
 			continue;
 		}
 
@@ -383,72 +358,48 @@ function updateZones(payload) {
 	}
 }
 
-function scheduleReconnect() {
-	if (reconnectTimer) {
-		return;
-	}
-	reconnectTimer = setTimeout(function () {
-		reconnectTimer = null;
-		connectSocket();
-	}, 1000);
-}
-
-function connectSocket() {
-	const wsProtocol = window.location.protocol === "https:" ? "wss" : "ws";
-	const wsUrl = wsProtocol + "://" + window.location.host + "/ws/tofSensor";
-
-	setStatus("Connecting...", false);
-	socket = new WebSocket(wsUrl);
-
-	socket.addEventListener("open", function () {
-		setStatus("Connected (20 Hz)", false);
-	});
-
-	socket.addEventListener("message", function (event) {
-		try {
-			const payload = JSON.parse(event.data);
-			updateZones(payload);
-		} catch (error) {
-			setStatus("Invalid data received", true);
-		}
-	});
-
-	socket.addEventListener("close", function () {
-		setStatus("Disconnected, retrying...", true);
-		scheduleReconnect();
-	});
-
-	socket.addEventListener("error", function () {
-		setStatus("WebSocket error", true);
-		socket.close();
-	});
-}
-
-thresholdInput.value = String(readStoredThreshold());
 hideInvalidDistanceInput.checked = readStoredHideInvalidDistance();
-thresholdInput.addEventListener("change", function () {
-	applyThresholdFromInput();
-});
-thresholdInput.addEventListener("blur", function () {
-	applyThresholdFromInput();
-});
 hideInvalidDistanceInput.addEventListener("change", function () {
 	applyHideInvalidDistanceSetting();
 });
-applyThresholdFromInput();
 applyHideInvalidDistanceSetting();
 
+window.addEventListener("tofSensorData", function (event) {
+	try {
+		if (!viewEnabled || !event || !event.detail) {
+			return;
+		}
+
+		updateZones(event.detail);
+	} catch (error) {
+		setStatus("Invalid data received", true);
+	}
+});
+
 function animate() {
-	controls.update();
-	renderer.render(scene, activeCamera);
+	const nowMs = performance.now();
+	if (!animate.lastFrameMs) {
+		animate.lastFrameMs = nowMs;
+	}
+
+	if (viewEnabled && nowMs - animate.lastFrameMs >= 33) {
+		animate.lastFrameMs = nowMs;
+		controls.update();
+		renderer.render(scene, activeCamera);
+	}
 	requestAnimationFrame(animate);
 }
+
+animate.lastFrameMs = 0;
 
 window.addEventListener("resize", resizeRenderer);
 useOrthographicInput.addEventListener("change", function () {
 	setProjectionMode(Boolean(useOrthographicInput.checked));
 });
+viewEnabledInput.addEventListener("change", function () {
+	setViewEnabled(Boolean(viewEnabledInput.checked));
+});
 resizeRenderer();
 setProjectionMode(readStoredUseOrthographic());
-connectSocket();
+setViewEnabled(readStoredViewEnabled());
 animate();

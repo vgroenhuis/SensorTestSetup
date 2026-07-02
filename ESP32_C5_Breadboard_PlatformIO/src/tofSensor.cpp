@@ -22,6 +22,10 @@
 
 #include "tofSensor.h"
 
+#include <array>
+#include <Preferences.h>
+#include <math.h>
+
 
 /**
  ******************************************************************************
@@ -75,6 +79,32 @@
  * pin 9 (INT) of the VL53L7CX satellite connected to pin A2 of the Nucleo board
  */
 
+
+/*
+0 Ranging data are not updated
+1 Signal rate too low on SPAD array
+2 Target phase
+3 Sigma estimator too high
+4 Target consistency failed
+5 Range valid
+6 Wrap around not performed (typically the first range)
+7 Rate consistency failed
+8 Signal rate too low for the current target
+9 Range valid with large pulse (may be due to a merged target)
+10 Range valid, but no target detected at previous range
+11 Measurement consistency failed
+12 Target blurred by another one, due to sharpener
+13 Target detected but inconsistent data. Frequently happens for secondary targets.
+
+16 No target
+17 Negative distance
+18 Distance above threshold
+
+255 No target detected (only if number of targets detected is enabled)
+
+
+*/
+
 /* Includes ------------------------------------------------------------------*/
 #include <vl53l7cx_class.h>
 
@@ -98,62 +128,269 @@ bool EnableSignal = false;
 uint8_t res = VL53L7CX_RESOLUTION_4X4;
 char report[256];
 
+namespace {
+  static const char *TOF_SETTINGS_NAMESPACE = "tof_cfg";
+  static const char *KEY_OUTLIER_ENABLED = "out_en";
+  static const char *KEY_OUTLIER_MM = "out_mm";
+  static const char *KEY_RESOLUTION = "res";
+  static const uint16_t defaultOutlierThresholdMm = 350;
+  static const uint16_t minOutlierThresholdMm = 20;
+  static const uint16_t maxOutlierThresholdMm = 2000;
+
+  TofServerSettings tofSettings = {
+    true,
+    defaultOutlierThresholdMm,
+    VL53L7CX_RESOLUTION_8X8
+  };
+
+  VL53L7CX_ResultsData latestRawResults = {};
+  VL53L7CX_ResultsData latestFilteredResults = {};
+  bool hasLatestRaw = false;
+  bool hasLatestFiltered = false;
+  uint8_t activeResolution = VL53L7CX_RESOLUTION_4X4;
+  bool resolutionSwitchPending = false;
+  unsigned long lastResolutionSwitchAttemptMs = 0;
+  const unsigned long resolutionSwitchRetryIntervalMs = 500;
+
+  static const uint8_t TOF_STATUS_FILTER_NO_TARGET = 16;
+  static const uint8_t TOF_STATUS_FILTER_NON_POSITIVE_DISTANCE = 17;
+  static const uint8_t TOF_STATUS_FILTER_DISTANCE_ABOVE_THRESHOLD = 18;
+
+  uint8_t clampResolution(uint8_t resolution) {
+    return resolution == VL53L7CX_RESOLUTION_8X8 ? VL53L7CX_RESOLUTION_8X8 : VL53L7CX_RESOLUTION_4X4;
+  }
+
+  uint8_t gridSideForResolution(uint8_t resolution) {
+    return clampResolution(resolution) == VL53L7CX_RESOLUTION_8X8 ? 8 : 4;
+  }
+
+  uint8_t zoneCountForResolution(uint8_t resolution) {
+    const uint8_t side = gridSideForResolution(resolution);
+    return side * side;
+  }
+
+  uint8_t rangingFrequencyForResolution(uint8_t resolution) {
+    return clampResolution(resolution) == VL53L7CX_RESOLUTION_8X8 ? 15 : 60;
+  }
+
+  bool applySensorResolution(uint8_t resolution) {
+    const uint8_t clamped = clampResolution(resolution);
+    const uint8_t safeFrequencyHz = 15;
+    const uint8_t targetFrequencyHz = rangingFrequencyForResolution(clamped);
+
+    auto resetAndApplyResolution = [&]() -> bool {
+      Serial.println("ToF: attempting sensor re-init for resolution switch");
+
+      sensor_vl53l7cx_top.vl53l7cx_stop_ranging();
+      yield();
+      sensor_vl53l7cx_top.init_sensor();
+      yield();
+
+      if (sensor_vl53l7cx_top.vl53l7cx_set_resolution(clamped) != VL53L7CX_STATUS_OK) {
+        Serial.println("ToF: re-init path failed to set resolution");
+        return false;
+      }
+      if (sensor_vl53l7cx_top.vl53l7cx_set_ranging_frequency_hz(targetFrequencyHz) != VL53L7CX_STATUS_OK) {
+        Serial.println("ToF: re-init path failed to set frequency");
+        return false;
+      }
+      if (sensor_vl53l7cx_top.vl53l7cx_set_ranging_mode(VL53L7CX_RANGING_MODE_CONTINUOUS) != VL53L7CX_STATUS_OK) {
+        Serial.println("ToF: re-init path failed to set ranging mode");
+        return false;
+      }
+      if (sensor_vl53l7cx_top.vl53l7cx_start_ranging() != VL53L7CX_STATUS_OK) {
+        Serial.println("ToF: re-init path failed to start ranging");
+        return false;
+      }
+      return true;
+    };
+
+    if (clamped == VL53L7CX_RESOLUTION_8X8) {
+      // Some driver paths reject setting frequency once ranging is stopped.
+      if (sensor_vl53l7cx_top.vl53l7cx_set_ranging_frequency_hz(safeFrequencyHz) != VL53L7CX_STATUS_OK) {
+        Serial.println("ToF: failed to set safe frequency before stopping ranging");
+        return false;
+      }
+    }
+
+    if (sensor_vl53l7cx_top.vl53l7cx_stop_ranging() != VL53L7CX_STATUS_OK) {
+      Serial.println("ToF: failed to stop ranging before resolution switch");
+      return false;
+    }
+
+    if (sensor_vl53l7cx_top.vl53l7cx_set_resolution(clamped) != VL53L7CX_STATUS_OK) {
+      Serial.println("ToF: failed to set resolution");
+      if (!resetAndApplyResolution()) {
+        sensor_vl53l7cx_top.vl53l7cx_start_ranging();
+        return false;
+      }
+
+      res = clamped;
+      hasLatestRaw = false;
+      hasLatestFiltered = false;
+      return true;
+    }
+
+    if (sensor_vl53l7cx_top.vl53l7cx_set_ranging_frequency_hz(targetFrequencyHz) != VL53L7CX_STATUS_OK) {
+      Serial.println("ToF: failed to set target frequency after resolution switch");
+      sensor_vl53l7cx_top.vl53l7cx_start_ranging();
+      return false;
+    }
+
+    if (sensor_vl53l7cx_top.vl53l7cx_start_ranging() != VL53L7CX_STATUS_OK) {
+      Serial.println("ToF: failed to restart ranging after resolution switch");
+      return false;
+    }
+
+    res = clamped;
+    activeResolution = clamped;
+    hasLatestRaw = false;
+    hasLatestFiltered = false;
+    return true;
+  }
+
+  bool tofStatusIsValidForFilter(uint8_t status) {
+    return status == 5 || status == 9;
+  }
+
+  uint16_t clampOutlierThresholdMm(uint16_t thresholdMm) {
+    if (thresholdMm < minOutlierThresholdMm) {
+      return minOutlierThresholdMm;
+    }
+    if (thresholdMm > maxOutlierThresholdMm) {
+      return maxOutlierThresholdMm;
+    }
+    return thresholdMm;
+  }
+
+  bool saveTofSettingsToNvs() {
+    Preferences preferences;
+    if (!preferences.begin(TOF_SETTINGS_NAMESPACE, false)) {
+      Serial.println("NVS open failed for writing ToF settings");
+      return false;
+    }
+
+    bool okOutlierEnabled = preferences.putBool(KEY_OUTLIER_ENABLED, tofSettings.outlierEnabled) > 0;
+    bool okOutlier = preferences.putUInt(KEY_OUTLIER_MM, tofSettings.outlierThresholdMm) > 0;
+    bool okResolution = preferences.putUChar(KEY_RESOLUTION, clampResolution(tofSettings.resolution)) > 0;
+    preferences.end();
+    return okOutlierEnabled && okOutlier && okResolution;
+  }
+
+  void loadTofSettingsFromNvs() {
+    Preferences preferences;
+    if (!preferences.begin(TOF_SETTINGS_NAMESPACE, true)) {
+      Serial.println("NVS open failed for reading ToF settings");
+      if (!saveTofSettingsToNvs()) {
+        Serial.println("NVS also failed for writing ToF settings");
+      }
+      return;
+    }
+
+    tofSettings.outlierEnabled = preferences.getBool(KEY_OUTLIER_ENABLED, tofSettings.outlierEnabled);
+    const uint32_t storedOutlierMm = preferences.getUInt(KEY_OUTLIER_MM, defaultOutlierThresholdMm);
+    const uint8_t storedResolution = preferences.getUChar(KEY_RESOLUTION, VL53L7CX_RESOLUTION_8X8);
+    preferences.end();
+
+    tofSettings.outlierThresholdMm = clampOutlierThresholdMm((uint16_t)storedOutlierMm);
+    tofSettings.resolution = clampResolution(storedResolution);
+  }
+
+  void applyFilteringToResults(const VL53L7CX_ResultsData &rawResults, unsigned long nowMs) {
+    int32_t previousDistanceMm[64];
+    uint8_t previousStatus[64];
+    uint8_t previousTargetCount[64];
+
+    for (size_t zone = 0; zone < 64; ++zone) {
+      const size_t targetIndex = zone * VL53L7CX_NB_TARGET_PER_ZONE;
+      previousDistanceMm[zone] = latestFilteredResults.distance_mm[targetIndex];
+      previousStatus[zone] = latestFilteredResults.target_status[targetIndex];
+      previousTargetCount[zone] = latestFilteredResults.nb_target_detected[zone];
+    }
+
+    latestFilteredResults = rawResults;
+
+    const size_t zoneCount = zoneCountForResolution(activeResolution);
+
+    if (!hasLatestFiltered) {
+      hasLatestFiltered = true;
+
+      return;
+    }
+
+    for (size_t zone = 0; zone < zoneCount; ++zone) {
+      const size_t targetIndex = zone * VL53L7CX_NB_TARGET_PER_ZONE;
+
+      /*
+      const bool rawHasTarget = rawResults.nb_target_detected[zone] > 0;
+      if (!rawHasTarget) {
+        latestFilteredResults.target_status[targetIndex] = TOF_STATUS_FILTER_NO_TARGET;
+        continue;
+      }*/
+
+      const uint8_t rawStatus = rawResults.target_status[targetIndex];
+      if (!tofStatusIsValidForFilter(rawStatus)) {
+        continue;
+      }
+
+      const int32_t rawDistanceMm = rawResults.distance_mm[targetIndex];
+      if (rawDistanceMm <= 0) {
+        latestFilteredResults.target_status[targetIndex] = TOF_STATUS_FILTER_NON_POSITIVE_DISTANCE;
+        continue;
+      }
+
+      if (tofSettings.outlierEnabled && (rawDistanceMm > tofSettings.outlierThresholdMm)) {
+        latestFilteredResults.target_status[targetIndex] = TOF_STATUS_FILTER_DISTANCE_ABOVE_THRESHOLD;
+        continue;
+      }
+
+      /*
+      const bool prevHasTarget = previousTargetCount[zone] > 0;
+      const uint8_t prevStatus = previousStatus[zone];
+      const int32_t prevDistanceMm = previousDistanceMm[zone];
+      const bool hasComparablePrevious = prevHasTarget && tofStatusIsValidForFilter(prevStatus) && prevDistanceMm > 0;
+      if (!hasComparablePrevious) {
+        latestFilteredResults.target_status[targetIndex] = TOF_STATUS_FILTER_NO_COMPARABLE_PREVIOUS;
+        continue;
+      }*/
+
+      /*
+      const int32_t deltaMm = rawDistanceMm - prevDistanceMm;
+      const int32_t absDeltaMm = deltaMm >= 0 ? deltaMm : -deltaMm;
+      const bool exceedsOutlierThreshold = (uint16_t)absDeltaMm > tofSettings.outlierThresholdMm;
+
+      int32_t postOutlierDistanceMm = rawDistanceMm;
+      if (tofSettings.outlierEnabled && exceedsOutlierThreshold) {
+        // Reject outliers by keeping the previous trusted value.
+        postOutlierDistanceMm = prevDistanceMm;
+        latestFilteredResults.target_status[targetIndex] = TOF_STATUS_FILTER_OUTLIER_REPLACED;
+      }
+    */
+
+      latestFilteredResults.distance_mm[targetIndex] = rawDistanceMm;
+    }
+  }
+
+  bool tryReadTofPacket(VL53L7CX_ResultsData &outResults) {
+    uint8_t newDataReady = 0;
+    const uint8_t statusReady = sensor_vl53l7cx_top.vl53l7cx_check_data_ready(&newDataReady);
+    if (statusReady != VL53L7CX_STATUS_OK || !newDataReady) {
+      return false;
+    }
+
+    const uint8_t statusData = sensor_vl53l7cx_top.vl53l7cx_get_ranging_data(&outResults);
+    if (statusData != VL53L7CX_STATUS_OK) {
+      Serial.printf("tryReadTofPacket: invalid status: %d\n", statusData);
+      return false;
+    }
+
+    return true;
+  }
+}
+
 /* Setup ---------------------------------------------------------------------*/
 void initTofSensor()
 {
-  // Initialize serial for output.
-  //SerialPort.begin(115200);
-//  SerialPort.setTimeout(1000);
-
-/*
-  pinMode(LED_BUILTIN, OUTPUT);
-  for (int i=0;i<10;i++) {
-    digitalWrite(LED_BUILTIN, HIGH);
-    delay(100);
-    digitalWrite(LED_BUILTIN, LOW);
-    delay(100);
-  }
-*/
-  /*
-
-  int x = SerialPort.parseInt();
-  SerialPort.printf("Received: %d\n", x);
-  //while (!SerialPort) ;
-  SerialPort.println("VL53L7CX Hello World Example");
-  */
-
-  // Initialize I2C bus.
-
-//  DEV_I2C.setSDA(4);
-//  DEV_I2C.setSCL(5);
-
-  //DEV_I2C.setClock(400000);
-  //DEV_I2C.begin();
-
-  //Serial.println("ToF sensor initializing");
-  
-  //pinMode(I2C_RST_PIN, OUTPUT);
-  //digitalWrite(I2C_RST_PIN, LOW);
-  //pinMode(LPN_PIN, OUTPUT);
-  //digitalWrite(LPN_PIN, LOW); // LOW: comms disabled, HIGH: comms enabled
-
-  // Test the I2C bus by sending random data to a dummy address (e.g., 0x55)
-  /*
-  if (0) {
-    for (int j=0;j<10;j++) {
-      DEV_I2C.beginTransmission(0x55);
-      for (int i = 0; i < 8; ++i) {
-        DEV_I2C.write(random(0, 256));
-      }
-      uint8_t error = DEV_I2C.endTransmission();
-      SerialPort.printf("I2C test write to 0x55, error code: %d\n", error);
-      delay(1000);
-    }
-  }*/
-
-  //SerialPort.println("I2C started\n");
-  
-
   // Configure VL53L7CX component.
   sensor_vl53l7cx_top.begin();
   SerialPort.println("Initializing Time-of-Flight sensor");
@@ -163,7 +400,14 @@ void initTofSensor()
 
   //return;
 
-  sensor_vl53l7cx_top.vl53l7cx_set_ranging_frequency_hz(60);
+  loadTofSettingsFromNvs();
+
+  const uint8_t initialResolution = clampResolution(tofSettings.resolution);
+  tofSettings.resolution = initialResolution;
+  activeResolution = initialResolution;
+  res = initialResolution;
+  sensor_vl53l7cx_top.vl53l7cx_set_resolution(initialResolution);
+  sensor_vl53l7cx_top.vl53l7cx_set_ranging_frequency_hz(rangingFrequencyForResolution(initialResolution));
   sensor_vl53l7cx_top.vl53l7cx_set_ranging_mode(VL53L7CX_RANGING_MODE_CONTINUOUS);
 
   // Start Measurements
@@ -173,23 +417,110 @@ void initTofSensor()
 
 VL53L7CX_ResultsData getToFData() {
   VL53L7CX_ResultsData tofResults;
-  uint8_t NewDataReady = 0;
+  uint8_t newDataReady = 0;
   uint8_t status;
 
   do {
-    status = sensor_vl53l7cx_top.vl53l7cx_check_data_ready(&NewDataReady);
-  } while (!NewDataReady);
+    status = sensor_vl53l7cx_top.vl53l7cx_check_data_ready(&newDataReady);
+  } while (!newDataReady);
 
-  if ((status == VL53L7CX_STATUS_OK) && (NewDataReady)) {
+  if ((status == VL53L7CX_STATUS_OK) && (newDataReady)) {
     status = sensor_vl53l7cx_top.vl53l7cx_get_ranging_data(&tofResults);
   }
   if (status != VL53L7CX_STATUS_OK) {
     Serial.printf("getToFData: invalid status: %d\n", status);
   }
 
+  latestRawResults = tofResults;
+  hasLatestRaw = true;
+
+  applyFilteringToResults(tofResults, millis());
+
   return tofResults;
 }
 
+void tofSensorLoop() {
+  if (resolutionSwitchPending) {
+    const unsigned long nowMs = millis();
+    if ((nowMs - lastResolutionSwitchAttemptMs) >= resolutionSwitchRetryIntervalMs) {
+      lastResolutionSwitchAttemptMs = nowMs;
+      if (applySensorResolution(tofSettings.resolution)) {
+        resolutionSwitchPending = false;
+        Serial.println("ToF: resolution switch applied");
+      } else {
+        Serial.println("ToF: resolution switch attempt failed; retrying");
+      }
+    }
+  }
+
+  VL53L7CX_ResultsData packet;
+  if (!tryReadTofPacket(packet)) {
+    return;
+  }
+
+  latestRawResults = packet;
+  hasLatestRaw = true;
+
+  applyFilteringToResults(packet, millis());
+}
+
+bool getLatestTofDataForPublish(VL53L7CX_ResultsData &outResults) {
+  if (hasLatestFiltered) {
+    outResults = latestFilteredResults;
+    return true;
+  }
+
+  if (hasLatestRaw) {
+    outResults = latestRawResults;
+    return true;
+  }
+
+  return false;
+}
+
+TofServerSettings getTofServerSettings() {
+  return tofSettings;
+}
+
+bool setTofOutlierEnabled(bool enabled) {
+  tofSettings.outlierEnabled = enabled;
+  return saveTofSettingsToNvs();
+}
+
+bool setTofOutlierThresholdMm(uint16_t thresholdMm) {
+  tofSettings.outlierThresholdMm = clampOutlierThresholdMm(thresholdMm);
+  return saveTofSettingsToNvs();
+}
+
+bool setTofResolution(uint8_t resolution) {
+  const uint8_t clamped = clampResolution(resolution);
+  if (tofSettings.resolution == clamped && !resolutionSwitchPending) {
+    return true;
+  }
+
+  tofSettings.resolution = clamped;
+  resolutionSwitchPending = (activeResolution != clamped);
+  if (!saveTofSettingsToNvs()) {
+    Serial.println("Failed to persist ToF resolution");
+    return false;
+  }
+
+  if (resolutionSwitchPending) {
+    Serial.println("ToF: resolution switch queued");
+  }
+
+  return true;
+}
+
+uint8_t getTofZoneCount() {
+  return zoneCountForResolution(activeResolution);
+}
+
+uint8_t getTofGridSide() {
+  return gridSideForResolution(activeResolution);
+}
+
+/*
 void tofSensorLoopPrintSerial()
 {
   static int counter = 0;
@@ -226,12 +557,12 @@ void tofSensorLoopPrintSerial()
     SerialPort.println(ips, 2);
 //    }
 
-/*/
+/* /
   if (Serial.available()>0)
   {
     handle_cmd(Serial.read());
   }
-*/
+* /
   //delay(1000);
 }
 
@@ -333,6 +664,7 @@ void print_result(VL53L7CX_ResultsData *Result)
    //SerialPort.print(" -----------------");
   SerialPort.print("\n");
 }
+*/
 
 void toggle_resolution(void)
 {
@@ -404,3 +736,4 @@ void handle_cmd(uint8_t cmd)
       break;
   }
 }
+

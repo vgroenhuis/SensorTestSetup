@@ -2,5 +2,8 @@
 #include <Arduino.h>
 
 bool isIpDisplayed();
-void displayIp(String ip);
+
+// Displays IP and main loop FPS
+void displayStatus(String ip);
+
 void initOledDisplay();

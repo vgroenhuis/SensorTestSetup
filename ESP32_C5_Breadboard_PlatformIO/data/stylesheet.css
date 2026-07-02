@@ -380,6 +380,10 @@ button.btn {
     margin-top: 8px;
 }
 
+.tof-section-collapsed {
+    display: none;
+}
+
 @media (max-width: 760px) {
     .tof-3d-canvas-wrap {
         height: 380px;

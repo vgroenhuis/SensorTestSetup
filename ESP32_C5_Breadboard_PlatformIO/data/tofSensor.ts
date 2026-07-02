@@ -4,64 +4,32 @@ const gridElement = document.getElementById("tofGrid");
 const resolutionElement = document.getElementById("tofResolutionValue");
 const validZonesElement = document.getElementById("tofValidZonesValue");
 const lastUpdateElement = document.getElementById("tofLastUpdateValue");
-const thresholdInput = document.getElementById("tofThresholdMm");
+const outlierThresholdInput = document.getElementById("outlierThresholdMm");
+const outlierEnabledInput = document.getElementById("outlierEnabled");
 const showStatusCodeInput = document.getElementById("tofShowStatusCode");
 const hideInvalidDistanceInput = document.getElementById("tofHideInvalidDistance");
+const viewEnabledInput = document.getElementById("tof2dViewEnabled");
+const sectionBody = document.getElementById("tof2dSectionBody");
 const pauseButton = document.getElementById("pauseTofButton");
 
-if (!statusElement || !gridElement || !resolutionElement || !validZonesElement || !lastUpdateElement || !thresholdInput || !showStatusCodeInput || !hideInvalidDistanceInput || !pauseButton) {
+if (!statusElement || !gridElement || !resolutionElement || !validZonesElement || !lastUpdateElement || !outlierThresholdInput || !outlierEnabledInput || !showStatusCodeInput || !hideInvalidDistanceInput || !viewEnabledInput || !sectionBody || !pauseButton) {
 	throw new Error("ToF sensor page elements are missing");
 }
 
-const zoneCount = 16;
-const zoneSide = 4;
-const defaultThresholdMm = 3500;
-const maxThresholdMm = 10000;
-const storageKeyThresholdMm = "tofSensor.thresholdMm";
 const storageKeyShowStatusCode = "tofSensor.showStatusCode";
 const storageKeyHideInvalidDistance = "tofSensor.hideInvalidDistance";
+const storageKeyViewEnabled = "tofSensor.view2dEnabled";
 
 let socket = null;
 let reconnectTimer = null;
-let latestZones = new Array(zoneCount).fill(null);
+let latestGridSide = 4;
+let latestZoneCount = latestGridSide * latestGridSide;
+let latestZones = new Array(latestZoneCount).fill(null);
 let latestResolution = "4x4";
 let latestMillis = null;
 let mapPaused = false;
-
-function parseThresholdInput() {
-	const parsed = Number(thresholdInput.value.trim());
-	if (!Number.isFinite(parsed) || parsed < 0) {
-		return defaultThresholdMm;
-	}
-
-	return Math.min(maxThresholdMm, Math.max(0, Math.round(parsed)));
-}
-
-function readStoredThreshold() {
-	try {
-		const raw = localStorage.getItem(storageKeyThresholdMm);
-		if (raw === null) {
-			return defaultThresholdMm;
-		}
-
-		const parsed = Number(raw);
-		if (!Number.isFinite(parsed) || parsed < 0) {
-			return defaultThresholdMm;
-		}
-
-		return Math.min(maxThresholdMm, Math.max(0, Math.round(parsed)));
-	} catch (error) {
-		return defaultThresholdMm;
-	}
-}
-
-function storeThreshold(thresholdMm) {
-	try {
-		localStorage.setItem(storageKeyThresholdMm, String(thresholdMm));
-	} catch (error) {
-		// Ignore storage failures.
-	}
-}
+let mapManualPause = false;
+let mapViewEnabled = true;
 
 function readStoredShowStatusCode() {
 	try {
@@ -95,14 +63,6 @@ function storeHideInvalidDistance(hideInvalidDistance) {
 	}
 }
 
-function applyThresholdFromInput() {
-	const thresholdMm = parseThresholdInput();
-	thresholdInput.value = String(thresholdMm);
-	storeThreshold(thresholdMm);
-	renderSummary();
-	renderGrid();
-}
-
 function shouldShowStatusCode() {
 	return Boolean(showStatusCodeInput.checked);
 }
@@ -121,17 +81,38 @@ function applyHideInvalidDistanceSetting() {
 	renderGrid();
 }
 
-function zonePassesThreshold(zone) {
-	if (!zone || zone.targetCount <= 0 || !zone.valid) {
+function zoneIsValid(zone) {
+	return Boolean(zone && zone.targetCount > 0 && zone.valid);
+}
+
+function parseOutlierThresholdInput() {
+	const parsed = Number(outlierThresholdInput.value.trim());
+	if (!Number.isFinite(parsed) || parsed <= 0) {
+		return 350;
+	}
+
+	return Math.min(2000, Math.max(20, Math.round(parsed)));
+}
+
+function zoneWithinOutlierDistance(zone) {
+	if (!outlierEnabledInput.checked) {
+		return true;
+	}
+
+	if (!zone || zone.targetCount <= 0) {
 		return false;
 	}
 
 	const distanceMm = Number(zone.distanceMm);
-	if (!Number.isFinite(distanceMm)) {
+	if (!Number.isFinite(distanceMm) || distanceMm <= 0) {
 		return false;
 	}
 
-	return distanceMm <= parseThresholdInput();
+	return distanceMm <= parseOutlierThresholdInput();
+}
+
+function zoneAcceptedFor2d(zone) {
+	return zoneIsValid(zone) && zoneWithinOutlierDistance(zone);
 }
 
 function zoneHasDisplayableStatus(zone) {
@@ -143,12 +124,45 @@ function setStatus(text, isError) {
 	statusElement.classList.toggle("error", Boolean(isError));
 }
 
-function setMapPaused(paused) {
-	mapPaused = paused;
-	pauseButton.textContent = mapPaused ? "Resume map" : "Pause map";
-	if (socket && socket.readyState === WebSocket.OPEN) {
-		setStatus(mapPaused ? "Connected (paused)" : "Connected (20 Hz)", false);
+function readStoredViewEnabled() {
+	try {
+		const stored = localStorage.getItem(storageKeyViewEnabled);
+		if (stored === null) {
+			return true;
+		}
+		return stored === "true";
+	} catch (error) {
+		return true;
 	}
+}
+
+function storeViewEnabled(enabled) {
+	try {
+		localStorage.setItem(storageKeyViewEnabled, enabled ? "true" : "false");
+	} catch (error) {
+		// Ignore storage failures.
+	}
+}
+
+function applyPauseState() {
+	mapPaused = mapManualPause || !mapViewEnabled;
+	pauseButton.disabled = !mapViewEnabled;
+	pauseButton.textContent = !mapViewEnabled ? "2D view disabled" : (mapManualPause ? "Resume map" : "Pause map");
+	if (socket && socket.readyState === WebSocket.OPEN) {
+		if (!mapViewEnabled) {
+			setStatus("Connected (2D view disabled)", false);
+		} else {
+			setStatus(mapPaused ? "Connected (paused)" : "Connected (20 Hz)", false);
+		}
+	}
+}
+
+function setViewEnabled(enabled) {
+	mapViewEnabled = Boolean(enabled);
+	viewEnabledInput.checked = mapViewEnabled;
+	sectionBody.classList.toggle("tof-section-collapsed", !mapViewEnabled);
+	storeViewEnabled(mapViewEnabled);
+	applyPauseState();
 }
 
 function scheduleReconnect() {
@@ -180,7 +194,15 @@ function displayDistanceForZone(zone) {
 		return "--";
 	}
 
-	if (shouldHideInvalidDistance() && !zonePassesThreshold(zone)) {
+	if (!zoneIsValid(zone) && !shouldHideInvalidDistance()) {
+		return formatDistance(zone.distanceMm);
+	}
+
+	if (!zoneWithinOutlierDistance(zone)) {
+		return "--";
+	}
+
+	if (shouldHideInvalidDistance() && !zoneIsValid(zone)) {
 		return "--";
 	}
 
@@ -199,26 +221,27 @@ function formatUpdateTime(millis) {
 
 function renderSummary() {
 	const validCount = latestZones.reduce(function (count, zone) {
-		return count + (zonePassesThreshold(zone) ? 1 : 0);
+		return count + (zoneAcceptedFor2d(zone) ? 1 : 0);
 	}, 0);
 
 	resolutionElement.textContent = latestResolution;
-	validZonesElement.textContent = String(validCount) + " / " + String(zoneCount);
+	validZonesElement.textContent = String(validCount) + " / " + String(latestZoneCount);
 	lastUpdateElement.textContent = formatUpdateTime(latestMillis);
 }
 
 function renderGrid() {
 	gridElement.innerHTML = "";
+	gridElement.style.gridTemplateColumns = "repeat(" + String(latestGridSide) + ", minmax(0, 1fr))";
 
-	for (let index = 0; index < zoneCount; index += 1) {
-		const row = Math.floor(index / zoneSide);
-		const col = index % zoneSide;
-		const sourceIndex = (zoneSide - 1 - row) * zoneSide + col;
+	for (let index = 0; index < latestZoneCount; index += 1) {
+		const row = Math.floor(index / latestGridSide);
+		const col = index % latestGridSide;
+		const sourceIndex = (latestGridSide - 1 - row) * latestGridSide + col;
 		const zone = latestZones[sourceIndex];
 		const tile = document.createElement("div");
 		tile.className = "tof-tile";
 
-		if (zonePassesThreshold(zone)) {
+		if (zoneAcceptedFor2d(zone)) {
 			tile.classList.add("valid");
 		} else if (zoneHasDisplayableStatus(zone)) {
 			if (shouldHideInvalidDistance()) {
@@ -227,9 +250,7 @@ function renderGrid() {
 				tile.classList.add("invalid");
 			}
 		} else if (zone && zone.targetCount > 0) {
-			if (zonePassesThreshold(zone)) {
-				tile.classList.add("valid");
-			} else if (shouldHideInvalidDistance()) {
+			if (shouldHideInvalidDistance()) {
 				tile.classList.add("masked-invalid");
 			} else {
 				tile.classList.add("invalid");
@@ -267,26 +288,32 @@ function connectSocket() {
 	socket = new WebSocket(wsUrl);
 
 	socket.addEventListener("open", function () {
-		setStatus(mapPaused ? "Connected (paused)" : "Connected (20 Hz)", false);
+		applyPauseState();
 	});
 
 	socket.addEventListener("message", function (event) {
 		try {
-			if (mapPaused) {
-				return;
-			}
-
 			const payload = JSON.parse(event.data);
 			if (!Array.isArray(payload.zones)) {
 				return;
 			}
 
-			latestZones = payload.zones.slice(0, zoneCount);
-			while (latestZones.length < zoneCount) {
+			window.dispatchEvent(new CustomEvent("tofSensorData", { detail: payload }));
+
+			if (mapPaused) {
+				return;
+			}
+
+			const gridSide = Number(payload.gridSide);
+			latestGridSide = Number.isFinite(gridSide) && gridSide > 0 ? Math.round(gridSide) : 4;
+			latestZoneCount = latestGridSide * latestGridSide;
+
+			latestZones = payload.zones.slice(0, latestZoneCount);
+			while (latestZones.length < latestZoneCount) {
 				latestZones.push(null);
 			}
 
-			latestResolution = payload.resolution || "4x4";
+			latestResolution = payload.resolution || (String(latestGridSide) + "x" + String(latestGridSide));
 			latestMillis = payload.millis;
 			renderSummary();
 			renderGrid();
@@ -306,20 +333,34 @@ function connectSocket() {
 	});
 }
 
-thresholdInput.value = String(readStoredThreshold());
 showStatusCodeInput.checked = readStoredShowStatusCode();
 hideInvalidDistanceInput.checked = readStoredHideInvalidDistance();
-thresholdInput.addEventListener("change", applyThresholdFromInput);
-thresholdInput.addEventListener("blur", applyThresholdFromInput);
+viewEnabledInput.checked = readStoredViewEnabled();
 showStatusCodeInput.addEventListener("change", applyShowStatusCodeSetting);
 hideInvalidDistanceInput.addEventListener("change", applyHideInvalidDistanceSetting);
-pauseButton.addEventListener("click", function () {
-	setMapPaused(!mapPaused);
+outlierThresholdInput.addEventListener("change", function () {
+	renderSummary();
+	renderGrid();
 });
-applyThresholdFromInput();
+outlierThresholdInput.addEventListener("blur", function () {
+	renderSummary();
+	renderGrid();
+});
+outlierEnabledInput.addEventListener("change", function () {
+	renderSummary();
+	renderGrid();
+});
+viewEnabledInput.addEventListener("change", function () {
+	setViewEnabled(Boolean(viewEnabledInput.checked));
+});
+pauseButton.addEventListener("click", function () {
+	mapManualPause = !mapManualPause;
+	applyPauseState();
+});
 applyShowStatusCodeSetting();
 applyHideInvalidDistanceSetting();
-setMapPaused(false);
+mapManualPause = false;
+setViewEnabled(readStoredViewEnabled());
 renderSummary();
 renderGrid();
 connectSocket();

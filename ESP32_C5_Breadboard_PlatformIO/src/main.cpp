@@ -14,6 +14,7 @@
 #include "oled.h"
 #include "pressureSensor.h"
 #include "tofSensor.h"
+#include "globalVars.h"
 
 RoamingWiFiManager manager;
 
@@ -41,13 +42,44 @@ void setup() {
     Serial.println("Setup finished");
 }
 
+void calcMainLoopFps() {
+    static unsigned long lastTimeUs = micros();
+    static bool filterInitialized = false;
+    static float filteredFps = 0.0f;
+
+    const unsigned long currentTimeUs = micros();
+    const unsigned long deltaTimeUs = currentTimeUs - lastTimeUs;
+    lastTimeUs = currentTimeUs;
+
+    if (deltaTimeUs == 0) {
+        return;
+    }
+
+    const float instantaneousFps = 1000000.0f / (float)deltaTimeUs;
+    const float dtSec = (float)deltaTimeUs / 1000000.0f;
+    const float tauSec = 0.2f;
+    const float alpha = dtSec / (tauSec + dtSec);
+
+    if (!filterInitialized) {
+        filteredFps = instantaneousFps;
+        filterInitialized = true;
+    } else {
+        filteredFps += alpha * (instantaneousFps - filteredFps);
+    }
+
+    mainLoopFps = filteredFps;
+}
+
+
 void loop() {
     manager.loop();
     serverApiLoop();
     serialManagerLoop();
-    //tofSensorLoopPrintSerial();
+    tofSensorLoop();
 
-    if (manager.isConnected() && !isIpDisplayed()) {
-        displayIp(manager.getConnectedIp());
-    }
+//    if (manager.isConnected() && !isIpDisplayed()) {
+    displayStatus(manager.getConnectedIp());
+//    }
+
+    calcMainLoopFps();
 }
