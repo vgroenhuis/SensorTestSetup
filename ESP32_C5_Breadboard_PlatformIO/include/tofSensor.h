@@ -3,6 +3,7 @@
 #include <array>
 
 struct TofServerSettings {
+	bool enabled;
 	bool outlierEnabled;
 	uint16_t outlierThresholdMm;
 	uint8_t resolution;
@@ -24,5 +25,6 @@ uint8_t getTofGridSide();
 bool setTofOutlierEnabled(bool enabled);
 bool setTofOutlierThresholdMm(uint16_t thresholdMm);
 bool setTofResolution(uint8_t resolution);
+bool setTofEnabled(bool enabled);
 
 void tofSensorLoopPrintSerial();

@@ -1,5 +1,7 @@
 // @ts-nocheck
 /** @type {HTMLInputElement | null} */
+const tofEnabledInput = document.getElementById("tofEnabled");
+/** @type {HTMLInputElement | null} */
 const outlierThresholdMmInput = document.getElementById("outlierThresholdMm");
 /** @type {HTMLInputElement | null} */
 const outlierEnabledInput = document.getElementById("outlierEnabled");
@@ -8,7 +10,7 @@ const tofResolutionModeInput = document.getElementById("tofResolutionMode");
 /** @type {HTMLDivElement | null} */
 const statusElement = document.getElementById("status");
 
-if (!outlierThresholdMmInput || !outlierEnabledInput || !tofResolutionModeInput || !statusElement) {
+if (!tofEnabledInput || !outlierThresholdMmInput || !outlierEnabledInput || !tofResolutionModeInput || !statusElement) {
 	throw new Error("ToF server settings page elements are missing");
 }
 
@@ -30,11 +32,16 @@ function parseModeInput() {
 }
 
 function applySettings(settings) {
+	const enabled = settings.enabled !== false;
+	tofEnabledInput.checked = enabled;
 	outlierEnabledInput.checked = settings.outlierEnabled !== false;
 	const outlierThreshold = Number(settings.outlierThresholdMm);
 	const mode = settings && settings.mode === "8x8" ? "8x8" : "4x4";
 	outlierThresholdMmInput.value = Number.isFinite(outlierThreshold) ? String(Math.round(outlierThreshold)) : "350";
 	tofResolutionModeInput.value = mode;
+	outlierEnabledInput.disabled = !enabled;
+	outlierThresholdMmInput.disabled = !enabled;
+	tofResolutionModeInput.disabled = !enabled;
 }
 
 async function loadSettings() {
@@ -81,6 +88,10 @@ async function updateSetting(name, value) {
 		await loadSettings();
 	}
 }
+
+tofEnabledInput.addEventListener("change", function () {
+	updateSetting("enabled", tofEnabledInput.checked ? "true" : "false");
+});
 
 outlierThresholdMmInput.addEventListener("change", function () {
 	const value = parseOutlierInput();

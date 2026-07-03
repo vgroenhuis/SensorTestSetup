@@ -11,6 +11,11 @@
 			<h1>Pressure Sensors</h1>
 			<div class="card">
 				<p>Live pressure readings from pressure sensors 0 and 1.</p>
+				<label class="setting-row" for="pressureSensorsEnabled">
+					<input id="pressureSensorsEnabled" type="checkbox" checked>
+					<span>Enable pressure sensors</span>
+				</label>
+				<div id="pressureSettingsStatus" class="status">Loading pressure settings...</div>
 				<div class="graph-controls">
 					<label for="pressureTimeWindowSec">Time window (s)</label>
 					<input id="pressureTimeWindowSec" class="time-window-input" type="text" value="60" inputmode="numeric" aria-label="Time window in seconds">

@@ -15,6 +15,7 @@
 #include "pressureSensor.h"
 #include "tofSensor.h"
 #include "globalVars.h"
+#include "pwmServo.h"
 
 RoamingWiFiManager manager;
 
@@ -34,6 +35,7 @@ void setup() {
     loadSerialSettingsFromNvs();
     initFileSystem();
     gpioExpandersSetup();
+    initPwmServo();
     initPressureSensor();
     initOledDisplay();
     initTofSensor();

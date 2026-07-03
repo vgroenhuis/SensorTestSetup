@@ -19,6 +19,9 @@ float sensorOffsetBar[PRESSURE_SENSOR_COUNT] = {0, 0};
 namespace {
     const char *PRESSURE_SETTINGS_NAMESPACE = "press_cfg";
     const char *KEY_SENSOR_OFFSET_PREFIX = "off";
+    const char *KEY_ENABLED = "enabled";
+    bool pressureSensorsEnabled = true;
+    bool pressureMultiplexerInitialized = false;
 
     bool loadPressureOffsetsFromNvs() {
         Preferences preferences;
@@ -32,6 +35,18 @@ namespace {
             sensorOffsetBar[i] = preferences.getFloat(key.c_str(), sensorOffsetBar[i]);
         }
 
+        preferences.end();
+        return true;
+    }
+
+    bool loadPressureEnabledFromNvs() {
+        Preferences preferences;
+        if (!preferences.begin(PRESSURE_SETTINGS_NAMESPACE, true)) {
+            Serial.println("NVS open failed for reading pressure settings");
+            return false;
+        }
+
+        pressureSensorsEnabled = preferences.getBool(KEY_ENABLED, pressureSensorsEnabled);
         preferences.end();
         return true;
     }
@@ -55,20 +70,79 @@ namespace {
         preferences.end();
         return allOk;
     }
+
+    bool savePressureEnabledToNvs() {
+        Preferences preferences;
+        if (!preferences.begin(PRESSURE_SETTINGS_NAMESPACE, false)) {
+            Serial.println("NVS open failed for writing pressure settings");
+            return false;
+        }
+
+        const bool ok = preferences.putBool(KEY_ENABLED, pressureSensorsEnabled) > 0;
+        preferences.end();
+        return ok;
+    }
 }
 
 void initPressureSensor() {
     Serial.println("Initializing pressure sensor");
+    loadPressureEnabledFromNvs();
     loadPressureOffsetsFromNvs();
+
+    if (!pressureSensorsEnabled) {
+        pressureMultiplexerInitialized = false;
+        Serial.println("Pressure sensors disabled in settings, skipping initialization");
+        return;
+    }
 
     if(!pressureSensorMultiplexer.begin()) {
         Serial.println("Pressure sensor multiplexer failed to initialize!");
+        pressureMultiplexerInitialized = false;
         return;
     }
+
+    pressureMultiplexerInitialized = true;
+}
+
+bool arePressureSensorsEnabled() {
+    return pressureSensorsEnabled;
+}
+
+bool setPressureSensorsEnabled(bool enabled) {
+    if (pressureSensorsEnabled == enabled) {
+        return true;
+    }
+
+    pressureSensorsEnabled = enabled;
+    if (!savePressureEnabledToNvs()) {
+        Serial.println("Failed to persist pressure sensor enabled setting");
+        return false;
+    }
+
+    if (!pressureSensorsEnabled) {
+        pressureMultiplexerInitialized = false;
+        return true;
+    }
+
+    if (!pressureSensorMultiplexer.begin()) {
+        Serial.println("Pressure sensor multiplexer failed to initialize while enabling");
+        pressureSensorsEnabled = false;
+        savePressureEnabledToNvs();
+        pressureMultiplexerInitialized = false;
+        return false;
+    }
+
+    pressureMultiplexerInitialized = true;
+    return true;
 }
 
 // Zero-calibrates sensor of this id
 void zeroCalibratePressure(int sensorId) {
+    if (!pressureSensorsEnabled || !pressureMultiplexerInitialized) {
+        Serial.println("Pressure sensors are disabled; skipping zero calibration");
+        return;
+    }
+
     if (sensorId < 0 || sensorId >= PRESSURE_SENSOR_COUNT) {
         Serial.println("Invalid pressure sensor ID for zero calibration");
         return;
@@ -110,6 +184,10 @@ void startPressureMeasurementSingleShot() {
  * @return float Pressure in bars or NAN if communication fails.
  */
 float readPressureSensorSingleShot(uint8_t sensorId){
+    if (!pressureSensorsEnabled || !pressureMultiplexerInitialized) {
+        return NAN;
+    }
+
     // check if sensorId is valid
     if(sensorId >= PRESSURE_SENSOR_COUNT){
         Serial.println("Invalid pressure sensor ID");

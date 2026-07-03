@@ -1,5 +1,7 @@
 // @ts-nocheck
 const statusElement = document.getElementById("pressureWsStatus");
+const settingsStatusElement = document.getElementById("pressureSettingsStatus");
+const pressureSensorsEnabledInput = document.getElementById("pressureSensorsEnabled");
 const historyCanvas = document.getElementById("pressureHistoryCanvas");
 const timeWindowInput = document.getElementById("pressureTimeWindowSec");
 const pauseGraphButton = document.getElementById("pauseGraphButton");
@@ -8,7 +10,7 @@ const zeroCalibrateSensor1Button = document.getElementById("zeroCalibrateSensor1
 const graphCaptionElement = document.getElementById("pressureGraphCaption");
 const valuesElement = document.getElementById("pressureValues");
 
-if (!statusElement || !historyCanvas || !timeWindowInput || !pauseGraphButton || !zeroCalibrateSensor0Button || !zeroCalibrateSensor1Button || !graphCaptionElement || !valuesElement) {
+if (!statusElement || !settingsStatusElement || !pressureSensorsEnabledInput || !historyCanvas || !timeWindowInput || !pauseGraphButton || !zeroCalibrateSensor0Button || !zeroCalibrateSensor1Button || !graphCaptionElement || !valuesElement) {
 	throw new Error("Pressure sensors page elements are missing");
 }
 
@@ -29,6 +31,7 @@ let historyDurationSec = 60;
 let graphPaused = false;
 let graphTimeOffsetSec = 0;
 let graphPausedAtRealTimeSec = null;
+let pressureSensorsEnabled = true;
 const historySamples = [];
 const latestPressures = new Array(sensorCount).fill(null);
 
@@ -109,12 +112,78 @@ function setStatus(text, isError) {
 	statusElement.classList.toggle("error", Boolean(isError));
 }
 
+function setSettingsStatus(text, isError) {
+	settingsStatusElement.textContent = text;
+	settingsStatusElement.classList.toggle("error", Boolean(isError));
+}
+
+function applyPressureSettings(settings) {
+	pressureSensorsEnabled = settings && settings.enabled !== false;
+	pressureSensorsEnabledInput.checked = pressureSensorsEnabled;
+	setCalibrationButtonsDisabled(!pressureSensorsEnabled);
+	pressureSensorsEnabledInput.disabled = false;
+}
+
+async function loadPressureSettings() {
+	setSettingsStatus("Loading pressure settings...", false);
+	pressureSensorsEnabledInput.disabled = true;
+
+	try {
+		const response = await fetch("/api/pressureSensors/settings", { method: "GET" });
+		if (!response.ok) {
+			throw new Error("HTTP " + response.status);
+		}
+
+		const settings = await response.json();
+		applyPressureSettings(settings);
+		setSettingsStatus("Pressure settings loaded.", false);
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error);
+		setSettingsStatus("Failed to load pressure settings: " + message, true);
+	}
+}
+
+async function updatePressureEnabled(enabled) {
+	setSettingsStatus("Saving pressure settings...", false);
+	pressureSensorsEnabledInput.disabled = true;
+
+	try {
+		const body = new URLSearchParams();
+		body.set("enabled", enabled ? "true" : "false");
+
+		const response = await fetch("/api/pressureSensors/settings", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+			},
+			body: body.toString()
+		});
+
+		if (!response.ok) {
+			throw new Error("HTTP " + response.status);
+		}
+
+		const settings = await response.json();
+		applyPressureSettings(settings);
+		setSettingsStatus("Pressure settings synchronized.", false);
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error);
+		setSettingsStatus("Failed to save pressure settings: " + message, true);
+		await loadPressureSettings();
+	}
+}
+
 function setCalibrationButtonsDisabled(disabled) {
 	zeroCalibrateSensor0Button.disabled = disabled;
 	zeroCalibrateSensor1Button.disabled = disabled;
 }
 
 async function zeroCalibrateSensor(sensorId) {
+	if (!pressureSensorsEnabled) {
+		setStatus("Pressure sensors are disabled", true);
+		return;
+	}
+
 	setCalibrationButtonsDisabled(true);
 	setStatus("Zero-calibrating sensor " + sensorId + "...", false);
 
@@ -382,6 +451,11 @@ function connectSocket() {
 	socket.addEventListener("message", function (event) {
 		try {
 			const payload = JSON.parse(event.data);
+			if (typeof payload.enabled === "boolean") {
+				pressureSensorsEnabled = payload.enabled;
+				pressureSensorsEnabledInput.checked = pressureSensorsEnabled;
+				setCalibrationButtonsDisabled(!pressureSensorsEnabled);
+			}
 			if (!Array.isArray(payload.pressures) || payload.pressures.length !== sensorCount) {
 				return;
 			}
@@ -426,10 +500,14 @@ zeroCalibrateSensor0Button.addEventListener("click", function () {
 zeroCalibrateSensor1Button.addEventListener("click", function () {
 	zeroCalibrateSensor(1);
 });
+pressureSensorsEnabledInput.addEventListener("change", function () {
+	updatePressureEnabled(pressureSensorsEnabledInput.checked);
+});
 
 timeWindowInput.value = String(readStoredTimeWindow());
 applyTimeWindowFromInput();
 renderPressureValues();
 resizeHistoryCanvas();
 requestAnimationFrame(drawGraph);
+loadPressureSettings();
 connectSocket();

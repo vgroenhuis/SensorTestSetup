@@ -3,14 +3,14 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>MCP23017 Bank B Inputs</title>
+		<title>MCP23017 GPIO Expander</title>
 		<link rel="stylesheet" href="/stylesheet.css">
 	</head>
 	<body>
 		<div class="container">
-			<h1>MCP23017 Bank B Inputs</h1>
+			<h1>MCP23017</h1>
 			<div class="card">
-				<p>Live digital state of MCP23017 input bank B (8 bits).</p>
+				<h2>Live Pin State</h2>
 				<div class="graph-controls">
 					<label for="mcp23017TimeWindowSec">Time window (s)</label>
 					<input id="mcp23017TimeWindowSec" class="time-window-input" type="text" value="60" inputmode="numeric" aria-label="Time window in seconds">
@@ -18,20 +18,65 @@
 				<div class="graph-actions">
 					<button id="pauseGraphButton" class="btn" type="button">Pause graph</button>
 				</div>
+				<p class="bank-label">Bank A</p>
 				<div class="digital-value-panel">
 					<div class="digital-main-value">
-						<span id="mcp23017HexValue" class="digital-main-number">0x00</span>
-						<span id="mcp23017BinaryValue" class="digital-main-binary">00000000</span>
+						<span id="bankAHexValue" class="digital-main-number">0x00</span>
+						<span id="bankABinaryValue" class="digital-main-binary">00000000</span>
 					</div>
 				</div>
-				<div id="mcp23017BitRows" class="digital-bit-grid" aria-live="polite"></div>
+				<div id="bankABitRows" class="digital-bit-grid" aria-live="polite"></div>
+				<p class="bank-label">Bank B</p>
+				<div class="digital-value-panel">
+					<div class="digital-main-value">
+						<span id="bankBHexValue" class="digital-main-number">0x00</span>
+						<span id="bankBBinaryValue" class="digital-main-binary">00000000</span>
+					</div>
+				</div>
+				<div id="bankBBitRows" class="digital-bit-grid" aria-live="polite"></div>
 				<div class="graph-card">
-					<canvas id="mcp23017HistoryCanvas" class="history-canvas" aria-label="MCP23017 input history graph"></canvas>
-					<div id="mcp23017GraphCaption" class="graph-caption">Time axis: -60 to 0 s. Eight lanes (IN7..IN0), each LOW/HIGH.</div>
+					<canvas id="mcp23017HistoryCanvas" class="history-canvas" aria-label="MCP23017 Bank B history graph"></canvas>
+					<div id="mcp23017GraphCaption" class="graph-caption">Time axis: -60 to 0 s. Eight lanes (B7..B0), each LOW/HIGH.</div>
 				</div>
 				<div id="mcp23017WsStatus" class="status">Connecting...</div>
-				<a href="/" class="btn">Back to control panel</a>
 			</div>
+			<div class="card">
+				<h2>Pin Configuration</h2>
+				<p>Configure direction, pullup resistors, and output values per pin. Settings are persisted on the device.</p>
+				<p class="bank-label">Bank A</p>
+				<table class="pin-config-table">
+					<thead>
+						<tr>
+							<th>Pin</th>
+							<th>Direction</th>
+							<th>Pullup</th>
+							<th>Output</th>
+						</tr>
+					</thead>
+					<tbody id="bankAConfigBody"></tbody>
+				</table>
+				<p class="bank-label">Bank B</p>
+				<table class="pin-config-table">
+					<thead>
+						<tr>
+							<th>Pin</th>
+							<th>Direction</th>
+							<th>Pullup</th>
+							<th>Output</th>
+						</tr>
+					</thead>
+					<tbody id="bankBConfigBody"></tbody>
+				</table>
+				<div class="form-actions">
+					<button id="applySettingsButton" class="btn" type="button">Apply Settings</button>
+					<label class="setting-row">
+						<input type="checkbox" id="autoApplyCheckbox">
+						<span>Auto apply</span>
+					</label>
+				</div>
+				<div id="settingsStatus" class="status">Loading settings...</div>
+			</div>
+			<a href="/" class="btn">Back to control panel</a>
 		</div>
 		<script type="module" src="/mcp23017Inputs.ts"></script>
 	</body>

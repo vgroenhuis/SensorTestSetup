@@ -9,6 +9,9 @@ constexpr int PRESSURE_SENSOR_COUNT = 2;
 // Initializes the I2C multiplexer
 void initPressureSensor();
 
+bool arePressureSensorsEnabled();
+bool setPressureSensorsEnabled(bool enabled);
+
 // Zero-calibrates sensor of this id
 void zeroCalibratePressure(int sensorId);
 

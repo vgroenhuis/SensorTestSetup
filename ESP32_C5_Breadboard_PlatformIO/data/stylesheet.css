@@ -510,6 +510,54 @@ button.btn {
     background: #fde8dc;
 }
 
+/* MCP23017 pin configuration table */
+.pin-config-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+
+.pin-config-table th,
+.pin-config-table td {
+    padding: 6px 8px;
+    text-align: left;
+    border-bottom: 1px solid #e0e4f0;
+}
+
+.pin-config-table th {
+    font-weight: 700;
+    color: #5a6075;
+    background: #f0f2fa;
+}
+
+.pin-config-table tr:last-child td {
+    border-bottom: none;
+}
+
+.pin-dir-select {
+    padding: 3px 5px;
+    border: 1px solid #bfc8e8;
+    border-radius: 4px;
+    font-size: 12px;
+    background: #fff;
+}
+
+.bank-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #2f3d8a;
+    margin: 12px 0 6px 0;
+}
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin: 10px 0 6px 0;
+}
+
 /* DC motor page */
 .motor-section {
     background: #ffffff;

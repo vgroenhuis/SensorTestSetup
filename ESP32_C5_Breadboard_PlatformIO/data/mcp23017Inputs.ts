@@ -4,11 +4,22 @@ const historyCanvas = document.getElementById("mcp23017HistoryCanvas");
 const timeWindowInput = document.getElementById("mcp23017TimeWindowSec");
 const pauseGraphButton = document.getElementById("pauseGraphButton");
 const graphCaptionElement = document.getElementById("mcp23017GraphCaption");
-const hexValueElement = document.getElementById("mcp23017HexValue");
-const binaryValueElement = document.getElementById("mcp23017BinaryValue");
-const bitRowsElement = document.getElementById("mcp23017BitRows");
+const bankAHexElement = document.getElementById("bankAHexValue");
+const bankABinaryElement = document.getElementById("bankABinaryValue");
+const bankABitRowsElement = document.getElementById("bankABitRows");
+const bankBHexElement = document.getElementById("bankBHexValue");
+const bankBBinaryElement = document.getElementById("bankBBinaryValue");
+const bankBBitRowsElement = document.getElementById("bankBBitRows");
+const bankAConfigBody = document.getElementById("bankAConfigBody");
+const bankBConfigBody = document.getElementById("bankBConfigBody");
+const applySettingsButton = document.getElementById("applySettingsButton");
+const autoApplyCheckbox = document.getElementById("autoApplyCheckbox");
+const settingsStatusElement = document.getElementById("settingsStatus");
 
-if (!statusElement || !historyCanvas || !timeWindowInput || !pauseGraphButton || !graphCaptionElement || !hexValueElement || !binaryValueElement || !bitRowsElement) {
+if (!statusElement || !historyCanvas || !timeWindowInput || !pauseGraphButton || !graphCaptionElement ||
+    !bankAHexElement || !bankABinaryElement || !bankABitRowsElement ||
+    !bankBHexElement || !bankBBinaryElement || !bankBBitRowsElement ||
+    !bankAConfigBody || !bankBConfigBody || !applySettingsButton || !autoApplyCheckbox || !settingsStatusElement) {
 	throw new Error("MCP23017 page elements are missing");
 }
 
@@ -27,7 +38,17 @@ let graphTimeOffsetSec = 0;
 let graphPausedAtRealTimeSec = null;
 let socket = null;
 let reconnectTimer = null;
-let latestValue = 0;
+let latestBankA = 0;
+let latestBankB = 0;
+
+let currentSettings = {
+	modeA: 0x00,
+	pullupA: 0x00,
+	modeB: 0xff,
+	pullupB: 0xff,
+	outputA: 0x03,
+	outputB: 0x00
+};
 
 function parseTimeWindowInput() {
 	const parsed = Number(timeWindowInput.value.trim());
@@ -81,13 +102,18 @@ function setGraphPaused(paused) {
 function applyTimeWindowFromInput() {
 	historyDurationSec = parseTimeWindowInput();
 	timeWindowInput.value = String(historyDurationSec);
-	graphCaptionElement.textContent = "Time axis: -" + historyDurationSec + " to 0 s. Eight lanes (IN7..IN0), each LOW/HIGH.";
+	graphCaptionElement.textContent = "Time axis: -" + historyDurationSec + " to 0 s. Eight lanes (B7..B0), each LOW/HIGH.";
 	storeTimeWindow(historyDurationSec);
 }
 
 function setStatus(text, isError) {
 	statusElement.textContent = text;
 	statusElement.classList.toggle("error", Boolean(isError));
+}
+
+function setSettingsStatus(text, isError) {
+	settingsStatusElement.textContent = text;
+	settingsStatusElement.classList.toggle("error", Boolean(isError));
 }
 
 function resizeHistoryCanvas() {
@@ -114,28 +140,38 @@ function toBinary8(value) {
 	return binary;
 }
 
-function renderBitRows() {
-	bitRowsElement.innerHTML = "";
+function renderBankBitRows(container, value, modeRegister, prefix) {
+	container.innerHTML = "";
 	for (let bit = 0; bit < channelCount; bit += 1) {
 		const row = document.createElement("div");
 		row.className = "digital-bit-row";
 
 		const name = document.createElement("span");
 		name.className = "digital-bit-name";
-		name.textContent = "IN" + bit;
+		const isInput = ((modeRegister >> bit) & 1) === 1;
+		name.textContent = prefix + bit + (isInput ? " (IN)" : " (OUT)");
 		name.style.color = channelColors[bit];
 
 		const state = document.createElement("span");
 		state.className = "digital-bit-state";
-		const isHigh = ((latestValue >> bit) & 1) === 1;
+		const isHigh = ((value >> bit) & 1) === 1;
 		state.textContent = isHigh ? "HIGH" : "LOW";
 		state.classList.toggle("high", isHigh);
 		state.classList.toggle("low", !isHigh);
 
 		row.appendChild(name);
 		row.appendChild(state);
-		bitRowsElement.appendChild(row);
+		container.appendChild(row);
 	}
+}
+
+function renderBitRows() {
+	bankAHexElement.textContent = "0x" + latestBankA.toString(16).toUpperCase().padStart(2, "0");
+	bankABinaryElement.textContent = toBinary8(latestBankA);
+	bankBHexElement.textContent = "0x" + latestBankB.toString(16).toUpperCase().padStart(2, "0");
+	bankBBinaryElement.textContent = toBinary8(latestBankB);
+	renderBankBitRows(bankABitRowsElement, latestBankA, currentSettings.modeA, "A");
+	renderBankBitRows(bankBBitRowsElement, latestBankB, currentSettings.modeB, "B");
 }
 
 function xTickStep(windowSec) {
@@ -206,7 +242,7 @@ function drawGraph() {
 
 		const bit = lane;
 		ctx.fillStyle = "#5a6075";
-		ctx.fillText("IN" + bit, 18, top + laneHeight * 0.62);
+		ctx.fillText("B" + bit, 18, top + laneHeight * 0.62);
 	}
 
 	ctx.fillStyle = "#3f4e9e";
@@ -275,16 +311,15 @@ function connectSocket() {
 	socket.addEventListener("message", function (event) {
 		try {
 			const payload = JSON.parse(event.data);
-			if (typeof payload.bankValue !== "number") {
+			if (typeof payload.bankA !== "number" || typeof payload.bankB !== "number") {
 				return;
 			}
 
-			latestValue = payload.bankValue & 0xff;
-			hexValueElement.textContent = "0x" + latestValue.toString(16).toUpperCase().padStart(2, "0");
-			binaryValueElement.textContent = toBinary8(latestValue);
+			latestBankA = payload.bankA & 0xff;
+			latestBankB = payload.bankB & 0xff;
 			renderBitRows();
 			if (!graphPaused) {
-				historySamples.push({ t: Date.now() / 1000 - graphTimeOffsetSec, v: latestValue });
+				historySamples.push({ t: Date.now() / 1000 - graphTimeOffsetSec, v: latestBankB });
 			}
 		} catch (error) {
 			setStatus("Invalid data received", true);
@@ -302,11 +337,158 @@ function connectSocket() {
 	});
 }
 
+// --- Settings ---
+
+function onConfigTableChange() {
+	if (autoApplyCheckbox.checked) {
+		applySettings();
+	}
+}
+
+function buildConfigTable(tbody, modeReg, pullupReg, outputReg, prefix, reverse) {
+	tbody.innerHTML = "";
+	const bits = reverse ? [7, 6, 5, 4, 3, 2, 1, 0] : [0, 1, 2, 3, 4, 5, 6, 7];
+	for (let i = 0; i < bits.length; i += 1) {
+		const bit = bits[i];
+		const tr = document.createElement("tr");
+
+		const tdPin = document.createElement("td");
+		tdPin.textContent = prefix + bit;
+		tdPin.style.color = channelColors[bit];
+		tdPin.style.fontWeight = "700";
+
+		const isInput = ((modeReg >> bit) & 1) === 1;
+		const hasPullup = ((pullupReg >> bit) & 1) === 1;
+		const outputHigh = ((outputReg >> bit) & 1) === 1;
+
+		const tdDir = document.createElement("td");
+		const dirSelect = document.createElement("select");
+		dirSelect.className = "pin-dir-select";
+		dirSelect.dataset.bit = String(bit);
+		const optIn = document.createElement("option");
+		optIn.value = "1";
+		optIn.textContent = "Input";
+		const optOut = document.createElement("option");
+		optOut.value = "0";
+		optOut.textContent = "Output";
+		dirSelect.appendChild(optIn);
+		dirSelect.appendChild(optOut);
+		dirSelect.value = isInput ? "1" : "0";
+		dirSelect.addEventListener("change", onConfigTableChange);
+		tdDir.appendChild(dirSelect);
+
+		const tdPullup = document.createElement("td");
+		const pullupChk = document.createElement("input");
+		pullupChk.type = "checkbox";
+		pullupChk.className = "pin-pullup-chk";
+		pullupChk.dataset.bit = String(bit);
+		pullupChk.checked = hasPullup;
+		pullupChk.addEventListener("change", onConfigTableChange);
+		tdPullup.appendChild(pullupChk);
+
+		const tdOutput = document.createElement("td");
+		const outputChk = document.createElement("input");
+		outputChk.type = "checkbox";
+		outputChk.className = "pin-output-chk";
+		outputChk.dataset.bit = String(bit);
+		outputChk.checked = outputHigh;
+		outputChk.addEventListener("change", onConfigTableChange);
+		tdOutput.appendChild(outputChk);
+
+		tr.appendChild(tdPin);
+		tr.appendChild(tdDir);
+		tr.appendChild(tdPullup);
+		tr.appendChild(tdOutput);
+		tbody.appendChild(tr);
+	}
+}
+
+function collectByte(tbody, className) {
+	let result = 0;
+	const elements = tbody.querySelectorAll("." + className);
+	elements.forEach(function (el) {
+		const bit = parseInt(el.dataset.bit, 10);
+		const value = el.type === "checkbox" ? (el.checked ? 1 : 0) : parseInt(el.value, 10);
+		if (value === 1) {
+			result |= (1 << bit);
+		}
+	});
+	return result;
+}
+
+function applySettingsToUI(settings) {
+	currentSettings = settings;
+	buildConfigTable(bankAConfigBody, settings.modeA, settings.pullupA, settings.outputA, "A", true);
+	buildConfigTable(bankBConfigBody, settings.modeB, settings.pullupB, settings.outputB, "B", false);
+	renderBitRows();
+}
+
+async function loadSettings() {
+	setSettingsStatus("Loading settings...", false);
+	try {
+		const response = await fetch("/api/mcp23017/settings", { method: "GET" });
+		if (!response.ok) {
+			throw new Error("HTTP " + response.status);
+		}
+		const settings = await response.json();
+		applySettingsToUI(settings);
+		setSettingsStatus("Settings loaded.", false);
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error);
+		setSettingsStatus("Failed to load settings: " + message, true);
+	}
+}
+
+async function applySettings() {
+	applySettingsButton.disabled = true;
+	setSettingsStatus("Saving...", false);
+	try {
+		const modeA = collectByte(bankAConfigBody, "pin-dir-select");
+		const pullupA = collectByte(bankAConfigBody, "pin-pullup-chk");
+		const outputA = collectByte(bankAConfigBody, "pin-output-chk");
+		const modeB = collectByte(bankBConfigBody, "pin-dir-select");
+		const pullupB = collectByte(bankBConfigBody, "pin-pullup-chk");
+		const outputB = collectByte(bankBConfigBody, "pin-output-chk");
+
+		const body = new URLSearchParams();
+		body.set("modeA", String(modeA));
+		body.set("pullupA", String(pullupA));
+		body.set("modeB", String(modeB));
+		body.set("pullupB", String(pullupB));
+		body.set("outputA", String(outputA));
+		body.set("outputB", String(outputB));
+
+		const response = await fetch("/api/mcp23017/settings", {
+			method: "POST",
+			headers: { "Content-Type": "application/x-www-form-urlencoded" },
+			body: body.toString()
+		});
+
+		if (!response.ok) {
+			throw new Error("HTTP " + response.status);
+		}
+		const settings = await response.json();
+		applySettingsToUI(settings);
+		setSettingsStatus("Settings applied.", false);
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error);
+		setSettingsStatus("Failed to apply settings: " + message, true);
+	} finally {
+		applySettingsButton.disabled = false;
+	}
+}
+
 window.addEventListener("resize", resizeHistoryCanvas);
 timeWindowInput.addEventListener("change", applyTimeWindowFromInput);
 timeWindowInput.addEventListener("blur", applyTimeWindowFromInput);
 pauseGraphButton.addEventListener("click", function () {
 	setGraphPaused(!graphPaused);
+});
+applySettingsButton.addEventListener("click", applySettings);
+autoApplyCheckbox.addEventListener("change", function () {
+	if (autoApplyCheckbox.checked) {
+		applySettings();
+	}
 });
 
 timeWindowInput.value = String(readStoredTimeWindow());
@@ -314,4 +496,5 @@ applyTimeWindowFromInput();
 renderBitRows();
 resizeHistoryCanvas();
 requestAnimationFrame(drawGraph);
+loadSettings();
 connectSocket();

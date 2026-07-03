@@ -130,6 +130,7 @@ char report[256];
 
 namespace {
   static const char *TOF_SETTINGS_NAMESPACE = "tof_cfg";
+  static const char *KEY_ENABLED = "en";
   static const char *KEY_OUTLIER_ENABLED = "out_en";
   static const char *KEY_OUTLIER_MM = "out_mm";
   static const char *KEY_RESOLUTION = "res";
@@ -138,6 +139,7 @@ namespace {
   static const uint16_t maxOutlierThresholdMm = 2000;
 
   TofServerSettings tofSettings = {
+    true,
     true,
     defaultOutlierThresholdMm,
     VL53L7CX_RESOLUTION_8X8
@@ -148,6 +150,8 @@ namespace {
   bool hasLatestRaw = false;
   bool hasLatestFiltered = false;
   uint8_t activeResolution = VL53L7CX_RESOLUTION_4X4;
+  bool tofRuntimeActive = false;
+  bool tofHardwareReady = false;
   bool resolutionSwitchPending = false;
   unsigned long lastResolutionSwitchAttemptMs = 0;
   const unsigned long resolutionSwitchRetryIntervalMs = 500;
@@ -226,6 +230,7 @@ namespace {
       }
 
       res = clamped;
+      activeResolution = clamped;
       hasLatestRaw = false;
       hasLatestFiltered = false;
       return true;
@@ -270,11 +275,12 @@ namespace {
       return false;
     }
 
+    bool okEnabled = preferences.putBool(KEY_ENABLED, tofSettings.enabled) > 0;
     bool okOutlierEnabled = preferences.putBool(KEY_OUTLIER_ENABLED, tofSettings.outlierEnabled) > 0;
     bool okOutlier = preferences.putUInt(KEY_OUTLIER_MM, tofSettings.outlierThresholdMm) > 0;
     bool okResolution = preferences.putUChar(KEY_RESOLUTION, clampResolution(tofSettings.resolution)) > 0;
     preferences.end();
-    return okOutlierEnabled && okOutlier && okResolution;
+    return okEnabled && okOutlierEnabled && okOutlier && okResolution;
   }
 
   void loadTofSettingsFromNvs() {
@@ -287,6 +293,7 @@ namespace {
       return;
     }
 
+    tofSettings.enabled = preferences.getBool(KEY_ENABLED, tofSettings.enabled);
     tofSettings.outlierEnabled = preferences.getBool(KEY_OUTLIER_ENABLED, tofSettings.outlierEnabled);
     const uint32_t storedOutlierMm = preferences.getUInt(KEY_OUTLIER_MM, defaultOutlierThresholdMm);
     const uint8_t storedResolution = preferences.getUChar(KEY_RESOLUTION, VL53L7CX_RESOLUTION_8X8);
@@ -294,6 +301,57 @@ namespace {
 
     tofSettings.outlierThresholdMm = clampOutlierThresholdMm((uint16_t)storedOutlierMm);
     tofSettings.resolution = clampResolution(storedResolution);
+  }
+
+  bool startTofRuntime() {
+    const uint8_t initialResolution = clampResolution(tofSettings.resolution);
+    tofSettings.resolution = initialResolution;
+    activeResolution = initialResolution;
+    res = initialResolution;
+
+    if (!tofHardwareReady) {
+      sensor_vl53l7cx_top.begin();
+      SerialPort.println("Initializing Time-of-Flight sensor");
+      if (sensor_vl53l7cx_top.init_sensor() != VL53L7CX_STATUS_OK) {
+        Serial.println("ToF: init_sensor failed");
+        return false;
+      }
+      tofHardwareReady = true;
+    }
+
+    if (sensor_vl53l7cx_top.vl53l7cx_set_resolution(initialResolution) != VL53L7CX_STATUS_OK) {
+      Serial.println("ToF: failed to set initial resolution");
+      return false;
+    }
+    if (sensor_vl53l7cx_top.vl53l7cx_set_ranging_frequency_hz(rangingFrequencyForResolution(initialResolution)) != VL53L7CX_STATUS_OK) {
+      Serial.println("ToF: failed to set initial frequency");
+      return false;
+    }
+    if (sensor_vl53l7cx_top.vl53l7cx_set_ranging_mode(VL53L7CX_RANGING_MODE_CONTINUOUS) != VL53L7CX_STATUS_OK) {
+      Serial.println("ToF: failed to set ranging mode");
+      return false;
+    }
+    if (sensor_vl53l7cx_top.vl53l7cx_start_ranging() != VL53L7CX_STATUS_OK) {
+      Serial.println("ToF: failed to start ranging");
+      return false;
+    }
+
+    tofRuntimeActive = true;
+    resolutionSwitchPending = false;
+    hasLatestRaw = false;
+    hasLatestFiltered = false;
+    return true;
+  }
+
+  void stopTofRuntime() {
+    if (tofRuntimeActive) {
+      sensor_vl53l7cx_top.vl53l7cx_stop_ranging();
+    }
+
+    tofRuntimeActive = false;
+    resolutionSwitchPending = false;
+    hasLatestRaw = false;
+    hasLatestFiltered = false;
   }
 
   void applyFilteringToResults(const VL53L7CX_ResultsData &rawResults, unsigned long nowMs) {
@@ -391,28 +449,22 @@ namespace {
 /* Setup ---------------------------------------------------------------------*/
 void initTofSensor()
 {
-  // Configure VL53L7CX component.
-  sensor_vl53l7cx_top.begin();
-  SerialPort.println("Initializing Time-of-Flight sensor");
-
-  sensor_vl53l7cx_top.init_sensor();
-  //SerialPort.println("ToF sensor initialized");
-
-  //return;
-
   loadTofSettingsFromNvs();
 
   const uint8_t initialResolution = clampResolution(tofSettings.resolution);
   tofSettings.resolution = initialResolution;
   activeResolution = initialResolution;
-  res = initialResolution;
-  sensor_vl53l7cx_top.vl53l7cx_set_resolution(initialResolution);
-  sensor_vl53l7cx_top.vl53l7cx_set_ranging_frequency_hz(rangingFrequencyForResolution(initialResolution));
-  sensor_vl53l7cx_top.vl53l7cx_set_ranging_mode(VL53L7CX_RANGING_MODE_CONTINUOUS);
 
-  // Start Measurements
-  sensor_vl53l7cx_top.vl53l7cx_start_ranging();
-  //SerialPort.println("ToF sensor start ranging");
+  if (!tofSettings.enabled) {
+    Serial.println("ToF: disabled in settings, skipping initialization");
+    stopTofRuntime();
+    return;
+  }
+
+  if (!startTofRuntime()) {
+    Serial.println("ToF: startup failed, disabling runtime");
+    stopTofRuntime();
+  }
 }
 
 VL53L7CX_ResultsData getToFData() {
@@ -440,6 +492,10 @@ VL53L7CX_ResultsData getToFData() {
 }
 
 void tofSensorLoop() {
+  if (!tofRuntimeActive) {
+    return;
+  }
+
   if (resolutionSwitchPending) {
     const unsigned long nowMs = millis();
     if ((nowMs - lastResolutionSwitchAttemptMs) >= resolutionSwitchRetryIntervalMs) {
@@ -494,12 +550,18 @@ bool setTofOutlierThresholdMm(uint16_t thresholdMm) {
 
 bool setTofResolution(uint8_t resolution) {
   const uint8_t clamped = clampResolution(resolution);
-  if (tofSettings.resolution == clamped && !resolutionSwitchPending) {
+  if (tofSettings.resolution == clamped && !resolutionSwitchPending && activeResolution == clamped) {
     return true;
   }
 
   tofSettings.resolution = clamped;
-  resolutionSwitchPending = (activeResolution != clamped);
+  if (!tofRuntimeActive) {
+    activeResolution = clamped;
+    resolutionSwitchPending = false;
+  } else {
+    resolutionSwitchPending = (activeResolution != clamped);
+  }
+
   if (!saveTofSettingsToNvs()) {
     Serial.println("Failed to persist ToF resolution");
     return false;
@@ -509,6 +571,32 @@ bool setTofResolution(uint8_t resolution) {
     Serial.println("ToF: resolution switch queued");
   }
 
+  return true;
+}
+
+bool setTofEnabled(bool enabled) {
+  if (tofSettings.enabled == enabled) {
+    return true;
+  }
+
+  tofSettings.enabled = enabled;
+  if (!saveTofSettingsToNvs()) {
+    Serial.println("Failed to persist ToF enabled setting");
+    return false;
+  }
+
+  if (enabled) {
+    if (!startTofRuntime()) {
+      Serial.println("ToF: failed to enable runtime");
+      tofSettings.enabled = false;
+      saveTofSettingsToNvs();
+      stopTofRuntime();
+      return false;
+    }
+    return true;
+  }
+
+  stopTofRuntime();
   return true;
 }
 

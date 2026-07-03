@@ -8,6 +8,7 @@
 #include "pressureSensor.h"
 #include "tofSensor.h"
 #include "globalVars.h"
+#include "pwmServo.h"
 #include <array>
 
 namespace {
@@ -98,23 +99,49 @@ namespace {
     }
 
     String mcp23017InputsJson() {
-        const uint8_t bankValue = getDigitalBankA();
+        const uint8_t bankAValue = getDigitalBankA();
+        const uint8_t bankBValue = getDigitalBankB();
+        const Mcp23017Settings settings = getMcp23017Settings();
         String json = String("{\"millis\":") + millis() +
-                      ",\"bankValue\":" + String(bankValue) +
-                      ",\"bits\":[";
+                      ",\"bankA\":" + String(bankAValue) +
+                      ",\"bankB\":" + String(bankBValue) +
+                      ",\"outputA\":" + String(settings.outputA) +
+                      ",\"outputB\":" + String(settings.outputB) +
+                      ",\"bitsA\":[";
         for (int bit = 0; bit < 8; ++bit) {
             if (bit > 0) {
                 json += ",";
             }
-            json += ((bankValue >> bit) & 0x01) ? "1" : "0";
+            json += ((bankAValue >> bit) & 0x01) ? "1" : "0";
+        }
+        json += "],\"bitsB\":[";
+        for (int bit = 0; bit < 8; ++bit) {
+            if (bit > 0) {
+                json += ",";
+            }
+            json += ((bankBValue >> bit) & 0x01) ? "1" : "0";
         }
         json += "]}";
         return json;
     }
 
+    String mcp23017SettingsJson() {
+        const Mcp23017Settings settings = getMcp23017Settings();
+        return String("{\"modeA\":") + settings.modeA +
+               ",\"pullupA\":" + settings.pullupA +
+               ",\"modeB\":" + settings.modeB +
+               ",\"pullupB\":" + settings.pullupB +
+               ",\"outputA\":" + settings.outputA +
+               ",\"outputB\":" + settings.outputB +
+               ",\"readA\":" + getDigitalBankA() +
+               ",\"readB\":" + getDigitalBankB() + "}";
+    }
+
     String pressureSensorsJson() {
         const std::array<float, PRESSURE_SENSOR_COUNT> values = readPressureSensorsSingleShot();
-        String json = String("{\"millis\":") + millis() + ",\"pressures\":[";
+        String json = String("{\"millis\":") + millis() +
+                      ",\"enabled\":" + (arePressureSensorsEnabled() ? "true" : "false") +
+                      ",\"pressures\":[";
         for (size_t i = 0; i < values.size(); ++i) {
             if (i > 0) {
                 json += ",";
@@ -127,6 +154,10 @@ namespace {
         }
         json += "]}";
         return json;
+    }
+
+    String pressureSensorsSettingsJson() {
+        return String("{\"enabled\":") + (arePressureSensorsEnabled() ? "true" : "false") + "}";
     }
 
     bool tofStatusIsValid(uint8_t status) {
@@ -388,6 +419,38 @@ namespace {
         return true;
     }
 
+    bool parseServoChannel(const String &value, int &outChannel) {
+        for (size_t i = 0; i < value.length(); ++i) {
+            if (!isDigit(value[i])) {
+                return false;
+            }
+        }
+
+        const int parsed = value.toInt();
+        if (parsed < 0 || parsed > 15) {
+            return false;
+        }
+
+        outChannel = parsed;
+        return true;
+    }
+
+    bool parseServoPulseUs(const String &value, int &outPulseUs) {
+        for (size_t i = 0; i < value.length(); ++i) {
+            if (!isDigit(value[i])) {
+                return false;
+            }
+        }
+
+        const int parsed = value.toInt();
+        if (parsed < 100 || parsed > 5000) {
+            return false;
+        }
+
+        outPulseUs = parsed;
+        return true;
+    }
+
     void applyMotorPwmWithDirection(int duty, MotorDirection direction) {
         if (direction == MotorDirection::Forward) {
             pinMode(motorIn2Pin, OUTPUT);
@@ -529,6 +592,26 @@ bool parseSensorIdParam(const String &value, int &outSensorId) {
     return true;
 }
 
+bool parseByteParam(const String &value, uint8_t &outValue) {
+    if (value.length() == 0) {
+        return false;
+    }
+
+    for (size_t i = 0; i < value.length(); ++i) {
+        if (!isDigit(value[i])) {
+            return false;
+        }
+    }
+
+    const int parsed = value.toInt();
+    if (parsed < 0 || parsed > 255) {
+        return false;
+    }
+
+    outValue = (uint8_t)parsed;
+    return true;
+}
+
 String serialSettingsJson() {
     return String("{\"serialOutputEnabled\":") + (serialOutputEnabled ? "true" : "false") +
            ",\"includePotentiometerValue\":" + (includePotentiometerValue ? "true" : "false") + "}";
@@ -536,7 +619,8 @@ String serialSettingsJson() {
 
 String tofServerSettingsJson() {
     const TofServerSettings settings = getTofServerSettings();
-    return String("{\"outlierEnabled\":") + (settings.outlierEnabled ? "true" : "false") +
+    return String("{\"enabled\":") + (settings.enabled ? "true" : "false") +
+           ",\"outlierEnabled\":" + (settings.outlierEnabled ? "true" : "false") +
            ",\"outlierThresholdMm\":" + settings.outlierThresholdMm +
            ",\"mode\":\"" + tofModeToString(settings.resolution) + "\"}";
 }
@@ -608,6 +692,44 @@ void initServer(RoamingWiFiManager& manager) {
             request->send(404, "text/plain", "statistics.html not found");
         }
     });
+    manager.server.on("/pwmServo", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        if (LittleFS.exists("/pwmServo.html")) {
+            request->send(LittleFS, "/pwmServo.html", "text/html");
+        } else {
+            request->send(404, "text/plain", "pwmServo.html not found");
+        }
+    });
+    manager.server.on("/pwmServo.ts", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        if (LittleFS.exists("/pwmServo.ts")) {
+            request->send(LittleFS, "/pwmServo.ts", "application/javascript");
+        } else {
+            request->send(404, "text/plain", "pwmServo.ts not found");
+        }
+    });
+    manager.server.on("/api/pwmServo", HTTP_POST, [] (AsyncWebServerRequest *request) {
+        if (!request->hasParam("channel", true) || !request->hasParam("microseconds", true)) {
+            request->send(400, "application/json", "{\"error\":\"missing channel or microseconds\"}");
+            return;
+        }
+
+        int channel = 0;
+        int microseconds = 1500;
+        const String channelValue = request->getParam("channel", true)->value();
+        const String pulseValue = request->getParam("microseconds", true)->value();
+
+        if (!parseServoChannel(channelValue, channel)) {
+            request->send(400, "application/json", "{\"error\":\"invalid channel\"}");
+            return;
+        }
+
+        if (!parseServoPulseUs(pulseValue, microseconds)) {
+            request->send(400, "application/json", "{\"error\":\"invalid microseconds\"}");
+            return;
+        }
+
+        setServo(channel, microseconds);
+        request->send(200, "application/json", String("{\"ok\":true,\"channel\":") + channel + ",\"microseconds\":" + microseconds + "}");
+    });
     manager.server.on("/statistics.ts", HTTP_GET, [] (AsyncWebServerRequest *request) {
         if (LittleFS.exists("/statistics.ts")) {
             request->send(LittleFS, "/statistics.ts", "application/javascript");
@@ -653,6 +775,9 @@ void initServer(RoamingWiFiManager& manager) {
             request->send(404, "text/plain", "pressureSensors.ts not found");
         }
     });
+    manager.server.on("/api/pressureSensors/settings", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        request->send(200, "application/json", pressureSensorsSettingsJson());
+    });
     manager.server.on("/tofSensor", HTTP_GET, [] (AsyncWebServerRequest *request) {
         if (LittleFS.exists("/tofSensor.html")) {
             request->send(LittleFS, "/tofSensor.html", "text/html");
@@ -689,6 +814,20 @@ void initServer(RoamingWiFiManager& manager) {
     });
     manager.server.on("/api/tofServerSettings", HTTP_POST, [] (AsyncWebServerRequest *request) {
         bool hasAnyUpdate = false;
+
+        if (request->hasParam("enabled", true)) {
+            bool parsedValue = false;
+            String value = request->getParam("enabled", true)->value();
+            if (!parseBoolParam(value, parsedValue)) {
+                request->send(400, "application/json", "{\"error\":\"invalid enabled\"}");
+                return;
+            }
+            if (!setTofEnabled(parsedValue)) {
+                request->send(500, "application/json", "{\"error\":\"failed to apply enabled\"}");
+                return;
+            }
+            hasAnyUpdate = true;
+        }
 
         if (request->hasParam("outlierThresholdMm", true)) {
             String value = request->getParam("outlierThresholdMm", true)->value();
@@ -768,6 +907,9 @@ void initServer(RoamingWiFiManager& manager) {
         } else {
             request->send(404, "text/plain", "mcp23017Inputs.ts not found");
         }
+    });
+    manager.server.on("/api/mcp23017/settings", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        request->send(200, "application/json", mcp23017SettingsJson());
     });
     manager.server.on("/rotaryEncoder", HTTP_GET, [] (AsyncWebServerRequest *request) {
         if (LittleFS.exists("/rotaryEncoder.html")) {
@@ -928,7 +1070,114 @@ void initServer(RoamingWiFiManager& manager) {
 
         request->send(200, "application/json", serialSettingsJson());
     });
+        manager.server.on("/api/mcp23017/settings", HTTP_POST, [] (AsyncWebServerRequest *request) {
+            Mcp23017Settings settings = getMcp23017Settings();
+            bool hasAnyUpdate = false;
+
+            if (request->hasParam("modeA", true)) {
+                uint8_t parsedValue = 0;
+                String value = request->getParam("modeA", true)->value();
+                if (!parseByteParam(value, parsedValue)) {
+                    request->send(400, "application/json", "{\"error\":\"invalid modeA\"}");
+                    return;
+                }
+                settings.modeA = parsedValue;
+                hasAnyUpdate = true;
+            }
+
+            if (request->hasParam("pullupA", true)) {
+                uint8_t parsedValue = 0;
+                String value = request->getParam("pullupA", true)->value();
+                if (!parseByteParam(value, parsedValue)) {
+                    request->send(400, "application/json", "{\"error\":\"invalid pullupA\"}");
+                    return;
+                }
+                settings.pullupA = parsedValue;
+                hasAnyUpdate = true;
+            }
+
+            if (request->hasParam("modeB", true)) {
+                uint8_t parsedValue = 0;
+                String value = request->getParam("modeB", true)->value();
+                if (!parseByteParam(value, parsedValue)) {
+                    request->send(400, "application/json", "{\"error\":\"invalid modeB\"}");
+                    return;
+                }
+                settings.modeB = parsedValue;
+                hasAnyUpdate = true;
+            }
+
+            if (request->hasParam("pullupB", true)) {
+                uint8_t parsedValue = 0;
+                String value = request->getParam("pullupB", true)->value();
+                if (!parseByteParam(value, parsedValue)) {
+                    request->send(400, "application/json", "{\"error\":\"invalid pullupB\"}");
+                    return;
+                }
+                settings.pullupB = parsedValue;
+                hasAnyUpdate = true;
+            }
+
+            if (request->hasParam("outputA", true)) {
+                uint8_t parsedValue = 0;
+                String value = request->getParam("outputA", true)->value();
+                if (!parseByteParam(value, parsedValue)) {
+                    request->send(400, "application/json", "{\"error\":\"invalid outputA\"}");
+                    return;
+                }
+                settings.outputA = parsedValue;
+                hasAnyUpdate = true;
+            }
+
+            if (request->hasParam("outputB", true)) {
+                uint8_t parsedValue = 0;
+                String value = request->getParam("outputB", true)->value();
+                if (!parseByteParam(value, parsedValue)) {
+                    request->send(400, "application/json", "{\"error\":\"invalid outputB\"}");
+                    return;
+                }
+                settings.outputB = parsedValue;
+                hasAnyUpdate = true;
+            }
+
+            if (!hasAnyUpdate) {
+                request->send(400, "application/json", "{\"error\":\"no valid parameters provided\"}");
+                return;
+            }
+
+            if (!setMcp23017Settings(settings, true)) {
+                request->send(500, "application/json", "{\"error\":\"failed to persist MCP23017 settings\"}");
+                return;
+            }
+
+            request->send(200, "application/json", mcp23017SettingsJson());
+        });
+        manager.server.on("/api/pressureSensors/settings", HTTP_POST, [] (AsyncWebServerRequest *request) {
+            if (!request->hasParam("enabled", true)) {
+                request->send(400, "application/json", "{\"error\":\"missing enabled\"}");
+                return;
+            }
+
+            bool parsedValue = false;
+            String value = request->getParam("enabled", true)->value();
+            if (!parseBoolParam(value, parsedValue)) {
+                request->send(400, "application/json", "{\"error\":\"invalid enabled\"}");
+                return;
+            }
+
+            if (!setPressureSensorsEnabled(parsedValue)) {
+                request->send(500, "application/json", "{\"error\":\"failed to apply enabled\"}");
+                return;
+            }
+
+            request->send(200, "application/json", pressureSensorsSettingsJson());
+        });
         manager.server.on("/api/pressureSensors/zeroCalibrate", HTTP_POST, [] (AsyncWebServerRequest *request) {
+            if (!arePressureSensorsEnabled()) {
+                request->send(400, "application/json", "{\"error\":\"pressure sensors are disabled\"}");
+                return;
+            }
+
             if (!request->hasParam("sensorId", true)) {
                 request->send(400, "application/json", "{\"error\":\"missing sensorId\"}");
                 return;
