@@ -4,6 +4,7 @@
 #include <SPI.h>
 #include <Fonts/FreeSans9pt7b.h>
 #include "globalVars.h"
+#include <Preferences.h>
 
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
@@ -16,11 +17,42 @@ bool ipDisplayed = false;
 
 Adafruit_SSD1306 oled(SCREEN_WIDTH, SCREEN_HEIGHT,  &SPI, OLED_DC, OLED_RESET, OLED_CS);
 
+namespace {
+    const char *OLED_SETTINGS_NAMESPACE = "oled_cfg";
+    const char *KEY_ENABLED = "enabled";
+    bool oledEnabled = true;
+
+    bool saveOledSettingsToNvs() {
+        Preferences preferences;
+        if (!preferences.begin(OLED_SETTINGS_NAMESPACE, false)) {
+            Serial.println("NVS open failed for writing OLED settings");
+            return false;
+        }
+        bool ok = preferences.putBool(KEY_ENABLED, oledEnabled) > 0;
+        preferences.end();
+        return ok;
+    }
+
+    void loadOledSettingsFromNvs() {
+        Preferences preferences;
+        if (!preferences.begin(OLED_SETTINGS_NAMESPACE, true)) {
+            Serial.println("NVS open failed for reading OLED settings");
+            saveOledSettingsToNvs();
+            return;
+        }
+        oledEnabled = preferences.getBool(KEY_ENABLED, oledEnabled);
+        preferences.end();
+    }
+}
+
 bool isIpDisplayed() {
     return ipDisplayed;
 }
 
 void displayStatus(String ip) {
+    if (!oledEnabled) {
+        return;
+    }
     oled.clearDisplay();
     oled.setTextSize(1);
     oled.setTextColor(SSD1306_WHITE);
@@ -35,6 +67,13 @@ void displayStatus(String ip) {
 }
 
 void initOledDisplay() {
+    loadOledSettingsFromNvs();
+
+    if (!oledEnabled) {
+        Serial.println("OLED display is disabled");
+        return;
+    }
+
     Serial.println("Initializing OLED display");
     pinMode(OLED_CS, OUTPUT);
     digitalWrite(OLED_CS, HIGH);
@@ -53,4 +92,16 @@ void initOledDisplay() {
     oled.println("Initializing...");
     oled.display();
     digitalWrite(OLED_CS, LOW);
+}
+
+bool isOledEnabled() {
+    return oledEnabled;
+}
+
+bool setOledEnabled(bool enabled, bool persist) {
+    oledEnabled = enabled;
+    if (persist) {
+        return saveOledSettingsToNvs();
+    }
+    return true;
 }

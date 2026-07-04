@@ -9,7 +9,10 @@
 #include "tofSensor.h"
 #include "globalVars.h"
 #include "pwmServo.h"
+#include "oled.h"
+#include "matrix.h"
 #include <array>
+#include "dcMotor.h"
 
 namespace {
     AsyncWebSocket potentiometerWebSocket("/ws/potentiometer");
@@ -36,35 +39,6 @@ namespace {
     const unsigned long rotaryEncoderPublishIntervalMs = 50;
     const unsigned long pressureSensorsPublishIntervalMs = 50;
     const unsigned long tofSensorPublishIntervalMs = 50;
-
-    enum class MotorMode {
-        Direct,
-        Pwm,
-        Potentiometer
-    };
-
-    enum class MotorDirection {
-        Forward,
-        Reverse
-    };
-
-    enum class ForwardSense {
-        Ccw,
-        Cw
-    };
-
-    MotorMode motorMode = MotorMode::Direct;
-    bool directIn1 = false;
-    bool directIn2 = false;
-    int pwmDuty = 0;
-    MotorDirection pwmDirection = MotorDirection::Forward;
-    ForwardSense forwardSense = ForwardSense::Ccw;
-    const float motorCenterVoltage = 1.65f;
-    const float motorHalfRangeVoltage = 1.65f;
-    const float motorDeadbandVoltage = 0.04f;
-    const char *MOTOR_SETTINGS_NAMESPACE = "motor_cfg";
-    const char *KEY_MOTOR_MODE = "motor_mode";
-    const char *KEY_FORWARD_SENSE = "fwd";
 
     String potentiometerJson() {
         return String("{\"millis\":") + millis() + ",\"voltage\":" + String(readAdcAnalogVolt(POTMETER_ADC_PIN), 3) + "}";
@@ -345,80 +319,6 @@ namespace {
         }
     }
 
-    String motorModeToString(MotorMode mode) {
-        if (mode == MotorMode::Direct) {
-            return "direct";
-        }
-        if (mode == MotorMode::Pwm) {
-            return "pwm";
-        }
-        return "potentiometer";
-    }
-
-    String motorDirectionToString(MotorDirection direction) {
-        return direction == MotorDirection::Forward ? "forward" : "reverse";
-    }
-
-    String forwardSenseToString(ForwardSense sense) {
-        return sense == ForwardSense::Ccw ? "ccw" : "cw";
-    }
-
-    bool parseMotorMode(const String &value, MotorMode &outMode) {
-        if (value == "direct") {
-            outMode = MotorMode::Direct;
-            return true;
-        }
-        if (value == "pwm") {
-            outMode = MotorMode::Pwm;
-            return true;
-        }
-        if (value == "potentiometer") {
-            outMode = MotorMode::Potentiometer;
-            return true;
-        }
-        return false;
-    }
-
-    bool parseMotorDirection(const String &value, MotorDirection &outDirection) {
-        if (value == "forward") {
-            outDirection = MotorDirection::Forward;
-            return true;
-        }
-        if (value == "reverse") {
-            outDirection = MotorDirection::Reverse;
-            return true;
-        }
-        return false;
-    }
-
-    bool parseForwardSense(const String &value, ForwardSense &outSense) {
-        if (value == "ccw") {
-            outSense = ForwardSense::Ccw;
-            return true;
-        }
-        if (value == "cw") {
-            outSense = ForwardSense::Cw;
-            return true;
-        }
-        return false;
-    }
-
-    bool parseDuty(const String &value, int &outDuty) {
-        for (size_t i = 0; i < value.length(); ++i) {
-            if (!isDigit(value[i])) {
-                return false;
-            }
-        }
-
-        int parsed = value.toInt();
-        if (parsed < 0 || parsed > 255) {
-            return false;
-        }
-
-        outDuty = parsed;
-        return true;
-    }
-
     bool parseServoChannel(const String &value, int &outChannel) {
         for (size_t i = 0; i < value.length(); ++i) {
             if (!isDigit(value[i])) {
@@ -449,114 +349,6 @@ namespace {
 
         outPulseUs = parsed;
         return true;
-    }
-
-    void applyMotorPwmWithDirection(int duty, MotorDirection direction) {
-        if (direction == MotorDirection::Forward) {
-            pinMode(motorIn2Pin, OUTPUT);
-            digitalWrite(motorIn2Pin, LOW);
-            analogWrite(motorIn1Pin, duty);
-            return;
-        }
-
-        pinMode(motorIn1Pin, OUTPUT);
-        digitalWrite(motorIn1Pin, LOW);
-        analogWrite(motorIn2Pin, duty);
-    }
-
-    MotorDirection mapLogicalToPhysicalDirection(MotorDirection logicalDirection) {
-        if (forwardSense == ForwardSense::Ccw) {
-            return logicalDirection;
-        }
-
-        return logicalDirection == MotorDirection::Forward ? MotorDirection::Reverse : MotorDirection::Forward;
-    }
-
-    void applyMotorStop() {
-        pinMode(motorIn1Pin, OUTPUT);
-        pinMode(motorIn2Pin, OUTPUT);
-        digitalWrite(motorIn1Pin, LOW);
-        digitalWrite(motorIn2Pin, LOW);
-    }
-
-    void applyMotorOutputs() {
-        if (motorMode == MotorMode::Direct) {
-            // Re-assert GPIO function in case pins were previously used for PWM.
-            pinMode(motorIn1Pin, OUTPUT);
-            pinMode(motorIn2Pin, OUTPUT);
-            digitalWrite(motorIn1Pin, directIn1 ? HIGH : LOW);
-            digitalWrite(motorIn2Pin, directIn2 ? HIGH : LOW);
-            return;
-        }
-
-        if (motorMode == MotorMode::Pwm) {
-            applyMotorPwmWithDirection(pwmDuty, mapLogicalToPhysicalDirection(pwmDirection));
-            return;
-        }
-
-        const float voltage = readAdcAnalogVolt(POTMETER_ADC_PIN);
-        const float centered = voltage - motorCenterVoltage;
-        if (centered > -motorDeadbandVoltage && centered < motorDeadbandVoltage) {
-            applyMotorStop();
-            return;
-        }
-
-        float normalized = centered / motorHalfRangeVoltage;
-        if (normalized > 1.0f) {
-            normalized = 1.0f;
-        }
-        if (normalized < -1.0f) {
-            normalized = -1.0f;
-        }
-
-        const int interpolatedDuty = (int)(fabs(normalized) * 255.0f + 0.5f);
-        const MotorDirection direction = normalized < 0.0f ? MotorDirection::Reverse : MotorDirection::Forward;
-        applyMotorPwmWithDirection(interpolatedDuty, mapLogicalToPhysicalDirection(direction));
-    }
-
-    String motorStateJson() {
-        return String("{\"mode\":\"") + motorModeToString(motorMode) +
-               "\",\"directIn1\":" + (directIn1 ? "true" : "false") +
-               ",\"directIn2\":" + (directIn2 ? "true" : "false") +
-               ",\"pwmDuty\":" + pwmDuty +
-               ",\"direction\":\"" + motorDirectionToString(pwmDirection) +
-               "\",\"forwardSense\":\"" + forwardSenseToString(forwardSense) + "\"}";
-    }
-
-    bool saveMotorSettingsToNvs() {
-        Preferences preferences;
-        if (!preferences.begin(MOTOR_SETTINGS_NAMESPACE, false)) {
-            Serial.println("NVS open failed for writing motor settings");
-            return false;
-        }
-
-        bool okMode = preferences.putString(KEY_MOTOR_MODE, motorModeToString(motorMode)) > 0;
-        bool okSense = preferences.putString(KEY_FORWARD_SENSE, forwardSenseToString(forwardSense)) > 0;
-        preferences.end();
-        return okMode && okSense;
-    }
-
-    void loadMotorSettingsFromNvs() {
-        Preferences preferences;
-        if (!preferences.begin(MOTOR_SETTINGS_NAMESPACE, true)) {
-            Serial.println("NVS open failed for reading motor settings");
-            saveMotorSettingsToNvs();
-            return;
-        }
-
-        MotorMode parsedMode = motorMode;
-        String storedMode = preferences.getString(KEY_MOTOR_MODE, motorModeToString(motorMode));
-        if (parseMotorMode(storedMode, parsedMode)) {
-            motorMode = parsedMode;
-        }
-
-        ForwardSense parsedSense = forwardSense;
-        String storedSense = preferences.getString(KEY_FORWARD_SENSE, forwardSenseToString(forwardSense));
-        if (parseForwardSense(storedSense, parsedSense)) {
-            forwardSense = parsedSense;
-        }
-
-        preferences.end();
     }
 }
 
@@ -617,6 +409,10 @@ String serialSettingsJson() {
            ",\"includePotentiometerValue\":" + (includePotentiometerValue ? "true" : "false") + "}";
 }
 
+String oledSettingsJson() {
+    return String("{\"enabled\":") + (isOledEnabled() ? "true" : "false") + "}";
+}
+
 String tofServerSettingsJson() {
     const TofServerSettings settings = getTofServerSettings();
     return String("{\"enabled\":") + (settings.enabled ? "true" : "false") +
@@ -626,8 +422,7 @@ String tofServerSettingsJson() {
 }
 
 void initServer(RoamingWiFiManager& manager) {
-    loadMotorSettingsFromNvs();
-    applyMotorOutputs();
+    initDcMotor();
 
     potentiometerWebSocket.onEvent(onPotentiometerWebSocketEvent);
     manager.server.addHandler(&potentiometerWebSocket);
@@ -671,6 +466,20 @@ void initServer(RoamingWiFiManager& manager) {
             request->send(404, "text/plain", "serialSettings.ts not found");
         }
     });
+    manager.server.on("/oledSettings", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        if (LittleFS.exists("/oledSettings.html")) {
+            request->send(LittleFS, "/oledSettings.html", "text/html");
+        } else {
+            request->send(404, "text/plain", "oledSettings.html not found");
+        }
+    });
+    manager.server.on("/oledSettings.ts", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        if (LittleFS.exists("/oledSettings.ts")) {
+            request->send(LittleFS, "/oledSettings.ts", "application/javascript");
+        } else {
+            request->send(404, "text/plain", "oledSettings.ts not found");
+        }
+    });
     manager.server.on("/potentiometer", HTTP_GET, [] (AsyncWebServerRequest *request) {
         if (LittleFS.exists("/potentiometer.html")) {
             request->send(LittleFS, "/potentiometer.html", "text/html");
@@ -706,7 +515,123 @@ void initServer(RoamingWiFiManager& manager) {
             request->send(404, "text/plain", "pwmServo.ts not found");
         }
     });
+    // Register /api/pwmServo/config FIRST (more specific routes must be before generic ones)
+    manager.server.on("/api/pwmServo/config", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        // Return all 16 channel configs as JSON array
+        Serial.println("GET /api/pwmServo/config - Returning all channel configs");
+        String response = "[";
+        for (int i = 0; i < 16; i++) {
+            PwmChannelConfig config = getChannelConfig(i);
+            response += "{\"channel\":" + String(i) + ",\"mode\":\"" + channelModeToString(config.mode) + 
+                       "\",\"minPulseUs\":" + String(config.minPulseUs) + ",\"maxPulseUs\":" + String(config.maxPulseUs) + "}";
+            if (i < 15) response += ",";
+        }
+        response += "]";
+        request->send(200, "application/json", response);
+    });
+    manager.server.on("/api/pwmServo/config", HTTP_POST, [] (AsyncWebServerRequest *request) {
+        // Set channel config
+        Serial.println("POST /api/pwmServo/config - Setting channel config");
+        Serial.printf("  Params: channel=%s, mode=%s\n", 
+                     request->hasParam("channel", true) ? request->getParam("channel", true)->value().c_str() : "MISSING",
+                     request->hasParam("mode", true) ? request->getParam("mode", true)->value().c_str() : "MISSING");
+        
+        if (!request->hasParam("channel", true) || !request->hasParam("mode", true)) {
+            Serial.println("  ERROR: missing channel or mode");
+            request->send(400, "application/json", "{\"error\":\"missing channel or mode\"}");
+            return;
+        }
+
+        int channel = request->getParam("channel", true)->value().toInt();
+        String modeStr = request->getParam("mode", true)->value();
+        
+        Serial.printf("  Channel: %d, Mode: %s\n", channel, modeStr.c_str());
+        
+        if (channel < 0 || channel >= 16) {
+            Serial.printf("  ERROR: invalid channel %d\n", channel);
+            request->send(400, "application/json", "{\"error\":\"invalid channel\"}");
+            return;
+        }
+
+        PwmChannelMode mode;
+        if (!parseChannelMode(modeStr, mode)) {
+            Serial.printf("  ERROR: invalid mode %s\n", modeStr.c_str());
+            request->send(400, "application/json", "{\"error\":\"invalid mode\"}");
+            return;
+        }
+
+        int minPulseUs = 500;  // Default values
+        int maxPulseUs = 2500;
+
+        // For servo mode, require min/max pulse widths
+        if (mode == PwmChannelMode::Servo) {
+            if (!request->hasParam("minPulseUs", true) || !request->hasParam("maxPulseUs", true)) {
+                Serial.println("  ERROR: servo mode requires minPulseUs and maxPulseUs");
+                request->send(400, "application/json", "{\"error\":\"servo mode requires minPulseUs and maxPulseUs\"}");
+                return;
+            }
+            minPulseUs = request->getParam("minPulseUs", true)->value().toInt();
+            maxPulseUs = request->getParam("maxPulseUs", true)->value().toInt();
+            
+            Serial.printf("  Min pulse: %d, Max pulse: %d\n", minPulseUs, maxPulseUs);
+            
+            if (minPulseUs < 100 || maxPulseUs > 5000 || minPulseUs >= maxPulseUs) {
+                Serial.println("  ERROR: invalid pulse width range");
+                request->send(400, "application/json", "{\"error\":\"invalid pulse width range\"}");
+                return;
+            }
+        }
+
+        PwmChannelConfig config = {mode, minPulseUs, maxPulseUs};
+        setChannelConfig(channel, config);
+        saveChannelConfigToNvs();
+        
+        String response = "{\"ok\":true,\"channel\":" + String(channel) + ",\"mode\":\"" + modeStr + 
+                         "\",\"minPulseUs\":" + String(minPulseUs) + ",\"maxPulseUs\":" + String(maxPulseUs) + "}";
+        Serial.printf("  SUCCESS: Channel %d saved\n", channel);
+        request->send(200, "application/json", response);
+    });
+    // Register generic /api/pwmServo AFTER /api/pwmServo/config (more specific routes first)
     manager.server.on("/api/pwmServo", HTTP_POST, [] (AsyncWebServerRequest *request) {
+        // Check for frequency change request
+        if (request->hasParam("frequency", true)) {
+            const String freqValue = request->getParam("frequency", true)->value();
+            float frequency = freqValue.toFloat();
+            
+            if (frequency < 24.0f || frequency > 1000.0f) {
+                request->send(400, "application/json", "{\"error\":\"frequency must be 24-1000 Hz\"}");
+                return;
+            }
+            
+            setPwmFrequency(frequency);
+            savePwmFrequencyToNvs();
+            request->send(200, "application/json", String("{\"ok\":true,\"frequency\":") + frequency + "}");
+            return;
+        }
+        
+        // Normalized duty cycle control
+        if (request->hasParam("normalized", true)) {
+            if (!request->hasParam("channel", true)) {
+                request->send(400, "application/json", "{\"error\":\"missing channel\"}");
+                return;
+            }
+            int channel = 0;
+            const String channelValue = request->getParam("channel", true)->value();
+            if (!parseServoChannel(channelValue, channel)) {
+                request->send(400, "application/json", "{\"error\":\"invalid channel\"}");
+                return;
+            }
+            float normalized = request->getParam("normalized", true)->value().toFloat();
+            if (normalized < 0.0f || normalized > 1.0f) {
+                request->send(400, "application/json", "{\"error\":\"normalized must be 0.0-1.0\"}");
+                return;
+            }
+            setServoPwmNormalized(channel, normalized);
+            request->send(200, "application/json", String("{\"ok\":true,\"channel\":") + channel + ",\"normalized\":" + normalized + "}");
+            return;
+        }
+
+        // Microseconds servo control
         if (!request->hasParam("channel", true) || !request->hasParam("microseconds", true)) {
             request->send(400, "application/json", "{\"error\":\"missing channel or microseconds\"}");
             return;
@@ -727,9 +652,20 @@ void initServer(RoamingWiFiManager& manager) {
             return;
         }
 
-        setServo(channel, microseconds);
+        setServoMicroseconds(channel, microseconds);
         request->send(200, "application/json", String("{\"ok\":true,\"channel\":") + channel + ",\"microseconds\":" + microseconds + "}");
     });
+    
+    manager.server.on("/api/pwmServo/recover", HTTP_POST, [] (AsyncWebServerRequest *request) {
+        // Manually trigger NVS recovery for missing channels
+        Serial.println("POST /api/pwmServo/recover - Manual recovery requested");
+        if (resetPwmServoNvs()) {
+            request->send(200, "application/json", "{\"ok\":true,\"message\":\"pwm_servo namespace recovered with all 16 channels\"}");
+        } else {
+            request->send(500, "application/json", "{\"error\":\"recovery failed\"}");
+        }
+    });
+    
     manager.server.on("/statistics.ts", HTTP_GET, [] (AsyncWebServerRequest *request) {
         if (LittleFS.exists("/statistics.ts")) {
             request->send(LittleFS, "/statistics.ts", "application/javascript");
@@ -943,20 +879,20 @@ void initServer(RoamingWiFiManager& manager) {
         }
     });
     manager.server.on("/api/motor", HTTP_GET, [] (AsyncWebServerRequest *request) {
-        request->send(200, "application/json", motorStateJson());
+        request->send(200, "application/json", getMotorStateJson());
     });
     manager.server.on("/api/motor", HTTP_POST, [] (AsyncWebServerRequest *request) {
         bool hasAnyUpdate = false;
         bool hasPersistentUpdate = false;
 
         if (request->hasParam("mode", true)) {
-            MotorMode parsedMode = motorMode;
+            MotorMode parsedMode = getMotorMode();
             String value = request->getParam("mode", true)->value();
             if (!parseMotorMode(value, parsedMode)) {
                 request->send(400, "application/json", "{\"error\":\"invalid mode\"}");
                 return;
             }
-            motorMode = parsedMode;
+            setMotorMode(parsedMode);
             hasAnyUpdate = true;
             hasPersistentUpdate = true;
         }
@@ -968,7 +904,7 @@ void initServer(RoamingWiFiManager& manager) {
                 request->send(400, "application/json", "{\"error\":\"invalid directIn1\"}");
                 return;
             }
-            directIn1 = parsedValue;
+            setDirectInput1(parsedValue);
             hasAnyUpdate = true;
         }
 
@@ -979,42 +915,63 @@ void initServer(RoamingWiFiManager& manager) {
                 request->send(400, "application/json", "{\"error\":\"invalid directIn2\"}");
                 return;
             }
-            directIn2 = parsedValue;
+            setDirectInput2(parsedValue);
             hasAnyUpdate = true;
         }
 
         if (request->hasParam("pwmDuty", true)) {
-            int parsedDuty = pwmDuty;
+            int parsedDuty = getPwmDuty();
             String value = request->getParam("pwmDuty", true)->value();
             if (!parseDuty(value, parsedDuty)) {
                 request->send(400, "application/json", "{\"error\":\"invalid pwmDuty\"}");
                 return;
             }
-            pwmDuty = parsedDuty;
+            setPwmDuty(parsedDuty);
             hasAnyUpdate = true;
         }
 
         if (request->hasParam("direction", true)) {
-            MotorDirection parsedDirection = pwmDirection;
+            MotorDirection parsedDirection = getPwmDirection();
             String value = request->getParam("direction", true)->value();
             if (!parseMotorDirection(value, parsedDirection)) {
                 request->send(400, "application/json", "{\"error\":\"invalid direction\"}");
                 return;
             }
-            pwmDirection = parsedDirection;
+            setPwmDirection(parsedDirection);
             hasAnyUpdate = true;
         }
 
         if (request->hasParam("forwardSense", true)) {
-            ForwardSense parsedSense = forwardSense;
+            ForwardSense parsedSense = getForwardSense();
             String value = request->getParam("forwardSense", true)->value();
             if (!parseForwardSense(value, parsedSense)) {
                 request->send(400, "application/json", "{\"error\":\"invalid forwardSense\"}");
                 return;
             }
-            forwardSense = parsedSense;
+            setForwardSense(parsedSense);
             hasAnyUpdate = true;
             hasPersistentUpdate = true;
+        }
+
+        if (request->hasParam("normalized", true)) {
+            String value = request->getParam("normalized", true)->value();
+            float normalized = value.toFloat();
+            setMotorNormalizedAPI(normalized);
+            hasAnyUpdate = true;
+        }
+
+        if (request->hasParam("pwmNormalized", true)) {
+            String value = request->getParam("pwmNormalized", true)->value();
+            float normalized = value.toFloat();
+            setMotorPwmNormalizedAPI(normalized);
+            hasAnyUpdate = true;
+        }
+
+        if (request->hasParam("direction_boolean", true)) {
+            String value = request->getParam("direction_boolean", true)->value();
+            bool forward = (value == "true" || value == "1" || value == "on");
+            setMotorDirectionAPI(forward);
+            hasAnyUpdate = true;
         }
 
         if (!hasAnyUpdate) {
@@ -1028,7 +985,7 @@ void initServer(RoamingWiFiManager& manager) {
         }
 
         applyMotorOutputs();
-        request->send(200, "application/json", motorStateJson());
+        request->send(200, "application/json", getMotorStateJson());
     });
     manager.server.on("/api/serialSettings", HTTP_GET, [] (AsyncWebServerRequest *request) {
         request->send(200, "application/json", serialSettingsJson());
@@ -1070,7 +1027,200 @@ void initServer(RoamingWiFiManager& manager) {
 
         request->send(200, "application/json", serialSettingsJson());
     });
-        manager.server.on("/api/mcp23017/settings", HTTP_POST, [] (AsyncWebServerRequest *request) {
+    manager.server.on("/api/oledSettings", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        request->send(200, "application/json", oledSettingsJson());
+    });
+    manager.server.on("/api/oledSettings", HTTP_POST, [] (AsyncWebServerRequest *request) {
+        if (!request->hasParam("enabled", true)) {
+            request->send(400, "application/json", "{\"error\":\"missing enabled\"}");
+            return;
+        }
+
+        bool parsedValue = false;
+        String value = request->getParam("enabled", true)->value();
+        if (!parseBoolParam(value, parsedValue)) {
+            request->send(400, "application/json", "{\"error\":\"invalid enabled\"}");
+            return;
+        }
+
+        if (!setOledEnabled(parsedValue, true)) {
+            request->send(500, "application/json", "{\"error\":\"failed to persist OLED settings\"}");
+            return;
+        }
+
+        request->send(200, "application/json", oledSettingsJson());
+    });
+
+    // Matrix routing pages and API
+    manager.server.on("/matrix", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        if (LittleFS.exists("/matrix.html")) {
+            request->send(LittleFS, "/matrix.html", "text/html");
+        } else {
+            request->send(404, "text/plain", "matrix.html not found");
+        }
+    });
+    manager.server.on("/matrix.ts", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        if (LittleFS.exists("/matrix.ts")) {
+            request->send(LittleFS, "/matrix.ts", "application/javascript");
+        } else {
+            request->send(404, "text/plain", "matrix.ts not found");
+        }
+    });
+
+    // Matrix routes - GET all
+    manager.server.on("/api/matrix/routes", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        auto routes = getAllRoutes();
+        String json = "[";
+        for (size_t i = 0; i < routes.size(); i++) {
+            if (i > 0) json += ",";
+            const auto& route = routes[i];
+            char buf[50];
+            sprintf(buf, "%.2f", route.threshold);
+            json += "{\"id\":" + String(route.id) + 
+                   ",\"name\":\"" + route.name + 
+                   "\",\"inputType\":\"" + route.inputType + 
+                   "\",\"inputPin\":" + String(route.inputPin) +
+                   ",\"outputType\":\"" + route.outputType +
+                   "\",\"outputPin\":" + String(route.outputPin) +
+                   ",\"enabled\":" + (route.enabled ? "true" : "false") +
+                   ",\"invert\":" + (route.invert ? "true" : "false") +
+                   ",\"threshold\":" + String(buf) + "}";
+        }
+        json += "]";
+        request->send(200, "application/json", json);
+    });
+
+    // Matrix routes - POST create
+    manager.server.on("/api/matrix/routes", HTTP_POST, [] (AsyncWebServerRequest *request) {
+        if (!request->hasParam("inputType", true) || !request->hasParam("inputPin", true) ||
+            !request->hasParam("outputType", true) || !request->hasParam("outputPin", true)) {
+            request->send(400, "application/json", "{\"error\":\"missing required parameters\"}");
+            return;
+        }
+
+        RouteEntry entry;
+        entry.name = request->hasParam("name", true) ? request->getParam("name", true)->value() : "";
+        entry.inputType = request->getParam("inputType", true)->value();
+        entry.inputPin = request->getParam("inputPin", true)->value().toInt();
+        entry.outputType = request->getParam("outputType", true)->value();
+        entry.outputPin = request->getParam("outputPin", true)->value().toInt();
+        entry.enabled = true;
+        entry.invert = request->hasParam("invert", true) && 
+                      request->getParam("invert", true)->value().equals("true");
+        entry.threshold = request->hasParam("threshold", true) ?
+                         request->getParam("threshold", true)->value().toFloat() : 0.5f;
+        // Validate threshold
+        if (entry.threshold <= 0.0f || entry.threshold > 1.0f) {
+            entry.threshold = 0.5f;
+        }
+
+        if (addRoute(entry)) {
+            request->send(200, "application/json", "{\"success\":true}");
+        } else {
+            request->send(500, "application/json", "{\"error\":\"failed to add route\"}");
+        }
+    });
+
+    // Matrix routes - PUT (handles both /id and /id/enabled based on URL)
+    manager.server.on("/api/matrix/routes", HTTP_PUT, [] (AsyncWebServerRequest *request) {
+        String path = request->url();
+        
+        // Parse ID from path
+        int lastSlash = path.lastIndexOf('/');
+        String lastSegment = path.substring(lastSlash + 1);
+        
+        uint8_t id = 0;
+        bool isEnabledEndpoint = false;
+        
+        if (lastSegment.equals("enabled")) {
+            isEnabledEndpoint = true;
+            int secondLastSlash = path.lastIndexOf('/', lastSlash - 1);
+            String idStr = path.substring(secondLastSlash + 1, lastSlash);
+            id = idStr.toInt();
+        } else {
+            id = lastSegment.toInt();
+        }
+        
+        if (id == 0) {
+            request->send(400, "application/json", "{\"error\":\"invalid route ID\"}");
+            return;
+        }
+        
+        RouteEntry* route = getRoute(id);
+        
+        if (!route) {
+            request->send(404, "application/json", "{\"error\":\"route not found\"}");
+            return;
+        }
+        
+        if (isEnabledEndpoint) {
+            if (!request->hasParam("enabled", true)) {
+                request->send(400, "application/json", "{\"error\":\"missing enabled parameter\"}");
+                return;
+            }
+            String enabledValue = request->getParam("enabled", true)->value();
+            route->enabled = enabledValue.equals("true");
+            updateRoute(id, *route);
+            request->send(200, "application/json", "{\"success\":true}");
+        } else {
+            // Generic update - update all provided fields
+            if (request->hasParam("name", true)) {
+                route->name = request->getParam("name", true)->value();
+            }
+            if (request->hasParam("inputType", true)) {
+                route->inputType = request->getParam("inputType", true)->value();
+            }
+            if (request->hasParam("inputPin", true)) {
+                route->inputPin = request->getParam("inputPin", true)->value().toInt();
+            }
+            if (request->hasParam("outputType", true)) {
+                route->outputType = request->getParam("outputType", true)->value();
+            }
+            if (request->hasParam("outputPin", true)) {
+                route->outputPin = request->getParam("outputPin", true)->value().toInt();
+            }
+            if (request->hasParam("invert", true)) {
+                route->invert = request->getParam("invert", true)->value().equals("true");
+            }
+            if (request->hasParam("threshold", true)) {
+                float threshold = request->getParam("threshold", true)->value().toFloat();
+                if (threshold > 0.0f && threshold <= 1.0f) {
+                    route->threshold = threshold;
+                }
+            }
+            updateRoute(id, *route);
+            request->send(200, "application/json", "{\"success\":true}");
+        }
+    });
+
+    // Matrix routes - DELETE (handles both specific ID and clear all)
+    manager.server.on("/api/matrix/routes", HTTP_DELETE, [] (AsyncWebServerRequest *request) {
+        String path = request->url();
+        int lastSlash = path.lastIndexOf('/');
+        String lastSegment = path.substring(lastSlash + 1);
+        
+        if (lastSegment.length() == 0 || lastSegment.equals("routes")) {
+            // Clear all routes
+            clearAllRoutes();
+            request->send(200, "application/json", "{\"success\":true}");
+        } else {
+            // Delete specific route by ID
+            uint8_t id = lastSegment.toInt();
+            
+            if (id == 0) {
+                request->send(400, "application/json", "{\"error\":\"invalid route ID\"}");
+                return;
+            }
+            
+            if (deleteRoute(id)) {
+                request->send(200, "application/json", "{\"success\":true}");
+            } else {
+                request->send(404, "application/json", "{\"error\":\"route not found\"}");
+            }
+        }
+    });
+
+    manager.server.on("/api/mcp23017/settings", HTTP_POST, [] (AsyncWebServerRequest *request) {
             Mcp23017Settings settings = getMcp23017Settings();
             bool hasAnyUpdate = false;
 
@@ -1205,7 +1355,7 @@ void serverApiLoop() {
     pressureSensorsWebSocket.cleanupClients();
     tofSensorWebSocket.cleanupClients();
 
-    if (motorMode == MotorMode::Potentiometer) {
+    if (getMotorMode() == MotorMode::Potentiometer) {
         applyMotorOutputs();
     }
 

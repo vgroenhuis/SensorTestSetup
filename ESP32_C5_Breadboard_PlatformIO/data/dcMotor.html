@@ -15,7 +15,7 @@
 				<div class="motor-section">
 					<div class="motor-title">Mode</div>
 					<label class="setting-row"><input type="radio" name="motorMode" value="direct" checked> Direct GPIO</label>
-					<label class="setting-row"><input type="radio" name="motorMode" value="pwm"> PWM + direction</label>
+					<label class="setting-row"><input type="radio" name="motorMode" value="motor_api"> Motor API</label>
 					<label class="setting-row"><input type="radio" name="motorMode" value="potentiometer"> Potentiometer input</label>
 				</div>
 
@@ -34,17 +34,24 @@
 					</select>
 				</div>
 
-				<div id="pwmPanel" class="motor-section hidden">
-					<div class="motor-title">PWM + Direction</div>
-					<label class="setting-row" for="pwmDuty">PWM duty (0-255)</label>
-					<input id="pwmDuty" class="time-window-input" type="text" value="0" inputmode="numeric">
-					<label class="setting-row" for="pwmDutySlider">Duty slider: <span id="pwmDutyLive">0</span></label>
-					<input id="pwmDutySlider" type="range" min="0" max="255" value="0">
-					<label class="setting-row" for="pwmDirection">Direction</label>
-					<select id="pwmDirection" class="time-window-input">
-						<option value="forward">Forward</option>
-						<option value="reverse">Reverse</option>
-					</select>
+				<div id="normalizedPanel" class="motor-section hidden">
+					<div class="motor-title">Motor API</div>
+					<p><small>0.0 = full reverse, 0.5 = stop, 1.0 = full forward</small></p>
+					<label class="setting-row" for="normalizedValue">Normalized value: <span id="normalizedLive">0.5</span></label>
+					<input id="normalizedSlider" type="range" min="0" max="100" value="50" step="1">
+					<button id="normalizedApplyBtn" class="btn" style="margin-top: 10px;">Apply Normalized</button>
+					
+					<hr style="margin: 15px 0; border: 1px solid #ddd;">
+					<p><strong>Direct PWM Control:</strong></p>
+					<label class="setting-row" for="pwmSpeedValue">PWM Speed (0-1): <span id="pwmSpeedLive">0.0</span></label>
+					<input id="pwmSpeedSlider" type="range" min="0" max="100" value="0" step="1">
+					<button id="pwmSpeedApplyBtn" class="btn" style="margin-top: 10px;">Apply PWM Speed</button>
+					
+					<label class="setting-row" for="motorDirection">Direction:</label>
+					<div style="display: flex; gap: 10px; margin-top: 8px;">
+						<button id="motorDirectionFwdBtn" class="btn" style="flex: 1;">Forward</button>
+						<button id="motorDirectionRevBtn" class="btn" style="flex: 1;">Reverse</button>
+					</div>
 				</div>
 
 				<div id="potPanel" class="motor-section hidden">

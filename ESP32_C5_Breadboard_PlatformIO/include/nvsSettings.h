@@ -14,3 +14,8 @@ extern bool includePotentiometerValue;
 
 void loadSerialSettingsFromNvs();
 bool saveSerialSettingsToNvs();
+
+void listNVSEntries(const char* targetNamespace = nullptr);
+void listNvsNamespaces();
+void listAllNvsEntries();
+void printNvsStatistics();

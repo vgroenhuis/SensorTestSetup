@@ -8,11 +8,11 @@ const outlierThresholdInput = document.getElementById("outlierThresholdMm");
 const outlierEnabledInput = document.getElementById("outlierEnabled");
 const showStatusCodeInput = document.getElementById("tofShowStatusCode");
 const hideInvalidDistanceInput = document.getElementById("tofHideInvalidDistance");
-const viewEnabledInput = document.getElementById("tof2dViewEnabled");
+const viewEnabledHeader = document.getElementById("tof2dViewHeader");
 const sectionBody = document.getElementById("tof2dSectionBody");
 const pauseButton = document.getElementById("pauseTofButton");
 
-if (!statusElement || !gridElement || !resolutionElement || !validZonesElement || !lastUpdateElement || !outlierThresholdInput || !outlierEnabledInput || !showStatusCodeInput || !hideInvalidDistanceInput || !viewEnabledInput || !sectionBody || !pauseButton) {
+if (!statusElement || !gridElement || !resolutionElement || !validZonesElement || !lastUpdateElement || !outlierThresholdInput || !outlierEnabledInput || !showStatusCodeInput || !hideInvalidDistanceInput || !viewEnabledHeader || !sectionBody || !pauseButton) {
 	throw new Error("ToF sensor page elements are missing");
 }
 
@@ -145,21 +145,16 @@ function storeViewEnabled(enabled) {
 }
 
 function applyPauseState() {
-	mapPaused = mapManualPause || !mapViewEnabled;
-	pauseButton.disabled = !mapViewEnabled;
-	pauseButton.textContent = !mapViewEnabled ? "2D view disabled" : (mapManualPause ? "Resume map" : "Pause map");
+	mapPaused = mapManualPause;
+	pauseButton.textContent = mapManualPause ? "Resume all" : "Pause all";
 	if (socket && socket.readyState === WebSocket.OPEN) {
-		if (!mapViewEnabled) {
-			setStatus("Connected (2D view disabled)", false);
-		} else {
-			setStatus(mapPaused ? "Connected (paused)" : "Connected (20 Hz)", false);
-		}
+		setStatus(mapPaused ? "Connected (paused)" : "Connected (20 Hz)", false);
 	}
 }
 
 function setViewEnabled(enabled) {
 	mapViewEnabled = Boolean(enabled);
-	viewEnabledInput.checked = mapViewEnabled;
+	viewEnabledHeader.setAttribute("aria-expanded", mapViewEnabled ? "true" : "false");
 	sectionBody.classList.toggle("tof-section-collapsed", !mapViewEnabled);
 	storeViewEnabled(mapViewEnabled);
 	applyPauseState();
@@ -335,7 +330,7 @@ function connectSocket() {
 
 showStatusCodeInput.checked = readStoredShowStatusCode();
 hideInvalidDistanceInput.checked = readStoredHideInvalidDistance();
-viewEnabledInput.checked = readStoredViewEnabled();
+setViewEnabled(readStoredViewEnabled());
 showStatusCodeInput.addEventListener("change", applyShowStatusCodeSetting);
 hideInvalidDistanceInput.addEventListener("change", applyHideInvalidDistanceSetting);
 outlierThresholdInput.addEventListener("change", function () {
@@ -350,13 +345,17 @@ outlierEnabledInput.addEventListener("change", function () {
 	renderSummary();
 	renderGrid();
 });
-viewEnabledInput.addEventListener("change", function () {
-	setViewEnabled(Boolean(viewEnabledInput.checked));
+viewEnabledHeader.addEventListener("click", function () {
+	setViewEnabled(!mapViewEnabled);
 });
 pauseButton.addEventListener("click", function () {
 	mapManualPause = !mapManualPause;
 	applyPauseState();
 });
+
+// Export pause state to window so 3D view can access it
+window.tofMapPaused = () => mapPaused;
+window.tof3dViewEnabled = () => !document.getElementById("tof3dSectionBody").classList.contains("tof-section-collapsed");
 applyShowStatusCodeSetting();
 applyHideInvalidDistanceSetting();
 mapManualPause = false;

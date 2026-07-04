@@ -68,12 +68,16 @@ namespace {
     }
 
     void applyMcp23017SettingsToHardware() {
+        //Serial.println("Applying MCP23017 settings to hardware");
+        //delay(1000);
         mcp.pinMode8(0, mcpSettings.modeA);
         mcp.setPullup8(0, mcpSettings.pullupA);
         mcp.pinMode8(1, mcpSettings.modeB);
         mcp.setPullup8(1, mcpSettings.pullupB);
         mcp.write8(0, mcpSettings.outputA);
         mcp.write8(1, mcpSettings.outputB);
+        //Serial.println("Completed applying MCP23017 settings to hardware");
+        //delay(1000);
     }
 }
 

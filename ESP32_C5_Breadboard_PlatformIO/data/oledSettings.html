@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>OLED Display Settings</title>
+		<link rel="stylesheet" href="/stylesheet.css">
+	</head>
+	<body>
+		<div class="container">
+			<h1>OLED Display Settings</h1>
+
+			<div class="card">
+				<p>Manage the SSD1306 OLED display settings. Changes are synchronized with the ESP32-C5.</p>
+
+				<label class="setting-row">
+					<input type="checkbox" id="oledEnabled">
+					<span>Enable OLED display</span>
+				</label>
+
+				<div id="status" class="status">Loading settings...</div>
+				<a class="btn" href="/">Back to control panel</a>
+			</div>
+		</div>
+		<script type="module" src="/oledSettings.ts"></script>
+	</body>
+</html>

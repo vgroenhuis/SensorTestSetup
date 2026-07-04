@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Input-Output Matrix</title>
+		<link rel="stylesheet" href="/stylesheet.css">
+	</head>
+	<body>
+		<div class="container">
+			<h1>Input-Output Routing Matrix</h1>
+			<div class="card">
+				<p>Create routes to map inputs from sensors or GPIO to outputs (digital, analog, PWM).</p>
+				
+				<h2>Routes</h2>
+				<div id="matrixStatus" class="status">Loading routes...</div>
+				
+				<table id="matrixTable" class="matrix-table" style="display: none;">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>Name</th>
+							<th>Input Type</th>
+							<th>Input Pin</th>
+							<th>Output Type</th>
+							<th>Output Pin</th>
+							<th>Enabled</th>
+							<th>Invert</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody id="matrixTableBody">
+					</tbody>
+				</table>
+				
+				<div id="emptyState" style="text-align: center; padding: 30px; color: #999;">
+					<p>No routes configured</p>
+				</div>
+				
+				<!-- Edit Route Modal -->
+				<div id="editModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; pointer-events: none;">
+					<div style="background: white; margin: 50px auto; padding: 30px; width: 90%; max-width: 600px; border-radius: 8px; pointer-events: auto;">
+						<h2>Edit Route</h2>
+						<div class="form-section">
+							<div class="form-row">
+								<label for="editRouteName">Route Name</label>
+								<input type="text" id="editRouteName" class="form-input" maxlength="50">
+							</div>
+							
+							<div class="form-row">
+								<label for="editInputType">Input Type</label>
+								<select id="editInputType" class="form-input">
+									<option value="gpio_digital">GPIO (Digital)</option>
+									<option value="gpio_analog">GPIO (Analog)</option>
+									<option value="mcp23017_a">MCP23017 Bank A</option>
+									<option value="mcp23017_b">MCP23017 Bank B</option>
+									<option value="mcp3008">MCP3008 ADC</option>
+								</select>
+							</div>
+							
+							<div class="form-row">
+								<label for="editInputPin">Input Pin/Channel</label>
+								<input type="number" id="editInputPin" class="form-input" min="0" max="255">
+							</div>
+							
+							<div class="form-row">
+								<label for="editOutputType">Output Type</label>
+								<select id="editOutputType" class="form-input">
+									<option value="gpio_digital">GPIO (Digital)</option>
+									<option value="gpio_analog">GPIO (Analog/PWM)</option>
+									<option value="pwm">PWM (Motor/LED)</option>
+									<option value="mcp23017_a">MCP23017 Bank A</option>
+									<option value="mcp23017_b">MCP23017 Bank B</option>
+									<option value="motorNormalized">Motor (Normalized)</option>
+									<option value="motorDirection">Motor (Direction)</option>
+								<option value="motorPwmNormalized">Motor (PWM Speed)</option>
+								<option value="pwmServo">PWM Servo</option>
+							</select>
+							</div>
+							
+							<div class="form-row">
+								<label for="editOutputPin">Output Pin/Channel</label>
+								<input type="number" id="editOutputPin" class="form-input" min="0" max="255">
+							</div>
+							
+							<div class="form-row">
+								<label for="editInvertInput">
+									<input type="checkbox" id="editInvertInput" class="form-input">
+									Invert input signal
+								</label>
+							</div>
+							
+							<div class="form-row">
+								<label for="editThreshold">Digital Output Threshold (0.0-1.0)</label>
+								<input type="number" id="editThreshold" class="form-input" min="0" max="1" step="0.01" value="0.5">
+							</div>
+							
+							<div class="form-row">
+								<button id="editSaveBtn" class="btn" type="button">Save Changes</button>
+								<button id="editCancelBtn" class="btn" type="button" style="background-color: #ccc; color: #333;">Cancel</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<div id="addRouteSection" style="text-align: center; padding: 30px; color: #999;">
+				
+				<h2>Add New Route</h2>
+				<div class="form-section">
+					<div class="form-row">
+						<label for="routeName">Route Name (optional)</label>
+						<input type="text" id="routeName" class="form-input" placeholder="e.g., Button to LED" maxlength="50">
+					</div>
+					
+					<div class="form-row">
+						<label for="inputType">Input Type</label>
+						<select id="inputType" class="form-input">
+							<option value="gpio_digital">GPIO (Digital)</option>
+							<option value="gpio_analog">GPIO (Analog)</option>
+							<option value="mcp23017_a">MCP23017 Bank A</option>
+							<option value="mcp23017_b">MCP23017 Bank B</option>
+							<option value="mcp3008">MCP3008 ADC</option>
+						</select>
+					</div>
+					
+					<div class="form-row">
+						<label for="inputPin">Input Pin/Channel</label>
+						<input type="number" id="inputPin" class="form-input" min="0" max="255" value="0">
+					</div>
+					
+					<div class="form-row">
+						<label for="outputType">Output Type</label>
+						<select id="outputType" class="form-input">
+							<option value="gpio_digital">GPIO (Digital)</option>
+							<option value="gpio_analog">GPIO (Analog/PWM)</option>
+							<option value="pwm">PWM (Motor/LED)</option>
+							<option value="mcp23017_a">MCP23017 Bank A</option>
+							<option value="mcp23017_b">MCP23017 Bank B</option>
+							<option value="motorNormalized">Motor (Normalized)</option>
+							<option value="motorDirection">Motor (Direction)</option>
+					<option value="motorPwmNormalized">Motor (PWM Speed)</option>
+					<option value="pwmServo">PWM Servo</option>
+				</select>
+					</div>
+					
+					<div class="form-row">
+						<label for="outputPin">Output Pin/Channel</label>
+						<input type="number" id="outputPin" class="form-input" min="0" max="255" value="0">
+					</div>
+					
+					<div class="form-row">
+						<label for="invertInput">
+							<input type="checkbox" id="invertInput" class="form-input">
+							Invert input signal
+						</label>
+					</div>
+					
+					<div class="form-row">
+						<label for="threshold">Digital Output Threshold (0.0-1.0)</label>
+						<input type="number" id="threshold" class="form-input" min="0" max="1" step="0.01" value="0.5">
+					</div>
+					
+					<div class="form-row">
+						<button id="addRouteBtn" class="btn" type="button">Add Route</button>
+					</div>
+				</div>
+				
+				<h2>Bulk Actions</h2>
+				<div class="form-actions">
+					<button id="clearAllBtn" class="btn btn-danger" type="button">Clear All Routes</button>
+				</div>
+			</div>
+			
+			<a href="/" class="btn">Back to control panel</a>
+		</div>
+		<script type="module" src="/matrix.ts"></script>
+	</body>
+</html>

@@ -3,24 +3,26 @@ const motorStatus = document.getElementById("motorStatus");
 const modeInputs = document.querySelectorAll('input[name="motorMode"]');
 const directPanel = document.getElementById("directPanel");
 const forwardSensePanel = document.getElementById("forwardSensePanel");
-const pwmPanel = document.getElementById("pwmPanel");
+const normalizedPanel = document.getElementById("normalizedPanel");
 const potPanel = document.getElementById("potPanel");
 const directIn1 = document.getElementById("directIn1");
 const directIn2 = document.getElementById("directIn2");
-const pwmDuty = document.getElementById("pwmDuty");
-const pwmDutySlider = document.getElementById("pwmDutySlider");
-const pwmDutyLive = document.getElementById("pwmDutyLive");
-const pwmDirection = document.getElementById("pwmDirection");
 const forwardSense = document.getElementById("forwardSense");
 const potDirectionInfo = document.getElementById("potDirectionInfo");
+const normalizedSlider = document.getElementById("normalizedSlider");
+const normalizedLive = document.getElementById("normalizedLive");
+const normalizedApplyBtn = document.getElementById("normalizedApplyBtn");
+const pwmSpeedSlider = document.getElementById("pwmSpeedSlider");
+const pwmSpeedLive = document.getElementById("pwmSpeedLive");
+const pwmSpeedApplyBtn = document.getElementById("pwmSpeedApplyBtn");
+const motorDirectionFwdBtn = document.getElementById("motorDirectionFwdBtn");
+const motorDirectionRevBtn = document.getElementById("motorDirectionRevBtn");
 
-if (!motorStatus || !directPanel || !forwardSensePanel || !pwmPanel || !potPanel || !directIn1 || !directIn2 || !pwmDuty || !pwmDutySlider || !pwmDutyLive || !pwmDirection || !forwardSense || !potDirectionInfo) {
+if (!motorStatus || !directPanel || !forwardSensePanel || !potPanel || !directIn1 || !directIn2 || !forwardSense || !potDirectionInfo || !normalizedPanel || !normalizedSlider || !normalizedLive || !normalizedApplyBtn || !pwmSpeedSlider || !pwmSpeedLive || !pwmSpeedApplyBtn || !motorDirectionFwdBtn || !motorDirectionRevBtn) {
 	throw new Error("DC motor page elements are missing");
 }
 
-let pwmUpdateTimer = null;
-let lastPwmPostMs = 0;
-const pwmPostIntervalMs = 120;
+
 
 function setStatus(text, isError) {
 	motorStatus.textContent = text;
@@ -29,8 +31,8 @@ function setStatus(text, isError) {
 
 function showMode(mode) {
 	directPanel.classList.toggle("hidden", mode !== "direct");
-	forwardSensePanel.classList.toggle("hidden", mode !== "pwm" && mode !== "potentiometer");
-	pwmPanel.classList.toggle("hidden", mode !== "pwm");
+	forwardSensePanel.classList.toggle("hidden", mode !== "potentiometer" && mode !== "motor_api");
+	normalizedPanel.classList.toggle("hidden", mode !== "motor_api");
 	potPanel.classList.toggle("hidden", mode !== "potentiometer");
 	for (const modeInput of modeInputs) {
 		modeInput.checked = modeInput.value === mode;
@@ -45,12 +47,7 @@ function clampDuty(value) {
 	return Math.max(0, Math.min(255, Math.round(parsed)));
 }
 
-function syncDutyInputs(value) {
-	const duty = clampDuty(value);
-	pwmDuty.value = String(duty);
-	pwmDutySlider.value = String(duty);
-	pwmDutyLive.textContent = String(duty);
-}
+
 
 function updatePotDirectionInfo() {
 	const sense = forwardSense.value === "cw" ? "cw" : "ccw";
@@ -66,8 +63,6 @@ function applyState(state) {
 	showMode(state.mode);
 	directIn1.checked = Boolean(state.directIn1);
 	directIn2.checked = Boolean(state.directIn2);
-	syncDutyInputs(state.pwmDuty);
-	pwmDirection.value = state.direction === "reverse" ? "reverse" : "forward";
 	forwardSense.value = state.forwardSense === "cw" ? "cw" : "ccw";
 	updatePotDirectionInfo();
 }
@@ -120,41 +115,6 @@ async function postMotorSafe(params, errorPrefix) {
 	}
 }
 
-function postPwmNow() {
-	lastPwmPostMs = Date.now();
-	postMotorSafe(
-		{
-			mode: "pwm",
-			pwmDuty: String(clampDuty(pwmDuty.value)),
-			direction: pwmDirection.value,
-			forwardSense: forwardSense.value
-		},
-		"Failed to apply PWM mode"
-	);
-}
-
-function schedulePwmUpdate() {
-	const now = Date.now();
-	const elapsed = now - lastPwmPostMs;
-
-	if (elapsed >= pwmPostIntervalMs) {
-		if (pwmUpdateTimer !== null) {
-			clearTimeout(pwmUpdateTimer);
-			pwmUpdateTimer = null;
-		}
-		postPwmNow();
-		return;
-	}
-
-	const waitMs = pwmPostIntervalMs - elapsed;
-	if (pwmUpdateTimer === null) {
-		pwmUpdateTimer = setTimeout(function () {
-			pwmUpdateTimer = null;
-			postPwmNow();
-		}, waitMs);
-	}
-}
-
 for (const modeInput of modeInputs) {
 	modeInput.addEventListener("change", async function () {
 		if (!modeInput.checked) {
@@ -187,28 +147,123 @@ directIn2.addEventListener("change", function () {
 	);
 });
 
-pwmDutySlider.addEventListener("input", function () {
-	syncDutyInputs(pwmDutySlider.value);
-	schedulePwmUpdate();
-});
-
-pwmDuty.addEventListener("change", function () {
-	syncDutyInputs(pwmDuty.value);
-	schedulePwmUpdate();
-});
-
-pwmDuty.addEventListener("input", function () {
-	syncDutyInputs(pwmDuty.value);
-	schedulePwmUpdate();
-});
-
-pwmDirection.addEventListener("change", function () {
-	schedulePwmUpdate();
-});
-
 forwardSense.addEventListener("change", function () {
 	updatePotDirectionInfo();
 	postMotorSafe({ forwardSense: forwardSense.value }, "Failed to update forward sense");
+});
+
+// Normalized mode controls
+normalizedSlider.addEventListener("input", function () {
+	const value = Number(normalizedSlider.value) / 100.0;
+	normalizedLive.textContent = value.toFixed(2);
+});
+
+normalizedApplyBtn.addEventListener("click", function () {
+	const normalized = Number(normalizedSlider.value) / 100.0;
+	setStatus("Applying normalized input...", false);
+	const body = new URLSearchParams();
+	body.set("mode", "motor_api");
+	body.set("normalized", String(normalized));
+	
+	fetch("/api/motor", {
+		method: "POST",
+		headers: { "Content-Type": "application/x-www-form-urlencoded" },
+		body: body.toString()
+	}).then(response => {
+		if (!response.ok) {
+			throw new Error("HTTP " + response.status);
+		}
+		return response.json();
+	}).then(state => {
+		applyState(state);
+		setStatus("Normalized input applied. Motor responding...", false);
+	}).catch(error => {
+		const message = error instanceof Error ? error.message : String(error);
+		setStatus("Failed to apply normalized input: " + message, true);
+		loadMotorState();
+	});
+});
+
+// PWM speed controls
+pwmSpeedSlider.addEventListener("input", function () {
+	const value = Number(pwmSpeedSlider.value) / 100.0;
+	pwmSpeedLive.textContent = value.toFixed(2);
+});
+
+pwmSpeedApplyBtn.addEventListener("click", function () {
+	const normalized = Number(pwmSpeedSlider.value) / 100.0;
+	setStatus("Applying PWM speed...", false);
+	const body = new URLSearchParams();
+	body.set("mode", "motor_api");
+	body.set("pwmNormalized", String(normalized));
+	
+	fetch("/api/motor", {
+		method: "POST",
+		headers: { "Content-Type": "application/x-www-form-urlencoded" },
+		body: body.toString()
+	}).then(response => {
+		if (!response.ok) {
+			throw new Error("HTTP " + response.status);
+		}
+		return response.json();
+	}).then(state => {
+		applyState(state);
+		setStatus("PWM speed applied. Motor responding...", false);
+	}).catch(error => {
+		const message = error instanceof Error ? error.message : String(error);
+		setStatus("Failed to apply PWM speed: " + message, true);
+		loadMotorState();
+	});
+});
+
+motorDirectionFwdBtn.addEventListener("click", function () {
+	setStatus("Setting direction to forward...", false);
+	const body = new URLSearchParams();
+	body.set("mode", "motor_api");
+	body.set("direction_boolean", "true");
+	
+	fetch("/api/motor", {
+		method: "POST",
+		headers: { "Content-Type": "application/x-www-form-urlencoded" },
+		body: body.toString()
+	}).then(response => {
+		if (!response.ok) {
+			throw new Error("HTTP " + response.status);
+		}
+		return response.json();
+	}).then(state => {
+		applyState(state);
+		setStatus("Direction set to forward.", false);
+	}).catch(error => {
+		const message = error instanceof Error ? error.message : String(error);
+		setStatus("Failed to set direction: " + message, true);
+		loadMotorState();
+	});
+});
+
+motorDirectionRevBtn.addEventListener("click", function () {
+	setStatus("Setting direction to reverse...", false);
+	const body = new URLSearchParams();
+	body.set("mode", "motor_api");
+	body.set("direction_boolean", "false");
+	
+	fetch("/api/motor", {
+		method: "POST",
+		headers: { "Content-Type": "application/x-www-form-urlencoded" },
+		body: body.toString()
+	}).then(response => {
+		if (!response.ok) {
+			throw new Error("HTTP " + response.status);
+		}
+		return response.json();
+	}).then(state => {
+		applyState(state);
+		setStatus("Direction set to reverse.", false);
+	}).catch(error => {
+		const message = error instanceof Error ? error.message : String(error);
+		setStatus("Failed to set direction: " + message, true);
+		loadMotorState();
+	});
 });
 
 loadMotorState();

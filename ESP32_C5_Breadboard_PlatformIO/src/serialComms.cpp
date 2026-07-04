@@ -10,7 +10,7 @@ void printSerialData() {
     Serial.printf("%.5f", micros()/1000000.0);
 
     if (includePotentiometerValue) {
-        Serial.printf(", %.3f", readAnalogVolt(A4));
+        Serial.printf(", %.3f", readAdcAnalogVolt(7));
     }
 
     Serial.printf("\n");

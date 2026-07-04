@@ -16,8 +16,29 @@
 #include "tofSensor.h"
 #include "globalVars.h"
 #include "pwmServo.h"
+#include "matrix.h"
+#include "dcMotor.h"
+#include "nvs_flash.h"
 
 RoamingWiFiManager manager;
+
+void initNvs() {
+    // Initialize NVS and repair if corrupted
+    Serial.println("Initializing NVS");
+    esp_err_t err = nvs_flash_init();
+    
+    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
+        Serial.println("NVS partition was truncated/corrupted. Erasing and reinitializing...");
+        ESP_ERROR_CHECK(nvs_flash_erase());
+        err = nvs_flash_init();
+    }
+    
+    if (err == ESP_OK) {
+        Serial.println("NVS initialized successfully");
+    } else {
+        Serial.printf("NVS initialization failed with error 0x%x\n", err);
+    }
+}
 
 void initFileSystem() {
     if (!LittleFS.begin(true, "/littlefs", 10, "littlefs")) {
@@ -28,6 +49,11 @@ void initFileSystem() {
 void setup() {
     Serial.begin(115200);
     Serial.println("Setup started");
+    initNvs(); // Initialize NVS before using Preferences
+    listNvsNamespaces(); // List all NVS namespaces at startup for debugging
+    listAllNvsEntries(); // List all NVS entries at startup for debugging
+    printNvsStatistics(); // Print NVS statistics (total, used, available sizes)
+    //listNVSEntries(); // List all NVS entries at startup for debugging
     SPI.begin(7,0,8);
     Wire.begin(2,3); // SDA pin 2, SCL pin 3
     Wire.setClock(400000);
@@ -39,6 +65,7 @@ void setup() {
     initPressureSensor();
     initOledDisplay();
     initTofSensor();
+    initMatrix();
     manager.init(knownNetworks, adminCredentials, aliasUrl);
     initServer(manager);
     Serial.println("Setup finished");
@@ -78,10 +105,9 @@ void loop() {
     serverApiLoop();
     serialManagerLoop();
     tofSensorLoop();
+    processAllRoutes();
 
-//    if (manager.isConnected() && !isIpDisplayed()) {
     displayStatus(manager.getConnectedIp());
-//    }
 
     calcMainLoopFps();
 }

@@ -577,3 +577,134 @@ button.btn {
 .hidden {
     display: none;
 }
+
+/* ToF collapsible button */
+.tof-collapsible-button {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #667eea;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-radius: 4px;
+    margin: 0;
+}
+
+.tof-collapsible-button:hover {
+    background-color: rgba(102, 126, 234, 0.1);
+}
+
+.tof-collapsible-button:focus-visible {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+.tof-collapsible-button::before {
+    content: "▼ ";
+    display: inline-block;
+    margin-right: 8px;
+    transition: transform 0.2s ease;
+    font-size: 12px;
+}
+
+.tof-collapsible-button[aria-expanded="false"]::before {
+    transform: rotate(-90deg);
+}
+
+/* ToF section collapsed state */
+.tof-section-collapsed {
+    display: none;
+}
+
+/* Matrix routing page */
+.matrix-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 16px 0;
+    background: #ffffff;
+    border: 1px solid #d8dcef;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.matrix-table th,
+.matrix-table td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid #e0e4f0;
+}
+
+.matrix-table th {
+    font-weight: 700;
+    color: #ffffff;
+    background: #667eea;
+}
+
+.matrix-table tr:last-child td {
+    border-bottom: none;
+}
+
+.matrix-table tr:hover {
+    background: #f9f9fc;
+}
+
+.form-section {
+    background: #ffffff;
+    border: 1px solid #e0e4f0;
+    border-radius: 6px;
+    padding: 16px;
+    margin: 12px 0;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 12px;
+}
+
+.form-row label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #2f3d8a;
+    margin-bottom: 4px;
+}
+
+.form-input {
+    padding: 8px 10px;
+    border: 1px solid #bfc8e8;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: inherit;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 12px;
+    margin-top: 0;
+}
+
+.btn-danger {
+    background: #dc2626;
+}
+
+.btn-danger:hover {
+    background: #b91c1c;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}

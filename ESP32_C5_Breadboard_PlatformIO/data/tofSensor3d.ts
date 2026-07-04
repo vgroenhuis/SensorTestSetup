@@ -7,10 +7,10 @@ const canvasWrap = document.getElementById("tof3dCanvasWrap");
 const canvas = document.getElementById("tof3dCanvas");
 const hideInvalidDistanceInput = document.getElementById("tof3dHideInvalidDistance") || document.getElementById("tofHideInvalidDistance");
 const useOrthographicInput = document.getElementById("tof3dUseOrthographic");
-const viewEnabledInput = document.getElementById("tof3dViewEnabled");
+const viewEnabledHeader = document.getElementById("tof3dViewHeader");
 const sectionBody = document.getElementById("tof3dSectionBody");
 
-if (!statusElement || !canvasWrap || !canvas || !hideInvalidDistanceInput || !useOrthographicInput || !viewEnabledInput || !sectionBody) {
+if (!statusElement || !canvasWrap || !canvas || !hideInvalidDistanceInput || !useOrthographicInput || !viewEnabledHeader || !sectionBody) {
 	throw new Error("ToF 3D page elements are missing");
 }
 
@@ -72,21 +72,13 @@ keyLight.position.set(2.5, 4.5, 2.5);
 keyLight.castShadow = false;
 scene.add(keyLight);
 
-const floor = new THREE.Mesh(
-	new THREE.PlaneGeometry(8, 8),
-	new THREE.MeshStandardMaterial({ color: 0xe8ecf5, roughness: 0.95, metalness: 0.02 })
-);
-floor.rotation.x = -Math.PI / 2;
-floor.receiveShadow = false;
-scene.add(floor);
-
 // 100 mm grid: 0.1 m spacing in scene units.
 const floorGridSizeMeters = 4;
 const floorGridSpacingMeters = 0.1;
 const floorGrid = new THREE.GridHelper(
 	floorGridSizeMeters,
 	Math.round(floorGridSizeMeters / floorGridSpacingMeters),
-	0xeeeeee,
+	0xcbd5e1,
 	0xcbd5e1
 );
 floorGrid.position.y = 0.001;
@@ -199,7 +191,7 @@ function storeViewEnabled(enabled) {
 
 function setViewEnabled(enabled) {
 	viewEnabled = Boolean(enabled);
-	viewEnabledInput.checked = viewEnabled;
+	viewEnabledHeader.setAttribute("aria-expanded", viewEnabled ? "true" : "false");
 	sectionBody.classList.toggle("tof-section-collapsed", !viewEnabled);
 	if (!viewEnabled) {
 		clearZones();
@@ -370,6 +362,11 @@ window.addEventListener("tofSensorData", function (event) {
 			return;
 		}
 
+		// Check if map is paused (respect pause button from 2D view)
+		if (window.tofMapPaused && window.tofMapPaused()) {
+			return;
+		}
+
 		updateZones(event.detail);
 	} catch (error) {
 		setStatus("Invalid data received", true);
@@ -396,8 +393,8 @@ window.addEventListener("resize", resizeRenderer);
 useOrthographicInput.addEventListener("change", function () {
 	setProjectionMode(Boolean(useOrthographicInput.checked));
 });
-viewEnabledInput.addEventListener("change", function () {
-	setViewEnabled(Boolean(viewEnabledInput.checked));
+viewEnabledHeader.addEventListener("click", function () {
+	setViewEnabled(!viewEnabled);
 });
 resizeRenderer();
 setProjectionMode(readStoredUseOrthographic());
