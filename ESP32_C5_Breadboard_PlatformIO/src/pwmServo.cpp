@@ -220,7 +220,7 @@ static uint16_t microsecondsToTicks(int microseconds) {
 void setServoMicroseconds(int channel, int microseconds) {
     uint16_t ticks = microsecondsToTicks(microseconds);
     servoArray.setPWM(channel, 0, ticks);
-    Serial.printf("Set servo channel %d to %d us -> %u ticks (%.1f Hz)\n", channel, microseconds, ticks, currentFrequency);
+    //Serial.printf("Set servo channel %d to %d us -> %u ticks (%.1f Hz)\n", channel, microseconds, ticks, currentFrequency);
 }
 
 void setServoPwmNormalized(int channel, float normalized) {
@@ -236,13 +236,13 @@ void setServoPwmNormalized(int channel, float normalized) {
     if (config.mode == PwmChannelMode::RawPWM) {
         // Map 0-1 to 0-4095 (full 12-bit duty cycle range)
         uint16_t ticks = (uint16_t)(normalized * 4095.0f);
-        Serial.printf("Set raw PWM channel %d to %.3f normalized -> %u ticks\n", channel, normalized, ticks);
+        //Serial.printf("Set raw PWM channel %d to %.3f normalized -> %u ticks\n", channel, normalized, ticks);
         servoArray.setPWM(channel, ticks);
     } else {
         // Servo mode: map 0-1 to minPulseUs-maxPulseUs, then convert to ticks
         int microseconds = config.minPulseUs + (int)((config.maxPulseUs - config.minPulseUs) * normalized);
         uint16_t ticks = microsecondsToTicks(microseconds);
-        Serial.printf("Set servo channel %d to %.3f normalized -> %d us -> %u ticks (%.1f Hz)\n", channel, normalized, microseconds, ticks, currentFrequency);
+        //Serial.printf("Set servo channel %d to %.3f normalized -> %d us -> %u ticks (%.1f Hz)\n", channel, normalized, microseconds, ticks, currentFrequency);
         servoArray.setPWM(channel, 0, ticks);
     }
 }

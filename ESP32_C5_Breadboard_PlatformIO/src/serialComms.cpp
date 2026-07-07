@@ -1,6 +1,7 @@
 #include "serialComms.h"
 #include "nvsSettings.h"
 #include "gpioExpanders.h"
+#include "loadcell.h"
 
 void printSerialData() {
     if (!serialOutputEnabled) {
@@ -11,6 +12,10 @@ void printSerialData() {
 
     if (includePotentiometerValue) {
         Serial.printf(", %.3f", readAdcAnalogVolt(7));
+    }
+
+    if (1) {
+        Serial.printf(", %.2f", readLoadcell());
     }
 
     Serial.printf("\n");

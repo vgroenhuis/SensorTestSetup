@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Load Cell Live Value</title>
+		<link rel="stylesheet" href="/stylesheet.css">
+	</head>
+	<body>
+		<div class="container">
+			<h1>Load Cell</h1>
+			<div class="card">
+				<p>Live load cell readings from the HX711 amplifier.</p>
+				<div class="graph-controls">
+					<label for="loadcellTimeWindowSec">Time window (s)</label>
+					<input id="loadcellTimeWindowSec" class="time-window-input" type="text" value="60" inputmode="numeric" aria-label="Time window in seconds">
+				</div>
+				<div class="graph-actions">
+					<button id="pauseGraphButton" class="btn" type="button">Pause graph</button>
+				</div>
+				<div class="value-panel">
+					<span id="loadcellValue" class="value-number">--</span>
+					<span class="value-unit">g</span>
+				</div>
+				<div class="graph-card">
+					<canvas id="historyCanvas" class="history-canvas" aria-label="Load cell history graph"></canvas>
+					<div id="graphCaption" class="graph-caption">Time axis: -60 to 0 s. Weight axis auto-scales (g).</div>
+				</div>
+				<div id="wsStatus" class="status">Connecting...</div>
+				<a href="/" class="btn">Back to control panel</a>
+			</div>
+		</div>
+		<script type="module" src="/loadcell.ts"></script>
+	</body>
+</html>

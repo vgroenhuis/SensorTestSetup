@@ -11,6 +11,7 @@
 #include "pwmServo.h"
 #include "oled.h"
 #include "matrix.h"
+#include "loadcell.h"
 #include <array>
 #include "dcMotor.h"
 
@@ -22,6 +23,7 @@ namespace {
     AsyncWebSocket mcp23017InputsWebSocket("/ws/mcp23017inputs");
     AsyncWebSocket rotaryEncoderWebSocket("/ws/rotaryEncoder");
     AsyncWebSocket pressureSensorsWebSocket("/ws/pressureSensors");
+    AsyncWebSocket loadcellWebSocket("/ws/loadcell");
     AsyncWebSocket tofSensorWebSocket("/ws/tofSensor");
     unsigned long lastPotentiometerPublishMs = 0;
     unsigned long lastStatisticsPublishMs = 0;
@@ -30,6 +32,7 @@ namespace {
     unsigned long lastMcp23017InputsPublishMs = 0;
     unsigned long lastRotaryEncoderPublishMs = 0;
     unsigned long lastPressureSensorsPublishMs = 0;
+    unsigned long lastLoadcellPublishMs = 0;
     unsigned long lastTofSensorPublishMs = 0;
     const unsigned long potentiometerPublishIntervalMs = 50;
     const unsigned long statisticsPublishIntervalMs = 50;
@@ -38,6 +41,7 @@ namespace {
     const unsigned long mcp23017InputsPublishIntervalMs = 50;
     const unsigned long rotaryEncoderPublishIntervalMs = 50;
     const unsigned long pressureSensorsPublishIntervalMs = 50;
+    const unsigned long loadcellPublishIntervalMs = 50;
     const unsigned long tofSensorPublishIntervalMs = 50;
 
     String potentiometerJson() {
@@ -132,6 +136,23 @@ namespace {
 
     String pressureSensorsSettingsJson() {
         return String("{\"enabled\":") + (arePressureSensorsEnabled() ? "true" : "false") + "}";
+    }
+
+    String loadcellJson() {
+        const float grams = readLoadcell();
+        const bool ready = !isnan(grams);
+        String json = String("{\"millis\":") + millis() +
+                      ",\"ready\":" + (ready ? "true" : "false") +
+                      ",\"grams\":";
+
+        if (ready) {
+            json += String(grams, 2);
+        } else {
+            json += "null";
+        }
+
+        json += "}";
+        return json;
     }
 
     bool tofStatusIsValid(uint8_t status) {
@@ -287,6 +308,22 @@ namespace {
         }
     }
 
+    void onLoadcellWebSocketEvent(AsyncWebSocket *server,
+                                  AsyncWebSocketClient *client,
+                                  AwsEventType type,
+                                  void *arg,
+                                  uint8_t *data,
+                                  size_t len) {
+        (void)server;
+        (void)arg;
+        (void)data;
+        (void)len;
+
+        if (type == WS_EVT_CONNECT) {
+            client->text(loadcellJson());
+        }
+    }
+
     void onPressureSensorsWebSocketEvent(AsyncWebSocket *server,
                                        AsyncWebSocketClient *client,
                                        AwsEventType type,
@@ -438,6 +475,8 @@ void initServer(RoamingWiFiManager& manager) {
     manager.server.addHandler(&rotaryEncoderWebSocket);
     pressureSensorsWebSocket.onEvent(onPressureSensorsWebSocketEvent);
     manager.server.addHandler(&pressureSensorsWebSocket);
+    loadcellWebSocket.onEvent(onLoadcellWebSocketEvent);
+    manager.server.addHandler(&loadcellWebSocket);
     tofSensorWebSocket.onEvent(onTofSensorWebSocketEvent);
     manager.server.addHandler(&tofSensorWebSocket);
 
@@ -710,6 +749,23 @@ void initServer(RoamingWiFiManager& manager) {
         } else {
             request->send(404, "text/plain", "pressureSensors.ts not found");
         }
+    });
+    manager.server.on("/loadcell", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        if (LittleFS.exists("/loadcell.html")) {
+            request->send(LittleFS, "/loadcell.html", "text/html");
+        } else {
+            request->send(404, "text/plain", "loadcell.html not found");
+        }
+    });
+    manager.server.on("/loadcell.ts", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        if (LittleFS.exists("/loadcell.ts")) {
+            request->send(LittleFS, "/loadcell.ts", "application/javascript");
+        } else {
+            request->send(404, "text/plain", "loadcell.ts not found");
+        }
+    });
+    manager.server.on("/api/loadcell", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        request->send(200, "application/json", loadcellJson());
     });
     manager.server.on("/api/pressureSensors/settings", HTTP_GET, [] (AsyncWebServerRequest *request) {
         request->send(200, "application/json", pressureSensorsSettingsJson());
@@ -1353,6 +1409,7 @@ void serverApiLoop() {
     mcp23017InputsWebSocket.cleanupClients();
     rotaryEncoderWebSocket.cleanupClients();
     pressureSensorsWebSocket.cleanupClients();
+    loadcellWebSocket.cleanupClients();
     tofSensorWebSocket.cleanupClients();
 
     if (getMotorMode() == MotorMode::Potentiometer) {
@@ -1406,6 +1463,13 @@ void serverApiLoop() {
         lastPressureSensorsPublishMs = now;
         if (pressureSensorsWebSocket.count() > 0) {
             pressureSensorsWebSocket.textAll(pressureSensorsJson());
+        }
+    }
+
+    if (now - lastLoadcellPublishMs >= loadcellPublishIntervalMs) {
+        lastLoadcellPublishMs = now;
+        if (loadcellWebSocket.count() > 0) {
+            loadcellWebSocket.textAll(loadcellJson());
         }
     }
 

@@ -19,6 +19,7 @@
 #include "matrix.h"
 #include "dcMotor.h"
 #include "nvs_flash.h"
+#include "loadcell.h"
 
 RoamingWiFiManager manager;
 
@@ -63,6 +64,7 @@ void setup() {
     gpioExpandersSetup();
     initPwmServo();
     initPressureSensor();
+    initLoadcell();
     initOledDisplay();
     initTofSensor();
     initMatrix();
