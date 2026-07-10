@@ -20,6 +20,7 @@
 #include "dcMotor.h"
 #include "nvs_flash.h"
 #include "loadcell.h"
+#include "ultrasonicSensor.h"
 
 RoamingWiFiManager manager;
 
@@ -65,6 +66,7 @@ void setup() {
     initPwmServo();
     initPressureSensor();
     initLoadcell();
+    initUltrasonicSensor();
     initOledDisplay();
     initTofSensor();
     initMatrix();

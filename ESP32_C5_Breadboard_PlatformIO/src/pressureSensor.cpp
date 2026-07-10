@@ -85,7 +85,7 @@ namespace {
 }
 
 void initPressureSensor() {
-    Serial.println("Initializing pressure sensor");
+    Serial.println("Initializing pressure sensors...");
     loadPressureEnabledFromNvs();
     loadPressureOffsetsFromNvs();
 
@@ -102,6 +102,7 @@ void initPressureSensor() {
     }
 
     pressureMultiplexerInitialized = true;
+    Serial.println("Finished initializing pressure sensors.");
 }
 
 bool arePressureSensorsEnabled() {

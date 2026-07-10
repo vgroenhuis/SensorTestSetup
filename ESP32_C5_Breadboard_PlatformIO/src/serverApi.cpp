@@ -12,6 +12,7 @@
 #include "oled.h"
 #include "matrix.h"
 #include "loadcell.h"
+#include "ultrasonicSensor.h"
 #include <array>
 #include "dcMotor.h"
 
@@ -24,6 +25,7 @@ namespace {
     AsyncWebSocket rotaryEncoderWebSocket("/ws/rotaryEncoder");
     AsyncWebSocket pressureSensorsWebSocket("/ws/pressureSensors");
     AsyncWebSocket loadcellWebSocket("/ws/loadcell");
+    AsyncWebSocket ultrasonicSensorWebSocket("/ws/ultrasonicSensor");
     AsyncWebSocket tofSensorWebSocket("/ws/tofSensor");
     unsigned long lastPotentiometerPublishMs = 0;
     unsigned long lastStatisticsPublishMs = 0;
@@ -33,6 +35,7 @@ namespace {
     unsigned long lastRotaryEncoderPublishMs = 0;
     unsigned long lastPressureSensorsPublishMs = 0;
     unsigned long lastLoadcellPublishMs = 0;
+    unsigned long lastUltrasonicSensorPublishMs = 0;
     unsigned long lastTofSensorPublishMs = 0;
     const unsigned long potentiometerPublishIntervalMs = 50;
     const unsigned long statisticsPublishIntervalMs = 50;
@@ -42,6 +45,7 @@ namespace {
     const unsigned long rotaryEncoderPublishIntervalMs = 50;
     const unsigned long pressureSensorsPublishIntervalMs = 50;
     const unsigned long loadcellPublishIntervalMs = 50;
+    const unsigned long ultrasonicSensorPublishIntervalMs = 50;
     const unsigned long tofSensorPublishIntervalMs = 50;
 
     String potentiometerJson() {
@@ -147,6 +151,20 @@ namespace {
 
         if (ready) {
             json += String(grams, 2);
+        } else {
+            json += "null";
+        }
+
+        json += "}";
+        return json;
+    }
+
+    String ultrasonicSensorJson() {
+        const float distanceMm = readUltrasonicSensor();
+        String json = String("{\"millis\":") + millis() + ",\"distanceMm\":";
+
+        if (!isnan(distanceMm) && isfinite(distanceMm) && distanceMm > 0.0f) {
+            json += String(distanceMm, 1);
         } else {
             json += "null";
         }
@@ -340,6 +358,22 @@ namespace {
         }
     }
 
+    void onUltrasonicSensorWebSocketEvent(AsyncWebSocket *server,
+                                          AsyncWebSocketClient *client,
+                                          AwsEventType type,
+                                          void *arg,
+                                          uint8_t *data,
+                                          size_t len) {
+        (void)server;
+        (void)arg;
+        (void)data;
+        (void)len;
+
+        if (type == WS_EVT_CONNECT) {
+            client->text(ultrasonicSensorJson());
+        }
+    }
+
     void onTofSensorWebSocketEvent(AsyncWebSocket *server,
                                    AsyncWebSocketClient *client,
                                    AwsEventType type,
@@ -477,6 +511,8 @@ void initServer(RoamingWiFiManager& manager) {
     manager.server.addHandler(&pressureSensorsWebSocket);
     loadcellWebSocket.onEvent(onLoadcellWebSocketEvent);
     manager.server.addHandler(&loadcellWebSocket);
+    ultrasonicSensorWebSocket.onEvent(onUltrasonicSensorWebSocketEvent);
+    manager.server.addHandler(&ultrasonicSensorWebSocket);
     tofSensorWebSocket.onEvent(onTofSensorWebSocketEvent);
     manager.server.addHandler(&tofSensorWebSocket);
 
@@ -766,6 +802,23 @@ void initServer(RoamingWiFiManager& manager) {
     });
     manager.server.on("/api/loadcell", HTTP_GET, [] (AsyncWebServerRequest *request) {
         request->send(200, "application/json", loadcellJson());
+    });
+    manager.server.on("/ultrasonicSensor", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        if (LittleFS.exists("/ultrasonicSensor.html")) {
+            request->send(LittleFS, "/ultrasonicSensor.html", "text/html");
+        } else {
+            request->send(404, "text/plain", "ultrasonicSensor.html not found");
+        }
+    });
+    manager.server.on("/ultrasonicSensor.ts", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        if (LittleFS.exists("/ultrasonicSensor.ts")) {
+            request->send(LittleFS, "/ultrasonicSensor.ts", "application/javascript");
+        } else {
+            request->send(404, "text/plain", "ultrasonicSensor.ts not found");
+        }
+    });
+    manager.server.on("/api/ultrasonicSensor", HTTP_GET, [] (AsyncWebServerRequest *request) {
+        request->send(200, "application/json", ultrasonicSensorJson());
     });
     manager.server.on("/api/pressureSensors/settings", HTTP_GET, [] (AsyncWebServerRequest *request) {
         request->send(200, "application/json", pressureSensorsSettingsJson());
@@ -1410,6 +1463,7 @@ void serverApiLoop() {
     rotaryEncoderWebSocket.cleanupClients();
     pressureSensorsWebSocket.cleanupClients();
     loadcellWebSocket.cleanupClients();
+    ultrasonicSensorWebSocket.cleanupClients();
     tofSensorWebSocket.cleanupClients();
 
     if (getMotorMode() == MotorMode::Potentiometer) {
@@ -1470,6 +1524,13 @@ void serverApiLoop() {
         lastLoadcellPublishMs = now;
         if (loadcellWebSocket.count() > 0) {
             loadcellWebSocket.textAll(loadcellJson());
+        }
+    }
+
+    if (now - lastUltrasonicSensorPublishMs >= ultrasonicSensorPublishIntervalMs) {
+        lastUltrasonicSensorPublishMs = now;
+        if (ultrasonicSensorWebSocket.count() > 0) {
+            ultrasonicSensorWebSocket.textAll(ultrasonicSensorJson());
         }
     }
 

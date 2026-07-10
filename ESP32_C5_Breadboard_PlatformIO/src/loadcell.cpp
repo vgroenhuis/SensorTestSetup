@@ -10,15 +10,17 @@ namespace {
     constexpr uint8_t loadcellClockPin = 1;
 }
 
-
 float calibrationFactor = 7050.0; // from Jurrian Mulder
-
+ 
 void initLoadcell() {
+    Serial.println("Initializing loadcell...");
     loadcell.begin(loadcellDataPin, loadcellClockPin);
+    Serial.println("Loadcell setting scale and gain...");
     loadcell.set_scale(calibrationFactor); // Set the scale factor
-    loadcell.set_rate_80SPS(); // Set the sample rate to 80 samples per second
     loadcell.set_gain(HX711_CHANNEL_A_GAIN_128);
+    Serial.println("Loadcell tare...");
     loadcell.tare();
+    Serial.println("Finished initializing loadcell.");
 }
 
 float readLoadcell() {
