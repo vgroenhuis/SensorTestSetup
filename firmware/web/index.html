@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>SensorTestSetup</title>
+		<link rel="stylesheet" href="stylesheet.css">
+	</head>
+	<body>
+		<div class="container">
+			<h1>SensorTestSetup</h1>
+			<div class="card">
+				<div id="status" class="status">Connecting...</div>
+			</div>
+
+			<div class="card">
+				<a href="potentiometer.html" class="btn">Potentiometer</a>
+				Read out the potentiometer connected to MCP3008 channel 7.
+			</div>
+			<div class="card">
+				<a href="mhSensor.html" class="btn">MH sensor</a>
+				Read out the MH sensor connected to MCP3008 channel 6.
+			</div>
+			<div class="card">
+				<a href="mcp3008.html" class="btn">MCP3008 analog inputs</a>
+				Read and graph all eight analog channels from the MCP3008 A/D converter.
+			</div>
+
+			<div class="card">
+				<a href="wifi" class="btn">Wi-Fi settings</a>
+				<a href="udp" class="btn">UDP test</a>
+			</div>
+
+			<div class="card">
+				Still on the old firmware, coming in later steps: MCP23017 GPIO, pressure sensors, load cell,
+				ultrasonic sensor, VL53L7CX ToF sensor, DC motor, PWM servo, rotary encoder, input-output matrix.
+			</div>
+
+			<div class="footer">
+				<a href="https://github.com/vgroenhuis/SensorTestSetup">github.com/vgroenhuis/SensorTestSetup</a>
+			</div>
+		</div>
+		<script type="module" src="index.js"></script>
+	</body>
+</html>

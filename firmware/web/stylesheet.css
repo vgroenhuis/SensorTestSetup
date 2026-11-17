@@ -1,0 +1,710 @@
+/* Base styles */
+body {
+    font-family: Arial, sans-serif;
+    background: #667eea;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Header */
+h1 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* Card for each section - easy to duplicate */
+.card {
+    background: #f5f5f5;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.card h2 {
+    color: #667eea;
+    font-size: 18px;
+    margin-top: 0;
+}
+
+/* Button style */
+.btn {
+    display: inline-block;
+    background: #667eea;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.btn:hover {
+    background: #5568d3;
+}
+
+button.btn {
+    border: 0;
+    cursor: pointer;
+    font: inherit;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+}
+
+/* Serial settings page */
+.setting-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 12px 0;
+}
+
+.status {
+    margin-top: 16px;
+    font-size: 14px;
+    color: #333;
+}
+
+.status.error {
+    color: #a31621;
+}
+
+/* Potentiometer page */
+.value-panel {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin: 18px 0 10px 0;
+}
+
+.value-number {
+    font-size: 44px;
+    font-weight: 700;
+    color: #2f3d8a;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+.value-unit {
+    font-size: 18px;
+    color: #555;
+}
+
+.graph-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 8px 0 10px 0;
+}
+
+.graph-actions {
+    margin: 8px 0 10px 0;
+}
+
+.graph-controls label {
+    font-size: 14px;
+    color: #333;
+}
+
+.time-window-input {
+    width: 90px;
+    padding: 6px 8px;
+    border: 1px solid #bfc8e8;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.graph-card {
+    background: #ffffff;
+    border: 1px solid #d8dcef;
+    border-radius: 8px;
+    padding: 10px;
+    margin-top: 8px;
+}
+
+.history-canvas {
+    width: 100%;
+    height: 230px;
+    display: block;
+}
+
+.graph-caption {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #5f6274;
+}
+
+/* MCP3008 page */
+.channel-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0;
+}
+
+.channel-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    border: 1px solid #d8dcef;
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-size: 13px;
+    color: #2f3d8a;
+    user-select: none;
+}
+
+.channel-chip input {
+    margin: 0;
+}
+
+.channel-swatch {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.channel-values {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.channel-value-row {
+    background: #ffffff;
+    border: 1px solid #d8dcef;
+    border-radius: 8px;
+    padding: 7px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+}
+
+.channel-value-name {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.channel-value-number {
+    font-size: 13px;
+    color: #333;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Pressure sensors page */
+.pressure-reading-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 8px;
+    margin: 10px 0 8px 0;
+}
+
+.calibration-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 8px 0 10px 0;
+}
+
+.calibration-actions .btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.pressure-reading-card {
+    background: #ffffff;
+    border: 1px solid #d8dcef;
+    border-radius: 8px;
+    padding: 8px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.pressure-reading-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #2f3d8a;
+}
+
+.pressure-reading-number {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1f2d6b;
+    font-variant-numeric: tabular-nums;
+}
+
+.pressure-reading-unit {
+    font-size: 12px;
+    color: #555;
+    margin-left: 4px;
+}
+
+/* Time-of-Flight sensor page */
+.tof-page-container {
+    max-width: 840px;
+}
+
+.tof-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin: 10px 0 8px 0;
+}
+
+.tof-summary-card {
+    background: #ffffff;
+    border: 1px solid #d8dcef;
+    border-radius: 8px;
+    padding: 8px 10px;
+}
+
+.tof-summary-label {
+    display: block;
+    font-size: 12px;
+    color: #5f6274;
+    margin-bottom: 4px;
+}
+
+.tof-summary-value {
+    display: block;
+    font-size: 18px;
+    font-weight: 700;
+    color: #1f2d6b;
+    font-variant-numeric: tabular-nums;
+}
+
+.tof-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    margin: 10px 0 8px 0;
+}
+
+.tof-tile {
+    background: #ffffff;
+    border: 1px solid #d8dcef;
+    border-left-width: 5px;
+    border-radius: 10px;
+    padding: 14px 10px;
+    min-height: 84px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.tof-tile.valid {
+    border-left-color: #1f8a70;
+    background: #cfeedd;
+}
+
+.tof-tile.invalid {
+    border-left-color: #d1495b;
+    background: #fdecef;
+}
+
+.tof-tile.masked-invalid {
+    border-left-color: #8b93a9;
+    background: #edf1f5;
+}
+
+.tof-tile.empty {
+    border-left-color: #b2b8c8;
+    background: #f8f9fc;
+}
+
+.tof-distance {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    justify-content: center;
+}
+
+.tof-distance-number {
+    font-size: 24px;
+    line-height: 1;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: #1f2d6b;
+}
+
+.tof-status-code {
+    margin-bottom: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    color: #5f6274;
+    font-variant-numeric: tabular-nums;
+}
+
+.tof-3d-canvas-wrap {
+    width: 100%;
+    height: 480px;
+    border: 1px solid #d8dcef;
+    border-radius: 10px;
+    background: #f8f9fc;
+    overflow: hidden;
+}
+
+.tof-3d-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.tof-3d-hint {
+    font-size: 12px;
+    color: #5f6274;
+    margin-top: 8px;
+}
+
+.tof-section-collapsed {
+    display: none;
+}
+
+@media (max-width: 760px) {
+    .tof-3d-canvas-wrap {
+        height: 380px;
+    }
+}
+
+.tof-distance-unit {
+    font-size: 12px;
+    color: #5f6274;
+}
+
+@media (max-width: 760px) {
+    .tof-page-container {
+        padding: 16px;
+    }
+
+    .tof-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .tof-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 6px;
+    }
+
+    .tof-tile {
+        min-height: 64px;
+        padding: 10px 4px;
+        border-left-width: 4px;
+    }
+
+    .tof-distance-number {
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 420px) {
+    .tof-page-container {
+        padding: 12px;
+    }
+
+    .tof-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 4px;
+    }
+
+    .tof-tile {
+        min-height: 52px;
+        padding: 8px 2px;
+        border-left-width: 3px;
+    }
+
+    .tof-distance-number {
+        font-size: 14px;
+    }
+}
+
+/* MCP23017 inputs page */
+.digital-value-panel {
+    margin: 10px 0 8px 0;
+}
+
+.digital-main-value {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 12px;
+    background: #ffffff;
+    border: 1px solid #d8dcef;
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+
+.digital-main-number {
+    font-size: 30px;
+    font-weight: 700;
+    color: #2f3d8a;
+    font-variant-numeric: tabular-nums;
+}
+
+.digital-main-binary {
+    font-size: 18px;
+    color: #444;
+    font-family: Consolas, "Courier New", monospace;
+    letter-spacing: 1px;
+}
+
+.digital-bit-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 8px;
+    margin: 8px 0;
+}
+
+.digital-bit-row {
+    background: #ffffff;
+    border: 1px solid #d8dcef;
+    border-radius: 8px;
+    padding: 7px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.digital-bit-name {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.digital-bit-state {
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 3px 8px;
+}
+
+.digital-bit-state.high {
+    color: #0b6a39;
+    background: #daf5e6;
+}
+
+.digital-bit-state.low {
+    color: #8a3b12;
+    background: #fde8dc;
+}
+
+/* MCP23017 pin configuration table */
+.pin-config-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 12px;
+}
+
+.pin-config-table th,
+.pin-config-table td {
+    padding: 6px 8px;
+    text-align: left;
+    border-bottom: 1px solid #e0e4f0;
+}
+
+.pin-config-table th {
+    font-weight: 700;
+    color: #5a6075;
+    background: #f0f2fa;
+}
+
+.pin-config-table tr:last-child td {
+    border-bottom: none;
+}
+
+.pin-dir-select {
+    padding: 3px 5px;
+    border: 1px solid #bfc8e8;
+    border-radius: 4px;
+    font-size: 12px;
+    background: #fff;
+}
+
+.bank-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #2f3d8a;
+    margin: 12px 0 6px 0;
+}
+
+.form-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin: 10px 0 6px 0;
+}
+
+/* DC motor page */
+.motor-section {
+    background: #ffffff;
+    border: 1px solid #d8dcef;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+.motor-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #2f3d8a;
+    margin-bottom: 6px;
+}
+
+.hidden {
+    display: none;
+}
+
+/* ToF collapsible button */
+.tof-collapsible-button {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #667eea;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-radius: 4px;
+    margin: 0;
+}
+
+.tof-collapsible-button:hover {
+    background-color: rgba(102, 126, 234, 0.1);
+}
+
+.tof-collapsible-button:focus-visible {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+.tof-collapsible-button::before {
+    content: "▼ ";
+    display: inline-block;
+    margin-right: 8px;
+    transition: transform 0.2s ease;
+    font-size: 12px;
+}
+
+.tof-collapsible-button[aria-expanded="false"]::before {
+    transform: rotate(-90deg);
+}
+
+/* ToF section collapsed state */
+.tof-section-collapsed {
+    display: none;
+}
+
+/* Matrix routing page */
+.matrix-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin: 16px 0;
+    background: #ffffff;
+    border: 1px solid #d8dcef;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.matrix-table th,
+.matrix-table td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid #e0e4f0;
+}
+
+.matrix-table th {
+    font-weight: 700;
+    color: #ffffff;
+    background: #667eea;
+}
+
+.matrix-table tr:last-child td {
+    border-bottom: none;
+}
+
+.matrix-table tr:hover {
+    background: #f9f9fc;
+}
+
+.form-section {
+    background: #ffffff;
+    border: 1px solid #e0e4f0;
+    border-radius: 6px;
+    padding: 16px;
+    margin: 12px 0;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 12px;
+}
+
+.form-row label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #2f3d8a;
+    margin-bottom: 4px;
+}
+
+.form-input {
+    padding: 8px 10px;
+    border: 1px solid #bfc8e8;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: inherit;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 12px;
+    margin-top: 0;
+}
+
+.btn-danger {
+    background: #dc2626;
+}
+
+.btn-danger:hover {
+    background: #b91c1c;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+}

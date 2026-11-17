@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>MCP3008 Analog Inputs</title>
+		<link rel="stylesheet" href="stylesheet.css">
+	</head>
+	<body>
+		<div class="container">
+			<h1>MCP3008 A/D Converter</h1>
+			<div class="card">
+				<p>Live analog voltages for channels CH0 through CH7.</p>
+				<div class="graph-controls">
+					<label for="mcpTimeWindowSec">Time window (s)</label>
+					<input id="mcpTimeWindowSec" class="time-window-input" type="text" value="60" inputmode="numeric" aria-label="Time window in seconds">
+				</div>
+				<div class="graph-actions">
+					<button id="pauseGraphButton" class="btn" type="button">Pause graph</button>
+				</div>
+				<div id="channelSelector" class="channel-selector" aria-label="MCP3008 channel selector"></div>
+				<div id="channelValues" class="channel-values" aria-live="polite"></div>
+				<div class="graph-card">
+					<canvas id="mcpHistoryCanvas" class="history-canvas" aria-label="MCP3008 channel history graph"></canvas>
+					<div id="mcpGraphCaption" class="graph-caption">Time axis: -60 to 0 s. Voltage axis: 0 to 3.3 V.</div>
+				</div>
+				<div id="mcpWsStatus" class="status">Connecting...</div>
+				<a href="./" class="btn">Back to control panel</a>
+			</div>
+		</div>
+		<script type="module" src="mcp3008.js"></script>
+	</body>
+</html>

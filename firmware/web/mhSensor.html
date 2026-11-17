@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>MH Sensor Live Value</title>
+		<link rel="stylesheet" href="stylesheet.css">
+	</head>
+	<body>
+		<div class="container">
+			<h1>MH Sensor</h1>
+			<div class="card">
+				<p>Live MH sensor voltage from MCP3008 channel 6.</p>
+				<div class="graph-controls">
+					<label for="timeWindowSec">Time window (s)</label>
+					<input id="timeWindowSec" class="time-window-input" type="text" value="60" inputmode="numeric" aria-label="Time window in seconds">
+				</div>
+				<div class="graph-actions">
+					<button id="pauseGraphButton" class="btn" type="button">Pause graph</button>
+				</div>
+				<div class="value-panel">
+					<span id="mhValue" class="value-number">--</span>
+					<span class="value-unit">V</span>
+				</div>
+				<div class="graph-card">
+					<canvas id="historyCanvas" class="history-canvas" aria-label="MH sensor history graph"></canvas>
+					<div id="graphCaption" class="graph-caption">Time axis: -60 to 0 s. Voltage axis: 0 to 3.3 V.</div>
+				</div>
+				<div id="wsStatus" class="status">Connecting...</div>
+				<a href="./" class="btn">Back to control panel</a>
+			</div>
+		</div>
+		<script type="module" src="mhSensor.js"></script>
+	</body>
+</html>
