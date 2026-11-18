@@ -188,7 +188,7 @@ All 19 usable pins of 'io' are used; 'main' has 11/12 left for the UART0 header.
 | HX711 | GPIO ('main') | | load cell on a connector; RATE on a jumper (10/80 Hz) |
 | HC-SR04 | GPIO ('main') | | on a connector, level-shifted ECHO |
 | Buttons (4) | MCP23017 bank B | | |
-| Rocker switches (2) | MCP23017 GPA4, GPA5 | | front edge; PCB-mount mini rocker, part and footprint *(to choose)* |
+| Toggle switches (2) | MCP23017 GPA4, GPA5 | | front edge; miniature SPDT with PCB pins (Dailywell 2MS1T1B1M1QES-5) |
 | Motor encoders (2) | PCNT ('io') | | 3.3 V supply, RC filter footprints (DNP) |
 
 ### Outputs
@@ -196,7 +196,7 @@ All 19 usable pins of 'io' are used; 'main' has 11/12 left for the UART0 header.
 | Part | Bus / pin | Address | Notes |
 | --- | --- | --- | --- |
 | TFT 2.4" 240×320, ST7789 (Zhongjingyuan module: GND, VCC, SCL, SDA, RES, DC, CS, BLK) | SPI ('main') | | 8-pin female header, the module plugs in; mounting holes under it |
-| MCP23017 | I2C main | 0x20 | bank A: 4 LEDs, 2 rocker switches, GPA6/GPA7 free (A7 output-only *(verify)*); bank B: buttons, MH digital out, header; also V_DXL enable and PCA9685 OE |
+| MCP23017 | I2C main | 0x20 | bank A: 4 LEDs, 2 toggle switches, GPA6/GPA7 free (A7 output-only *(verify)*); bank B: buttons, MH digital out, header; also V_DXL enable and PCA9685 OE |
 | PCA9685 | I2C main | **0x41** | 8 servo headers (ch 0–7); ch 8: buzzer through a MOSFET; ch 9–15 on a header; OE pulled high until firmware enables |
 | TCA9548 | I2C main | **0x71** | ch 0–1 pressure; ch 2–7 Qwiic connectors |
 | TB6612FNG | GPIO ('io') | | two motor ports (A: the gear motor; B: spare), VM = V_BUS, thermal copper |
@@ -251,7 +251,7 @@ bus has room now that the VL53L7CX has its own; the register map is the same, so
 ## 10. Mechanical
 
 * About 100 × 150 mm, larger where needed (all the parts above have priority over size). 4× M3 mounting holes.
-* Front edge: TFT, 4 potentiometers, AS5600 knob, buttons, 2 rocker switches, power switch. Rear/side edges: USB-C, motor, servo, Dynamixel and
+* Front edge: TFT, 4 potentiometers, AS5600 knob, buttons, 2 toggle switches, power switch. Rear/side edges: USB-C, motor, servo, Dynamixel and
   sensor connectors, pressure hose barbs.
 * VL53L7CX facing up with a clear 60° cone; the light sensors (LDR, VEML7700) uncovered; the AHT20 away from heat.
 * Silkscreen: every part's name, bus and address; connector pin names and voltages; board name and revision.
@@ -344,6 +344,7 @@ Low stock (under ~100) is marked: enough for a few prototypes, order soon or res
 | LDR | GL5528 | C125627 | 17107 | through-hole |
 | RGB status LED | SK6812MINI-E | C5149201 | 192368 | |
 | Buzzer | MLT-8530 | C94599 | 114824 | with an N-MOSFET from a PCA9685 channel |
+| Toggle switch ×2 | Dailywell 2MS1T1B1M1QES-5 (miniature SPDT, PC pins) | C496169 | 3743 | ~$1.50; wave soldering |
 | Dynamixel TX buffer (3.3 → 5 V) | 74AHCT1G125GV | C52140417 | 8934 | |
 | Dynamixel RX, HC-SR04 ECHO (5 → 3.3 V) | 74LVC1G34GW | C52140426 | 2457 | |
 | Dynamixel connector ×2 | B3B-EH-A(LF)(SN) | C160259 | 13662 | |

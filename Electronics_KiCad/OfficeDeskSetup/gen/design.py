@@ -51,7 +51,6 @@ TWO = {  # kind: (symbol, reference prefix, default footprint)
     'TVS': ('Device:D_TVS', 'D', FP['SMB']), 'NTC': ('Device:Thermistor_NTC', 'TH', FP['R']), 'LDR': ('Device:R_Photo', 'R', FP['LDR']),
     'FUSE': ('Device:Fuse', 'F', FP['FUSE']), 'JPO': ('Jumper:SolderJumper_2_Open', 'JP', FP['JPO']),
     'JPB': ('Jumper:SolderJumper_2_Bridged', 'JP', FP['JPB']), 'SW': ('Switch:SW_Push', 'SW', FP['BTN']),
-    'ROCKER': ('Switch:SW_SPST', 'SW', ''),     # PCB-mount mini rocker, part and footprint to be chosen
 }
 
 
@@ -67,6 +66,8 @@ def R(b, value, a, c, **kw):
 
 def C(b, value, a, c='GND', fp=None, **kw):
     """Capacitor, drawn in a strip (decoupling style)."""
+    if fp is None and 'elec' in value:
+        fp = FP['CP8']
     if fp is None:
         big = value.split()[0] in ('10uF', '22uF', '4.7uF', '47uF')
         fp = FP['C1206'] if value.startswith(('22uF', '47uF')) else FP['C0805'] if big else FP['C']
@@ -575,9 +576,9 @@ def mcu_io(d, X):
 def i2c_parts(d, X):
     sh = d.sheet('i2c_parts', 'Main I2C bus: MCP23017, PCA9685, TCA9548 with pressure sensors')
 
-    b = sh.block('MCP23017 (0x20): LEDs and rocker switches on bank A, buttons and controls on bank B')
+    b = sh.block('MCP23017 (0x20): LEDs and toggle switches on bank A, buttons and controls on bank B')
     nets = {'V_{DD}': '+3V3', 'V_{SS}': 'GND', 'SCK': 'I2C_SCL', 'SDA': 'I2C_SDA', 'A0': 'GND', 'A1': 'GND', 'A2': 'GND',
-            '~{RESET}': 'MCP_RESET', 'INTA': NC, 'INTB': NC, 'GPA4': 'ROCKER0', 'GPA5': 'ROCKER1', 'GPA6': NC, 'GPA7': NC}
+            '~{RESET}': 'MCP_RESET', 'INTA': NC, 'INTB': NC, 'GPA4': 'TOGGLE0', 'GPA5': 'TOGGLE1', 'GPA6': NC, 'GPA7': NC}
     for i in range(4):
         nets['GPA%d' % i] = 'LED%d' % i
     for i, n in enumerate(['BTN0', 'BTN1', 'BTN2', 'BTN3', 'MH_DO', 'IR_DO', 'DXL_EN', 'PCA_OE']):
@@ -594,12 +595,12 @@ def i2c_parts(d, X):
     b.col()
     for i in range(4):
         two(b, 'SW', 'BTN%d' % i, 'BTN%d' % i, 'GND')
-    for i in range(2):
-        two(b, 'ROCKER', 'ROCKER%d' % i, 'ROCKER%d' % i, 'GND')
+    for i in range(2):      # Dailywell 2MS1T1B1M1QES-5: miniature SPDT toggle, PCB pins (footprint: EasyEDA, C496169)
+        b.ic('Switch:SW_SPDT', 'SW', 'TOGGLE%d' % i, {'A': 'TOGGLE%d' % i, 'B': 'GND', 'C': NC}, fields=fields('', 'C496169'))
     b.ic('Connector_Generic:Conn_02x05_Odd_Even', 'J', 'MCP23017 bank B',
          {'1': 'BTN0', '2': 'BTN1', '3': 'BTN2', '4': 'BTN3', '5': 'MH_DO', '6': 'IR_DO', '7': 'DXL_EN', '8': 'PCA_OE', '9': 'GND', '10': '+3V3'},
          fields=fields('Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Vertical'))
-    b.note('Buttons and rocker switches use the MCP23017\npull-ups. GPB7 is output only (PCA_OE); GPA6\nand GPA7 are free (GPA7 output only).')
+    b.note('Buttons and toggle switches use the MCP23017\npull-ups. GPB7 is output only (PCA_OE); GPA6\nand GPA7 are free (GPA7 output only).')
 
     b = sh.block('PCA9685 (0x41): 8 servos, buzzer, 7 spare channels')
     nets = {'VDD': '+3V3', 'VSS': 'GND', 'SCL': 'I2C_SCL', 'SDA': 'I2C_SDA', 'A0': '+3V3', 'A1': 'GND', 'A2': 'GND', 'A3': 'GND', 'A4': 'GND',
@@ -779,7 +780,7 @@ Sheets
   3  Power switch, V_BUS (eFuse, INA226), 3.3 V, 5 V, V_SERVO, V_DXL
   4  ESP32-C5 'main': Wi-Fi, web, TFT, SPI, main I2C bus
   5  ESP32-C5 'io': motors, encoders, Dynamixel, VL53L7CX on its own I2C bus
-  6  Main I2C bus: MCP23017 (LEDs, buttons, rockers), PCA9685 (servos, buzzer), TCA9548 (pressure, Qwiic)
+  6  Main I2C bus: MCP23017 (LEDs, buttons, toggle switches), PCA9685 (servos, buzzer), TCA9548 (pressure, Qwiic)
   7  Sensors: MCP3008, ADS1115, IMU, AHT20, VEML7700, AS5600, HX711, HC-SR04, IR reflective, MH socket
 
 Nets that cross sheets have global labels; power rails: GND, +3V3, +5V (symbols), V_BUS, V_SERVO, V_DXL (labels).

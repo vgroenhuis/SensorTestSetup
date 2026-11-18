@@ -46,7 +46,7 @@ github.com/espressif/kicad-libraries. Regenerating overwrites the sheets: once t
 
 * **MCP23017 bank B**: GPB0–3 buttons (internal pull-ups), GPB4 MH module DO, GPB5 IR sensor DO, GPB6 **V_DXL enable**
   (100 k pull-down), GPB7 **PCA9685 OE** (10 k pull-up). GPB7 and GPA7 are outputs only. All of bank B is also on the
-  2×5 header. Bank A: GPA0–3 4 LEDs with 1 k (the TFT shows the rest), GPA4–5 2 rocker switches (internal pull-ups),
+  2×5 header. Bank A: GPA0–3 4 LEDs with 1 k (the TFT shows the rest), GPA4–5 2 toggle switches (internal pull-ups),
   GPA6–7 free.
 * **Potentiometers**: 4 on the MCP3008, pots 0–3 on ch 0–3 (the breadboard had its one pot on ch 7: the
   firmware's channel numbers change); ch 7 is on an analog input header (the ADS1115 header keeps 4 inputs).
@@ -87,5 +87,5 @@ the specification, distributor summaries and reference designs. Items are also m
 | AS5600 | 3.3 V mode (VDD5V and VDD3V3 tied) |
 | MCP23017 | GPA7/GPB7 output-only |
 
-Parts still to choose (no footprint yet): the two rocker switches, the four charger input MOSFETs, the two protection MOSFETs, the power switch,
+Parts still to choose (no footprint yet): the four charger input MOSFETs, the two protection MOSFETs, the power switch,
 the buzzer footprint (MLT-8530), and the footprints for the custom symbols above.

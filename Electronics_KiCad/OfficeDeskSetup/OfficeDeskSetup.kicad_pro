@@ -8,7 +8,7 @@
       "internal_id": "",
       "mfg": "",
       "mpn": "",
-      "sch_revision": ""
+      "sch_revision": "0.1"
     },
     "layer_pairs": [],
     "layer_presets": [],
@@ -28,7 +28,16 @@
     "equivalence_files": []
   },
   "erc": {
-    "erc_exclusions": [],
+    "erc_exclusions": [
+      [
+        "pin_to_pin|1828800|1943100|a185503a-0410-5fe5-83fe-db48f17a4f17|74303e76-4960-530a-b155-ed1453999751|/7d6f2201-bb16-433b-a012-f387f0c014ff/f7f3c589-a666-5966-b5ba-976e80077f5a|/7d6f2201-bb16-433b-a012-f387f0c014ff/f7f3c589-a666-5966-b5ba-976e80077f5a|/7d6f2201-bb16-433b-a012-f387f0c014ff/3af917cb-6cdb-5a3a-87b5-6a1d955fce60",
+        ""
+      ],
+      [
+        "pin_to_pin|1828800|1968500|634fd36c-e75e-593e-b4eb-0df661ca42ca|74303e76-4960-530a-b155-ed1453999751|/7d6f2201-bb16-433b-a012-f387f0c014ff/f7f3c589-a666-5966-b5ba-976e80077f5a|/7d6f2201-bb16-433b-a012-f387f0c014ff/f7f3c589-a666-5966-b5ba-976e80077f5a|/7d6f2201-bb16-433b-a012-f387f0c014ff/3af917cb-6cdb-5a3a-87b5-6a1d955fce60",
+        ""
+      ]
+    ],
     "meta": {
       "version": 0
     },
@@ -294,6 +303,7 @@
       "netlist": "",
       "plot": "",
       "specctra_dsn": "",
+      "step": "",
       "vrml": ""
     },
     "page_layout_descr_file": ""
