@@ -394,7 +394,7 @@ class Sheet:
                             S('instances', S('project', self.d.project, S('path', self.path, S('reference', ref), S('unit', unit))))))
         if not prefix.startswith('#'):
             self.d.parts.append(dict(ref=ref, value=value, lib_id=lib_id, sheet=self.name, unit=unit, dnp=dnp,
-                                     footprint=props[2][2], fields=fields))
+                                     footprint=props[2][2], fields=fields, block=getattr(self, 'block', '')))
         return ref, sym
 
     def part(self, lib_id, prefix, value, x, y, nets, rot=0, unit=1, ref=None, **kw):
@@ -560,6 +560,7 @@ class Block:
 
     def render(self, dry=False):
         ox, oy = self.origin
+        self.sh.block = self.title          # recorded with each part (for the PCB placement)
         x = ox + 2.54
         top = oy + 7.62
         bottom = top
