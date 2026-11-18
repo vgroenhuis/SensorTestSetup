@@ -12,11 +12,11 @@ DATE = '2026-11-18'
 FP = dict(
     R='Resistor_SMD:R_0603_1608Metric', C='Capacitor_SMD:C_0603_1608Metric', C0805='Capacitor_SMD:C_0805_2012Metric',
     C1206='Capacitor_SMD:C_1206_3216Metric', CP8='Capacitor_SMD:CP_Elec_8x10', CP10='Capacitor_SMD:CP_Elec_10x10',
-    LED='LED_SMD:LED_0603_1608Metric', SMA='Diode_SMD:D_SMA', SMB='Diode_SMD:D_SMB', L7='Inductor_SMD:L_Bourns_SRP7028A_7.3x6.6mm',
-    L10='Inductor_SMD:L_Bourns_SRP1038C_10.0x10.0mm', R2512='Resistor_SMD:R_2512_6332Metric',
+    LED='LED_SMD:LED_0603_1608Metric', SMA='Diode_SMD:D_SMA', SMB='Diode_SMD:D_SMB', L7='OfficeDeskSetup:IND-SMD_L7.0-W6.6',
+    L10='OfficeDeskSetup:IND-SMD_L11.5-W10.5', R2512='Resistor_SMD:R_2512_6332Metric',
     BTN='Button_Switch_SMD:SW_SPST_TL3342', TP='TestPoint:TestPoint_Pad_D1.5mm',
     JPO='Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm', JPB='Jumper:SolderJumper-2_P1.3mm_Bridged_RoundedPad1.0x1.5mm',
-    JP3='Jumper:SolderJumper-3_P1.3mm_Bridged12_RoundedPad1.0x1.5mm', FUSE='Fuse:Fuse_1812_4532Metric',
+    JP3='Jumper:SolderJumper-3_P1.3mm_Bridged12_RoundedPad1.0x1.5mm', FUSE='Fuse:Fuse_Littelfuse-NANO2-451_453',
     QWIIC='Connector_JST:JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal', USBC='Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12',
     SCREW2='TerminalBlock_Phoenix:TerminalBlock_Phoenix_MKDS-1,5-2-5.08_1x02_P5.08mm_Horizontal',
     PH4='Connector_JST:JST_PH_B4B-PH-K_1x04_P2.00mm_Vertical', PH6='Connector_JST:JST_PH_B6B-PH-K_1x06_P2.00mm_Vertical',
@@ -67,8 +67,37 @@ TWO = {  # kind: (symbol, reference prefix, default footprint)
 }
 
 
+# LCSC numbers of the two-terminal parts by value (JLCPCB basic parts where there is one; stock checked 2026-11-18).
+# Resistors: UNI-ROYAL 0603WAF, 1 %. Ceramics: Samsung/Yageo X5R/X7R, voltage at least the value's.
+PASSIVES = {
+    'R': {'100R': 'C22775', '150R': 'C22808', '220R': 'C22962', '330R': 'C23138', '665R': 'C218112', '1k': 'C21190',
+          '1.1k': 'C22764', '1.91k': 'C22853', '2.2k': 'C4190', '3.24k': 'C22994', '4.53k': 'C25971', '4.7k': 'C23162',
+          '5.1k': 'C23186', '5.23k': 'C23068', '6.04k': 'C25977', '7.87k': 'C23236', '10k': 'C25804', '10.2k': 'C22772',
+          '13.7k': 'C22793', '14k': 'C22803', '20k': 'C4184', '29.4k': 'C22974', '30.1k': 'C23000', '47k': 'C25819',
+          '100k': 'C25803', '169k': 'C22817', '453k': 'C25818', '1M': 'C22935', '3.3M': 'C26096',
+          '10mR 2W': 'C192580', '5mR 1W': 'C393074'},          # Ralec RLM25 2 W / RLP25 3 W shunts
+    'C': {'15pF': 'C1644', '47pF': 'C1671', '1nF': 'C1588', '1nF 50V': 'C1588', '10nF': 'C57112', '22nF': 'C21122',
+          '47nF 50V': 'C1622', '100nF': 'C14663', '100nF 50V': 'C14663', '1uF': 'C15849', '1uF 25V': 'C15849',
+          '1uF 35V': 'C28323', '4.7uF': 'C1779', '4.7uF 16V': 'C1779', '4.7uF 35V': 'C76651', '10uF 16V': 'C15850',
+          '10uF 25V': 'C13585', '10uF 35V': 'C13585', '22uF 10V': 'C12891', '22uF 25V': 'C12891', '47uF 10V': 'C96123'},
+    'CP': {'100uF 35V elec': 'C2895269', '470uF 25V elec': 'C3445246'},
+    'L': {'2.2uH 10A': 'C167228', '6.8uH 5A': 'C167221', '6.8uH 3A': 'C167221', 'ferrite 600R': 'C1002'},
+    'D': {'SS14': 'C2480', 'SS34': 'C8678'}, 'TVS': {'SMAJ5.0A': 'C19077523'},
+    'NTC': {'10k B3435': 'C525660'}, 'FUSE': {'10A': 'C44479'},
+}
+LED_LCSC = {'red': 'C2286', 'green': 'C12624', 'yellow': 'C2287'}     # Kento KT-0603R/G/Y
+
+
+def part_lcsc(kind, value):
+    if kind == 'LED':
+        return LED_LCSC[value.split()[-1] if value.split()[-1] in LED_LCSC else 'red']
+    return PASSIVES.get(kind, {}).get(value)
+
+
 def two(b, kind, value, a, c, strip=False, fp=None, lcsc=None, dnp=False):
     sym, prefix, default = TWO[kind]
+    if lcsc is None:
+        lcsc = part_lcsc(kind, value)
     (b.strip if strip else b.row)(sym, prefix, value + (' DNP' if dnp else ''), a, c,
                                   fields=fields(default if fp is None else fp, lcsc), dnp=dnp)
 
@@ -213,7 +242,7 @@ def usb_and_pd(d, X):
           'DPU+': 'USB_UP_DP', 'DMU-': 'USB_UP_DM', 'DP1+': 'USB_MAIN_DP', 'DM1-': 'USB_MAIN_DM', 'DP2+': 'USB_IO_DP', 'DM2-': 'USB_IO_DM',
           'DP3+': NC, 'DM3-': NC, 'DP4+': NC, 'DM4-': NC}, fields=fields('Package_SO:QSOP-16_3.9x4.9mm_P0.635mm', 'C4154405'))
     b.col()
-    b.ic('Device:Crystal_GND24', 'Y', '12MHz', {'1': 'HUB_XI', '3': 'HUB_XO', '2': 'GND'}, fields=fields(FP['XTAL']))
+    b.ic('Device:Crystal_GND24', 'Y', '12MHz', {'1': 'HUB_XI', '3': 'HUB_XO', '2': 'GND'}, fields=fields(FP['XTAL'], 'C9002'))
     C(b, '100nF', 'HUB_3V3')
     C(b, '1uF', 'HUB_3V3')
     C(b, '100nF', 'VBUS_PROG')
@@ -370,8 +399,8 @@ def rails(d, X):
     R(b, '10k', '+3V3', 'INA_ALERT')
     b.col()
     C(b, '100nF', '+3V3')
-    C(b, '100uF 25V elec', 'V_BUS')
-    C(b, '100uF 25V elec', 'V_BUS')
+    C(b, '100uF 35V elec', 'V_BUS')
+    C(b, '100uF 35V elec', 'V_BUS')
     C(b, '22uF 25V', 'V_BUS')
     tp(b, 'V_BUS')
     tp(b, 'INA_ALERT')
@@ -408,7 +437,7 @@ def rails(d, X):
     C(b, '100nF 50V', 'V_BUS')
     C(b, '47uF 10V', 'V_SERVO')
     C(b, '47uF 10V', 'V_SERVO')
-    C(b, '470uF 10V elec', 'V_SERVO', fp=FP['CP10'])
+    C(b, '470uF 25V elec', 'V_SERVO', fp=FP['CP10'])
     tp(b, 'V_SERVO')
 
     b = sh.block('V_DXL: eFuse 3 A, enabled by the MCP23017 (off at reset)')
@@ -530,7 +559,7 @@ def mcu_io(d, X):
     for n in ('PWMA', 'PWMB', 'AIN1', 'AIN2', 'BIN1', 'BIN2'):
         R(b, '10k', 'MOT_' + n, 'GND')
     b.col()
-    C(b, '100uF 25V elec', 'V_BUS')
+    C(b, '100uF 35V elec', 'V_BUS')
     C(b, '10uF 25V', 'V_BUS', fp=FP['C1206'])
     C(b, '100nF 50V', 'V_BUS')
     C(b, '100nF', '+3V3')
@@ -635,7 +664,7 @@ def i2c_parts(d, X):
     R(b, '100R', 'PWM8', 'BUZ_G')
     R(b, '100k', 'BUZ_G', 'GND')
     two(b, 'D', 'SS14', '+3V3', 'BUZ_N')
-    b.ic('Transistor_FET:AO3400A', 'Q', 'AO3400A', {'G': 'BUZ_G', 'S': 'GND', 'D': 'BUZ_N'}, flow=True, fields=fields(FP['SOT23']))
+    b.ic('Transistor_FET:AO3400A', 'Q', 'AO3400A', {'G': 'BUZ_G', 'S': 'GND', 'D': 'BUZ_N'}, flow=True, fields=fields(FP['SOT23'], 'C20917'))
     b.ic(X['MLT8530'], 'BZ', 'MLT-8530', {'+': '+3V3', '-': 'BUZ_N'}, flow=True, fields=fields(FP['MLT8530'], 'C94599'))
     b.col()
     for i in range(9, 16):
@@ -710,7 +739,7 @@ def sensors(d, X):
     R(b, '150R', 'IR_LED_R', 'IR_LED_A')
     R(b, '10k', '+3V3', 'IR_AO')
     b.col()
-    b.ic('Device:R_Potentiometer_Trim', 'RV', '10k', {'1': '+3V3', '2': 'IR_THR', '3': 'GND'}, fields=fields(FP['TRIM']))
+    b.ic('Device:R_Potentiometer_Trim', 'RV', '10k', {'1': '+3V3', '2': 'IR_THR', '3': 'GND'}, fields=fields(FP['TRIM'], 'C780220'))
     ref = d.ref('U')
     lm = dict(fields=fields(FP['SOIC8'], 'C7955'), ref=ref)
     b.ic('Comparator:LM393', 'U', 'LM393DR2G', {'3': 'IR_THR', '2': 'IR_AO', '1': 'IR_DO'}, unit=1, **lm)

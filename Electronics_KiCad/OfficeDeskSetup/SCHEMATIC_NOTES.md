@@ -94,6 +94,8 @@ the footprints reference them). Each was checked against the datasheet, and the 
 | VEML7700-TT | C1850416 | SENSOR-SMD_EML7700-TT | pins match the LCSC symbol |
 | Toggle switch 2MS1T1B1M1QES-5 | C496169 | SW-TH_2MS1T1B1M1QES-5 | pad 2 (middle) is the common |
 | Power switch 2MD1T1B1M1QES-5 (DPDT) | C496170 | SW-TH_2MD1T1B1M1QES-5 | poles 1-2-3 and 4-5-6, commons 2 and 5 |
+| Inductor FXL0630-6R8-M (6.8 µH, 5 A / 6 A sat) | C167221 | IND-SMD_L7.0-W6.6 | 2 pads, 6.0 mm apart; replaces KiCad's Bourns SRP7028A footprint (that part is not stocked) |
+| Inductor FXL1040-2R2-M (2.2 µH, 12 A / 18 A sat) | C167228 | IND-SMD_L11.5-W10.5 | 2 pads, 9.5 mm apart; 11.5 × 10 mm body, replaces the 10 × 10 SRP1038C footprint |
 
 Also found by the pad check: the INA226 shunt used KiCad's 4-terminal `R_Shunt` on a 2-pad 2512 footprint, so the
 sense lines had no pads. Now a 2-terminal 2512 with two net ties (NT1, NT2) for the Kelvin sense lines: place them on
@@ -116,4 +118,24 @@ the specification, distributor summaries and reference designs. Items are also m
 | AS5600 | 3.3 V mode (VDD5V and VDD3V3 tied) |
 | MCP23017 | GPA7/GPB7 output-only |
 
-All parts now have a footprint. Most passives still need an LCSC number.
+## LCSC numbers
+
+All resistors, capacitors, inductors, diodes, LEDs, the fuse, the NTCs, the crystal and the trimmer have an LCSC number
+(`PASSIVES` in `gen/design.py`, picked by value; stock checked on 2026-11-18). JLCPCB **basic** parts where one exists,
+so most of them add no extended-part fee: the common resistor values, all ceramics but the 4.7 µF 35 V, SS14/SS34,
+AO3400A, the 600 Ω ferrite, the 12 MHz crystal and the red LED. The E96 resistor values, shunts, electrolytics, power
+inductors, NTC, fuse, green/yellow LEDs and the SMAJ5.0A are extended parts.
+
+* Ceramics without a voltage on the sheet are 50 V (0603) or 25 V (0805 4.7 µF); every part is rated at least the
+  voltage in its value.
+* The stocked electrolytics are rated higher: **100 µF 35 V** (was 25 V; Lelon RVE, 8 × 10) on V_BUS and **470 µF 25 V**
+  (was 10 V; low-ESR, 10 × 10.5) on V_SERVO.
+* Shunts: Ralec RLM25 10 mΩ 2 W (INA226) and RLP25 5 mΩ 3 W (pack).
+* Pack fuse: Littelfuse NANO2 0451010.MRL (10 A fast, 2410 size, footprint `Fuse_Littelfuse-NANO2-451_453`); a
+  1812 fuse is not made for 10 A.
+* LEDs: Kento KT-0603: green for the rails, yellow for CHARGE, red for V_DXL and the four MCP23017 LEDs (red is the
+  basic part; change `LED_LCSC` / the values for other colours).
+* Crystal X322512MSB4SI: 20 pF load. Check against the CH334R (the 15 pF load capacitors are DNP).
+
+Still without an LCSC number: connectors, pin headers and sockets, push buttons, the panel potentiometers (RK09K),
+test points, solder jumpers and net ties (the last three are copper only).
