@@ -1,6 +1,6 @@
-# SensorTestSetup PCB: specification (draft 0.2)
+# SensorTestSetup PCB: specification (draft 0.3)
 
-Status: **draft for review**. Draft 0.1's decisions D1–D9 are settled (section 13); new open questions are **D10–D16**.
+Status: **draft for review**. All decisions D1–D16 are settled (section 12); what is left are the *(verify)* items.
 Values marked *(verify)* have to be checked against the datasheet before they go into the schematic.
 
 Key words: **must** = hard requirement, **should** = strongly preferred, **may** = optional.
@@ -20,7 +20,8 @@ explain and try out sensors and actuators, and for the CloSer lab demos page.
 2. **Every part can be explained.** Parts are visible and labelled on the silkscreen (name, bus, address or pins), with
    test points for the scope and logic analyser.
 3. **Easy to extend.** Spare connectors on every bus.
-4. **Runs anywhere:** from USB-C PD (everything) or from its own 18650 cell (everything except the motors and servos).
+4. **Runs anywhere:** from USB-C PD, or for quick demos from its own 18650 cell (everything, the motors and servos at
+   reduced current).
 
 ## 2. Lessons from the breadboard and the ESP-IDF firmware
 
@@ -47,7 +48,8 @@ flowchart LR
   HUB --> A & B
   VBUS --> MUX[input select] --> CHG[BQ25895 charger<br>+ 18650]
   PROG -. 5 V .-> MUX
-  CHG --> VSYS[VSYS] --> R33[3.3 V buck-boost] & R5[5 V boost]
+  CHG --> VSYS[VSYS] --> R33[3.3 V buck-boost] & R5[5 V boost] & B12[12 V boost<br>battery only, ~1.5 A]
+  B12 -. ideal-diode OR .-> VBUS
   VBUS --> SERVO[V_SERVO buck 5/6 V] & MOT[TB6612FNG] & DXL[V_DXL switch]
   subgraph A[ESP32-C5 'main': Wi-Fi, web, display]
     direction TB
@@ -65,22 +67,21 @@ flowchart LR
 
 ## 4. Two ESP32-C5s
 
-* **Must**: two ESP32-C5-WROOM-1 modules with PSRAM (N16R8, as now) *(verify availability; antenna: D14)*.
+* **Must**: two ESP32-C5-WROOM-1 modules with PSRAM (N16R8, as now) *(verify availability)*.
 * **ESP 'main'**: Wi-Fi, web server, lab demos reports and updates, the display, the SPI parts (MCP3008, TFT), the main I2C
   bus, the HX711 and the ultrasonic sensor.
 * **ESP 'io'**: the parts that need many pins or exact timing: motor driver and encoders, the VL53L7CX on its own bus,
   the Dynamixel port. Its own radio can search for a stronger Wi-Fi network or run an access point while 'main' stays
   responsive.
-* **Link** between them: **D10**. Recommendation: **UART** at 2–5 Mbit/s with a third line as "data ready" if needed.
-  Reasons: the ESP32-C5 has **one general-purpose SPI controller** (SPI2); as an SPI slave, 'io' would have none left,
+* **Link** between them: **UART** at 2–5 Mbit/s (D10). Reasons: the ESP32-C5 has **one general-purpose SPI controller** (SPI2); as an SPI slave, 'io' would have none left,
   and the SPI link takes 5 pins on each side against 2 for UART (section 5 is full with SPI). The data is small: a ToF
   frame (8×8) is ~1 kB at 15 Hz, under 20 kB/s; a 3 Mbit/s UART carries ~300 kB/s.
 * **Programming**: one USB-C **PROG** port with a USB 2.0 hub (e.g. CH334 or FE1.1s *(verify)*) to both modules'
   native USB (GPIO13/14): two serial ports and JTAG, no USB-UART chips. 5.1 kΩ Rd on CC, ESD protection (USBLC6-2 or
   similar) on D+/D−. Each module: EN reset button, BOOT button on GPIO28, EN RC delay (10 kΩ / 1 µF).
 * **Should**: a UART0 header (GND, TX, RX, EN, BOOT) on 'main' for flashing with an external adapter.
-* Antennas: keep-out zones per the module datasheet; the two antennas on **opposite board edges**, away from the motor
-  driver, the bucks and the battery.
+* Antennas: WROOM-1 modules with **PCB antennas** (D14), keep-out zones per the module datasheet, the two antennas on
+  **opposite board edges**, away from the motor driver, the converters and the battery.
 
 ## 5. Pins
 
@@ -132,16 +133,21 @@ All 19 usable pins of 'io' are used; 'main' has 11/12 left for the UART0 header.
 | Rail | Source | Rating | Loads |
 | --- | --- | --- | --- |
 | VBUS_PD | USB-C **POWER**, HUSB238 PD sink (I2C 0x08), default **12 V**, jumper for 9 V *(no 15/20 V options: TB6612 VM and the charger)* | 3 A | |
-| **V_BUS** | VBUS_PD after the load switch (closes on a valid contract, soft start) and the INA260 | 3 A | TB6612 VM, V_SERVO, V_DXL, charger input |
+| **V_BUS** | VBUS_PD after the load switch (closes on a valid contract, soft start), or the 12 V battery boost when there is no PD (ideal-diode OR); then the INA260 | 3 A from PD, ~1.5 A from the battery | TB6612 VM, V_SERVO, V_DXL, charger input (PD only) |
 | **VSYS** | BQ25895 power path (I2C 0x6A) from V_BUS or VBUS_PROG (input selector, e.g. TPS2121 *(verify)*), and the **18650** | 3 A | 3.3 V and 5 V converters |
 | **3.3 V** | buck-boost from VSYS (e.g. TPS63020 *(verify)*) | ≥ 1.5 A | both ESP32s (Wi-Fi peaks ~0.5 A each), sensors, TFT |
 | **5 V** | boost from VSYS | ≥ 1 A | HC-SR04, level shifter, Dynamixel buffer (if 5 V), exposed 5 V |
+| **12 V boost** | from VSYS, **only without PD** (enabled by the charger's "no input" state or by firmware *(verify)*), current limit ~1.5 A | ~18 W | V_BUS on battery |
 | **V_SERVO** | buck from V_BUS, jumper 5 / 6 V | ≥ 3 A | 8 servo headers, ≥ 470 µF bulk |
 | **V_DXL** | V_BUS through a load switch with current limit, enabled by the MCP23017 (pull-down: off at reset) | ≥ 3 A | Dynamixel only (9–12 V; the XL430 takes 6.5–12 V) |
 
-* **Battery**: one 18650 in a holder on the back, charged from either USB-C. On the battery alone, everything runs except
-  the motors, servos and Dynamixel (no V_BUS): about 1.5 W, so 6–7 hours from a 3000 mAh cell *(estimate)*. More on
-  battery: **D11**.
+* **Battery** (D11): one 18650 in a holder on the back, charged from either USB-C, for **quick demos without external
+  power**. Everything runs on it: the logic and sensors take about 1.5 W (6–7 hours from a 3000 mAh cell *(estimate)*);
+  a 12 V boost supplies V_BUS for the motors, servos and Dynamixel at up to ~1.5 A (18 W, so 5–6 A from the cell: a
+  **high-drain cell** of ≥ 10 A, e.g. Samsung 30Q or Molicel P28A *(verify)*, and a boost converter rated for it, e.g.
+  TPS61088 *(verify)*). The firmware reads the battery (BQ25895) and the current (INA260) and limits the motor PWM and
+  servo moves on battery; the charger's power path and the cell's protection must carry the boost's input current
+  *(verify the BQ25895 BATFET rating)*.
 * **Power switch** (like LynXP §2.2): one multi-pole switch breaks **CC1 and CC2** (so a powerbank wakes up on every
   switch-on and renegotiates) and the **enable of the 3.3 V and 5 V converters** (so the battery doesn't drain). Charging
   continues while switched off. No separate emergency stop: the motors run free, and the firmware stops them (STBY, PWM).
@@ -160,9 +166,10 @@ All 19 usable pins of 'io' are used; 'main' has 11/12 left for the UART0 header.
 | Part | Bus / pin | Address | Notes |
 | --- | --- | --- | --- |
 | Potentiometer (panel, with knob) | MCP3008 ch 7 | | front edge |
-| MH sensor (integrated: sensor + LM393 comparator + threshold trimmer) | MCP3008 ch 6 (analog), MCP23017 (digital out) | | which sensor: **D13** |
+| MH sensor module socket: 4-pin female header (VCC, GND, DO, AO) for a standard MH module | MCP3008 ch 6 (AO), MCP23017 bank B (DO) | | VCC 3.3 V (5 V by jumper *(verify the AO level)*); the same channel as now |
+| IR reflective sensor (e.g. ITR20001 or TCRT5000 *(verify)*) with LM393 comparator and threshold trimmer, on board (D13) | MCP3008 ch 4 (analog), MCP23017 bank B (digital) | | facing up or over the board edge; IR LED on a jumper |
 | LDR (with divider) | MCP3008 ch 5 | | next to the VEML7700, to compare |
-| MCP3008 | SPI ('main') | | ch 0–4 on analog input headers |
+| MCP3008 | SPI ('main') | | ch 0–3 on analog input headers |
 | ADS1115 16-bit ADC | I2C main | 0x48 | inputs on a header (compare with the MCP3008's 10 bits) |
 | 2× WF100DPZ pressure | TCA9548 ch 0, 1 | 0x6D | hose barbs on the board edge |
 | VL53L7CX ToF | I2C 2 ('io') | 0x29 | **on the board, facing up**: nothing taller within its 60° cone; AVDD and IOVDD 3.3 V *(verify)* |
@@ -210,13 +217,14 @@ bus has room now that the VL53L7CX has its own; the register map is the same, so
 | USB-C POWER | PD sink (CC, VBUS) | 1 |
 | USB-C PROG | USB 2.0 data + 5 V | 1 |
 | 18650 holder | through-hole, on the back | 1 |
-| Motor + encoder | JST-PH 6-pin (M+, M−, VCC, GND, A, B) + 2-pin screw terminal, in parallel | 2 (A, B) |
+| Motor + encoder | JST-PH 6-pin (M+, M−, VCC, GND, A, B) + 2-pin screw terminal, in parallel | 2 (A, B; D16) |
 | Servos | 3-pin 2.54 mm (GND, V_SERVO, signal), ~220 Ω series resistors | 8 |
 | Dynamixel | JST EH 3-pin (B3B-EH-A *(verify)*), in parallel | 2 |
 | Load cell | JST-PH 4-pin (E+, E−, A+, A−) | 1 |
 | HC-SR04 | 4-pin 2.54 mm female (VCC, TRIG, ECHO, GND) | 1 |
 | Qwiic / STEMMA QT (JST-SH 4-pin, 3.3 V) | main bus: 2; behind the TCA9548: 6; 'io' bus: 1 | 9 |
-| Analog in (GND, 3.3 V, signal) | MCP3008 ch 0–4, ADS1115 ch 0–3 | 9 |
+| Analog in (GND, 3.3 V, signal) | MCP3008 ch 0–3, ADS1115 ch 0–3 | 8 |
+| MH sensor module | 4-pin female (VCC, GND, DO, AO) | 1 |
 | MCP23017 bank B header | 2×5 (I/O, GND, 3.3 V) | 1 |
 | PCA9685 ch 9–15 header | with GND and 5 V | 1 |
 | TFT | 8-pin 2.54 mm female | 1 |
@@ -248,21 +256,10 @@ bus has room now that the VL53L7CX has its own; the register map is the same, so
 * TFT: ST7789 through `esp_lcd` (u8g2 is monochrome), with a simple drawing layer or LVGL.
 * Address changes: PCA9685 0x41, TCA9548 0x71 (constants in `i2cbus.c`).
 * New drivers and pages: IMU, BME280, VEML7700, AS5600, ADS1115, INA260, HUSB238, BQ25895 (battery and PD page), LDR,
-  Dynamixel (Protocol 2.0), a second motor; all of them matrix inputs or outputs.
+  IR reflective sensor, Dynamixel (Protocol 2.0), a second motor; all of them matrix inputs or outputs.
+* On battery: limit the motor PWM and servo moves to the boost's current (INA260), and show the battery on the display.
 
-## 12. Open questions
-
-| # | Question | Recommendation |
-| --- | --- | --- |
-| D10 | Link between the ESP32s: SPI or UART? | UART (section 4): fewer pins, keeps SPI free, ample speed. |
-| D11 | On battery alone: logic and sensors only, or also servos / motors (a 12 V boost, ~2 A from one cell)? | Logic and sensors only; motors, servos and Dynamixel with USB-C PD. |
-| D12 | "A 2nd TCA9548 for PWM control of the TB6612": a TCA9548 is an I2C multiplexer (no PWM). Was a second PCA9685 meant? | Neither: PWM from 'io' (LEDC 20–30 kHz, inaudible; the PCA9685 tops out at ~1.5 kHz, audible) and direction on 'io' GPIOs. |
-| D13 | Which sensor is the "MH sensor module" (sound, light, IR obstacle, flame, moisture...)? | Integrate that sensor with its LM393 comparator. |
-| D14 | Antennas: modules with PCB antenna (WROOM-1) at opposite edges, or WROOM-1U with external antennas (as LynXP)? | WROOM-1 on a desk board (no cables); -1U if the board ends up in an enclosure. |
-| D15 | Align the I2C addresses with LynXP (PCA9685 at 0x41, INA260 at 0x40)? | Yes (one firmware constant changes). |
-| D16 | Second motor port on the TB6612's channel B? | Yes: costs only a connector and two encoder pins. |
-
-## 13. Settled (from draft 0.1)
+## 12. Decisions
 
 | # | Decision |
 | --- | --- |
@@ -275,10 +272,16 @@ bus has room now that the VL53L7CX has its own; the register map is the same, so
 | D7 | 8 servo headers. |
 | D8 | TB6612FNG. |
 | D9 | Designed by Claude (Fable 5.2), ordered and assembled at JLCPCB. |
+| D10 | UART link between the two ESP32s. |
+| D11 | The 18650 powers everything for quick demos: a 12 V boost (~1.5 A) feeds the motors and servos without PD. |
+| D12 | No extra PWM chip for the motor driver: PWM from 'io' (LEDC). |
+| D13 | An on-board IR reflective sensor, plus a 4-pin socket for a standard MH sensor module. |
+| D14 | WROOM-1 modules with PCB antennas at opposite edges. |
+| D15 | I2C addresses as on LynXP (PCA9685 0x41, INA260 0x40): no preference, so aligned. |
+| D16 | A second motor port on the TB6612's channel B. |
 
-## 14. Next steps
+## 13. Next steps
 
-1. Settle D10–D16.
-2. Verify the *(verify)* items and choose parts with LCSC numbers.
-3. Schematic in `OfficeDeskSetup/` (the present one has the DevKit, MCP3008, MCP23017, TCA9548, L298N and the pot).
-4. Layout, JLCPCB order, and bring-up part by part (the firmware already reports each part as found or not).
+1. Verify the *(verify)* items and choose parts with LCSC numbers.
+2. Schematic in `OfficeDeskSetup/` (the present one has the DevKit, MCP3008, MCP23017, TCA9548, L298N and the pot).
+3. Layout, JLCPCB order, and bring-up part by part (the firmware already reports each part as found or not).
