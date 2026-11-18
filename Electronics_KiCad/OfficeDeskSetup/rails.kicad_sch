@@ -18787,7 +18787,7 @@
 		(stroke (width 0) (type default))
 		(uuid "57c49788-e55a-5de9-a89d-6c08893973e9")
 	)
-	(global_label "CHG_SYS"
+	(global_label "CHG_VBUS"
 		(shape passive)
 		(at 121.92 257.81 270)
 		(fields_autoplaced yes)
@@ -18877,7 +18877,7 @@
 		(stroke (width 0) (type default))
 		(uuid "49b3eee1-6a3e-5a50-892a-5821d36c2f1c")
 	)
-	(global_label "CHG_VBUS"
+	(global_label "BAT_N"
 		(shape passive)
 		(at 20.32 281.94 270)
 		(fields_autoplaced yes)
@@ -18967,7 +18967,7 @@
 		(stroke (width 0) (type default))
 		(uuid "86addf35-a281-55fd-8fdb-b78094be79cc")
 	)
-	(global_label "BAT_P"
+	(global_label "BQ_VDD"
 		(shape passive)
 		(at 33.02 281.94 270)
 		(fields_autoplaced yes)
@@ -19057,24 +19057,13 @@
 		(stroke (width 0) (type default))
 		(uuid "eb27a71a-1b4e-5272-ab0e-22247a89d69c")
 	)
-	(global_label "BAT_N"
-		(shape passive)
+	(label "VBUS_SW"
 		(at 45.72 281.94 270)
-		(fields_autoplaced yes)
 		(effects
-			(font (size 1 1))
-			(justify right)
+			(font (size 1.27 1.27))
+			(justify right bottom)
 		)
-		(uuid "ede98afc-1aee-5952-a259-3ac5dfa431b0")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 45.72 281.94 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
+		(uuid "3ce55693-dc3f-558b-af82-d6b4ba8cd124")
 	)
 	(symbol
 		(lib_id "power:PWR_FLAG")
@@ -19147,7 +19136,7 @@
 		(stroke (width 0) (type default))
 		(uuid "30e8b63a-534b-51b4-b0a8-5509396494f1")
 	)
-	(global_label "BQ_VDD"
+	(global_label "HX_AVDD"
 		(shape passive)
 		(at 58.42 281.94 270)
 		(fields_autoplaced yes)
@@ -19166,271 +19155,12 @@
 			)
 		)
 	)
-	(symbol
-		(lib_id "power:PWR_FLAG")
-		(at 71.12 279.4 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "700bac9b-8802-5a90-a026-d86f4eae8654")
-		(property "Reference" "#FLG14"
-			(at 71.12 277.5 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "Value" "PWR_FLAG"
-			(at 71.12 275.59 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "Footprint" ""
-			(at 71.12 279.4 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "Datasheet" ""
-			(at 71.12 279.4 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "Description" "Special symbol for telling ERC where power comes from"
-			(at 71.12 279.4 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(pin "1"
-			(uuid "e441b28e-1ab9-50b2-8125-15c4c7101a83")
-		)
-		(instances
-			(project "OfficeDeskSetup"
-				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/3af917cb-6cdb-5a3a-87b5-6a1d955fce60"
-					(reference "#FLG14")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(wire
-		(pts (xy 71.12 279.4) (xy 71.12 281.94))
-		(stroke (width 0) (type default))
-		(uuid "ee19ae34-aaf9-550c-b9ee-0b8da1fe8be6")
-	)
-	(label "VBUS_SW"
-		(at 71.12 281.94 270)
-		(effects
-			(font (size 1.27 1.27))
-			(justify right bottom)
-		)
-		(uuid "940823fd-42c7-529a-b3c1-bbf39863fb6e")
-	)
-	(symbol
-		(lib_id "power:PWR_FLAG")
-		(at 83.82 279.4 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "26c93dc2-d727-510e-aba1-03671875df51")
-		(property "Reference" "#FLG15"
-			(at 83.82 277.5 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "Value" "PWR_FLAG"
-			(at 83.82 275.59 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "Footprint" ""
-			(at 83.82 279.4 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "Datasheet" ""
-			(at 83.82 279.4 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "Description" "Special symbol for telling ERC where power comes from"
-			(at 83.82 279.4 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(pin "1"
-			(uuid "d3d6992d-6fe0-5858-99d6-28af22c9da63")
-		)
-		(instances
-			(project "OfficeDeskSetup"
-				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/3af917cb-6cdb-5a3a-87b5-6a1d955fce60"
-					(reference "#FLG15")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(wire
-		(pts (xy 83.82 279.4) (xy 83.82 281.94))
-		(stroke (width 0) (type default))
-		(uuid "ff840699-a81b-56b8-bc37-8a0c7ed54c51")
-	)
-	(global_label "HUB_3V3"
-		(shape passive)
-		(at 83.82 281.94 270)
-		(fields_autoplaced yes)
-		(effects
-			(font (size 1 1))
-			(justify right)
-		)
-		(uuid "977f20fa-7500-55ae-972f-e0de66617483")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 83.82 281.94 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:PWR_FLAG")
-		(at 96.52 279.4 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "ad569443-77b6-5a28-8025-bc93229e9df8")
-		(property "Reference" "#FLG16"
-			(at 96.52 277.5 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "Value" "PWR_FLAG"
-			(at 96.52 275.59 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "Footprint" ""
-			(at 96.52 279.4 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "Datasheet" ""
-			(at 96.52 279.4 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "Description" "Special symbol for telling ERC where power comes from"
-			(at 96.52 279.4 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(pin "1"
-			(uuid "a1268c98-f386-5405-b1ff-ea7947a82af7")
-		)
-		(instances
-			(project "OfficeDeskSetup"
-				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/3af917cb-6cdb-5a3a-87b5-6a1d955fce60"
-					(reference "#FLG16")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(wire
-		(pts (xy 96.52 279.4) (xy 96.52 281.94))
-		(stroke (width 0) (type default))
-		(uuid "a8f790f2-c67e-5190-b0f1-a401bff33f6f")
-	)
-	(global_label "HX_AVDD"
-		(shape passive)
-		(at 96.52 281.94 270)
-		(fields_autoplaced yes)
-		(effects
-			(font (size 1 1))
-			(justify right)
-		)
-		(uuid "14f4c359-7720-5060-8293-d9a3cba5d7b6")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 96.52 281.94 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-	)
 	(rectangle
 		(start 12.7 241.3)
-		(end 132.08 297.18)
+		(end 132.08 294.64)
 		(stroke (width 0.15) (type dash))
 		(fill (type none))
-		(uuid "d1ef518f-7f39-55e9-8e33-a862a612c51f")
+		(uuid "b2e30f34-e425-5c09-9e7e-825da6291274")
 	)
 	(text "Power flags (for the electrical rules check)"
 		(exclude_from_sim no)
@@ -19439,7 +19169,7 @@
 			(font (size 2 2) (bold yes))
 			(justify left top)
 		)
-		(uuid "ff1de286-9325-557d-ba2b-be0f1e0fb5f1")
+		(uuid "dc03386d-dbf9-5dce-b154-c3de58c5b0de")
 	)
 	(embedded_fonts no)
 )

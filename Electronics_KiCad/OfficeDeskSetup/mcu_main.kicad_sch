@@ -1217,7 +1217,7 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "PCM_Espressif:ESP32-C5-WROOM-1U"
+		(symbol "OfficeDeskSetup:ESP32-C5-WROOM-1U"
 			(exclude_from_sim no)
 			(in_bom yes)
 			(on_board yes)
@@ -2419,7 +2419,7 @@
 		)
 	)
 	(symbol
-		(lib_id "PCM_Espressif:ESP32-C5-WROOM-1U")
+		(lib_id "OfficeDeskSetup:ESP32-C5-WROOM-1U")
 		(at 68.58 59.69 0)
 		(unit 1)
 		(body_style 1)

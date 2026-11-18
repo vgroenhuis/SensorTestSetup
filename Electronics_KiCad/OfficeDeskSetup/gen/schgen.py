@@ -111,6 +111,8 @@ class Library:
 
     def raw(self, lib, name):
         if lib == self.project_lib:
+            if name not in self.custom:         # copied from the Espressif library into the project library
+                self.custom[name] = self.raw('PCM_Espressif', name)
             return self.custom[name]
         if lib == 'PCM_Espressif':
             if self.esp is None:
