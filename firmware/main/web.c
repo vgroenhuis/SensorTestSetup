@@ -2,6 +2,7 @@
 #include "board.h"
 #include "sensors.h"
 #include "i2cbus.h"
+#include "gpioparts.h"
 #include "closer_access.h"
 #include "closer_demo.h"
 #include "closer_udp.h"
@@ -23,10 +24,12 @@
 static const char *TAG = "web";
 
 typedef enum {
-    TOPIC_STATUS, TOPIC_POT, TOPIC_MH, TOPIC_MCP3008, TOPIC_MCP23017, TOPIC_PRESSURE, TOPIC_PWM, TOPIC_COUNT
+    TOPIC_STATUS, TOPIC_POT, TOPIC_MH, TOPIC_MCP3008, TOPIC_MCP23017, TOPIC_PRESSURE, TOPIC_PWM,
+    TOPIC_MOTOR, TOPIC_ENCODER, TOPIC_ULTRASONIC, TOPIC_LOADCELL, TOPIC_COUNT
 } topic_t;
-static const char *const TOPIC_NAMES[TOPIC_COUNT] = {"status", "pot", "mh", "mcp3008", "mcp23017", "pressure", "pwm"};
-static const int TOPIC_PERIOD_MS[TOPIC_COUNT] = {500, 50, 50, 50, 50, 50, 250};
+static const char *const TOPIC_NAMES[TOPIC_COUNT] = {"status", "pot", "mh", "mcp3008", "mcp23017", "pressure", "pwm",
+                                                     "motor", "encoder", "ultrasonic", "loadcell"};
+static const int TOPIC_PERIOD_MS[TOPIC_COUNT] = {500, 50, 50, 50, 50, 50, 250, 100, 50, 50, 50};
 #define TICK_MS 50
 
 #define MAX_CLIENTS 6
@@ -99,7 +102,23 @@ static bool send_text(int fd, const char *s, size_t n) {
 
 #define TF(b) ((b) ? "true" : "false")
 
-static int status_json(char *out, size_t len, int fd, const sensors_t *s, const i2cbus_t *b, int n_clients) {
+typedef struct {
+    sensors_t s;
+    i2cbus_t b;
+    gpioparts_t g;
+} snapshot_t;
+
+static void snapshot(snapshot_t *x) {
+    sensors_get(&x->s);
+    i2cbus_get(&x->b);
+    gpioparts_get(&x->g);
+}
+
+static const char *const MOTOR_MODES[] = {"direct", "api", "pot"};
+
+static int status_json(char *out, size_t len, int fd, const snapshot_t *x, int n_clients) {
+    const sensors_t *s = &x->s;
+    const i2cbus_t *b = &x->b;
     closer_demo_status_t st;
     closer_demo_get_status(&st);
     char code[12], link[8];
@@ -107,12 +126,13 @@ static int status_json(char *out, size_t len, int fd, const sensors_t *s, const 
     return snprintf(out, len,
                     "{\"t\":\"status\",\"fw\":\"%s\",\"host\":\"%s\",\"uptime_s\":%lld,\"heap\":%u,\"ip\":\"%s\","
                     "\"rssi\":%d,\"ssid\":\"%s\",\"clients\":%d,\"sample_hz\":%.1f,\"parts\":{\"mcp3008\":%s,"
-                    "\"mcp23017\":%s,\"pca9685\":%s,\"tca9548\":%s,\"pressure0\":%s,\"pressure1\":%s},"
-                    "\"access\":\"%s\",\"code\":%d}",
+                    "\"mcp23017\":%s,\"pca9685\":%s,\"tca9548\":%s,\"pressure0\":%s,\"pressure1\":%s,"
+                    "\"hx711\":%s,\"ultrasonic\":%s},\"access\":\"%s\",\"code\":%d}",
                     closer_demo_version(), closer_demo_name(), esp_timer_get_time() / 1000000,
                     (unsigned)heap_caps_get_free_size(MALLOC_CAP_DEFAULT), st.ip, st.rssi, st.ssid, n_clients,
                     s->rate_hz, TF(s->mcp3008_ok), TF(b->mcp_ok), TF(b->pca_ok), TF(b->tca_ok), TF(b->pressure_ok[0]),
-                    TF(b->pressure_ok[1]), fd >= 0 ? closer_access_state(fd) : "none", code_s);
+                    TF(b->pressure_ok[1]), TF(x->g.hx_ok), TF(x->g.us_ok), fd >= 0 ? closer_access_state(fd) : "none",
+                    code_s);
 }
 
 static int pwm_json(char *out, size_t len, const i2cbus_t *b) {
@@ -128,11 +148,29 @@ static int pwm_json(char *out, size_t len, const i2cbus_t *b) {
 }
 
 // Caller holds the lock.
-static int topic_json(topic_t t, char *out, size_t len, int fd, const sensors_t *s, const i2cbus_t *b) {
+static int topic_json(topic_t t, char *out, size_t len, int fd, const snapshot_t *x) {
+    const sensors_t *s = &x->s;
+    const i2cbus_t *b = &x->b;
+    const gpioparts_t *g = &x->g;
     const char *ok = TF(s->mcp3008_ok);
     switch (t) {
     case TOPIC_STATUS:
-        return status_json(out, len, fd, s, b, count_clients());
+        return status_json(out, len, fd, x, count_clients());
+    case TOPIC_MOTOR:
+        return snprintf(out, len,
+                        "{\"t\":\"motor\",\"mode\":\"%s\",\"forward\":\"%s\",\"in1\":%s,\"in2\":%s,\"speed\":%.3f,"
+                        "\"pot\":%.3f,\"pot_ok\":%s}",
+                        MOTOR_MODES[g->motor_mode], g->motor_ccw ? "ccw" : "cw", TF(g->in1), TF(g->in2), g->speed,
+                        s->mcp3008_v[MCP3008_CH_POT], ok);
+    case TOPIC_ENCODER:
+        return snprintf(out, len, "{\"t\":\"encoder\",\"encoderCount\":%ld,\"encABBits\":%u,\"stepsPerSecond\":%.1f}",
+                        (long)g->enc_count, g->enc_ab, g->enc_steps_s);
+    case TOPIC_ULTRASONIC:
+        return snprintf(out, len, "{\"t\":\"ultrasonic\",\"ok\":%s,\"distanceMm\":%.1f,\"hz\":%.1f}", TF(g->us_ok),
+                        g->us_mm, g->us_hz);
+    case TOPIC_LOADCELL:
+        return snprintf(out, len, "{\"t\":\"loadcell\",\"ok\":%s,\"grams\":%.2f,\"raw\":%ld,\"hz\":%.1f}", TF(g->hx_ok),
+                        g->hx_units, (long)g->hx_raw, g->hx_hz);
     case TOPIC_MCP23017: {
         const mcp23017_cfg_t *c = &b->mcp;
         return snprintf(out, len,
@@ -164,13 +202,11 @@ static int topic_json(topic_t t, char *out, size_t len, int fd, const sensors_t 
 
 static void stream_task(void *arg) {
     static char buf[1600];
-    static i2cbus_t b;
+    static snapshot_t x;
     TickType_t wake = xTaskGetTickCount();
     for (;;) {
         vTaskDelayUntil(&wake, pdMS_TO_TICKS(TICK_MS));
-        sensors_t s;
-        sensors_get(&s);
-        i2cbus_get(&b);
+        snapshot(&x);
         int64_t now = now_ms();
         xSemaphoreTake(lock, portMAX_DELAY);
         for (int i = 0; i < MAX_CLIENTS; i++) {
@@ -178,7 +214,7 @@ static void stream_task(void *arg) {
             for (int t = 0; t < TOPIC_COUNT && c->fd >= 0; t++) {
                 if (!(c->topics & 1u << t) || now < c->due_ms[t]) continue;
                 c->due_ms[t] = now + TOPIC_PERIOD_MS[t] - TICK_MS / 2;
-                int n = topic_json(t, buf, sizeof buf, c->fd, &s, &b);
+                int n = topic_json(t, buf, sizeof buf, c->fd, &x);
                 if (n > 0 && n < (int)sizeof buf && !send_text(c->fd, buf, n)) c->fd = -1;      // (gone)
             }
         }
@@ -230,6 +266,30 @@ static int command(int fd, cJSON *j, char *reply, size_t len) {
     } else if (cJSON_IsNumber(v = cJSON_GetObjectItem(j, "pressure_zero"))) {
         what = "pressure_zero";
         if (closer_access_has(fd)) ok = i2cbus_pressure_zero(v->valueint);
+    } else if ((v = cJSON_GetObjectItem(j, "motor")) && cJSON_IsObject(v)) {
+        what = "motor";
+        cJSON *x;
+        if (!closer_access_has(fd)) {
+        } else if (cJSON_IsString(x = cJSON_GetObjectItem(v, "mode"))) {
+            for (int m = 0; m < 3; m++)
+                if (strcmp(x->valuestring, MOTOR_MODES[m]) == 0) ok = gpioparts_motor_mode(m);
+        } else if (cJSON_IsString(x = cJSON_GetObjectItem(v, "forward"))) {
+            ok = gpioparts_motor_ccw(strcmp(x->valuestring, "cw") != 0);
+        } else if (cJSON_IsNumber(x = cJSON_GetObjectItem(v, "speed"))) {
+            ok = gpioparts_motor_speed((float)x->valuedouble);
+        } else if (cJSON_GetObjectItem(v, "in1") || cJSON_GetObjectItem(v, "in2")) {
+            ok = gpioparts_motor_direct(cJSON_IsTrue(cJSON_GetObjectItem(v, "in1")),
+                                        cJSON_IsTrue(cJSON_GetObjectItem(v, "in2")));
+        }
+    } else if (cJSON_GetObjectItem(j, "encoder_zero")) {
+        what = "encoder_zero";
+        if (closer_access_has(fd)) {
+            gpioparts_encoder_zero();
+            ok = true;
+        }
+    } else if (cJSON_GetObjectItem(j, "loadcell_tare")) {
+        what = "loadcell_tare";
+        if (closer_access_has(fd)) ok = gpioparts_loadcell_tare();
     }
     if (!what) return 0;
     if (!closer_access_has(fd)) return snprintf(reply, len, "{\"need\":1,\"cmd\":\"%s\"}", what);
@@ -285,12 +345,10 @@ static esp_err_t ws_handler(httpd_req_t *req) {
 }
 
 static esp_err_t state_get(httpd_req_t *req) {
-    char buf[640];
-    sensors_t s;
-    sensors_get(&s);
-    i2cbus_t b;
-    i2cbus_get(&b);
-    int n = status_json(buf, sizeof buf, -1, &s, &b, web_clients());
+    char buf[700];
+    static snapshot_t x;            // (only the server task gets here)
+    snapshot(&x);
+    int n = status_json(buf, sizeof buf, -1, &x, web_clients());
     httpd_resp_set_type(req, "application/json");
     return httpd_resp_send(req, buf, n);
 }

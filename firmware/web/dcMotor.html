@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>DC Motor Control</title>
+		<link rel="stylesheet" href="stylesheet.css">
+	</head>
+	<body>
+		<div class="container">
+			<h1>DC Motor</h1>
+			<div class="card">
+				<p>L298N motor driver on GPIO24 (IN1) and GPIO23 (IN2). The encoder is on the <a href="rotaryEncoder.html">rotary encoder page</a>.</p>
+				<div class="value-panel">
+					<span id="speedValue" class="value-number">--</span>
+					<span class="value-unit">%</span>
+				</div>
+				<div id="motorSummary" class="status">Connecting...</div>
+			</div>
+			<div class="card">
+				<div id="control"></div>
+			</div>
+			<div class="card needs-control locked" id="motorCard">
+				<div class="motor-section">
+					<div class="motor-title">Mode</div>
+					<label class="setting-row"><input type="radio" name="motorMode" value="api"> Speed (slider)</label>
+					<label class="setting-row"><input type="radio" name="motorMode" value="direct"> Direct GPIO (IN1, IN2)</label>
+					<label class="setting-row"><input type="radio" name="motorMode" value="pot"> Follow the potentiometer (runs without control too)</label>
+				</div>
+
+				<div id="apiPanel" class="motor-section">
+					<div class="motor-title">Speed</div>
+					<label class="setting-row" for="speedSlider">Speed: <span id="speedLive">0 %</span></label>
+					<input id="speedSlider" type="range" min="-100" max="100" value="0" step="1" style="width:100%">
+					<div class="graph-actions">
+						<button id="stopButton" class="btn" type="button">Stop</button>
+					</div>
+				</div>
+
+				<div id="directPanel" class="motor-section hidden">
+					<div class="motor-title">Direct GPIO</div>
+					<label class="setting-row"><input id="directIn1" type="checkbox"> GPIO24 (IN1)</label>
+					<label class="setting-row"><input id="directIn2" type="checkbox"> GPIO23 (IN2)</label>
+					<small>Both low: the motor coasts. Both high: it brakes.</small>
+				</div>
+
+				<div id="potPanel" class="motor-section hidden">
+					<div class="motor-title">Potentiometer</div>
+					<p>1.65 V: stop. 0 V: full speed reverse. 3.3 V: full speed forward. Now: <span id="potVoltage">--</span> V.</p>
+				</div>
+
+				<div class="motor-section">
+					<div class="motor-title">Forward direction</div>
+					<label class="setting-row" for="forwardSense">Forward means</label>
+					<select id="forwardSense" class="time-window-input">
+						<option value="ccw">CCW</option>
+						<option value="cw">CW</option>
+					</select>
+				</div>
+				<div id="commandStatus" class="status"></div>
+			</div>
+			<a href="./" class="btn">Back to control panel</a>
+		</div>
+		<script type="module" src="dcMotor.js"></script>
+	</body>
+</html>

@@ -10,7 +10,7 @@ here, the PlatformIO firmware is the one that has it.
 | yes | MCP3008: potentiometer (ch 7), MH sensor (ch 6), all 8 channels | SPI |
 | yes | MCP23017 (16 GPIO), PCA9685 (16 servo/PWM), TCA9548 + 2x WF100DPZ pressure | I2C |
 | | VL53L7CX ToF | I2C |
-| | L298N motor + encoder, HC-SR04 ultrasonic, HX711 load cell | GPIO |
+| yes | L298N motor (speed, direct, follow the pot) + encoder (PCNT), HC-SR04 ultrasonic, HX711 load cell | GPIO |
 | | Input-output matrix | |
 
 Pins: `main/board.h`.

@@ -3,7 +3,8 @@ const partsElement = document.getElementById("parts");
 
 const PART_NAMES = {
 	mcp3008: "MCP3008", mcp23017: "MCP23017", pca9685: "PCA9685", tca9548: "TCA9548",
-	pressure0: "pressure sensor 0", pressure1: "pressure sensor 1",
+	pressure0: "pressure sensor 0", pressure1: "pressure sensor 1", hx711: "HX711 load cell",
+	ultrasonic: "ultrasonic sensor (no echo)",
 };
 
 function show(s) {

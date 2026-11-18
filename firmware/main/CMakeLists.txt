@@ -13,8 +13,8 @@ if(NOT CMAKE_BUILD_EARLY_EXPANSION)     # (ESP-IDF first reads this file in scri
     file(GLOB WEB_GZ "${WEB_OUT}/*.gz")
 endif()
 
-idf_component_register(SRCS "main.c" "display.c" "sensors.c" "i2cbus.c" "web.c"
+idf_component_register(SRCS "main.c" "display.c" "sensors.c" "i2cbus.c" "gpioparts.c" "web.c"
                        INCLUDE_DIRS "." "${WEB_OUT}"
                        EMBED_FILES ${WEB_GZ}
                        REQUIRES closer_demo u8g2 esp_http_server esp_driver_spi esp_driver_gpio esp_driver_i2c
-                                esp_timer nvs_flash cjson)
+                                esp_driver_ledc esp_driver_pcnt esp_timer nvs_flash cjson)

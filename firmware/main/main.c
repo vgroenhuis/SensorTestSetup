@@ -5,6 +5,7 @@
 #include "display.h"
 #include "sensors.h"
 #include "i2cbus.h"
+#include "gpioparts.h"
 #include "web.h"
 #include "closer_access.h"
 #include "closer_demo.h"
@@ -27,6 +28,11 @@ static void display_footer(char *out, size_t len) {
     else snprintf(out, len, "Pot %.2f V   MH %.2f V", s.mcp3008_v[MCP3008_CH_POT], s.mcp3008_v[MCP3008_CH_MH]);
 }
 
+// Control moved (released, timed out, or taken by someone else): the motor stops (unless it follows the pot).
+static void on_control_change(int from, int to) {
+    gpioparts_stop();
+}
+
 static void stats_task(void *arg) {
     for (;;) {
         sensors_t s;
@@ -45,6 +51,10 @@ static void stats_task(void *arg) {
         // (closer_demo keeps 16 numbers, 4 of them its own: a sensor that's absent just doesn't update its own.)
         if (b.pressure_ok[0]) closer_demo_set_stat("pressure0_bar", b.pressure_bar[0]);
         if (b.pressure_ok[1]) closer_demo_set_stat("pressure1_bar", b.pressure_bar[1]);
+        gpioparts_t g;
+        gpioparts_get(&g);
+        if (g.us_ok) closer_demo_set_stat("distance_mm", g.us_mm);
+        closer_demo_set_stat("hx711_ok", g.hx_ok);
         vTaskDelay(pdMS_TO_TICKS(5000));
     }
 }
@@ -61,12 +71,13 @@ void app_main(void) {
     closer_demo_start(NULL);            // (named after its key: sensortest, ...) also initialises NVS
     static char control_page[64];       // (the QR code link; the site sends it on to the demo's page)
     snprintf(control_page, sizeof control_page, "q/%s", closer_demo_name());
-    closer_access_init(control_page, NULL);
+    closer_access_init(control_page, on_control_change);
     closer_access_set_digits(4);        // (shown on the OLED, for whoever sits at the desk)
     spi_start();
     display_start(SPI_HOST_ID, display_footer);
     sensors_start(SPI_HOST_ID);
     i2cbus_start();
+    gpioparts_start();
     web_start();
     xTaskCreate(stats_task, "stats", 3072, NULL, 2, NULL);
     ESP_LOGI(TAG, "SensorTest running, firmware %s", closer_demo_version());

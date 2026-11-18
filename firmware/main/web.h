@@ -11,9 +11,12 @@
 //   {"mcp23017":{"modeA":n,"pullupA":n,"outputA":n,"modeB":n,"pullupB":n,"outputB":n}}   (any subset)
 //   {"pwm":{"ch":n,"us":1500}} | {"pwm":{"ch":n,"value":0.5}} | {"pwm":{"ch":n,"off":1}}
 //   {"pwm_cfg":{"ch":n,"mode":"servo"|"raw","min":500,"max":2500}}    {"pwm_hz":50}    {"pressure_zero":0|1}
+//   {"motor":{"mode":"direct"|"api"|"pot"}} | {"motor":{"forward":"ccw"|"cw"}} | {"motor":{"speed":-1..1}} |
+//   {"motor":{"in1":bool,"in2":bool}}       {"encoder_zero":1}    {"loadcell_tare":1}
 //
 // Topics: status (2 Hz: also which parts answer, who has control, seconds left of a shown code), pot, mh, mcp3008,
-// mcp23017, pressure (20 Hz), pwm (4 Hz). A reading whose part doesn't answer has "ok":false.
+// mcp23017, pressure, encoder, ultrasonic, loadcell (20 Hz), motor (10 Hz), pwm (4 Hz). A reading whose part doesn't
+// answer has "ok":false.
 #pragma once
 
 void web_start(void);

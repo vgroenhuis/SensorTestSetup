@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Rotary Encoder</title>
+		<link rel="stylesheet" href="stylesheet.css">
+	</head>
+	<body>
+		<div class="container">
+			<h1>Rotary Encoder</h1>
+			<div class="card">
+				<p>The DC motor's quadrature encoder, counted by the ESP32's pulse counter (4 counts per line).</p>
+				<div class="setting-row">
+					<strong>Encoder count:</strong>
+					<span id="encoderCount" class="value-number">--</span>
+				</div>
+				<div class="setting-row">
+					<strong>Counts per second:</strong>
+					<span id="stepsPerSecond" class="value-number">--</span>
+				</div>
+				<div class="setting-row">
+					<strong>Channel A:</strong>
+					<span id="encABit" class="value-number">--</span>
+				</div>
+				<div class="setting-row">
+					<strong>Channel B:</strong>
+					<span id="encBBit" class="value-number">--</span>
+				</div>
+				<div class="graph-card">
+					<div class="graph-controls">
+						<label for="timeWindowSec">Time window (s)</label>
+						<input id="timeWindowSec" class="time-window-input" type="text" value="60" inputmode="numeric" aria-label="Time window in seconds">
+					</div>
+					<div class="graph-actions">
+						<button id="pauseGraphButton" class="btn" type="button">Pause graph</button>
+					</div>
+					<canvas id="historyCanvas" class="history-canvas" aria-label="Encoder position history graph"></canvas>
+					<div id="graphCaption" class="graph-caption">Time axis: -60 to 0 s. Position axis auto-scales.</div>
+				</div>
+				<div class="graph-card">
+					<canvas id="binaryHistoryCanvas" class="history-canvas" aria-label="Rotary encoder binary channel history graph"></canvas>
+					<div id="binaryGraphCaption" class="graph-caption">Time axis: -60 to 0 s. Channel A/B lanes show LOW/HIGH state.</div>
+				</div>
+				<div id="encoderStatus" class="status">Connecting...</div>
+			</div>
+			<div class="card">
+				<div id="control"></div>
+				<div class="needs-control locked">
+					<button id="zeroButton" class="btn" type="button">Set count to zero</button>
+				</div>
+			</div>
+			<a href="./" class="btn">Back to control panel</a>
+		</div>
+		<script type="module" src="rotaryEncoder.js"></script>
+	</body>
+</html>
