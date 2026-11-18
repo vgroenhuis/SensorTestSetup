@@ -85,7 +85,10 @@ def main():
         open(os.path.join(args.out, 'sym-lib-table'), 'w').write(
             '(sym_lib_table\n\t(version 7)\n\t(lib (name "%s")(type "KiCad")(uri "${KIPRJMOD}/%s.kicad_sym")(options "")(descr "Symbols of this board"))\n)\n'
             % (PROJECT, PROJECT))
-        pro = os.path.join(args.out, PROJECT + '.kicad_pro')
+        open(os.path.join(args.out, 'fp-lib-table'), 'w').write(
+            '(fp_lib_table\n\t(version 7)\n\t(lib (name "%s")(type "KiCad")(uri "${KIPRJMOD}/%s.pretty")(options "")(descr "Footprints imported from LCSC/EasyEDA, checked against the datasheets"))\n)\n'
+            % (PROJECT, PROJECT))
+        pro =os.path.join(args.out, PROJECT + '.kicad_pro')
         if os.path.exists(pro):
             data = json.load(open(pro))
             data['sheets'] = [[str(schgen.NS), 'Root']] + [[s.uuid, '%d %s' % (s.page - 1, s.title)] for s in d.sheets]

@@ -29,7 +29,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "OfficeDeskSetup:SENSOR-SMD_L3.0-W3.0-P1.00-BR"
 			(at 0 0 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -47,7 +47,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Description" "Temperature and humidity sensor, I2C 0x38"
+		(property "Description" "Temperature and humidity sensor, I2C 0x38 (datasheet V1.0 Table 5)"
 			(at 0 0 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -73,7 +73,7 @@
 						(font (size 1.27 1.27))
 					)
 				)
-				(number "5"
+				(number "2"
 					(effects
 						(font (size 1.27 1.27))
 					)
@@ -87,7 +87,7 @@
 						(font (size 1.27 1.27))
 					)
 				)
-				(number "3"
+				(number "1"
 					(effects
 						(font (size 1.27 1.27))
 					)
@@ -101,7 +101,7 @@
 						(font (size 1.27 1.27))
 					)
 				)
-				(number "4"
+				(number "6"
 					(effects
 						(font (size 1.27 1.27))
 					)
@@ -115,7 +115,7 @@
 						(font (size 1.27 1.27))
 					)
 				)
-				(number "2"
+				(number "5"
 					(effects
 						(font (size 1.27 1.27))
 					)
@@ -129,7 +129,7 @@
 						(font (size 1.27 1.27))
 					)
 				)
-				(number "1"
+				(number "4"
 					(effects
 						(font (size 1.27 1.27))
 					)
@@ -143,7 +143,7 @@
 						(font (size 1.27 1.27))
 					)
 				)
-				(number "6"
+				(number "3"
 					(effects
 						(font (size 1.27 1.27))
 					)
@@ -1353,7 +1353,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "OfficeDeskSetup:OPTO-TH_4P_ITR20001-T-F316"
 			(at 0 0 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1371,7 +1371,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Description" "Reflective optical sensor: IR LED and phototransistor (pin numbers: verify)"
+		(property "Description" "Reflective optical sensor: IR LED and phototransistor (datasheet Rev 6: 1 A, 2 K, 3 E, 4 C)"
 			(at 0 0 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1425,7 +1425,7 @@
 						(font (size 1.27 1.27))
 					)
 				)
-				(number "3"
+				(number "4"
 					(effects
 						(font (size 1.27 1.27))
 					)
@@ -1439,7 +1439,129 @@
 						(font (size 1.27 1.27))
 					)
 				)
+				(number "3"
+					(effects
+						(font (size 1.27 1.27))
+					)
+				)
+			)
+		)
+		(embedded_fonts no)
+	)
+	(symbol "MLT-8530"
+		(pin_names
+			(offset 1.016)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(in_pos_files yes)
+		(duplicate_pin_numbers_are_jumpers no)
+		(property "Reference" "BZ"
+			(at -5.08 5.08 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font (size 1.27 1.27))
+				(justify left)
+			)
+		)
+		(property "Value" "MLT-8530"
+			(at -5.08 3.3 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font (size 1.27 1.27))
+				(justify left)
+			)
+		)
+		(property "Footprint" "OfficeDeskSetup:BUZ-SMD_4P-L8.5-W8.5-P8.50-BR"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font (size 1.27 1.27))
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font (size 1.27 1.27))
+			)
+		)
+		(property "Description" "Magnetic buzzer 2.7 kHz, 16 ohm; coil on pads 1 (+) and 4 (-), pads 2 and 3 are dummies"
+			(at 0 0 0)
+			(show_name no)
+			(do_not_autoplace no)
+			(hide yes)
+			(effects
+				(font (size 1.27 1.27))
+			)
+		)
+		(symbol "MLT-8530_0_1"
+			(rectangle
+				(start -5.08 2.54)
+				(end 5.08 -5.08)
+				(stroke (width 0.254) (type default))
+				(fill (type background))
+			)
+		)
+		(symbol "MLT-8530_1_1"
+			(pin passive line
+				(at -7.62 0 0)
+				(length 2.54)
+				(name "+"
+					(effects
+						(font (size 1.27 1.27))
+					)
+				)
+				(number "1"
+					(effects
+						(font (size 1.27 1.27))
+					)
+				)
+			)
+			(pin passive line
+				(at -7.62 -2.54 0)
+				(length 2.54)
+				(name "-"
+					(effects
+						(font (size 1.27 1.27))
+					)
+				)
 				(number "4"
+					(effects
+						(font (size 1.27 1.27))
+					)
+				)
+			)
+			(pin no_connect line
+				(at 7.62 0 180)
+				(length 2.54)
+				(name "dummy"
+					(effects
+						(font (size 1.27 1.27))
+					)
+				)
+				(number "2"
+					(effects
+						(font (size 1.27 1.27))
+					)
+				)
+			)
+			(pin no_connect line
+				(at 7.62 -2.54 180)
+				(length 2.54)
+				(name "dummy"
+					(effects
+						(font (size 1.27 1.27))
+					)
+				)
+				(number "3"
 					(effects
 						(font (size 1.27 1.27))
 					)
@@ -1709,7 +1831,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "OfficeDeskSetup:VQFN-10_L2.0-W2.0-P0.45-TL"
 			(at 0 0 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1727,7 +1849,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Description" "eFuse 2.7-23 V, 5.5 A, reverse current blocking, overvoltage clamp (pin numbers: verify)"
+		(property "Description" "eFuse 2.7-23 V, 5.5 A, reverse current blocking, overvoltage clamp (TPS259472x pinout, datasheet Table 5-1)"
 			(at 0 0 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1790,7 +1912,7 @@
 			(pin passive line
 				(at -12.7 -2.54 0)
 				(length 2.54)
-				(name "AUXOFF"
+				(name "ITIMER"
 					(effects
 						(font (size 1.27 1.27))
 					)
@@ -2093,7 +2215,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "OfficeDeskSetup:SENSOR-SMD_EML7700-TT"
 			(at 0 0 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2215,7 +2337,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "OfficeDeskSetup:LGA-16_L6.4-W3.0_VL53L5CXV0GC-1"
 			(at 0 0 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2233,7 +2355,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Description" "Time-of-flight 8x8 multizone sensor, 90 deg FoV (pin numbers: verify)"
+		(property "Description" "Time-of-flight 8x8 multizone sensor, 90 deg FoV (DS13865 Rev 8, Table 3)"
 			(at 0 0 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2352,7 +2474,7 @@
 			(pin power_in line
 				(at -12.7 -7.62 0)
 				(length 2.54)
-				(name "GND(pad)"
+				(name "THERMALPAD"
 					(effects
 						(font (size 1.27 1.27))
 					)
@@ -2408,12 +2530,12 @@
 			(pin passive line
 				(at 12.7 2.54 180)
 				(length 2.54)
-				(name "RSVD4"
+				(name "RSVD6"
 					(effects
 						(font (size 1.27 1.27))
 					)
 				)
-				(number "A2"
+				(number "C2"
 					(effects
 						(font (size 1.27 1.27))
 					)
@@ -2422,7 +2544,7 @@
 			(pin passive line
 				(at 12.7 0 180)
 				(length 2.54)
-				(name "RSVD5"
+				(name "RSVD1"
 					(effects
 						(font (size 1.27 1.27))
 					)
@@ -2436,7 +2558,7 @@
 			(pin passive line
 				(at 12.7 -2.54 180)
 				(length 2.54)
-				(name "RSVD6"
+				(name "RSVD2"
 					(effects
 						(font (size 1.27 1.27))
 					)
@@ -2447,29 +2569,29 @@
 					)
 				)
 			)
-			(pin no_connect line
+			(pin passive line
 				(at 12.7 -5.08 180)
 				(length 2.54)
-				(name "RSVD1"
+				(name "RSVD3"
 					(effects
 						(font (size 1.27 1.27))
 					)
 				)
-				(number "C2"
+				(number "C6"
 					(effects
 						(font (size 1.27 1.27))
 					)
 				)
 			)
-			(pin no_connect line
+			(pin passive line
 				(at 12.7 -7.62 180)
 				(length 2.54)
-				(name "RSVD2"
+				(name "RSVD4"
 					(effects
 						(font (size 1.27 1.27))
 					)
 				)
-				(number "C5"
+				(number "A2"
 					(effects
 						(font (size 1.27 1.27))
 					)
@@ -2478,12 +2600,12 @@
 			(pin no_connect line
 				(at 12.7 -10.16 180)
 				(length 2.54)
-				(name "RSVD3"
+				(name "RSVD5"
 					(effects
 						(font (size 1.27 1.27))
 					)
 				)
-				(number "C6"
+				(number "C5"
 					(effects
 						(font (size 1.27 1.27))
 					)
@@ -2519,7 +2641,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "OfficeDeskSetup:SOP-6_L7.0-W7.0-P2.54-LS10.3-TL"
 			(at 0 0 0)
 			(show_name no)
 			(do_not_autoplace no)

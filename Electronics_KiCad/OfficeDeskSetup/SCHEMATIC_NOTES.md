@@ -16,6 +16,7 @@ The schematic follows [`../PCB_SPEC.md`](../PCB_SPEC.md) (draft 0.7). It replace
 | `i2c_parts.kicad_sch` | 6: MCP23017, PCA9685 (servos, buzzer), TCA9548A (pressure sensors, Qwiic) |
 | `sensors.kicad_sch` | 7: MCP3008, ADS1115, pot, LDR, MH socket, IR sensor, IMU, AHT20, VEML7700, AS5600, HX711, HC-SR04 |
 | `OfficeDeskSetup.kicad_sym`, `sym-lib-table` | Symbols drawn for this board (parts not in the KiCad library) |
+| `OfficeDeskSetup.pretty`, `.3dshapes`, `fp-lib-table` | Footprints and 3D models (VRML) imported from LCSC, see below |
 | `bom.csv` | Parts list with LCSC numbers, written with the schematic |
 | `gen/` | The generator: `design.py` describes the board, `schgen.py` writes KiCad files, `make.py` runs it |
 
@@ -38,9 +39,9 @@ github.com/espressif/kicad-libraries. Regenerating overwrites the sheets: once t
 
 * Each sheet was converted to the KiCad 7 format, loaded by `kicad-cli` 7, and its exported netlist compared pin by pin
   with the design: 1395 pins, 268 nets, no differences. The sheets were plotted and looked over for overlaps.
-* Every footprint named exists in the KiCad 10 footprint library.
-* **Not done: ERC in KiCad 10.** No KiCad 10 build could be installed in the environment used. Open the project in
-  KiCad 10, run ERC, and update the symbols from the library if KiCad asks. PWR_FLAGs for the rails are on sheet 3.
+* Every footprint named exists in the KiCad 10 footprint library, the project library or the Espressif library.
+* ERC with `kicad-cli` 10: 0 errors; 2 warnings (LSM6DS3TR-C SDO/SA0 and SDX strapped to GND), excluded in the project.
+* Pads: every symbol pin has a pad with the same number in its footprint (all 426 parts with a footprint).
 
 ## Choices made in the schematic (not spelled out in the specification)
 
@@ -69,6 +70,26 @@ github.com/espressif/kicad-libraries. Regenerating overwrites the sheets: once t
 * Series resistors and ESD arrays (USBLC6-2SC6) on the encoder lines and on every Qwiic connector's SDA/SCL.
 * Pins are as in section 5; `firmware/main/board.h` needs no change for this schematic.
 
+## Imported footprints
+
+Imported from LCSC/EasyEDA with `easyeda2kicad --footprint --3d --project-relative` (only the `.wrl` models are kept;
+the footprints reference them). Each was checked against the datasheet, and the symbol's pin numbers against it:
+
+| Part | LCSC | Footprint | Checked |
+| --- | --- | --- | --- |
+| MLT-8530 buzzer | C94599 | BUZ-SMD_4P-L8.5-W8.5-P8.50-BR | coil on pads 1 (+) and 4 (-), pads 2 and 3 dummy (Huaneng spec, 2017): own symbol, KiCad's buzzer put "-" on a dummy pad |
+| TPS259472ARPW | C3662789 | VQFN-10_L2.0-W2.0-P0.45-TL | TI datasheet Table 5-1: pin 10 is **ITIMER** (not AUXOFF, that is the TPS259470's pin 3), now open (fastest overcurrent response; it was tied to GND) |
+| VL53L7CX | C5270520 | LGA-16_L6.4-W3.0_VL53L5CXV0GC-1 | DS13865 Rev 8 Table 3: RSVD1-4 (A6, A7, C6, A2) to GND, RSVD5 (C5) open, RSVD6 (C2) 47 k pull-up; **C6 and C2 were left open** |
+| WF100DPZ | C22388673 | SOP-6_L7.0-W7.0-P2.54-LS10.3-TL | pins match the LCSC symbol |
+| ITR20001/T | C264269 | OPTO-TH_4P_ITR20001-T-F316 | Everlight Rev 6: 1 A, 2 K, **3 E, 4 C** (emitter and collector were swapped) |
+| AHT20 | C2757850 | SENSOR-SMD_L3.0-W3.0-P1.00-BR | Aosong V1.0 Table 5: 1 NC, 2 VDD, 3 SCL, 4 SDA, 5 GND, 6 NC (**the symbol was wrong**); land pattern as Figure 8; VDD through 330 R with 10 uF, as the datasheet asks |
+| VEML7700-TT | C1850416 | SENSOR-SMD_EML7700-TT | pins match the LCSC symbol |
+| Toggle switch 2MS1T1B1M1QES-5 | C496169 | SW-TH_2MS1T1B1M1QES-5 | pad 2 (middle) is the common |
+
+Also found by the pad check: the INA226 shunt used KiCad's 4-terminal `R_Shunt` on a 2-pad 2512 footprint, so the
+sense lines had no pads. Now a 2-terminal 2512 with two net ties (NT1, NT2) for the Kelvin sense lines: place them on
+the shunt's pads.
+
 ## To verify against the datasheets before layout
 
 The datasheets of ti.com, st.com and pololu.com could not be fetched from the environment used, so these come from
@@ -76,16 +97,15 @@ the specification, distributor summaries and reference designs. Items are also m
 
 | Part | What |
 | --- | --- |
-| TPS259472ARPW (custom symbol) | Pin numbers; the ILM resistors (665 Ω for 5 A, 1.1 kΩ for 3 A); OVCSEL for the 13.8 V clamp; footprint |
+| TPS259472ARPW (custom symbol) | The ILM resistors (665 Ω for 5 A, 1.1 kΩ for 3 A); OVCSEL for the 13.8 V clamp |
 | BQ77915 (custom symbol) | Pin numbers 1–14 (15–24 confirmed); CCFG for 3 cells; VC3–VC5 tied; filter, gate and LD values; -04 thresholds |
 | BQ25792 | PROG 13.7 k (3S, 750 kHz); ILIM_HIZ divider; TS divider 5.23 k / 30.1 k; inductor 2.2 µH; input FET wiring |
 | HUSB238 | VSET resistors (14 k = 15 V, 10 k = 12 V, 6.04 k = 9 V, open = 20 V); ISET open = 3.25 A |
-| VL53L7CX (custom symbol) | Ball map (taken from a datasheet summary); footprint (not in the KiCad library) |
-| WF100DPZ, AHT20, VEML7700, ITR20001/T (custom symbols) | Pin numbers and footprints; WF100DPZ supply at 3.3 V |
+| WF100DPZ | Supply at 3.3 V; CSB left open (I2C mode) |
 | TPS54331 (custom symbol) | Compensation (29.4 k, 1 nF, 47 pF) and the inductors: check with TI's design tool for 3.3 V and 5/6 V |
 | CH334R | Whether the crystal load capacitors are internal (fitted as DNP) |
 | AS5600 | 3.3 V mode (VDD5V and VDD3V3 tied) |
 | MCP23017 | GPA7/GPB7 output-only |
 
-Parts still to choose (no footprint yet): the four charger input MOSFETs, the two protection MOSFETs, the power switch,
-the buzzer footprint (MLT-8530), and the footprints for the custom symbols above.
+Parts still to choose (no footprint yet): the four charger input MOSFETs, the two protection MOSFETs and the power
+switch. Import their footprints the same way once chosen.

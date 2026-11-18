@@ -27,6 +27,12 @@ FP = dict(
     TRIM='Potentiometer_SMD:Potentiometer_Bourns_3314G_Vertical', LDR='OptoDevice:R_LDR_5.1x4.3mm_P3.4mm_Vertical',
     HOLE='MountingHole:MountingHole_3.2mm_M3_Pad', HOLDER='Battery:BatteryHolder_Keystone_1042_1x18650',
 )
+# footprints imported from LCSC/EasyEDA with easyeda2kicad into OfficeDeskSetup.pretty (+ .3dshapes); pads checked against
+# the datasheets (SCHEMATIC_NOTES.md, "Imported footprints")
+FP.update({k: 'OfficeDeskSetup:' + v for k, v in dict(
+    MLT8530='BUZ-SMD_4P-L8.5-W8.5-P8.50-BR', TPS25947='VQFN-10_L2.0-W2.0-P0.45-TL', VL53L7CX='LGA-16_L6.4-W3.0_VL53L5CXV0GC-1',
+    WF100DPZ='SOP-6_L7.0-W7.0-P2.54-LS10.3-TL', ITR20001='OPTO-TH_4P_ITR20001-T-F316', AHT20='SENSOR-SMD_L3.0-W3.0-P1.00-BR',
+    VEML7700='SENSOR-SMD_EML7700-TT', TOGGLE='SW-TH_2MS1T1B1M1QES-5').items()})
 
 
 def header(n):
@@ -106,10 +112,10 @@ def custom_symbols(lib):
     s['TPS54331'] = lib.box('TPS54331D', [(2, 'VIN', PW), (3, 'EN', I), (4, 'SS', P), (6, 'COMP', P), (7, 'GND', PW)],
                             [(1, 'BOOT', P), (8, 'PH', P), None, (5, 'VSENSE', I)], footprint=FP['SOIC8'],
                             datasheet='https://www.ti.com/lit/ds/symlink/tps54331.pdf', description='3 A, 28 V step-down converter, 570 kHz')
-    s['TPS25947'] = lib.box('TPS259472ARPW', [(5, 'IN', PW), (1, 'EN/UVLO', I), (2, 'OVCSEL', I), (10, 'AUXOFF', I), (8, 'GND', PW)],
+    s['TPS25947'] = lib.box('TPS259472ARPW', [(5, 'IN', PW), (1, 'EN/UVLO', I), (2, 'OVCSEL', I), (10, 'ITIMER', P), (8, 'GND', PW)],
                             [(6, 'OUT', P), (3, 'PG', P), (4, 'PGTH', I), (7, 'DVDT', P), (9, 'ILM', P)],
-                            footprint='', datasheet='https://www.ti.com/lit/ds/symlink/tps25947.pdf',
-                            description='eFuse 2.7-23 V, 5.5 A, reverse current blocking, overvoltage clamp (pin numbers: verify)')
+                            footprint=FP['TPS25947'], datasheet='https://www.ti.com/lit/ds/symlink/tps25947.pdf',
+                            description='eFuse 2.7-23 V, 5.5 A, reverse current blocking, overvoltage clamp (TPS259472x pinout, datasheet Table 5-1)')
     s['BQ77915'] = lib.box('BQ7791504PW', [(1, 'VDD', PW), (2, 'AVDD', P), (3, 'VC5', I), (4, 'VC4', I), (5, 'VC3', I), (6, 'VC2', I),
                                            (7, 'VC1', I), (8, 'VC0', I), (9, 'VSS', PW), (10, 'SRP', I), (11, 'SRN', I), (12, 'DSG', P)],
                            [(24, 'CTRD', I), (23, 'CTRC', I), (22, 'PRES', I), (21, 'CBO', P), (20, 'CCFG', I), (19, 'VTB', P),
@@ -117,22 +123,24 @@ def custom_symbols(lib):
                            footprint=FP['TSSOP24'], datasheet='https://www.ti.com/lit/ds/symlink/bq77915.pdf',
                            description='3-5S Li-ion protector with cell balancing (pin numbers: verify)')
     s['VL53L7CX'] = lib.box('VL53L7CX', [('B1', 'AVDD', PW), ('B7', 'AVDD', PW), ('A4', 'IOVDD', PW), ('A5', 'LPn', I), ('A1', 'I2C_RST', I),
-                                         ('C1', 'GND', PW), ('C7', 'GND', PW), ('B4', 'GND(pad)', PW)],
-                            [('C3', 'SDA', P), ('C4', 'SCL', P), ('A3', 'INT', P), ('A2', 'RSVD4', P), ('A6', 'RSVD5', P), ('A7', 'RSVD6', P),
-                             ('C2', 'RSVD1', NCT), ('C5', 'RSVD2', NCT), ('C6', 'RSVD3', NCT)],
-                            footprint='', datasheet='https://www.st.com/resource/en/datasheet/vl53l7cx.pdf',
-                            description='Time-of-flight 8x8 multizone sensor, 90 deg FoV (pin numbers: verify)')
+                                         ('C1', 'GND', PW), ('C7', 'GND', PW), ('B4', 'THERMALPAD', PW)],
+                            [('C3', 'SDA', P), ('C4', 'SCL', P), ('A3', 'INT', P), ('C2', 'RSVD6', P), ('A6', 'RSVD1', P), ('A7', 'RSVD2', P),
+                             ('C6', 'RSVD3', P), ('A2', 'RSVD4', P), ('C5', 'RSVD5', NCT)],
+                            footprint=FP['VL53L7CX'], datasheet='https://www.st.com/resource/en/datasheet/vl53l7cx.pdf',
+                            description='Time-of-flight 8x8 multizone sensor, 90 deg FoV (DS13865 Rev 8, Table 3)')
     s['WF100DPZ'] = lib.box('WF100DPZ', [(5, 'VDD', PW), (4, 'CSB', NCT), (6, 'NC', NCT), (1, 'GND', PW)], [(3, 'SDA', P), (2, 'SCL', P)],
-                            footprint='', description='Digital gauge pressure sensor, I2C 0x6D (pin numbers: verify)')
-    s['AHT20'] = lib.box('AHT20', [(5, 'VDD', PW), (3, 'NC', NCT), (4, 'NC', NCT), (2, 'GND', PW)], [(1, 'SDA', P), (6, 'SCL', P)],
-                         footprint='', description='Temperature and humidity sensor, I2C 0x38')
+                            footprint=FP['WF100DPZ'], description='Digital gauge pressure sensor, I2C 0x6D (pin numbers: verify)')
+    s['AHT20'] = lib.box('AHT20', [(2, 'VDD', PW), (1, 'NC', NCT), (6, 'NC', NCT), (5, 'GND', PW)], [(4, 'SDA', P), (3, 'SCL', P)],
+                         footprint=FP['AHT20'], description='Temperature and humidity sensor, I2C 0x38 (datasheet V1.0 Table 5)')
     s['VEML7700'] = lib.box('VEML7700-TT', [(2, 'VDD', PW), (3, 'GND', PW)], [(4, 'SDA', P), (1, 'SCL', P)],
-                            footprint='', description='Ambient light sensor, I2C 0x10')
+                            footprint=FP['VEML7700'], description='Ambient light sensor, I2C 0x10')
     s['AS5600'] = lib.box('AS5600-ASOT', [(1, 'VDD5V', PW), (2, 'VDD3V3', PW), (8, 'DIR', I), (5, 'PGO', I), (4, 'GND', PW)],
                           [(6, 'SDA', P), (7, 'SCL', P), None, (3, 'OUT', P)], footprint=FP['SOIC8'],
                           description='12-bit magnetic rotary position sensor, I2C 0x36')
-    s['ITR20001'] = lib.box('ITR20001/T', [(1, 'A', P), (2, 'K', P)], [(3, 'C', P), (4, 'E', P)], footprint='',
-                            description='Reflective optical sensor: IR LED and phototransistor (pin numbers: verify)')
+    s['ITR20001'] = lib.box('ITR20001/T', [(1, 'A', P), (2, 'K', P)], [(4, 'C', P), (3, 'E', P)], footprint=FP['ITR20001'],
+                            description='Reflective optical sensor: IR LED and phototransistor (datasheet Rev 6: 1 A, 2 K, 3 E, 4 C)')
+    s['MLT8530'] = lib.box('MLT-8530', [(1, '+', P), (4, '-', P)], [(2, 'dummy', NCT), (3, 'dummy', NCT)], ref='BZ',
+                           footprint=FP['MLT8530'], description='Magnetic buzzer 2.7 kHz, 16 ohm; coil on pads 1 (+) and 4 (-), pads 2 and 3 are dummies')
     s['SW4PDT'] = lib.box('SW_4PDT', [(2, 'COM1', P), (5, 'COM2', P), (8, 'COM3', P), (11, 'COM4', P)],
                           [(1, '1 ON', P), (3, '1 OFF', P), (4, '2 ON', P), (6, '2 OFF', P), (7, '3 ON', P), (9, '3 OFF', P),
                            (10, '4 ON', P), (12, '4 OFF', P)], ref='SW', footprint='', description='Slide switch, 4 poles (3 used), on-off')
@@ -341,8 +349,8 @@ def rails(d, X):
     b.note('Switch off: EN low, nothing draws from the pack;\nthe charger keeps working. EN divider: on above\nabout 8.3 V. Cut both CC jumpers to let the switch\nalso break CC1/CC2 (PD renegotiates at switch-on).')
     b.col()
     b.ic(X['TPS25947'], 'U', 'TPS259472ARPWR',
-         {'IN': 'CHG_SYS', 'EN/UVLO': 'VBUS_EN', 'OVCSEL': 'VBUS_OVCSEL', 'AUXOFF': 'GND', 'GND': 'GND', 'OUT': 'VBUS_SW',
-          'PG': NC, 'PGTH': 'GND', 'DVDT': 'VBUS_DVDT', 'ILM': 'VBUS_ILM'}, fields=fields('', 'C3662789'))
+         {'IN': 'CHG_SYS', 'EN/UVLO': 'VBUS_EN', 'OVCSEL': 'VBUS_OVCSEL', 'ITIMER': NC, 'GND': 'GND', 'OUT': 'VBUS_SW',
+          'PG': NC, 'PGTH': 'GND', 'DVDT': 'VBUS_DVDT', 'ILM': 'VBUS_ILM'}, fields=fields(FP['TPS25947'], 'C3662789'))
     R(b, '665R', 'VBUS_ILM', 'GND')
     two(b, 'C', '10nF', 'VBUS_DVDT', 'GND')
     two(b, 'JPO', 'OVCSEL', 'VBUS_OVCSEL', 'GND')
@@ -350,7 +358,10 @@ def rails(d, X):
     C(b, '1uF 25V', 'VBUS_SW')
     b.note('ILM 665R: 5 A. OVCSEL: the setting for the\n13.8 V clamp (open or GND): verify.')
     b.col()
-    b.ic('Device:R_Shunt', 'R', '10mR 2W', {'1': 'VBUS_SW', '2': 'INA_INP', '3': 'INA_INN', '4': 'V_BUS'}, fields=fields(FP['R2512']))
+    # Shunt: a 2-terminal 2512; the sense lines leave its pads through net ties (Kelvin connection, placed on the pads)
+    R(b, '10mR 2W', 'VBUS_SW', 'V_BUS', fp=FP['R2512'])
+    b.ic('Device:NetTie_2', 'NT', 'Kelvin +', {'1': 'VBUS_SW', '2': 'INA_INP'}, flow=True, fields=fields('NetTie:NetTie-2_SMD_Pad0.5mm'))
+    b.ic('Device:NetTie_2', 'NT', 'Kelvin -', {'1': 'V_BUS', '2': 'INA_INN'}, flow=True, fields=fields('NetTie:NetTie-2_SMD_Pad0.5mm'))
     b.ic('Sensor_Energy:INA226', 'U', 'INA226AIDGSR',
          {'VS': '+3V3', 'GND': 'GND', 'Vbus': 'V_BUS', 'Vin+': 'INA_INP', 'Vin-': 'INA_INN', 'A0': 'GND', 'A1': 'GND',
           'SDA': 'I2C_SDA', 'SCL': 'I2C_SCL', '~{Alert}': 'INA_ALERT'}, fields=fields('Package_SO:TSSOP-10_3x3mm_P0.5mm', 'C49851'))
@@ -400,8 +411,8 @@ def rails(d, X):
 
     b = sh.block('V_DXL: eFuse 3 A, enabled by the MCP23017 (off at reset)')
     b.ic(X['TPS25947'], 'U', 'TPS259472ARPWR',
-         {'IN': 'V_BUS', 'EN/UVLO': 'DXL_EN', 'OVCSEL': 'DXL_OVCSEL', 'AUXOFF': 'GND', 'GND': 'GND', 'OUT': 'V_DXL',
-          'PG': NC, 'PGTH': 'GND', 'DVDT': 'DXL_DVDT', 'ILM': 'DXL_ILM'}, fields=fields('', 'C3662789'))
+         {'IN': 'V_BUS', 'EN/UVLO': 'DXL_EN', 'OVCSEL': 'DXL_OVCSEL', 'ITIMER': NC, 'GND': 'GND', 'OUT': 'V_DXL',
+          'PG': NC, 'PGTH': 'GND', 'DVDT': 'DXL_DVDT', 'ILM': 'DXL_ILM'}, fields=fields(FP['TPS25947'], 'C3662789'))
     b.col()
     R(b, '1.1k', 'DXL_ILM', 'GND')
     R(b, '100k', 'DXL_EN', 'GND')
@@ -430,7 +441,7 @@ def rails(d, X):
     # HUB_3V3: CH334 VDD33 LDO); a flag there is a power output against a power output.
     b = sh.block('Power flags (for the electrical rules check)')
     for net in ('GND', '+3V3', '+5V', 'V_BUS', 'V_SERVO', 'V_DXL', 'VBUS_PD', 'VBUS_PROG', 'CHG_VBUS', 'BAT_N',
-                'BQ_VDD', 'VBUS_SW', 'HX_AVDD'):
+                'BQ_VDD', 'VBUS_SW', 'HX_AVDD', 'AHT_VDD'):
         flag(b, net)
 
 
@@ -552,15 +563,16 @@ def mcu_io(d, X):
 
     b = sh.block('VL53L7CX time-of-flight (I2C 2, 0x29), Qwiic')
     b.ic(X['VL53L7CX'], 'U', 'VL53L7CXV0GC/1',
-         {'B1': '+3V3', 'B7': '+3V3', 'IOVDD': '+3V3', 'LPn': 'TOF_LPN', 'I2C_RST': 'TOF_RST', 'C1': 'GND', 'C7': 'GND', 'B4': 'GND',
-          'SDA': 'I2C2_SDA', 'SCL': 'I2C2_SCL', 'INT': 'TOF_INT', 'RSVD4': 'GND', 'RSVD5': 'GND', 'RSVD6': 'GND'},
-         fields=fields('', 'C5270520'))
+         {'B1': '+3V3', 'B7': '+3V3', 'A4': '+3V3', 'A5': 'TOF_LPN', 'A1': 'TOF_RST', 'C1': 'GND', 'C7': 'GND', 'B4': 'GND',
+          'C3': 'I2C2_SDA', 'C4': 'I2C2_SCL', 'A3': 'TOF_INT', 'C2': 'TOF_RSVD6', 'A6': 'GND', 'A7': 'GND', 'C6': 'GND', 'A2': 'GND',
+          'C5': NC}, fields=fields(FP['VL53L7CX'], 'C5270520'))
     b.col()
     R(b, '2.2k', '+3V3', 'I2C2_SDA')
     R(b, '2.2k', '+3V3', 'I2C2_SCL')
     R(b, '47k', '+3V3', 'TOF_LPN')
     R(b, '47k', '+3V3', 'TOF_INT')
     R(b, '47k', 'TOF_RST', 'GND')
+    R(b, '47k', '+3V3', 'TOF_RSVD6')     # RSVD6 (C2): 47 k pull-up to IOVDD required (DS13865 Table 3)
     C(b, '4.7uF', '+3V3')
     C(b, '100nF', '+3V3')
     C(b, '4.7uF', '+3V3')
@@ -596,7 +608,7 @@ def i2c_parts(d, X):
     for i in range(4):
         two(b, 'SW', 'BTN%d' % i, 'BTN%d' % i, 'GND')
     for i in range(2):      # Dailywell 2MS1T1B1M1QES-5: miniature SPDT toggle, PCB pins (footprint: EasyEDA, C496169)
-        b.ic('Switch:SW_SPDT', 'SW', 'TOGGLE%d' % i, {'A': 'TOGGLE%d' % i, 'B': 'GND', 'C': NC}, fields=fields('', 'C496169'))
+        b.ic('Switch:SW_SPDT', 'SW', 'TOGGLE%d' % i, {'A': 'TOGGLE%d' % i, 'B': 'GND', 'C': NC}, fields=fields(FP['TOGGLE'], 'C496169'))
     b.ic('Connector_Generic:Conn_02x05_Odd_Even', 'J', 'MCP23017 bank B',
          {'1': 'BTN0', '2': 'BTN1', '3': 'BTN2', '4': 'BTN3', '5': 'MH_DO', '6': 'IR_DO', '7': 'DXL_EN', '8': 'PCA_OE', '9': 'GND', '10': '+3V3'},
          fields=fields('Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Vertical'))
@@ -622,7 +634,7 @@ def i2c_parts(d, X):
     R(b, '100k', 'BUZ_G', 'GND')
     two(b, 'D', 'SS14', '+3V3', 'BUZ_N')
     b.ic('Transistor_FET:AO3400A', 'Q', 'AO3400A', {'G': 'BUZ_G', 'S': 'GND', 'D': 'BUZ_N'}, flow=True, fields=fields(FP['SOT23']))
-    b.ic('Device:Buzzer', 'BZ', 'MLT-8530', {'1': '+3V3', '2': 'BUZ_N'}, flow=True, fields=fields('', 'C94599'))
+    b.ic(X['MLT8530'], 'BZ', 'MLT-8530', {'+': '+3V3', '-': 'BUZ_N'}, flow=True, fields=fields(FP['MLT8530'], 'C94599'))
     b.col()
     for i in range(9, 16):
         R(b, '220R', 'PWM%d' % i, 'PWM%d_H' % i)
@@ -643,7 +655,7 @@ def i2c_parts(d, X):
     b.col()
     for i in range(2):
         b.ic(X['WF100DPZ'], 'U', 'WF100DPZ 10BG S6 DT', {'VDD': '+3V3', 'GND': 'GND', 'SDA': 'MUX%d_SDA' % i, 'SCL': 'MUX%d_SCL' % i},
-             fields=fields('', 'C22388673'))
+             fields=fields(FP['WF100DPZ'], 'C22388673'))
     C(b, '100nF', '+3V3')
     C(b, '100nF', '+3V3')
     b.note('WF100DPZ: fixed address 0x6D.')
@@ -691,7 +703,7 @@ def sensors(d, X):
     b.note('Pins: VCC GND DO AO. 3.3 V by default.\nWith VCC at 5 V: fit the 20k (AO divided to 3.3 V);\nDO is limited by its 10k.')
 
     b = sh.block('IR reflective sensor ITR20001/T + LM393')
-    b.ic(X['ITR20001'], 'U', 'ITR20001/T', {'A': 'IR_LED_A', 'K': 'GND', 'C': 'IR_AO', 'E': 'GND'}, fields=fields('', 'C264269'))
+    b.ic(X['ITR20001'], 'U', 'ITR20001/T', {'A': 'IR_LED_A', 'K': 'GND', 'C': 'IR_AO', 'E': 'GND'}, fields=fields(FP['ITR20001'], 'C264269'))
     two(b, 'JPB', 'IR LED', '+3V3', 'IR_LED_R')
     R(b, '150R', 'IR_LED_R', 'IR_LED_A')
     R(b, '10k', '+3V3', 'IR_AO')
@@ -730,8 +742,11 @@ def sensors(d, X):
     C(b, '100nF', '+3V3')
 
     b = sh.block('AHT20 (0x38), VEML7700 (0x10), AS5600 (0x36)')
-    b.ic(X['AHT20'], 'U', 'AHT20', {'VDD': '+3V3', 'GND': 'GND', 'SDA': 'I2C_SDA', 'SCL': 'I2C_SCL'}, fields=fields('', 'C2757850'))
-    b.ic(X['VEML7700'], 'U', 'VEML7700-TT', {'VDD': '+3V3', 'GND': 'GND', 'SDA': 'I2C_SDA', 'SCL': 'I2C_SCL'}, fields=fields('', 'C1850416'))
+    b.ic(X['AHT20'], 'U', 'AHT20', {'VDD': 'AHT_VDD', 'GND': 'GND', 'SDA': 'I2C_SDA', 'SCL': 'I2C_SCL'}, fields=fields(FP['AHT20'], 'C2757850'))
+    b.ic(X['VEML7700'], 'U', 'VEML7700-TT', {'VDD': '+3V3', 'GND': 'GND', 'SDA': 'I2C_SDA', 'SCL': 'I2C_SCL'},
+         fields=fields(FP['VEML7700'], 'C1850416'))
+    R(b, '330R', '+3V3', 'AHT_VDD')     # AHT20 datasheet: RC filter in VDD (330-390 R) and 10 uF at the sensor
+    C(b, '10uF 16V', 'AHT_VDD')
     b.col()
     b.ic(X['AS5600'], 'U', 'AS5600-ASOT', {'VDD5V': '+3V3', 'VDD3V3': '+3V3', 'DIR': 'GND', 'PGO': NC, 'GND': 'GND', 'SDA': 'I2C_SDA',
                                            'SCL': 'I2C_SCL', 'OUT': 'AS5600_OUT'}, fields=fields(FP['SOIC8'], 'C55240803'))

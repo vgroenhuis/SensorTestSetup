@@ -1,0 +1,4 @@
+(fp_lib_table
+	(version 7)
+	(lib (name "OfficeDeskSetup")(type "KiCad")(uri "${KIPRJMOD}/OfficeDeskSetup.pretty")(options "")(descr "Footprints imported from LCSC/EasyEDA, checked against the datasheets"))
+)

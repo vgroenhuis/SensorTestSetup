@@ -881,135 +881,6 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "Device:Buzzer"
-			(pin_names
-				(offset 0.0254)
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "BZ"
-				(at 3.81 1.27 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font (size 1.27 1.27))
-					(justify left)
-				)
-			)
-			(property "Value" "Buzzer"
-				(at 3.81 -1.27 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font (size 1.27 1.27))
-					(justify left)
-				)
-			)
-			(property "Footprint" ""
-				(at -0.635 2.54 90)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font (size 1.27 1.27))
-				)
-			)
-			(property "Datasheet" ""
-				(at -0.635 2.54 90)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font (size 1.27 1.27))
-				)
-			)
-			(property "Description" "Buzzer, polarized"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font (size 1.27 1.27))
-				)
-			)
-			(property "ki_keywords" "quartz resonator ceramic"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font (size 1.27 1.27))
-				)
-			)
-			(property "ki_fp_filters" "*Buzzer*"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font (size 1.27 1.27))
-				)
-			)
-			(symbol "Buzzer_0_1"
-				(polyline
-					(pts (xy -1.651 1.905) (xy -1.143 1.905))
-					(stroke (width 0) (type default))
-					(fill (type none))
-				)
-				(polyline
-					(pts (xy -1.397 2.159) (xy -1.397 1.651))
-					(stroke (width 0) (type default))
-					(fill (type none))
-				)
-				(arc
-					(start 0 3.175)
-					(mid 3.1612 0)
-					(end 0 -3.175)
-					(stroke (width 0) (type default))
-					(fill (type none))
-				)
-				(polyline
-					(pts (xy 0 3.175) (xy 0 -3.175))
-					(stroke (width 0) (type default))
-					(fill (type none))
-				)
-			)
-			(symbol "Buzzer_1_1"
-				(pin passive line
-					(at -2.54 2.54 0)
-					(length 2.54)
-					(name "+"
-						(effects
-							(font (size 1.27 1.27))
-						)
-					)
-					(number "1"
-						(effects
-							(font (size 1.27 1.27))
-						)
-					)
-				)
-				(pin passive line
-					(at -2.54 -2.54 0)
-					(length 2.54)
-					(name "-"
-						(effects
-							(font (size 1.27 1.27))
-						)
-					)
-					(number "2"
-						(effects
-							(font (size 1.27 1.27))
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "Device:C"
 			(pin_numbers
 				(hide yes)
@@ -2880,6 +2751,128 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "OfficeDeskSetup:MLT-8530"
+			(pin_names
+				(offset 1.016)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "BZ"
+				(at -5.08 5.08 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font (size 1.27 1.27))
+					(justify left)
+				)
+			)
+			(property "Value" "MLT-8530"
+				(at -5.08 3.3 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font (size 1.27 1.27))
+					(justify left)
+				)
+			)
+			(property "Footprint" "OfficeDeskSetup:BUZ-SMD_4P-L8.5-W8.5-P8.50-BR"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font (size 1.27 1.27))
+				)
+			)
+			(property "Datasheet" ""
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font (size 1.27 1.27))
+				)
+			)
+			(property "Description" "Magnetic buzzer 2.7 kHz, 16 ohm; coil on pads 1 (+) and 4 (-), pads 2 and 3 are dummies"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font (size 1.27 1.27))
+				)
+			)
+			(symbol "MLT-8530_0_1"
+				(rectangle
+					(start -5.08 2.54)
+					(end 5.08 -5.08)
+					(stroke (width 0.254) (type default))
+					(fill (type background))
+				)
+			)
+			(symbol "MLT-8530_1_1"
+				(pin passive line
+					(at -7.62 0 0)
+					(length 2.54)
+					(name "+"
+						(effects
+							(font (size 1.27 1.27))
+						)
+					)
+					(number "1"
+						(effects
+							(font (size 1.27 1.27))
+						)
+					)
+				)
+				(pin passive line
+					(at -7.62 -2.54 0)
+					(length 2.54)
+					(name "-"
+						(effects
+							(font (size 1.27 1.27))
+						)
+					)
+					(number "4"
+						(effects
+							(font (size 1.27 1.27))
+						)
+					)
+				)
+				(pin no_connect line
+					(at 7.62 0 180)
+					(length 2.54)
+					(name "dummy"
+						(effects
+							(font (size 1.27 1.27))
+						)
+					)
+					(number "2"
+						(effects
+							(font (size 1.27 1.27))
+						)
+					)
+				)
+				(pin no_connect line
+					(at 7.62 -2.54 180)
+					(length 2.54)
+					(name "dummy"
+						(effects
+							(font (size 1.27 1.27))
+						)
+					)
+					(number "3"
+						(effects
+							(font (size 1.27 1.27))
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "OfficeDeskSetup:WF100DPZ"
 			(pin_names
 				(offset 1.016)
@@ -2907,7 +2900,7 @@
 					(justify left)
 				)
 			)
-			(property "Footprint" ""
+			(property "Footprint" "OfficeDeskSetup:SOP-6_L7.0-W7.0-P2.54-LS10.3-TL"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -4895,8 +4888,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "7b0a7fd1-04e3-5008-8a61-3ebc239b48df")
-		(property "Reference" "R71"
+		(uuid "eda33969-bd00-5aa6-bb23-a4a35bd2848f")
+		(property "Reference" "R72"
 			(at 30.48 101.64 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -4940,15 +4933,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "f40a3bbd-218d-55bf-9205-9315f72ee4dd")
+			(uuid "d276c297-e405-56dd-ba66-fddcc0fcc1e9")
 		)
 		(pin "2"
-			(uuid "d6549d34-3071-5b51-8d42-b67a6ddfdac4")
+			(uuid "84f7adf1-48a6-52a2-9cdc-c504ee833ff8")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R71")
+					(reference "R72")
 					(unit 1)
 				)
 			)
@@ -5264,8 +5257,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "eda33969-bd00-5aa6-bb23-a4a35bd2848f")
-		(property "Reference" "R72"
+		(uuid "1d0c8188-8bdd-5717-8b4e-ab58f5663310")
+		(property "Reference" "R73"
 			(at 91.44 25.44 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5309,15 +5302,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "d276c297-e405-56dd-ba66-fddcc0fcc1e9")
+			(uuid "9131a239-3882-5441-94fa-140f445a4710")
 		)
 		(pin "2"
-			(uuid "84f7adf1-48a6-52a2-9cdc-c504ee833ff8")
+			(uuid "09f3a759-eb7c-5c3d-ad64-ce4a615bbcd2")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R72")
+					(reference "R73")
 					(unit 1)
 				)
 			)
@@ -5359,8 +5352,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "1d0c8188-8bdd-5717-8b4e-ab58f5663310")
-		(property "Reference" "R73"
+		(uuid "bc65d936-aa55-512e-b952-4a6e88929a48")
+		(property "Reference" "R74"
 			(at 91.44 33.06 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5404,15 +5397,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "9131a239-3882-5441-94fa-140f445a4710")
+			(uuid "e68e6683-4dbf-535c-a584-fc2a0df7118d")
 		)
 		(pin "2"
-			(uuid "09f3a759-eb7c-5c3d-ad64-ce4a615bbcd2")
+			(uuid "9106e659-b431-56cc-a730-e8e6fad87369")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R73")
+					(reference "R74")
 					(unit 1)
 				)
 			)
@@ -5454,8 +5447,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "bc65d936-aa55-512e-b952-4a6e88929a48")
-		(property "Reference" "R74"
+		(uuid "778c07bd-cc67-59ad-afc1-02ab19bea792")
+		(property "Reference" "R75"
 			(at 91.44 40.68 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5499,15 +5492,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "e68e6683-4dbf-535c-a584-fc2a0df7118d")
+			(uuid "32449e78-9f06-5cab-bf50-e1f0801ad467")
 		)
 		(pin "2"
-			(uuid "9106e659-b431-56cc-a730-e8e6fad87369")
+			(uuid "9396a49a-86e3-513a-b2d9-03181fad6ee3")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R74")
+					(reference "R75")
 					(unit 1)
 				)
 			)
@@ -5549,8 +5542,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "778c07bd-cc67-59ad-afc1-02ab19bea792")
-		(property "Reference" "R75"
+		(uuid "fcdbcf3f-9b20-5986-8284-fdc56f3782bb")
+		(property "Reference" "R76"
 			(at 91.44 48.3 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5594,15 +5587,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "32449e78-9f06-5cab-bf50-e1f0801ad467")
+			(uuid "2dd59c7f-2008-5ce9-9c19-83acb1084faa")
 		)
 		(pin "2"
-			(uuid "9396a49a-86e3-513a-b2d9-03181fad6ee3")
+			(uuid "78e21705-5db2-5df0-ad5f-75b6f0fa71ba")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R75")
+					(reference "R76")
 					(unit 1)
 				)
 			)
@@ -6901,7 +6894,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "OfficeDeskSetup:SW-TH_2MS1T1B1M1QES-5"
 			(at 162.56 67.31 0)
 			(hide yes)
 			(show_name no)
@@ -7072,7 +7065,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "OfficeDeskSetup:SW-TH_2MS1T1B1M1QES-5"
 			(at 162.56 87.63 0)
 			(hide yes)
 			(show_name no)
@@ -8707,8 +8700,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "fcdbcf3f-9b20-5986-8284-fdc56f3782bb")
-		(property "Reference" "R76"
+		(uuid "5d86793f-bbc5-56c2-a244-13cb415e9beb")
+		(property "Reference" "R77"
 			(at 220.98 104.18 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8752,15 +8745,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "2dd59c7f-2008-5ce9-9c19-83acb1084faa")
+			(uuid "b0cc3cc5-3da8-5537-993f-c8153366d012")
 		)
 		(pin "2"
-			(uuid "78e21705-5db2-5df0-ad5f-75b6f0fa71ba")
+			(uuid "12125ef8-5e6f-519b-9c65-26d8efb8f58b")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R76")
+					(reference "R77")
 					(unit 1)
 				)
 			)
@@ -9300,8 +9293,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "5d86793f-bbc5-56c2-a244-13cb415e9beb")
-		(property "Reference" "R77"
+		(uuid "f39f9248-b8ef-5993-bcb2-912da8a4de6d")
+		(property "Reference" "R78"
 			(at 281.94 25.44 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9345,15 +9338,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "b0cc3cc5-3da8-5537-993f-c8153366d012")
+			(uuid "bbe5498f-1415-50cf-bb4b-ee93c3aca5cc")
 		)
 		(pin "2"
-			(uuid "12125ef8-5e6f-519b-9c65-26d8efb8f58b")
+			(uuid "61cb205a-d303-56c4-8b09-2aba085531e5")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R77")
+					(reference "R78")
 					(unit 1)
 				)
 			)
@@ -9395,8 +9388,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "f39f9248-b8ef-5993-bcb2-912da8a4de6d")
-		(property "Reference" "R78"
+		(uuid "4a925988-ea26-5599-bb4b-cb2ee280e71e")
+		(property "Reference" "R79"
 			(at 281.94 33.06 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9440,15 +9433,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "bbe5498f-1415-50cf-bb4b-ee93c3aca5cc")
+			(uuid "d1a3fb88-a8e0-55b3-8d75-0a3f1369346a")
 		)
 		(pin "2"
-			(uuid "61cb205a-d303-56c4-8b09-2aba085531e5")
+			(uuid "0a01dc12-fcc7-5983-b4bb-828a5eaee8aa")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R78")
+					(reference "R79")
 					(unit 1)
 				)
 			)
@@ -9490,8 +9483,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "4a925988-ea26-5599-bb4b-cb2ee280e71e")
-		(property "Reference" "R79"
+		(uuid "4b2577ee-6d38-5fd8-b4fd-57f238831a82")
+		(property "Reference" "R80"
 			(at 281.94 40.68 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9535,15 +9528,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "d1a3fb88-a8e0-55b3-8d75-0a3f1369346a")
+			(uuid "0a3877be-9e4e-5472-bc4c-78c3f809cbec")
 		)
 		(pin "2"
-			(uuid "0a01dc12-fcc7-5983-b4bb-828a5eaee8aa")
+			(uuid "ba502d85-907a-5705-9d37-86453bd958a2")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R79")
+					(reference "R80")
 					(unit 1)
 				)
 			)
@@ -9585,8 +9578,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "4b2577ee-6d38-5fd8-b4fd-57f238831a82")
-		(property "Reference" "R80"
+		(uuid "9b0db2c4-6767-5702-aa05-2cc1108eb861")
+		(property "Reference" "R81"
 			(at 281.94 48.3 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9630,15 +9623,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "0a3877be-9e4e-5472-bc4c-78c3f809cbec")
+			(uuid "5e4c46b2-5290-59b5-a8bc-6c8b572f05a4")
 		)
 		(pin "2"
-			(uuid "ba502d85-907a-5705-9d37-86453bd958a2")
+			(uuid "26c40e0b-27bf-568e-82ea-a4c3375a9efc")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R80")
+					(reference "R81")
 					(unit 1)
 				)
 			)
@@ -9680,8 +9673,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "9b0db2c4-6767-5702-aa05-2cc1108eb861")
-		(property "Reference" "R81"
+		(uuid "babd51bc-4a37-5b75-9a23-450d8559f9d9")
+		(property "Reference" "R82"
 			(at 281.94 55.92 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9725,15 +9718,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "5e4c46b2-5290-59b5-a8bc-6c8b572f05a4")
+			(uuid "e35a099b-dd8d-5207-8d52-1b63743d4acf")
 		)
 		(pin "2"
-			(uuid "26c40e0b-27bf-568e-82ea-a4c3375a9efc")
+			(uuid "abef2565-967f-5195-8c98-b5b4aef9a810")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R81")
+					(reference "R82")
 					(unit 1)
 				)
 			)
@@ -9775,8 +9768,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "babd51bc-4a37-5b75-9a23-450d8559f9d9")
-		(property "Reference" "R82"
+		(uuid "243fb5e5-02b9-5dee-9a9b-22150217635c")
+		(property "Reference" "R83"
 			(at 281.94 63.54 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9820,15 +9813,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "e35a099b-dd8d-5207-8d52-1b63743d4acf")
+			(uuid "d70999a3-ae87-574a-aefc-fc152b6366ed")
 		)
 		(pin "2"
-			(uuid "abef2565-967f-5195-8c98-b5b4aef9a810")
+			(uuid "4f4ee3b5-d326-5089-bfdf-71fb1656454c")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R82")
+					(reference "R83")
 					(unit 1)
 				)
 			)
@@ -9870,8 +9863,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "243fb5e5-02b9-5dee-9a9b-22150217635c")
-		(property "Reference" "R83"
+		(uuid "7b8440c7-7ebd-5e75-a3bf-c0adda31f6d2")
+		(property "Reference" "R84"
 			(at 281.94 71.16 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9915,15 +9908,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "d70999a3-ae87-574a-aefc-fc152b6366ed")
+			(uuid "f915b5c4-ff39-5f37-8e64-5aad779f22a6")
 		)
 		(pin "2"
-			(uuid "4f4ee3b5-d326-5089-bfdf-71fb1656454c")
+			(uuid "1b05ef79-02d6-5994-8281-58eb7691c4eb")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R83")
+					(reference "R84")
 					(unit 1)
 				)
 			)
@@ -9965,8 +9958,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "7b8440c7-7ebd-5e75-a3bf-c0adda31f6d2")
-		(property "Reference" "R84"
+		(uuid "4691de91-798c-5dd9-97b6-34252fa3e93a")
+		(property "Reference" "R85"
 			(at 281.94 78.78 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -10010,15 +10003,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "f915b5c4-ff39-5f37-8e64-5aad779f22a6")
+			(uuid "5c1952bb-1051-5b1e-8d23-6fcac485c69a")
 		)
 		(pin "2"
-			(uuid "1b05ef79-02d6-5994-8281-58eb7691c4eb")
+			(uuid "ff7cfba7-6618-5b62-994f-4c10d0517261")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R84")
+					(reference "R85")
 					(unit 1)
 				)
 			)
@@ -11516,8 +11509,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "4691de91-798c-5dd9-97b6-34252fa3e93a")
-		(property "Reference" "R85"
+		(uuid "033c340d-c4f5-5379-853c-d52dcd6f77a6")
+		(property "Reference" "R86"
 			(at 317.5 83.86 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11561,15 +11554,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "5c1952bb-1051-5b1e-8d23-6fcac485c69a")
+			(uuid "af35d80c-bb2c-514c-ada4-424f4d2deb41")
 		)
 		(pin "2"
-			(uuid "ff7cfba7-6618-5b62-994f-4c10d0517261")
+			(uuid "70b7c79e-0046-5489-ad3f-ef34a1d8d431")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R85")
+					(reference "R86")
 					(unit 1)
 				)
 			)
@@ -11611,8 +11604,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "033c340d-c4f5-5379-853c-d52dcd6f77a6")
-		(property "Reference" "R86"
+		(uuid "1cec97f6-e39c-5a39-94d6-855f31c10622")
+		(property "Reference" "R87"
 			(at 317.5 91.48 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11656,15 +11649,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "af35d80c-bb2c-514c-ada4-424f4d2deb41")
+			(uuid "9699fcff-fa9a-5d9a-8b9c-e96574864c3b")
 		)
 		(pin "2"
-			(uuid "70b7c79e-0046-5489-ad3f-ef34a1d8d431")
+			(uuid "56f08373-7762-51d7-a08c-8cf5586bcf9b")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R86")
+					(reference "R87")
 					(unit 1)
 				)
 			)
@@ -12083,8 +12076,8 @@
 		(uuid "beea0357-cd93-5bc9-b876-dc6614a40e2f")
 	)
 	(symbol
-		(lib_id "Device:Buzzer")
-		(at 350.52 115.57 0)
+		(lib_id "OfficeDeskSetup:MLT-8530")
+		(at 355.6 118.11 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -12094,7 +12087,7 @@
 		(dnp no)
 		(uuid "7dad2364-9ff6-5a1e-a518-a828e40f51cf")
 		(property "Reference" "BZ1"
-			(at 354.33 114.3 0)
+			(at 350.52 113.03 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -12103,7 +12096,7 @@
 			)
 		)
 		(property "Value" "MLT-8530"
-			(at 354.33 116.84 0)
+			(at 350.52 114.81 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -12111,8 +12104,8 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
-			(at 350.52 115.57 0)
+		(property "Footprint" "OfficeDeskSetup:BUZ-SMD_4P-L8.5-W8.5-P8.50-BR"
+			(at 355.6 118.11 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12121,7 +12114,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 350.52 115.57 0)
+			(at 355.6 118.11 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12129,8 +12122,8 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Description" "Buzzer, polarized"
-			(at 350.52 115.57 0)
+		(property "Description" "Magnetic buzzer 2.7 kHz, 16 ohm; coil on pads 1 (+) and 4 (-), pads 2 and 3 are dummies"
+			(at 355.6 118.11 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12139,7 +12132,7 @@
 			)
 		)
 		(property "LCSC" "C94599"
-			(at 350.52 115.57 0)
+			(at 355.6 118.11 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12150,8 +12143,14 @@
 		(pin "1"
 			(uuid "01f84c85-4861-56de-a0c4-6a30cbbe5f73")
 		)
+		(pin "4"
+			(uuid "bf94bf05-2c6f-59ac-9d0e-8fc8ecf2663e")
+		)
 		(pin "2"
-			(uuid "0d91490b-6b51-542f-bb15-9d3e3a110a7b")
+			(uuid "422b4cd2-4629-53e5-a8af-dbcb98f11513")
+		)
+		(pin "3"
+			(uuid "5b818318-af13-59cd-9256-55fbe531ab16")
 		)
 		(instances
 			(project "OfficeDeskSetup"
@@ -12163,13 +12162,13 @@
 		)
 	)
 	(wire
-		(pts (xy 347.98 113.03) (xy 345.44 113.03))
+		(pts (xy 347.98 118.11) (xy 345.44 118.11))
 		(stroke (width 0) (type default))
 		(uuid "92e3934e-e9b5-5400-833f-126f1b710dbc")
 	)
 	(symbol
 		(lib_id "power:+3V3")
-		(at 345.44 113.03 90)
+		(at 345.44 118.11 90)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -12179,7 +12178,7 @@
 		(dnp no)
 		(uuid "9624ce8c-d6fb-5503-b2c8-8fbcec7c17e5")
 		(property "Reference" "#PWR289"
-			(at 345.44 113.03 0)
+			(at 345.44 118.11 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12188,7 +12187,7 @@
 			)
 		)
 		(property "Value" "+3V3"
-			(at 340.24 113.03 90)
+			(at 340.24 118.11 90)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -12196,7 +12195,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 345.44 113.03 0)
+			(at 345.44 118.11 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12205,7 +12204,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 345.44 113.03 0)
+			(at 345.44 118.11 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12214,7 +12213,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"+3V3\""
-			(at 345.44 113.03 0)
+			(at 345.44 118.11 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12235,17 +12234,25 @@
 		)
 	)
 	(wire
-		(pts (xy 347.98 118.11) (xy 345.44 118.11))
+		(pts (xy 347.98 120.65) (xy 345.44 120.65))
 		(stroke (width 0) (type default))
 		(uuid "c726d637-b00e-520d-b08b-563ff9d48531")
 	)
 	(label "BUZ_N"
-		(at 345.44 118.11 180)
+		(at 345.44 120.65 180)
 		(effects
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
 		(uuid "f50807a8-db11-59b7-9c48-90e6575b21f1")
+	)
+	(no_connect
+		(at 363.22 118.11)
+		(uuid "096e1f7b-35cd-5f1f-813e-37e8bde42f6a")
+	)
+	(no_connect
+		(at 363.22 120.65)
+		(uuid "787badcc-a211-54bd-acc1-e139baea21ff")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -12257,8 +12264,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "1cec97f6-e39c-5a39-94d6-855f31c10622")
-		(property "Reference" "R87"
+		(uuid "1b45b8d6-5c64-5ee2-8abb-87be9eb237e5")
+		(property "Reference" "R88"
 			(at 419.1 25.44 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12302,15 +12309,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "9699fcff-fa9a-5d9a-8b9c-e96574864c3b")
+			(uuid "b7d0cfd2-3ebe-54ba-9f84-beeb7d25ff18")
 		)
 		(pin "2"
-			(uuid "56f08373-7762-51d7-a08c-8cf5586bcf9b")
+			(uuid "ae570088-e3a2-5bd5-aa5c-7f2a961712cf")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R87")
+					(reference "R88")
 					(unit 1)
 				)
 			)
@@ -12319,7 +12326,7 @@
 	(wire
 		(pts (xy 415.29 27.94) (xy 412.75 27.94))
 		(stroke (width 0) (type default))
-		(uuid "81c71666-6f08-570f-af57-896c7a1f770f")
+		(uuid "3535791b-5214-5dd7-bf12-b786c811e903")
 	)
 	(label "PWM9"
 		(at 412.75 27.94 180)
@@ -12327,12 +12334,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "99a3a19c-3010-5a44-a1c1-4d58dfa5b0da")
+		(uuid "d5491935-f8ba-564b-9ee1-0f6963b77409")
 	)
 	(wire
 		(pts (xy 422.91 27.94) (xy 425.45 27.94))
 		(stroke (width 0) (type default))
-		(uuid "3535791b-5214-5dd7-bf12-b786c811e903")
+		(uuid "3eba1470-e519-5889-8ff6-e44c3292d441")
 	)
 	(label "PWM9_H"
 		(at 425.45 27.94 0)
@@ -12340,7 +12347,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "d5491935-f8ba-564b-9ee1-0f6963b77409")
+		(uuid "5a67e58e-129a-501a-b124-adf35811e8b4")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -12352,8 +12359,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "1b45b8d6-5c64-5ee2-8abb-87be9eb237e5")
-		(property "Reference" "R88"
+		(uuid "3ffd4e77-e4b8-5dca-80af-aea02de81f22")
+		(property "Reference" "R89"
 			(at 419.1 33.06 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12397,15 +12404,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "b7d0cfd2-3ebe-54ba-9f84-beeb7d25ff18")
+			(uuid "cb4587ce-c8bf-5304-aa23-8a3a755636a3")
 		)
 		(pin "2"
-			(uuid "ae570088-e3a2-5bd5-aa5c-7f2a961712cf")
+			(uuid "a1dd0320-7eb3-5062-a4ab-1ab03fe8180f")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R88")
+					(reference "R89")
 					(unit 1)
 				)
 			)
@@ -12414,7 +12421,7 @@
 	(wire
 		(pts (xy 415.29 35.56) (xy 412.75 35.56))
 		(stroke (width 0) (type default))
-		(uuid "3eba1470-e519-5889-8ff6-e44c3292d441")
+		(uuid "07313dc7-3815-5d06-ad8c-f688e55f3864")
 	)
 	(label "PWM10"
 		(at 412.75 35.56 180)
@@ -12422,12 +12429,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "5a67e58e-129a-501a-b124-adf35811e8b4")
+		(uuid "add9dee2-079b-5e2d-822e-368e13908501")
 	)
 	(wire
 		(pts (xy 422.91 35.56) (xy 425.45 35.56))
 		(stroke (width 0) (type default))
-		(uuid "07313dc7-3815-5d06-ad8c-f688e55f3864")
+		(uuid "ba57507d-86f7-51b1-9fff-ec8d5c1760e5")
 	)
 	(label "PWM10_H"
 		(at 425.45 35.56 0)
@@ -12435,7 +12442,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "add9dee2-079b-5e2d-822e-368e13908501")
+		(uuid "5bffa01f-6ca4-59bf-9cb6-9bdcbd15832c")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -12447,8 +12454,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "3ffd4e77-e4b8-5dca-80af-aea02de81f22")
-		(property "Reference" "R89"
+		(uuid "be06fae9-9279-5868-80af-3d2c3156e681")
+		(property "Reference" "R90"
 			(at 419.1 40.68 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12492,15 +12499,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "cb4587ce-c8bf-5304-aa23-8a3a755636a3")
+			(uuid "aa2ea0f7-0116-5add-9b21-9ae88d7df1be")
 		)
 		(pin "2"
-			(uuid "a1dd0320-7eb3-5062-a4ab-1ab03fe8180f")
+			(uuid "c58b7dd7-806e-5ab8-b89e-11e169e19669")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R89")
+					(reference "R90")
 					(unit 1)
 				)
 			)
@@ -12509,7 +12516,7 @@
 	(wire
 		(pts (xy 415.29 43.18) (xy 412.75 43.18))
 		(stroke (width 0) (type default))
-		(uuid "ba57507d-86f7-51b1-9fff-ec8d5c1760e5")
+		(uuid "1c4a72bd-41cf-5ac3-aba1-785a387afc50")
 	)
 	(label "PWM11"
 		(at 412.75 43.18 180)
@@ -12517,12 +12524,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "5bffa01f-6ca4-59bf-9cb6-9bdcbd15832c")
+		(uuid "6c06b82f-e528-5a43-a05d-41e55e17bce6")
 	)
 	(wire
 		(pts (xy 422.91 43.18) (xy 425.45 43.18))
 		(stroke (width 0) (type default))
-		(uuid "1c4a72bd-41cf-5ac3-aba1-785a387afc50")
+		(uuid "e0b8b612-337c-5245-825f-0c939c7b2392")
 	)
 	(label "PWM11_H"
 		(at 425.45 43.18 0)
@@ -12530,7 +12537,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "6c06b82f-e528-5a43-a05d-41e55e17bce6")
+		(uuid "2c958ef5-800b-520e-83be-5ae40eab903a")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -12542,8 +12549,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "be06fae9-9279-5868-80af-3d2c3156e681")
-		(property "Reference" "R90"
+		(uuid "cd7cb099-5e6d-590e-80d5-2fcdcfb5f748")
+		(property "Reference" "R91"
 			(at 419.1 48.3 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12587,15 +12594,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "aa2ea0f7-0116-5add-9b21-9ae88d7df1be")
+			(uuid "edb5fafb-fd6c-5c19-9f8a-6fd4ddbdee0b")
 		)
 		(pin "2"
-			(uuid "c58b7dd7-806e-5ab8-b89e-11e169e19669")
+			(uuid "154d8d11-ba47-5edc-aa17-0dd7e5c7f22a")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R90")
+					(reference "R91")
 					(unit 1)
 				)
 			)
@@ -12604,7 +12611,7 @@
 	(wire
 		(pts (xy 415.29 50.8) (xy 412.75 50.8))
 		(stroke (width 0) (type default))
-		(uuid "e0b8b612-337c-5245-825f-0c939c7b2392")
+		(uuid "8f5501e3-b046-5da2-9f82-ec49cb62e053")
 	)
 	(label "PWM12"
 		(at 412.75 50.8 180)
@@ -12612,12 +12619,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "2c958ef5-800b-520e-83be-5ae40eab903a")
+		(uuid "3a78963d-faa5-54f2-9260-d73451be3b84")
 	)
 	(wire
 		(pts (xy 422.91 50.8) (xy 425.45 50.8))
 		(stroke (width 0) (type default))
-		(uuid "8f5501e3-b046-5da2-9f82-ec49cb62e053")
+		(uuid "8c68cd2e-07ed-503e-a33e-7cc6a00b7cea")
 	)
 	(label "PWM12_H"
 		(at 425.45 50.8 0)
@@ -12625,7 +12632,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "3a78963d-faa5-54f2-9260-d73451be3b84")
+		(uuid "29ab959d-bb68-5df4-aa08-981934c546ae")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -12637,8 +12644,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "cd7cb099-5e6d-590e-80d5-2fcdcfb5f748")
-		(property "Reference" "R91"
+		(uuid "f3392606-d9e9-5539-8975-1362e5f77b75")
+		(property "Reference" "R92"
 			(at 419.1 55.92 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12682,15 +12689,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "edb5fafb-fd6c-5c19-9f8a-6fd4ddbdee0b")
+			(uuid "7e9c225a-77bb-59e0-b6fc-e5791e1716ef")
 		)
 		(pin "2"
-			(uuid "154d8d11-ba47-5edc-aa17-0dd7e5c7f22a")
+			(uuid "6865181a-2bc0-5110-beec-0e32eb0ffaee")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R91")
+					(reference "R92")
 					(unit 1)
 				)
 			)
@@ -12699,7 +12706,7 @@
 	(wire
 		(pts (xy 415.29 58.42) (xy 412.75 58.42))
 		(stroke (width 0) (type default))
-		(uuid "8c68cd2e-07ed-503e-a33e-7cc6a00b7cea")
+		(uuid "bb7c918e-e9d7-500a-ae4e-960e9e8580c4")
 	)
 	(label "PWM13"
 		(at 412.75 58.42 180)
@@ -12707,12 +12714,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "29ab959d-bb68-5df4-aa08-981934c546ae")
+		(uuid "22596f12-cb4f-5820-9517-1951aaac149f")
 	)
 	(wire
 		(pts (xy 422.91 58.42) (xy 425.45 58.42))
 		(stroke (width 0) (type default))
-		(uuid "bb7c918e-e9d7-500a-ae4e-960e9e8580c4")
+		(uuid "fb04037f-3000-586f-92f0-9a87f101b9f0")
 	)
 	(label "PWM13_H"
 		(at 425.45 58.42 0)
@@ -12720,7 +12727,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "22596f12-cb4f-5820-9517-1951aaac149f")
+		(uuid "a2898b7c-5569-57fe-9007-04b27ca6f167")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -12732,8 +12739,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "f3392606-d9e9-5539-8975-1362e5f77b75")
-		(property "Reference" "R92"
+		(uuid "f98c922b-5155-5f38-98c6-0c75f2a72ded")
+		(property "Reference" "R93"
 			(at 419.1 63.54 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12777,15 +12784,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "7e9c225a-77bb-59e0-b6fc-e5791e1716ef")
+			(uuid "7dd6e8dd-7f6c-5129-b2da-eb4522f3c59e")
 		)
 		(pin "2"
-			(uuid "6865181a-2bc0-5110-beec-0e32eb0ffaee")
+			(uuid "0dac94f4-596f-58c1-a419-708546dd917c")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R92")
+					(reference "R93")
 					(unit 1)
 				)
 			)
@@ -12794,7 +12801,7 @@
 	(wire
 		(pts (xy 415.29 66.04) (xy 412.75 66.04))
 		(stroke (width 0) (type default))
-		(uuid "fb04037f-3000-586f-92f0-9a87f101b9f0")
+		(uuid "4fe7ba93-0134-526b-841b-625309703d32")
 	)
 	(label "PWM14"
 		(at 412.75 66.04 180)
@@ -12802,12 +12809,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "a2898b7c-5569-57fe-9007-04b27ca6f167")
+		(uuid "e815933d-6001-5f89-8c67-37f56ae17e2e")
 	)
 	(wire
 		(pts (xy 422.91 66.04) (xy 425.45 66.04))
 		(stroke (width 0) (type default))
-		(uuid "4fe7ba93-0134-526b-841b-625309703d32")
+		(uuid "0bca2db3-e40d-52c7-9f45-e37585fb9dcf")
 	)
 	(label "PWM14_H"
 		(at 425.45 66.04 0)
@@ -12815,7 +12822,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "e815933d-6001-5f89-8c67-37f56ae17e2e")
+		(uuid "e7ab0d90-b9dc-5f1a-b342-cb0eb941e823")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -12827,8 +12834,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "f98c922b-5155-5f38-98c6-0c75f2a72ded")
-		(property "Reference" "R93"
+		(uuid "f47122a7-a401-54d5-b2e1-897b7aedd73e")
+		(property "Reference" "R94"
 			(at 419.1 71.16 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -12872,15 +12879,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "7dd6e8dd-7f6c-5129-b2da-eb4522f3c59e")
+			(uuid "40eb23c8-714d-53b5-b12c-5e8e3115c421")
 		)
 		(pin "2"
-			(uuid "0dac94f4-596f-58c1-a419-708546dd917c")
+			(uuid "aba2e566-3115-50d8-a928-f1434db126fe")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R93")
+					(reference "R94")
 					(unit 1)
 				)
 			)
@@ -12889,7 +12896,7 @@
 	(wire
 		(pts (xy 415.29 73.66) (xy 412.75 73.66))
 		(stroke (width 0) (type default))
-		(uuid "0bca2db3-e40d-52c7-9f45-e37585fb9dcf")
+		(uuid "68f765d7-0229-5505-ab3b-73538b10b21a")
 	)
 	(label "PWM15"
 		(at 412.75 73.66 180)
@@ -12897,12 +12904,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "e7ab0d90-b9dc-5f1a-b342-cb0eb941e823")
+		(uuid "c4422f37-b860-5024-b79c-49cf05006ea1")
 	)
 	(wire
 		(pts (xy 422.91 73.66) (xy 425.45 73.66))
 		(stroke (width 0) (type default))
-		(uuid "68f765d7-0229-5505-ab3b-73538b10b21a")
+		(uuid "6a5f0527-3caf-5b4c-b666-dbfb20a851d5")
 	)
 	(label "PWM15_H"
 		(at 425.45 73.66 0)
@@ -12910,7 +12917,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "c4422f37-b860-5024-b79c-49cf05006ea1")
+		(uuid "bc2634f8-2af2-572b-a0f1-397a6fa2f372")
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x09")
@@ -13005,7 +13012,7 @@
 	(wire
 		(pts (xy 419.1 87.63) (xy 416.56 87.63))
 		(stroke (width 0) (type default))
-		(uuid "6a5f0527-3caf-5b4c-b666-dbfb20a851d5")
+		(uuid "4f8ad0cf-bcfc-5766-8a3c-4c37eec8dce8")
 	)
 	(symbol
 		(lib_id "power:+5V")
@@ -13077,7 +13084,7 @@
 	(wire
 		(pts (xy 419.1 90.17) (xy 416.56 90.17))
 		(stroke (width 0) (type default))
-		(uuid "3259b0ec-eaaf-5603-bcf7-43e53da6a2e6")
+		(uuid "afd09563-fbd2-5596-916e-ffaf0f29953f")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -13150,7 +13157,7 @@
 	(wire
 		(pts (xy 419.1 92.71) (xy 416.56 92.71))
 		(stroke (width 0) (type default))
-		(uuid "4f8ad0cf-bcfc-5766-8a3c-4c37eec8dce8")
+		(uuid "5c080335-271f-5b00-9847-963a54c416f9")
 	)
 	(label "PWM9_H"
 		(at 416.56 92.71 180)
@@ -13158,12 +13165,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "9f87a18e-11b3-5aed-9fb7-270a7cd9a44b")
+		(uuid "430b1257-d53c-5811-b886-e27740c73f9f")
 	)
 	(wire
 		(pts (xy 419.1 95.25) (xy 416.56 95.25))
 		(stroke (width 0) (type default))
-		(uuid "5c080335-271f-5b00-9847-963a54c416f9")
+		(uuid "b9fd8d6b-6f7c-5631-9871-43f2e10af003")
 	)
 	(label "PWM10_H"
 		(at 416.56 95.25 180)
@@ -13171,12 +13178,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "430b1257-d53c-5811-b886-e27740c73f9f")
+		(uuid "bbd013d6-df85-5360-af4c-3e225f2941e4")
 	)
 	(wire
 		(pts (xy 419.1 97.79) (xy 416.56 97.79))
 		(stroke (width 0) (type default))
-		(uuid "b9fd8d6b-6f7c-5631-9871-43f2e10af003")
+		(uuid "4b9be8c6-6fcf-55eb-ad64-631fc10be820")
 	)
 	(label "PWM11_H"
 		(at 416.56 97.79 180)
@@ -13184,12 +13191,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "bbd013d6-df85-5360-af4c-3e225f2941e4")
+		(uuid "bf95ccdb-c84f-5f62-881f-858c2d4113dd")
 	)
 	(wire
 		(pts (xy 419.1 100.33) (xy 416.56 100.33))
 		(stroke (width 0) (type default))
-		(uuid "4b9be8c6-6fcf-55eb-ad64-631fc10be820")
+		(uuid "e667802a-17ff-52f9-ab1b-e937871187c3")
 	)
 	(label "PWM12_H"
 		(at 416.56 100.33 180)
@@ -13197,12 +13204,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "bf95ccdb-c84f-5f62-881f-858c2d4113dd")
+		(uuid "216af615-f731-5450-8264-5b617479546c")
 	)
 	(wire
 		(pts (xy 419.1 102.87) (xy 416.56 102.87))
 		(stroke (width 0) (type default))
-		(uuid "e667802a-17ff-52f9-ab1b-e937871187c3")
+		(uuid "643f6c95-c73b-5853-8d6e-30443709c080")
 	)
 	(label "PWM13_H"
 		(at 416.56 102.87 180)
@@ -13210,12 +13217,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "216af615-f731-5450-8264-5b617479546c")
+		(uuid "dcee368f-78b7-57c5-b46b-1386f4bb321d")
 	)
 	(wire
 		(pts (xy 419.1 105.41) (xy 416.56 105.41))
 		(stroke (width 0) (type default))
-		(uuid "643f6c95-c73b-5853-8d6e-30443709c080")
+		(uuid "b548ff4a-9275-5c61-932a-c67bead42fe0")
 	)
 	(label "PWM14_H"
 		(at 416.56 105.41 180)
@@ -13223,12 +13230,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "dcee368f-78b7-57c5-b46b-1386f4bb321d")
+		(uuid "00654f4c-2034-5b54-8ce9-76128a204cdc")
 	)
 	(wire
 		(pts (xy 419.1 107.95) (xy 416.56 107.95))
 		(stroke (width 0) (type default))
-		(uuid "b548ff4a-9275-5c61-932a-c67bead42fe0")
+		(uuid "e8b0bb97-cb2f-5392-8b15-049b49a5ccb3")
 	)
 	(label "PWM15_H"
 		(at 416.56 107.95 180)
@@ -13236,14 +13243,14 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "00654f4c-2034-5b54-8ce9-76128a204cdc")
+		(uuid "65444d31-ca3f-5210-befe-aad694bf2c8a")
 	)
 	(rectangle
 		(start 203.2 15.24)
 		(end 437.26 152.52)
 		(stroke (width 0.15) (type dash))
 		(fill (type none))
-		(uuid "c825a194-733d-5996-a176-762c2c9723f0")
+		(uuid "e7c7bff2-cdb7-53ea-84e3-b622dc8acd17")
 	)
 	(text "PCA9685 (0x41): 8 servos, buzzer, 7 spare channels"
 		(exclude_from_sim no)
@@ -13252,7 +13259,7 @@
 			(font (size 2 2) (bold yes))
 			(justify left top)
 		)
-		(uuid "760b4ef2-1f55-52cc-8cda-67a801040ed0")
+		(uuid "6661068f-0d85-549a-b5c8-714edafa7c8b")
 	)
 	(symbol
 		(lib_id "Interface_Expansion:TCA9548APWR")
@@ -13403,7 +13410,7 @@
 	(wire
 		(pts (xy 27.94 214.63) (xy 25.4 214.63))
 		(stroke (width 0) (type default))
-		(uuid "d9001fce-f40b-5d10-a280-98799bc3dd44")
+		(uuid "b7e02625-832e-520e-9395-162263d8f58e")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -13475,7 +13482,7 @@
 	(wire
 		(pts (xy 27.94 212.09) (xy 25.4 212.09))
 		(stroke (width 0) (type default))
-		(uuid "ec216271-49f9-5592-a249-77d9c68b1917")
+		(uuid "93f25655-783a-5553-975d-ee850b278704")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -13548,7 +13555,7 @@
 	(wire
 		(pts (xy 27.94 196.85) (xy 25.4 196.85))
 		(stroke (width 0) (type default))
-		(uuid "b7e02625-832e-520e-9395-162263d8f58e")
+		(uuid "038e54a9-2735-548b-8127-d63eae28e4f0")
 	)
 	(label "TCA_RESET"
 		(at 25.4 196.85 180)
@@ -13556,12 +13563,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "eafc29e1-0f8a-55cc-9ee0-8864c0212d2d")
+		(uuid "74f18251-6879-5952-825d-7e5582649c05")
 	)
 	(wire
 		(pts (xy 48.26 186.69) (xy 50.8 186.69))
 		(stroke (width 0) (type default))
-		(uuid "038e54a9-2735-548b-8127-d63eae28e4f0")
+		(uuid "357473ec-0a85-5a46-8bd0-5ded090a8d4f")
 	)
 	(label "MUX0_SDA"
 		(at 50.8 186.69 0)
@@ -13569,12 +13576,12 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "74f18251-6879-5952-825d-7e5582649c05")
+		(uuid "227d6ec4-2fdd-5e07-84a8-1fb175fd1f6d")
 	)
 	(wire
 		(pts (xy 48.26 184.15) (xy 50.8 184.15))
 		(stroke (width 0) (type default))
-		(uuid "357473ec-0a85-5a46-8bd0-5ded090a8d4f")
+		(uuid "10d4c92e-23a3-568f-a319-5e3a7a93f4fd")
 	)
 	(label "MUX0_SCL"
 		(at 50.8 184.15 0)
@@ -13582,12 +13589,12 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "227d6ec4-2fdd-5e07-84a8-1fb175fd1f6d")
+		(uuid "227b30d4-9de2-5138-bc66-e9c95d9937d5")
 	)
 	(wire
 		(pts (xy 48.26 191.77) (xy 50.8 191.77))
 		(stroke (width 0) (type default))
-		(uuid "10d4c92e-23a3-568f-a319-5e3a7a93f4fd")
+		(uuid "80363f00-db46-58ea-b086-420f1548f4d4")
 	)
 	(label "MUX1_SDA"
 		(at 50.8 191.77 0)
@@ -13595,12 +13602,12 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "227b30d4-9de2-5138-bc66-e9c95d9937d5")
+		(uuid "bd9908d5-8c2b-5e2d-9bab-2e8b414bafba")
 	)
 	(wire
 		(pts (xy 48.26 189.23) (xy 50.8 189.23))
 		(stroke (width 0) (type default))
-		(uuid "80363f00-db46-58ea-b086-420f1548f4d4")
+		(uuid "3cfd4e49-cb06-54bc-96d0-0d05b5c5c067")
 	)
 	(label "MUX1_SCL"
 		(at 50.8 189.23 0)
@@ -13608,12 +13615,12 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "bd9908d5-8c2b-5e2d-9bab-2e8b414bafba")
+		(uuid "88a3a755-9109-5000-9e90-027a23895535")
 	)
 	(wire
 		(pts (xy 48.26 196.85) (xy 50.8 196.85))
 		(stroke (width 0) (type default))
-		(uuid "3cfd4e49-cb06-54bc-96d0-0d05b5c5c067")
+		(uuid "7263e4c4-e5c9-55ab-a845-8206147999c0")
 	)
 	(label "MUX2_SDA"
 		(at 50.8 196.85 0)
@@ -13621,12 +13628,12 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "88a3a755-9109-5000-9e90-027a23895535")
+		(uuid "31c7187b-4e32-5300-8a51-38df5eb9476f")
 	)
 	(wire
 		(pts (xy 48.26 194.31) (xy 50.8 194.31))
 		(stroke (width 0) (type default))
-		(uuid "7263e4c4-e5c9-55ab-a845-8206147999c0")
+		(uuid "64cffc86-be09-5d27-a78c-9592f92623d4")
 	)
 	(label "MUX2_SCL"
 		(at 50.8 194.31 0)
@@ -13634,12 +13641,12 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "31c7187b-4e32-5300-8a51-38df5eb9476f")
+		(uuid "3b205102-5881-5bf1-be02-046e08aa1feb")
 	)
 	(wire
 		(pts (xy 48.26 201.93) (xy 50.8 201.93))
 		(stroke (width 0) (type default))
-		(uuid "64cffc86-be09-5d27-a78c-9592f92623d4")
+		(uuid "3c70da3f-ef6b-54ed-970a-8b52953dc07e")
 	)
 	(label "MUX3_SDA"
 		(at 50.8 201.93 0)
@@ -13647,12 +13654,12 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "3b205102-5881-5bf1-be02-046e08aa1feb")
+		(uuid "60788665-d595-508a-b0e7-d74ac99ca2cb")
 	)
 	(wire
 		(pts (xy 48.26 199.39) (xy 50.8 199.39))
 		(stroke (width 0) (type default))
-		(uuid "3c70da3f-ef6b-54ed-970a-8b52953dc07e")
+		(uuid "b312c46b-0130-57bb-8d8e-7cbfde84fbf1")
 	)
 	(label "MUX3_SCL"
 		(at 50.8 199.39 0)
@@ -13660,12 +13667,12 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "60788665-d595-508a-b0e7-d74ac99ca2cb")
+		(uuid "e76a9b72-84d0-56fa-a84d-125911e56583")
 	)
 	(wire
 		(pts (xy 38.1 227.33) (xy 38.1 229.87))
 		(stroke (width 0) (type default))
-		(uuid "b312c46b-0130-57bb-8d8e-7cbfde84fbf1")
+		(uuid "bafbfe12-7cdf-5b58-80d3-89f93f7f53df")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -13737,7 +13744,7 @@
 	(wire
 		(pts (xy 48.26 207.01) (xy 50.8 207.01))
 		(stroke (width 0) (type default))
-		(uuid "00dd4429-a841-514c-a6f9-e828497e4f04")
+		(uuid "fa1ad6ab-4ae8-5aa4-a549-e0bca1b5c8a7")
 	)
 	(label "MUX4_SDA"
 		(at 50.8 207.01 0)
@@ -13745,12 +13752,12 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "82c43ca0-07ba-5a7b-a239-332e659656ce")
+		(uuid "21c4909f-0cd6-5419-be3b-fe68c3a0278e")
 	)
 	(wire
 		(pts (xy 48.26 204.47) (xy 50.8 204.47))
 		(stroke (width 0) (type default))
-		(uuid "fa1ad6ab-4ae8-5aa4-a549-e0bca1b5c8a7")
+		(uuid "b6cff711-b3e4-5156-bba1-c4086ac40390")
 	)
 	(label "MUX4_SCL"
 		(at 50.8 204.47 0)
@@ -13758,12 +13765,12 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "21c4909f-0cd6-5419-be3b-fe68c3a0278e")
+		(uuid "db2afa3e-b808-5550-b3f8-6ddfa2ed7b3b")
 	)
 	(wire
 		(pts (xy 48.26 212.09) (xy 50.8 212.09))
 		(stroke (width 0) (type default))
-		(uuid "b6cff711-b3e4-5156-bba1-c4086ac40390")
+		(uuid "059e32e0-f59e-546b-88e3-c303e466281c")
 	)
 	(label "MUX5_SDA"
 		(at 50.8 212.09 0)
@@ -13771,12 +13778,12 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "db2afa3e-b808-5550-b3f8-6ddfa2ed7b3b")
+		(uuid "4c3b6c76-190d-59ee-abd8-3dd57380a952")
 	)
 	(wire
 		(pts (xy 48.26 209.55) (xy 50.8 209.55))
 		(stroke (width 0) (type default))
-		(uuid "059e32e0-f59e-546b-88e3-c303e466281c")
+		(uuid "57578184-d4b3-557b-9e28-d21f78784c3b")
 	)
 	(label "MUX5_SCL"
 		(at 50.8 209.55 0)
@@ -13784,12 +13791,12 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "4c3b6c76-190d-59ee-abd8-3dd57380a952")
+		(uuid "eec5c215-81bd-5adc-a886-0b4ca6aede70")
 	)
 	(wire
 		(pts (xy 48.26 217.17) (xy 50.8 217.17))
 		(stroke (width 0) (type default))
-		(uuid "57578184-d4b3-557b-9e28-d21f78784c3b")
+		(uuid "e2c78ed0-ab1f-570b-85dd-2f753f2433c4")
 	)
 	(label "MUX6_SDA"
 		(at 50.8 217.17 0)
@@ -13797,12 +13804,12 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "eec5c215-81bd-5adc-a886-0b4ca6aede70")
+		(uuid "bf01bf55-b971-5b61-8abc-e3e89a3f176d")
 	)
 	(wire
 		(pts (xy 48.26 214.63) (xy 50.8 214.63))
 		(stroke (width 0) (type default))
-		(uuid "e2c78ed0-ab1f-570b-85dd-2f753f2433c4")
+		(uuid "e15446d5-9df8-5c26-89a2-70193e1611c5")
 	)
 	(label "MUX6_SCL"
 		(at 50.8 214.63 0)
@@ -13810,12 +13817,12 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "bf01bf55-b971-5b61-8abc-e3e89a3f176d")
+		(uuid "b35fc4d5-2a0d-5284-9006-7e72b32dea60")
 	)
 	(wire
 		(pts (xy 48.26 222.25) (xy 50.8 222.25))
 		(stroke (width 0) (type default))
-		(uuid "e15446d5-9df8-5c26-89a2-70193e1611c5")
+		(uuid "a1c2e7a9-f64c-5512-be30-a3067d9958d6")
 	)
 	(label "MUX7_SDA"
 		(at 50.8 222.25 0)
@@ -13823,12 +13830,12 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "b35fc4d5-2a0d-5284-9006-7e72b32dea60")
+		(uuid "3b284414-51aa-5acd-bda6-01a73f3f97f7")
 	)
 	(wire
 		(pts (xy 48.26 219.71) (xy 50.8 219.71))
 		(stroke (width 0) (type default))
-		(uuid "a1c2e7a9-f64c-5512-be30-a3067d9958d6")
+		(uuid "ccbb3288-881b-5f73-a109-296b18fba36e")
 	)
 	(label "MUX7_SCL"
 		(at 50.8 219.71 0)
@@ -13836,12 +13843,12 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "3b284414-51aa-5acd-bda6-01a73f3f97f7")
+		(uuid "4b5bc1e0-419b-5880-9f47-5778eb62086c")
 	)
 	(wire
 		(pts (xy 27.94 209.55) (xy 25.4 209.55))
 		(stroke (width 0) (type default))
-		(uuid "ccbb3288-881b-5f73-a109-296b18fba36e")
+		(uuid "93d8c714-529b-5266-a14c-db0b8db5e100")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -13914,7 +13921,7 @@
 	(wire
 		(pts (xy 27.94 184.15) (xy 25.4 184.15))
 		(stroke (width 0) (type default))
-		(uuid "f6f8341b-e3bd-5f33-b38e-ef9e1359a563")
+		(uuid "612558bd-a38e-5e19-9acb-4f16892ad751")
 	)
 	(global_label "I2C_SCL"
 		(shape passive)
@@ -13924,7 +13931,7 @@
 			(font (size 1 1))
 			(justify right)
 		)
-		(uuid "a05a9bee-7935-575b-a3be-abc1471164f0")
+		(uuid "07edfb6f-b5b7-52e9-9c8c-5882e42e4fc7")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 25.4 184.15 0)
 			(hide yes)
@@ -13938,7 +13945,7 @@
 	(wire
 		(pts (xy 27.94 186.69) (xy 25.4 186.69))
 		(stroke (width 0) (type default))
-		(uuid "612558bd-a38e-5e19-9acb-4f16892ad751")
+		(uuid "60f6f36d-75fb-5c74-ae56-941ce11e0a4e")
 	)
 	(global_label "I2C_SDA"
 		(shape passive)
@@ -13948,7 +13955,7 @@
 			(font (size 1 1))
 			(justify right)
 		)
-		(uuid "07edfb6f-b5b7-52e9-9c8c-5882e42e4fc7")
+		(uuid "1447018e-9900-5094-93ee-bfc76687253e")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 25.4 186.69 0)
 			(hide yes)
@@ -13962,7 +13969,7 @@
 	(wire
 		(pts (xy 38.1 179.07) (xy 38.1 176.53))
 		(stroke (width 0) (type default))
-		(uuid "60f6f36d-75fb-5c74-ae56-941ce11e0a4e")
+		(uuid "601e3f1b-a532-5e1f-a189-08c8dac5f8d4")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -14041,8 +14048,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "f47122a7-a401-54d5-b2e1-897b7aedd73e")
-		(property "Reference" "R94"
+		(uuid "caf1c8fb-e3f0-51af-abc9-baed3389e5d6")
+		(property "Reference" "R95"
 			(at 30.48 241.34 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -14086,15 +14093,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "40eb23c8-714d-53b5-b12c-5e8e3115c421")
+			(uuid "88d12812-37ea-5856-b04b-9cd649e6de0e")
 		)
 		(pin "2"
-			(uuid "aba2e566-3115-50d8-a928-f1434db126fe")
+			(uuid "a52c1c0c-58d3-5da7-b7aa-b9d56eb65b08")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R94")
+					(reference "R95")
 					(unit 1)
 				)
 			)
@@ -14103,7 +14110,7 @@
 	(wire
 		(pts (xy 26.67 243.84) (xy 24.13 243.84))
 		(stroke (width 0) (type default))
-		(uuid "f78445b1-e6f5-5b01-8723-b99134d9365f")
+		(uuid "52022455-c49e-575a-b4ca-c372e5e48b84")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -14175,7 +14182,7 @@
 	(wire
 		(pts (xy 34.29 243.84) (xy 36.83 243.84))
 		(stroke (width 0) (type default))
-		(uuid "601e3f1b-a532-5e1f-a189-08c8dac5f8d4")
+		(uuid "f376d624-0973-5fc4-a0eb-63a0640797b3")
 	)
 	(label "TCA_RESET"
 		(at 36.83 243.84 0)
@@ -14183,7 +14190,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "3cb9e905-8108-537f-b00c-da9b8f6f9087")
+		(uuid "4ad2a455-d953-56e8-aa72-96b6d4ba04e4")
 	)
 	(symbol
 		(lib_id "Device:C")
@@ -14259,7 +14266,7 @@
 	(wire
 		(pts (xy 17.78 260.35) (xy 17.78 257.81))
 		(stroke (width 0) (type default))
-		(uuid "f376d624-0973-5fc4-a0eb-63a0640797b3")
+		(uuid "e57dda7c-7046-52d4-b0c0-f68fa9f29baf")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -14331,7 +14338,7 @@
 	(wire
 		(pts (xy 17.78 267.97) (xy 17.78 270.51))
 		(stroke (width 0) (type default))
-		(uuid "e652f210-43d5-53e3-b181-f0155c1dcfeb")
+		(uuid "40454870-334c-52ea-a329-c6a00e891506")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -14410,8 +14417,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "caf1c8fb-e3f0-51af-abc9-baed3389e5d6")
-		(property "Reference" "R95"
+		(uuid "4e8129c6-83d0-5efe-a14b-c9b06cdf2170")
+		(property "Reference" "R96"
 			(at 81.28 170.22 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -14455,15 +14462,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "88d12812-37ea-5856-b04b-9cd649e6de0e")
+			(uuid "b63bae76-1335-538e-b947-bca69da56c98")
 		)
 		(pin "2"
-			(uuid "a52c1c0c-58d3-5da7-b7aa-b9d56eb65b08")
+			(uuid "23670f3a-54d5-580f-bec8-27fd43ca0247")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R95")
+					(reference "R96")
 					(unit 1)
 				)
 			)
@@ -14472,7 +14479,7 @@
 	(wire
 		(pts (xy 77.47 172.72) (xy 74.93 172.72))
 		(stroke (width 0) (type default))
-		(uuid "e57dda7c-7046-52d4-b0c0-f68fa9f29baf")
+		(uuid "5c196581-13c0-5e85-85e1-1bc6aebf71a3")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -14544,7 +14551,7 @@
 	(wire
 		(pts (xy 85.09 172.72) (xy 87.63 172.72))
 		(stroke (width 0) (type default))
-		(uuid "40454870-334c-52ea-a329-c6a00e891506")
+		(uuid "e08081a0-46a2-5e61-80a5-3555796ba44c")
 	)
 	(label "MUX0_SDA"
 		(at 87.63 172.72 0)
@@ -14552,7 +14559,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "cc9730bc-fde9-50e7-bdbb-b08d48685576")
+		(uuid "0086dcb4-f070-53e6-a365-40e38cef46d2")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -14564,8 +14571,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "4e8129c6-83d0-5efe-a14b-c9b06cdf2170")
-		(property "Reference" "R96"
+		(uuid "39f66c64-3e18-5f8f-99c9-cbf69caa61be")
+		(property "Reference" "R97"
 			(at 81.28 177.84 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -14609,15 +14616,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "b63bae76-1335-538e-b947-bca69da56c98")
+			(uuid "c10055e9-a8ed-582a-b43a-129d84216240")
 		)
 		(pin "2"
-			(uuid "23670f3a-54d5-580f-bec8-27fd43ca0247")
+			(uuid "42f3dedd-f8cf-5b1f-ae44-5200a1220c54")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R96")
+					(reference "R97")
 					(unit 1)
 				)
 			)
@@ -14626,7 +14633,7 @@
 	(wire
 		(pts (xy 77.47 180.34) (xy 74.93 180.34))
 		(stroke (width 0) (type default))
-		(uuid "e08081a0-46a2-5e61-80a5-3555796ba44c")
+		(uuid "8d66f34a-6403-5e90-8b80-bc79eec0be90")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -14698,7 +14705,7 @@
 	(wire
 		(pts (xy 85.09 180.34) (xy 87.63 180.34))
 		(stroke (width 0) (type default))
-		(uuid "2d35a059-30a9-5a8f-9aef-99f9e2f6a576")
+		(uuid "2b8ebd73-b008-5e1e-a90d-2c46edf1d9fc")
 	)
 	(label "MUX0_SCL"
 		(at 87.63 180.34 0)
@@ -14706,7 +14713,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "e4e6880f-3d36-59cc-aa63-4837319df357")
+		(uuid "5c3edc38-f91c-5f24-8d1d-b46d78d9154b")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -14718,8 +14725,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "39f66c64-3e18-5f8f-99c9-cbf69caa61be")
-		(property "Reference" "R97"
+		(uuid "d1d07a31-c4a5-58b6-89c4-4fb50967a060")
+		(property "Reference" "R98"
 			(at 81.28 185.46 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -14763,15 +14770,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "c10055e9-a8ed-582a-b43a-129d84216240")
+			(uuid "2baa5654-b432-50cb-b328-76636c08d1ac")
 		)
 		(pin "2"
-			(uuid "42f3dedd-f8cf-5b1f-ae44-5200a1220c54")
+			(uuid "52bd668d-fd8e-501c-bfb1-8d5a32642d2e")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R97")
+					(reference "R98")
 					(unit 1)
 				)
 			)
@@ -14780,7 +14787,7 @@
 	(wire
 		(pts (xy 77.47 187.96) (xy 74.93 187.96))
 		(stroke (width 0) (type default))
-		(uuid "2b8ebd73-b008-5e1e-a90d-2c46edf1d9fc")
+		(uuid "80485fb3-184a-5cac-a57a-29b356294a64")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -14852,7 +14859,7 @@
 	(wire
 		(pts (xy 85.09 187.96) (xy 87.63 187.96))
 		(stroke (width 0) (type default))
-		(uuid "9b3b534d-9904-5fd0-bcae-89a44561a31c")
+		(uuid "f63e141d-463c-54df-8123-b4588661318e")
 	)
 	(label "MUX1_SDA"
 		(at 87.63 187.96 0)
@@ -14860,7 +14867,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "b40ae6df-245b-5973-a9a9-ebabb68a4f45")
+		(uuid "6ba664ae-5be2-5a59-b14c-3e0e2aa79c50")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -14872,8 +14879,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "d1d07a31-c4a5-58b6-89c4-4fb50967a060")
-		(property "Reference" "R98"
+		(uuid "d27d96e6-1a5e-54b4-9223-3a93674abe55")
+		(property "Reference" "R99"
 			(at 81.28 193.08 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -14917,15 +14924,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "2baa5654-b432-50cb-b328-76636c08d1ac")
+			(uuid "ee20e21e-f861-5fa7-97a5-68507feb5e8e")
 		)
 		(pin "2"
-			(uuid "52bd668d-fd8e-501c-bfb1-8d5a32642d2e")
+			(uuid "eefc64e0-74e0-5547-abef-050520a7575e")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R98")
+					(reference "R99")
 					(unit 1)
 				)
 			)
@@ -14934,7 +14941,7 @@
 	(wire
 		(pts (xy 77.47 195.58) (xy 74.93 195.58))
 		(stroke (width 0) (type default))
-		(uuid "f63e141d-463c-54df-8123-b4588661318e")
+		(uuid "4b15cf09-05f4-5527-8b73-930810164e52")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -15006,7 +15013,7 @@
 	(wire
 		(pts (xy 85.09 195.58) (xy 87.63 195.58))
 		(stroke (width 0) (type default))
-		(uuid "7879e7a0-a590-5698-ae56-94b036b38956")
+		(uuid "91a4566c-5aa4-5444-abd0-d3b547ff8589")
 	)
 	(label "MUX1_SCL"
 		(at 87.63 195.58 0)
@@ -15014,7 +15021,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "5745c629-742e-5b07-b0ce-a91c606da1b7")
+		(uuid "fcc5aef2-d34a-5a2c-b572-9f67fc79e545")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -15026,8 +15033,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "d27d96e6-1a5e-54b4-9223-3a93674abe55")
-		(property "Reference" "R99"
+		(uuid "c4db1f8f-aa5c-5d93-9ae8-33601dd09fee")
+		(property "Reference" "R100"
 			(at 81.28 200.7 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -15071,15 +15078,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "ee20e21e-f861-5fa7-97a5-68507feb5e8e")
+			(uuid "facc16dd-35a8-55e1-a2d7-663ad57db44b")
 		)
 		(pin "2"
-			(uuid "eefc64e0-74e0-5547-abef-050520a7575e")
+			(uuid "2cd7fe2d-eef9-5b17-959a-4baf94233871")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R99")
+					(reference "R100")
 					(unit 1)
 				)
 			)
@@ -15088,7 +15095,7 @@
 	(wire
 		(pts (xy 77.47 203.2) (xy 74.93 203.2))
 		(stroke (width 0) (type default))
-		(uuid "91a4566c-5aa4-5444-abd0-d3b547ff8589")
+		(uuid "c284aee2-77c1-51b0-a088-8ef79b8fbe5c")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -15160,7 +15167,7 @@
 	(wire
 		(pts (xy 85.09 203.2) (xy 87.63 203.2))
 		(stroke (width 0) (type default))
-		(uuid "a43cb56d-80b3-5d44-86a8-98fa66945bf5")
+		(uuid "20fac116-047c-56a8-acbc-5a3b093c1141")
 	)
 	(label "MUX2_SDA"
 		(at 87.63 203.2 0)
@@ -15168,7 +15175,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "30e75e39-87d0-5dc2-bd89-2cf01f1afd3e")
+		(uuid "45b9af8c-1e87-5585-a70f-5196aff57bdb")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -15180,8 +15187,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "c4db1f8f-aa5c-5d93-9ae8-33601dd09fee")
-		(property "Reference" "R100"
+		(uuid "964e539c-4313-5535-9110-50af033042ec")
+		(property "Reference" "R101"
 			(at 81.28 208.32 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -15225,15 +15232,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "facc16dd-35a8-55e1-a2d7-663ad57db44b")
+			(uuid "b86bf636-b292-56aa-b37e-4f743b99079a")
 		)
 		(pin "2"
-			(uuid "2cd7fe2d-eef9-5b17-959a-4baf94233871")
+			(uuid "6c11422c-a14a-5983-94d4-c38b5121ce8f")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R100")
+					(reference "R101")
 					(unit 1)
 				)
 			)
@@ -15242,7 +15249,7 @@
 	(wire
 		(pts (xy 77.47 210.82) (xy 74.93 210.82))
 		(stroke (width 0) (type default))
-		(uuid "20fac116-047c-56a8-acbc-5a3b093c1141")
+		(uuid "dfb1e8b3-007f-5055-a9d6-f3d2302e688f")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -15314,7 +15321,7 @@
 	(wire
 		(pts (xy 85.09 210.82) (xy 87.63 210.82))
 		(stroke (width 0) (type default))
-		(uuid "9e2fa966-8fd1-5c9a-b70f-c4974f198c75")
+		(uuid "3c2f084e-a1e4-5e7e-8978-4cca6d82e5d0")
 	)
 	(label "MUX2_SCL"
 		(at 87.63 210.82 0)
@@ -15322,7 +15329,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "e4f4896a-dbc1-5c97-b648-aa07cb0ae7db")
+		(uuid "8fc799bc-a01a-51a0-b0a7-7b1958684991")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -15334,8 +15341,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "964e539c-4313-5535-9110-50af033042ec")
-		(property "Reference" "R101"
+		(uuid "31260857-ab1f-571f-af21-478dd1226e9d")
+		(property "Reference" "R102"
 			(at 81.28 215.94 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -15379,15 +15386,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "b86bf636-b292-56aa-b37e-4f743b99079a")
+			(uuid "9805ba65-1391-5fbd-bc1a-ad3cd39834fb")
 		)
 		(pin "2"
-			(uuid "6c11422c-a14a-5983-94d4-c38b5121ce8f")
+			(uuid "f7284630-f463-54c8-aeb7-4eabd4bce608")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R101")
+					(reference "R102")
 					(unit 1)
 				)
 			)
@@ -15396,7 +15403,7 @@
 	(wire
 		(pts (xy 77.47 218.44) (xy 74.93 218.44))
 		(stroke (width 0) (type default))
-		(uuid "3c2f084e-a1e4-5e7e-8978-4cca6d82e5d0")
+		(uuid "50cd47e8-7cb4-5cad-a390-ca9d58d50458")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -15468,7 +15475,7 @@
 	(wire
 		(pts (xy 85.09 218.44) (xy 87.63 218.44))
 		(stroke (width 0) (type default))
-		(uuid "1ca6a69e-574b-57db-ab0e-20ddf18050e6")
+		(uuid "79fe6f64-2f1e-5ef2-9882-889bdd0a859c")
 	)
 	(label "MUX3_SDA"
 		(at 87.63 218.44 0)
@@ -15476,7 +15483,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "c65a19f3-6120-560f-9b76-c138cc4eea42")
+		(uuid "98775e7d-b05d-5fca-9fe9-d2f714c88e4f")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -15488,8 +15495,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "31260857-ab1f-571f-af21-478dd1226e9d")
-		(property "Reference" "R102"
+		(uuid "45769b3a-3f09-5550-a41c-bb23c3b8c430")
+		(property "Reference" "R103"
 			(at 81.28 223.56 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -15533,15 +15540,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "9805ba65-1391-5fbd-bc1a-ad3cd39834fb")
+			(uuid "ef04abe6-d4de-549a-ab73-cb04b8fe33b9")
 		)
 		(pin "2"
-			(uuid "f7284630-f463-54c8-aeb7-4eabd4bce608")
+			(uuid "aad74f76-0622-54e0-b755-c3f3ada9ec87")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R102")
+					(reference "R103")
 					(unit 1)
 				)
 			)
@@ -15550,7 +15557,7 @@
 	(wire
 		(pts (xy 77.47 226.06) (xy 74.93 226.06))
 		(stroke (width 0) (type default))
-		(uuid "79fe6f64-2f1e-5ef2-9882-889bdd0a859c")
+		(uuid "f73730dc-0de8-518c-857c-8748b2695f0a")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -15622,7 +15629,7 @@
 	(wire
 		(pts (xy 85.09 226.06) (xy 87.63 226.06))
 		(stroke (width 0) (type default))
-		(uuid "ad271085-3b8c-57ab-b7ec-3de6fef84260")
+		(uuid "9e59d77d-89cd-58f9-85e5-0bab15d46d31")
 	)
 	(label "MUX3_SCL"
 		(at 87.63 226.06 0)
@@ -15630,7 +15637,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "9794a0b8-8471-547d-9127-de2e5c57f7e4")
+		(uuid "981d1c58-e863-54de-b735-71111123f62a")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -15642,8 +15649,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "45769b3a-3f09-5550-a41c-bb23c3b8c430")
-		(property "Reference" "R103"
+		(uuid "2589e970-d475-57d1-9d8b-0759260698b9")
+		(property "Reference" "R104"
 			(at 81.28 231.18 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -15687,15 +15694,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "ef04abe6-d4de-549a-ab73-cb04b8fe33b9")
+			(uuid "9ad2826a-22ef-5e83-b588-20fb94789376")
 		)
 		(pin "2"
-			(uuid "aad74f76-0622-54e0-b755-c3f3ada9ec87")
+			(uuid "24f8eed6-33e2-5403-8133-12614350090d")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R103")
+					(reference "R104")
 					(unit 1)
 				)
 			)
@@ -15704,7 +15711,7 @@
 	(wire
 		(pts (xy 77.47 233.68) (xy 74.93 233.68))
 		(stroke (width 0) (type default))
-		(uuid "9e59d77d-89cd-58f9-85e5-0bab15d46d31")
+		(uuid "8a703a47-4382-5435-b99b-ffbe6894b5e7")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -15776,7 +15783,7 @@
 	(wire
 		(pts (xy 85.09 233.68) (xy 87.63 233.68))
 		(stroke (width 0) (type default))
-		(uuid "59c45259-c10b-51b2-9c6e-b1b1dc3e6393")
+		(uuid "53532e4c-d5e8-5c94-aaa3-f13fefe28a0b")
 	)
 	(label "MUX4_SDA"
 		(at 87.63 233.68 0)
@@ -15784,7 +15791,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "242c4e34-f142-5545-a80b-c97c4888ba36")
+		(uuid "b880236a-970a-55ea-ac99-63c81c8d72ce")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -15796,8 +15803,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "2589e970-d475-57d1-9d8b-0759260698b9")
-		(property "Reference" "R104"
+		(uuid "a654ca39-2a43-5607-af96-9346a1dd362c")
+		(property "Reference" "R105"
 			(at 81.28 238.8 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -15841,15 +15848,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "9ad2826a-22ef-5e83-b588-20fb94789376")
+			(uuid "a1a8ff57-0260-53da-bd5a-5fd81c9ec75b")
 		)
 		(pin "2"
-			(uuid "24f8eed6-33e2-5403-8133-12614350090d")
+			(uuid "1cad9216-90c0-57cd-99af-20af8adc858a")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R104")
+					(reference "R105")
 					(unit 1)
 				)
 			)
@@ -15858,7 +15865,7 @@
 	(wire
 		(pts (xy 77.47 241.3) (xy 74.93 241.3))
 		(stroke (width 0) (type default))
-		(uuid "53532e4c-d5e8-5c94-aaa3-f13fefe28a0b")
+		(uuid "d42ddb18-63b9-504d-bbf0-80261a4fc4f8")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -15930,7 +15937,7 @@
 	(wire
 		(pts (xy 85.09 241.3) (xy 87.63 241.3))
 		(stroke (width 0) (type default))
-		(uuid "e6e00ea5-fdae-5d33-aab5-603ba9021701")
+		(uuid "55d54787-252e-52a4-854d-7f2d4d766aba")
 	)
 	(label "MUX4_SCL"
 		(at 87.63 241.3 0)
@@ -15938,7 +15945,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "8df049a7-496b-57af-ae37-b1d22e490e00")
+		(uuid "108b38aa-56a2-5255-bacb-8fa05bd039af")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -15950,8 +15957,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "a654ca39-2a43-5607-af96-9346a1dd362c")
-		(property "Reference" "R105"
+		(uuid "f036f54d-469d-54dd-a97d-460f0bbfad74")
+		(property "Reference" "R106"
 			(at 81.28 246.42 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -15995,15 +16002,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "a1a8ff57-0260-53da-bd5a-5fd81c9ec75b")
+			(uuid "4c4b3704-758d-5f79-a7e9-2bd1711ac82d")
 		)
 		(pin "2"
-			(uuid "1cad9216-90c0-57cd-99af-20af8adc858a")
+			(uuid "38d77438-c303-54d3-954a-c2f818d8216c")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R105")
+					(reference "R106")
 					(unit 1)
 				)
 			)
@@ -16012,7 +16019,7 @@
 	(wire
 		(pts (xy 77.47 248.92) (xy 74.93 248.92))
 		(stroke (width 0) (type default))
-		(uuid "55d54787-252e-52a4-854d-7f2d4d766aba")
+		(uuid "fd3934ee-a2f6-523b-80e6-8635a29cb616")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -16084,7 +16091,7 @@
 	(wire
 		(pts (xy 85.09 248.92) (xy 87.63 248.92))
 		(stroke (width 0) (type default))
-		(uuid "f2bf9bad-5149-52fb-a9a5-5691a63864b3")
+		(uuid "aab836ab-42fa-5736-a546-b9d67d3fee3e")
 	)
 	(label "MUX5_SDA"
 		(at 87.63 248.92 0)
@@ -16092,7 +16099,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "3c410544-b372-50f1-9937-747457377bbe")
+		(uuid "f155a217-2387-5bbf-8cbf-47c7571d7115")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -16104,8 +16111,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "f036f54d-469d-54dd-a97d-460f0bbfad74")
-		(property "Reference" "R106"
+		(uuid "17f46ecd-9329-5b77-be4f-2d98a4043516")
+		(property "Reference" "R107"
 			(at 81.28 254.04 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -16149,15 +16156,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "4c4b3704-758d-5f79-a7e9-2bd1711ac82d")
+			(uuid "4cd768f9-4f69-5f86-a176-65d992686aba")
 		)
 		(pin "2"
-			(uuid "38d77438-c303-54d3-954a-c2f818d8216c")
+			(uuid "75180e99-8889-598c-b7ac-048131f7a091")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R106")
+					(reference "R107")
 					(unit 1)
 				)
 			)
@@ -16166,7 +16173,7 @@
 	(wire
 		(pts (xy 77.47 256.54) (xy 74.93 256.54))
 		(stroke (width 0) (type default))
-		(uuid "aab836ab-42fa-5736-a546-b9d67d3fee3e")
+		(uuid "abcd85b3-e4ec-5208-929e-6e68d9368be9")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -16238,7 +16245,7 @@
 	(wire
 		(pts (xy 85.09 256.54) (xy 87.63 256.54))
 		(stroke (width 0) (type default))
-		(uuid "d5db4243-861a-570b-ac62-c7011f0dc965")
+		(uuid "92ecf445-61c7-5ab0-9ce3-0f53535bee68")
 	)
 	(label "MUX5_SCL"
 		(at 87.63 256.54 0)
@@ -16246,7 +16253,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "c4b65b56-3274-5993-8612-61bb34439461")
+		(uuid "7c0ef360-c14e-5435-a033-1ca71d796810")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -16258,8 +16265,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "17f46ecd-9329-5b77-be4f-2d98a4043516")
-		(property "Reference" "R107"
+		(uuid "17521cef-6098-53b9-a8ee-a8f469be0bff")
+		(property "Reference" "R108"
 			(at 81.28 261.66 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -16303,15 +16310,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "4cd768f9-4f69-5f86-a176-65d992686aba")
+			(uuid "a85e88a0-9f23-5514-9e51-e228de92f322")
 		)
 		(pin "2"
-			(uuid "75180e99-8889-598c-b7ac-048131f7a091")
+			(uuid "301c162b-50e9-5bc1-96fd-f31715d46039")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R107")
+					(reference "R108")
 					(unit 1)
 				)
 			)
@@ -16320,7 +16327,7 @@
 	(wire
 		(pts (xy 77.47 264.16) (xy 74.93 264.16))
 		(stroke (width 0) (type default))
-		(uuid "92ecf445-61c7-5ab0-9ce3-0f53535bee68")
+		(uuid "0d1898d0-1153-52e2-b8c9-3eb7ff2d3a86")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -16392,7 +16399,7 @@
 	(wire
 		(pts (xy 85.09 264.16) (xy 87.63 264.16))
 		(stroke (width 0) (type default))
-		(uuid "008c2a33-6c41-5438-990e-bdefc59e981a")
+		(uuid "fa9f0ba3-a7c8-5dff-91c5-5f32171cf6d4")
 	)
 	(label "MUX6_SDA"
 		(at 87.63 264.16 0)
@@ -16400,7 +16407,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "dbc97caa-c144-51d1-a8e0-fbe88272fea5")
+		(uuid "5ae449b6-6d9a-5531-a0ce-0dbc64b5b300")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -16412,8 +16419,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "17521cef-6098-53b9-a8ee-a8f469be0bff")
-		(property "Reference" "R108"
+		(uuid "977182e6-860a-5f72-bb66-509be622e981")
+		(property "Reference" "R109"
 			(at 81.28 269.28 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -16457,15 +16464,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "a85e88a0-9f23-5514-9e51-e228de92f322")
+			(uuid "d0ab4b14-7f45-53c2-bfd9-ca5b186c46db")
 		)
 		(pin "2"
-			(uuid "301c162b-50e9-5bc1-96fd-f31715d46039")
+			(uuid "b6f1bcd8-3583-5497-b4b0-758f44230d55")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R108")
+					(reference "R109")
 					(unit 1)
 				)
 			)
@@ -16474,7 +16481,7 @@
 	(wire
 		(pts (xy 77.47 271.78) (xy 74.93 271.78))
 		(stroke (width 0) (type default))
-		(uuid "fa9f0ba3-a7c8-5dff-91c5-5f32171cf6d4")
+		(uuid "4d716f72-975c-52b2-be75-4ac8e81fbb35")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -16546,7 +16553,7 @@
 	(wire
 		(pts (xy 85.09 271.78) (xy 87.63 271.78))
 		(stroke (width 0) (type default))
-		(uuid "13af394f-5e0e-556d-891f-8d21d9365bcb")
+		(uuid "717fe82c-b8da-5c72-b8a4-03accf2b2f29")
 	)
 	(label "MUX6_SCL"
 		(at 87.63 271.78 0)
@@ -16554,7 +16561,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "a1c50a4a-106b-522b-bf27-59f6dd284e18")
+		(uuid "bb9bd71d-4794-5d62-b053-44f3ca87db10")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -16566,8 +16573,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "977182e6-860a-5f72-bb66-509be622e981")
-		(property "Reference" "R109"
+		(uuid "1602faa6-8636-5914-a3ba-737850003e81")
+		(property "Reference" "R110"
 			(at 81.28 276.9 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -16611,15 +16618,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "d0ab4b14-7f45-53c2-bfd9-ca5b186c46db")
+			(uuid "beb5a37d-1c56-5d04-b623-87c1b9158df0")
 		)
 		(pin "2"
-			(uuid "b6f1bcd8-3583-5497-b4b0-758f44230d55")
+			(uuid "acff1e29-5188-58ff-b6db-f37d5c0d7dae")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R109")
+					(reference "R110")
 					(unit 1)
 				)
 			)
@@ -16628,7 +16635,7 @@
 	(wire
 		(pts (xy 77.47 279.4) (xy 74.93 279.4))
 		(stroke (width 0) (type default))
-		(uuid "717fe82c-b8da-5c72-b8a4-03accf2b2f29")
+		(uuid "1ccbc4ad-b9b5-56dd-aacc-050d90241a15")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -16700,7 +16707,7 @@
 	(wire
 		(pts (xy 85.09 279.4) (xy 87.63 279.4))
 		(stroke (width 0) (type default))
-		(uuid "4fc4659e-e0b7-5d72-b8f9-2c9618b30a91")
+		(uuid "09784f01-efd5-5d29-ac5f-c9dee3469f77")
 	)
 	(label "MUX7_SDA"
 		(at 87.63 279.4 0)
@@ -16708,7 +16715,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "1feb47e5-f28b-504a-b614-a6eb9f75127a")
+		(uuid "6b86bd8e-ca21-51e6-8db0-f20911c4aa57")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -16720,8 +16727,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "1602faa6-8636-5914-a3ba-737850003e81")
-		(property "Reference" "R110"
+		(uuid "1f3d8f4e-f72b-5ed7-9ef7-8f755346dfe0")
+		(property "Reference" "R111"
 			(at 81.28 284.52 90)
 			(show_name no)
 			(do_not_autoplace no)
@@ -16765,15 +16772,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "beb5a37d-1c56-5d04-b623-87c1b9158df0")
+			(uuid "f16a5942-e724-5a7f-9d18-e8f03d223e30")
 		)
 		(pin "2"
-			(uuid "acff1e29-5188-58ff-b6db-f37d5c0d7dae")
+			(uuid "a6e7ad69-a3a5-5a8b-91cf-fd4d6900f128")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/08332ef6-1596-53f6-b0da-53ffec6629a0"
-					(reference "R110")
+					(reference "R111")
 					(unit 1)
 				)
 			)
@@ -16782,7 +16789,7 @@
 	(wire
 		(pts (xy 77.47 287.02) (xy 74.93 287.02))
 		(stroke (width 0) (type default))
-		(uuid "09784f01-efd5-5d29-ac5f-c9dee3469f77")
+		(uuid "77936bdc-a0aa-5096-b808-9e84feec1ea3")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -16854,7 +16861,7 @@
 	(wire
 		(pts (xy 85.09 287.02) (xy 87.63 287.02))
 		(stroke (width 0) (type default))
-		(uuid "8def267e-055d-5ca4-8d12-838fcad78c35")
+		(uuid "5b7d7f43-f291-5ed5-953f-194de33d7a38")
 	)
 	(label "MUX7_SCL"
 		(at 87.63 287.02 0)
@@ -16862,7 +16869,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "0dcd3b1d-076d-56cc-aba7-eca0fa93b479")
+		(uuid "02be35ca-ca86-5a84-83c9-2dd757754e07")
 	)
 	(symbol
 		(lib_id "OfficeDeskSetup:WF100DPZ")
@@ -16893,7 +16900,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "OfficeDeskSetup:SOP-6_L7.0-W7.0-P2.54-LS10.3-TL"
 			(at 124.46 181.61 0)
 			(hide yes)
 			(show_name no)
@@ -16959,7 +16966,7 @@
 	(wire
 		(pts (xy 116.84 176.53) (xy 114.3 176.53))
 		(stroke (width 0) (type default))
-		(uuid "5b7d7f43-f291-5ed5-953f-194de33d7a38")
+		(uuid "31e29b75-a24b-5986-8274-9262afadb39f")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -17030,16 +17037,16 @@
 	)
 	(no_connect
 		(at 116.84 179.07)
-		(uuid "3ee81451-c3b3-544e-add2-ad3492f8725a")
+		(uuid "bb3f04d8-91fe-5eb8-b201-ad3c1f60f9cc")
 	)
 	(no_connect
 		(at 116.84 181.61)
-		(uuid "74a9d309-f883-5e43-95f8-d37339f648b7")
+		(uuid "2d8f2729-86d5-58d9-a744-7f4c29dccc88")
 	)
 	(wire
 		(pts (xy 116.84 184.15) (xy 114.3 184.15))
 		(stroke (width 0) (type default))
-		(uuid "99b21be2-513a-5579-a537-a268041511a8")
+		(uuid "08db0d87-2431-59a7-bef2-1fbf6e02ba5b")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -17112,7 +17119,7 @@
 	(wire
 		(pts (xy 132.08 176.53) (xy 134.62 176.53))
 		(stroke (width 0) (type default))
-		(uuid "e49d4429-e408-5072-8db1-52045c6e8431")
+		(uuid "25ce5a7e-9d00-5439-896a-70fa47885520")
 	)
 	(label "MUX0_SDA"
 		(at 134.62 176.53 0)
@@ -17120,12 +17127,12 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "f939f49c-c914-5def-b981-d5c3e84ac3bf")
+		(uuid "7e2604ac-6f6b-5cda-b677-745b502fe1a9")
 	)
 	(wire
 		(pts (xy 132.08 179.07) (xy 134.62 179.07))
 		(stroke (width 0) (type default))
-		(uuid "25ce5a7e-9d00-5439-896a-70fa47885520")
+		(uuid "968a1ada-b161-538b-a7ab-d76c67bd85fe")
 	)
 	(label "MUX0_SCL"
 		(at 134.62 179.07 0)
@@ -17133,7 +17140,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "7e2604ac-6f6b-5cda-b677-745b502fe1a9")
+		(uuid "d6c6545f-8fc6-526e-8554-902e4ab4e525")
 	)
 	(symbol
 		(lib_id "OfficeDeskSetup:WF100DPZ")
@@ -17164,7 +17171,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "OfficeDeskSetup:SOP-6_L7.0-W7.0-P2.54-LS10.3-TL"
 			(at 124.46 201.93 0)
 			(hide yes)
 			(show_name no)
@@ -17230,7 +17237,7 @@
 	(wire
 		(pts (xy 116.84 196.85) (xy 114.3 196.85))
 		(stroke (width 0) (type default))
-		(uuid "968a1ada-b161-538b-a7ab-d76c67bd85fe")
+		(uuid "923718f6-5f39-5f15-beff-c27aa6661b9b")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -17301,16 +17308,16 @@
 	)
 	(no_connect
 		(at 116.84 199.39)
-		(uuid "019da843-ff93-59d3-9fa2-e0c842235fcb")
+		(uuid "5c5bbc3b-2031-58cf-b1b9-0d70c7515aa3")
 	)
 	(no_connect
 		(at 116.84 201.93)
-		(uuid "835a4942-208d-55da-a395-9fde99061366")
+		(uuid "c5033e9f-7dff-5555-961e-5c66a9b9b09c")
 	)
 	(wire
 		(pts (xy 116.84 204.47) (xy 114.3 204.47))
 		(stroke (width 0) (type default))
-		(uuid "ef4a79c1-64b3-5a2b-9d95-11c1c54af7d9")
+		(uuid "251264dd-85a8-5eb3-9869-adb99b400c68")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -17383,7 +17390,7 @@
 	(wire
 		(pts (xy 132.08 196.85) (xy 134.62 196.85))
 		(stroke (width 0) (type default))
-		(uuid "960b631b-70de-5b59-a587-7fad5abce466")
+		(uuid "1d9d7d81-3fbc-56d4-aa60-1881e7279362")
 	)
 	(label "MUX1_SDA"
 		(at 134.62 196.85 0)
@@ -17391,12 +17398,12 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "31fc48a6-8854-56b0-a647-bdcdb1386e05")
+		(uuid "b60d30b9-dd26-5f9e-b39a-b40acd59d8df")
 	)
 	(wire
 		(pts (xy 132.08 199.39) (xy 134.62 199.39))
 		(stroke (width 0) (type default))
-		(uuid "1d9d7d81-3fbc-56d4-aa60-1881e7279362")
+		(uuid "2eeb452e-4d16-56c1-8368-8a38265e0c58")
 	)
 	(label "MUX1_SCL"
 		(at 134.62 199.39 0)
@@ -17404,7 +17411,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "b60d30b9-dd26-5f9e-b39a-b40acd59d8df")
+		(uuid "b9bec3a9-5926-5ec8-a252-36e879371225")
 	)
 	(symbol
 		(lib_id "Device:C")
@@ -17480,7 +17487,7 @@
 	(wire
 		(pts (xy 106.68 217.17) (xy 106.68 214.63))
 		(stroke (width 0) (type default))
-		(uuid "2eeb452e-4d16-56c1-8368-8a38265e0c58")
+		(uuid "11598890-d587-5356-9127-e324a4c80870")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -17552,7 +17559,7 @@
 	(wire
 		(pts (xy 106.68 224.79) (xy 106.68 227.33))
 		(stroke (width 0) (type default))
-		(uuid "5aa15b2b-57b8-58e1-8171-d35df4441b3d")
+		(uuid "b6d7468b-1e2d-592a-a686-3ade50c155ff")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -17695,7 +17702,7 @@
 	(wire
 		(pts (xy 121.92 217.17) (xy 121.92 214.63))
 		(stroke (width 0) (type default))
-		(uuid "11598890-d587-5356-9127-e324a4c80870")
+		(uuid "5ccc2fe4-c703-55a3-b9d4-b9b8c91710bc")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -17767,7 +17774,7 @@
 	(wire
 		(pts (xy 121.92 224.79) (xy 121.92 227.33))
 		(stroke (width 0) (type default))
-		(uuid "b6d7468b-1e2d-592a-a686-3ade50c155ff")
+		(uuid "2fd58648-e1f2-5342-8c54-64c748618d80")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -17843,7 +17850,7 @@
 			(font (size 1.27 1.27))
 			(justify left top)
 		)
-		(uuid "b6dc98e1-c595-58eb-a59f-75e049a99ad5")
+		(uuid "d49e6239-5d64-578f-8162-30203f387aed")
 	)
 	(symbol
 		(lib_id "Connector_Generic_MountingPin:Conn_01x04_MountingPin")
@@ -17936,7 +17943,7 @@
 	(wire
 		(pts (xy 162.56 173.99) (xy 160.02 173.99))
 		(stroke (width 0) (type default))
-		(uuid "2fd58648-e1f2-5342-8c54-64c748618d80")
+		(uuid "5ec9be89-c2c8-5ee2-b41e-c21e4d67a9d7")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -18009,7 +18016,7 @@
 	(wire
 		(pts (xy 162.56 176.53) (xy 160.02 176.53))
 		(stroke (width 0) (type default))
-		(uuid "3431637e-8091-5478-8078-ce67ee89022c")
+		(uuid "288eecf7-5ec7-5408-83cc-b4e6a90ef09e")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -18081,7 +18088,7 @@
 	(wire
 		(pts (xy 162.56 179.07) (xy 160.02 179.07))
 		(stroke (width 0) (type default))
-		(uuid "5ec9be89-c2c8-5ee2-b41e-c21e4d67a9d7")
+		(uuid "c3e1c26c-89d8-59dd-986e-8a68779ab92a")
 	)
 	(label "MUX2_SDA"
 		(at 160.02 179.07 180)
@@ -18089,12 +18096,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "e99db2f9-4195-5c23-839d-9d229b7ef5ac")
+		(uuid "c48246fd-b9b4-52bc-86b1-2031920c42be")
 	)
 	(wire
 		(pts (xy 162.56 181.61) (xy 160.02 181.61))
 		(stroke (width 0) (type default))
-		(uuid "c3e1c26c-89d8-59dd-986e-8a68779ab92a")
+		(uuid "b45ca65d-35ee-5a19-bf37-2d5c621e46b7")
 	)
 	(label "MUX2_SCL"
 		(at 160.02 181.61 180)
@@ -18102,12 +18109,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "c48246fd-b9b4-52bc-86b1-2031920c42be")
+		(uuid "9ccd07d9-c959-5ca1-8b0a-fbd09c297297")
 	)
 	(wire
 		(pts (xy 167.64 186.69) (xy 167.64 189.23))
 		(stroke (width 0) (type default))
-		(uuid "b45ca65d-35ee-5a19-bf37-2d5c621e46b7")
+		(uuid "0de0eb59-136f-5c36-b5cd-a0436a2e28da")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -18267,7 +18274,7 @@
 	(wire
 		(pts (xy 195.58 173.99) (xy 193.04 173.99))
 		(stroke (width 0) (type default))
-		(uuid "bcc36ebb-0ef0-5796-8951-384523effb5b")
+		(uuid "cb4de2d2-ca17-5e3c-b43a-b2a4e6b249c8")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -18340,7 +18347,7 @@
 	(wire
 		(pts (xy 195.58 176.53) (xy 193.04 176.53))
 		(stroke (width 0) (type default))
-		(uuid "0de0eb59-136f-5c36-b5cd-a0436a2e28da")
+		(uuid "564f6d72-aebc-59b2-8087-464fd222f89e")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -18412,7 +18419,7 @@
 	(wire
 		(pts (xy 195.58 179.07) (xy 193.04 179.07))
 		(stroke (width 0) (type default))
-		(uuid "cb4de2d2-ca17-5e3c-b43a-b2a4e6b249c8")
+		(uuid "02f38315-15de-5bc5-be24-c0bf00997ac9")
 	)
 	(label "MUX3_SDA"
 		(at 193.04 179.07 180)
@@ -18420,12 +18427,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "e69e087a-5d16-5f42-ac33-faeb31e8e1b8")
+		(uuid "20c22b6e-1479-5f2d-8231-1d6697dbd9ab")
 	)
 	(wire
 		(pts (xy 195.58 181.61) (xy 193.04 181.61))
 		(stroke (width 0) (type default))
-		(uuid "02f38315-15de-5bc5-be24-c0bf00997ac9")
+		(uuid "f6d8d3c7-b1fa-5bac-821a-97710ccbd8aa")
 	)
 	(label "MUX3_SCL"
 		(at 193.04 181.61 180)
@@ -18433,12 +18440,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "20c22b6e-1479-5f2d-8231-1d6697dbd9ab")
+		(uuid "a1fac122-877f-56a4-acb6-5b0b56c8246d")
 	)
 	(wire
 		(pts (xy 200.66 186.69) (xy 200.66 189.23))
 		(stroke (width 0) (type default))
-		(uuid "f6d8d3c7-b1fa-5bac-821a-97710ccbd8aa")
+		(uuid "7b1973cc-393c-56e7-b537-bdf9917f5e70")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -18598,7 +18605,7 @@
 	(wire
 		(pts (xy 228.6 173.99) (xy 226.06 173.99))
 		(stroke (width 0) (type default))
-		(uuid "53fb3bea-7215-5346-bdf7-c37e13a998a1")
+		(uuid "66245ade-2ab4-560b-a006-5f7cd56d9c06")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -18671,7 +18678,7 @@
 	(wire
 		(pts (xy 228.6 176.53) (xy 226.06 176.53))
 		(stroke (width 0) (type default))
-		(uuid "7b1973cc-393c-56e7-b537-bdf9917f5e70")
+		(uuid "850ccef9-940a-5862-9d44-caccb9b7ee08")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -18743,7 +18750,7 @@
 	(wire
 		(pts (xy 228.6 179.07) (xy 226.06 179.07))
 		(stroke (width 0) (type default))
-		(uuid "66245ade-2ab4-560b-a006-5f7cd56d9c06")
+		(uuid "92d2c9c5-17e0-5219-84b3-504ce5ba3607")
 	)
 	(label "MUX4_SDA"
 		(at 226.06 179.07 180)
@@ -18751,12 +18758,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "eae3938d-3b9a-5a30-9613-047fe56c40f1")
+		(uuid "7be2973c-2240-57e7-b407-d519c2e3446b")
 	)
 	(wire
 		(pts (xy 228.6 181.61) (xy 226.06 181.61))
 		(stroke (width 0) (type default))
-		(uuid "92d2c9c5-17e0-5219-84b3-504ce5ba3607")
+		(uuid "c3bfdc21-df65-56e8-bf65-bd3d987a3f5e")
 	)
 	(label "MUX4_SCL"
 		(at 226.06 181.61 180)
@@ -18764,12 +18771,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "7be2973c-2240-57e7-b407-d519c2e3446b")
+		(uuid "644048fd-16c8-53fe-9790-5d42e64b5e44")
 	)
 	(wire
 		(pts (xy 233.68 186.69) (xy 233.68 189.23))
 		(stroke (width 0) (type default))
-		(uuid "c3bfdc21-df65-56e8-bf65-bd3d987a3f5e")
+		(uuid "91ae3b4c-f13a-5b49-81d0-d0df01c75664")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -18929,7 +18936,7 @@
 	(wire
 		(pts (xy 162.56 205.74) (xy 160.02 205.74))
 		(stroke (width 0) (type default))
-		(uuid "08df08a9-2704-58d0-a891-d008c07adb3c")
+		(uuid "60866a28-b9cc-5f27-846e-077429ac10ca")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -19002,7 +19009,7 @@
 	(wire
 		(pts (xy 162.56 208.28) (xy 160.02 208.28))
 		(stroke (width 0) (type default))
-		(uuid "91ae3b4c-f13a-5b49-81d0-d0df01c75664")
+		(uuid "44e54dc4-7185-5a91-a3ba-f24769fcd3a8")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -19074,7 +19081,7 @@
 	(wire
 		(pts (xy 162.56 210.82) (xy 160.02 210.82))
 		(stroke (width 0) (type default))
-		(uuid "60866a28-b9cc-5f27-846e-077429ac10ca")
+		(uuid "6c3a3251-e358-5bb1-8e52-498f809db533")
 	)
 	(label "MUX5_SDA"
 		(at 160.02 210.82 180)
@@ -19082,12 +19089,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "df79e967-cc8d-5c82-b77e-a9846b020ab7")
+		(uuid "3b6af29c-fb7a-5b34-906d-3953a6223d30")
 	)
 	(wire
 		(pts (xy 162.56 213.36) (xy 160.02 213.36))
 		(stroke (width 0) (type default))
-		(uuid "6c3a3251-e358-5bb1-8e52-498f809db533")
+		(uuid "c4b719a1-016e-5629-a030-6fd7157423d1")
 	)
 	(label "MUX5_SCL"
 		(at 160.02 213.36 180)
@@ -19095,12 +19102,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "3b6af29c-fb7a-5b34-906d-3953a6223d30")
+		(uuid "94732759-fb51-51ff-b4c9-a4d2a50a286d")
 	)
 	(wire
 		(pts (xy 167.64 218.44) (xy 167.64 220.98))
 		(stroke (width 0) (type default))
-		(uuid "c4b719a1-016e-5629-a030-6fd7157423d1")
+		(uuid "edce1962-e669-5ab8-9d7c-b28fa76c619a")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -19260,7 +19267,7 @@
 	(wire
 		(pts (xy 195.58 205.74) (xy 193.04 205.74))
 		(stroke (width 0) (type default))
-		(uuid "fc1225cb-0fb8-5308-a386-087834afee47")
+		(uuid "efc4c89e-638e-5c05-a765-bfb7ea513f49")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -19333,7 +19340,7 @@
 	(wire
 		(pts (xy 195.58 208.28) (xy 193.04 208.28))
 		(stroke (width 0) (type default))
-		(uuid "edce1962-e669-5ab8-9d7c-b28fa76c619a")
+		(uuid "d4ee35f4-88c9-50fc-8b9b-de86defcfe9c")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -19405,7 +19412,7 @@
 	(wire
 		(pts (xy 195.58 210.82) (xy 193.04 210.82))
 		(stroke (width 0) (type default))
-		(uuid "efc4c89e-638e-5c05-a765-bfb7ea513f49")
+		(uuid "d9542d99-cc74-5177-8b48-3a3429743bf8")
 	)
 	(label "MUX6_SDA"
 		(at 193.04 210.82 180)
@@ -19413,12 +19420,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "917faf38-5cb2-5702-895e-4715247aa9f5")
+		(uuid "e1352e6f-9a5f-51c6-bd30-2dd0fe2f7425")
 	)
 	(wire
 		(pts (xy 195.58 213.36) (xy 193.04 213.36))
 		(stroke (width 0) (type default))
-		(uuid "d9542d99-cc74-5177-8b48-3a3429743bf8")
+		(uuid "feb66ce2-90ee-5cea-a0bb-af9214810059")
 	)
 	(label "MUX6_SCL"
 		(at 193.04 213.36 180)
@@ -19426,12 +19433,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "e1352e6f-9a5f-51c6-bd30-2dd0fe2f7425")
+		(uuid "1a77977e-f83f-5fdb-bf83-582511a78ea3")
 	)
 	(wire
 		(pts (xy 200.66 218.44) (xy 200.66 220.98))
 		(stroke (width 0) (type default))
-		(uuid "feb66ce2-90ee-5cea-a0bb-af9214810059")
+		(uuid "7232dcdd-9982-5019-8f1b-cfa477a612c9")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -19591,7 +19598,7 @@
 	(wire
 		(pts (xy 228.6 205.74) (xy 226.06 205.74))
 		(stroke (width 0) (type default))
-		(uuid "510326ae-d0af-5ea3-9dd1-dd066e0225c3")
+		(uuid "5bb83aa9-9191-5119-bd05-a1dd96a6a209")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -19664,7 +19671,7 @@
 	(wire
 		(pts (xy 228.6 208.28) (xy 226.06 208.28))
 		(stroke (width 0) (type default))
-		(uuid "7232dcdd-9982-5019-8f1b-cfa477a612c9")
+		(uuid "da7b769e-6798-5590-8b50-d288c189fe8f")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -19736,7 +19743,7 @@
 	(wire
 		(pts (xy 228.6 210.82) (xy 226.06 210.82))
 		(stroke (width 0) (type default))
-		(uuid "5bb83aa9-9191-5119-bd05-a1dd96a6a209")
+		(uuid "d36baf44-e991-5979-9bd1-18d5671b6eaa")
 	)
 	(label "MUX7_SDA"
 		(at 226.06 210.82 180)
@@ -19744,12 +19751,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "087699f8-6145-570c-bcfe-88f3551a6ad9")
+		(uuid "68e9d3bc-4e42-5456-94d5-887cd873692d")
 	)
 	(wire
 		(pts (xy 228.6 213.36) (xy 226.06 213.36))
 		(stroke (width 0) (type default))
-		(uuid "d36baf44-e991-5979-9bd1-18d5671b6eaa")
+		(uuid "23d2dd66-fdfb-5312-8160-b9e49577b0dc")
 	)
 	(label "MUX7_SCL"
 		(at 226.06 213.36 180)
@@ -19757,12 +19764,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "68e9d3bc-4e42-5456-94d5-887cd873692d")
+		(uuid "626f5bae-60f5-537a-af00-ce437440a954")
 	)
 	(wire
 		(pts (xy 233.68 218.44) (xy 233.68 220.98))
 		(stroke (width 0) (type default))
-		(uuid "23d2dd66-fdfb-5312-8160-b9e49577b0dc")
+		(uuid "abbc6769-633e-5d6b-b2a5-a5f40eacf079")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -19926,7 +19933,7 @@
 	(wire
 		(pts (xy 162.56 247.65) (xy 160.02 247.65))
 		(stroke (width 0) (type default))
-		(uuid "4f8b4bd8-76c7-55a4-9989-29fb53e8b175")
+		(uuid "fbafd6f3-d97c-5ad1-b981-d09b65799c8a")
 	)
 	(label "MUX2_SDA"
 		(at 160.02 247.65 180)
@@ -19934,12 +19941,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "e4e46679-1c2e-5a84-aa64-f9dc744f58d7")
+		(uuid "faeeade7-de07-5ae7-8138-f5015b80be98")
 	)
 	(wire
 		(pts (xy 167.64 255.27) (xy 167.64 257.81))
 		(stroke (width 0) (type default))
-		(uuid "fbafd6f3-d97c-5ad1-b981-d09b65799c8a")
+		(uuid "d9e13b03-f397-5d4a-9be0-5bcb50053618")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -20011,7 +20018,7 @@
 	(wire
 		(pts (xy 162.56 250.19) (xy 160.02 250.19))
 		(stroke (width 0) (type default))
-		(uuid "a1015f9e-1372-5427-992d-c6adaf32ac36")
+		(uuid "dbd220b8-871c-5a4a-b447-ea8b7fcc1222")
 	)
 	(label "MUX2_SCL"
 		(at 160.02 250.19 180)
@@ -20019,12 +20026,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "1db16ba1-f157-5c40-a78c-988ba2c03e6d")
+		(uuid "fa6ba281-b642-5905-ae54-9a09efba5638")
 	)
 	(wire
 		(pts (xy 172.72 250.19) (xy 175.26 250.19))
 		(stroke (width 0) (type default))
-		(uuid "dbd220b8-871c-5a4a-b447-ea8b7fcc1222")
+		(uuid "0099214a-68bd-5cd4-aaad-c704323509fc")
 	)
 	(label "MUX2_SCL"
 		(at 175.26 250.19 0)
@@ -20032,12 +20039,12 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "fa6ba281-b642-5905-ae54-9a09efba5638")
+		(uuid "4b1c60cc-926b-579b-9f05-2a998cada7e8")
 	)
 	(wire
 		(pts (xy 167.64 242.57) (xy 167.64 240.03))
 		(stroke (width 0) (type default))
-		(uuid "0099214a-68bd-5cd4-aaad-c704323509fc")
+		(uuid "59567f0c-adb9-5703-9e83-2a75136ec4c3")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -20109,7 +20116,7 @@
 	(wire
 		(pts (xy 172.72 247.65) (xy 175.26 247.65))
 		(stroke (width 0) (type default))
-		(uuid "bf5f36fc-5064-54c5-b501-4e84fcb7adaa")
+		(uuid "51cec7fc-089c-55f5-9b4a-5184a2804ceb")
 	)
 	(label "MUX2_SDA"
 		(at 175.26 247.65 0)
@@ -20117,7 +20124,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "a77d4ba6-a5df-5b90-a80a-1212280696f8")
+		(uuid "9f36f3d7-bd14-5b18-bf55-8ec90430f536")
 	)
 	(symbol
 		(lib_id "Power_Protection:USBLC6-2SC6")
@@ -20214,7 +20221,7 @@
 	(wire
 		(pts (xy 200.66 247.65) (xy 198.12 247.65))
 		(stroke (width 0) (type default))
-		(uuid "51cec7fc-089c-55f5-9b4a-5184a2804ceb")
+		(uuid "e88443a4-204a-5760-be08-6724983d89e4")
 	)
 	(label "MUX3_SDA"
 		(at 198.12 247.65 180)
@@ -20222,12 +20229,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "9f36f3d7-bd14-5b18-bf55-8ec90430f536")
+		(uuid "5ae4cba4-b231-5414-a463-10790bc83eb3")
 	)
 	(wire
 		(pts (xy 205.74 255.27) (xy 205.74 257.81))
 		(stroke (width 0) (type default))
-		(uuid "e88443a4-204a-5760-be08-6724983d89e4")
+		(uuid "33379c5f-0dc6-56cb-8ad3-331b6ce8df77")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -20299,7 +20306,7 @@
 	(wire
 		(pts (xy 200.66 250.19) (xy 198.12 250.19))
 		(stroke (width 0) (type default))
-		(uuid "9311a811-17bc-5a99-9d89-947f2b3d4072")
+		(uuid "54327909-f2c5-5ad5-af6f-c8f935f5ba14")
 	)
 	(label "MUX3_SCL"
 		(at 198.12 250.19 180)
@@ -20307,12 +20314,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "013767c5-2699-51ed-a623-ddfd153f7035")
+		(uuid "9c21992c-d84e-5ac1-b61b-28aaf8fbb8b4")
 	)
 	(wire
 		(pts (xy 210.82 250.19) (xy 213.36 250.19))
 		(stroke (width 0) (type default))
-		(uuid "54327909-f2c5-5ad5-af6f-c8f935f5ba14")
+		(uuid "67617037-0e40-5d24-8741-3b714c0922d6")
 	)
 	(label "MUX3_SCL"
 		(at 213.36 250.19 0)
@@ -20320,12 +20327,12 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "9c21992c-d84e-5ac1-b61b-28aaf8fbb8b4")
+		(uuid "971eec2e-578d-54e1-889c-e5bb6702349c")
 	)
 	(wire
 		(pts (xy 205.74 242.57) (xy 205.74 240.03))
 		(stroke (width 0) (type default))
-		(uuid "67617037-0e40-5d24-8741-3b714c0922d6")
+		(uuid "e33edda2-8ed2-5bd5-a8cf-7b5961971a17")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -20397,7 +20404,7 @@
 	(wire
 		(pts (xy 210.82 247.65) (xy 213.36 247.65))
 		(stroke (width 0) (type default))
-		(uuid "33bdb4c3-82e4-5529-a0da-9f32abe98ca6")
+		(uuid "39aad1d1-fd8c-5288-9a5f-2f672e077065")
 	)
 	(label "MUX3_SDA"
 		(at 213.36 247.65 0)
@@ -20405,7 +20412,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "adb95e21-824b-554d-89fd-360c45edb89f")
+		(uuid "fea2441f-4ada-5b9e-b92e-aac8de1341b7")
 	)
 	(symbol
 		(lib_id "Power_Protection:USBLC6-2SC6")
@@ -20502,7 +20509,7 @@
 	(wire
 		(pts (xy 238.76 247.65) (xy 236.22 247.65))
 		(stroke (width 0) (type default))
-		(uuid "39aad1d1-fd8c-5288-9a5f-2f672e077065")
+		(uuid "b6cd0226-74f7-5356-a5fc-70de8e8dc478")
 	)
 	(label "MUX4_SDA"
 		(at 236.22 247.65 180)
@@ -20510,12 +20517,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "fea2441f-4ada-5b9e-b92e-aac8de1341b7")
+		(uuid "b18f03d8-d24d-5f04-b520-198dc4fb58ef")
 	)
 	(wire
 		(pts (xy 243.84 255.27) (xy 243.84 257.81))
 		(stroke (width 0) (type default))
-		(uuid "b6cd0226-74f7-5356-a5fc-70de8e8dc478")
+		(uuid "6a0ea040-ee31-56ce-a3c2-782788864d83")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -20587,7 +20594,7 @@
 	(wire
 		(pts (xy 238.76 250.19) (xy 236.22 250.19))
 		(stroke (width 0) (type default))
-		(uuid "38b1ecb6-ebaf-52f3-a416-8d8cafefb576")
+		(uuid "8bc7728b-fd14-5d42-8012-1a1df3bfd7ae")
 	)
 	(label "MUX4_SCL"
 		(at 236.22 250.19 180)
@@ -20595,12 +20602,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "9b725f0e-c19a-5f60-858f-6261f84c5b2e")
+		(uuid "e75f57fe-b1cf-5e69-94b5-bc992bea75f3")
 	)
 	(wire
 		(pts (xy 248.92 250.19) (xy 251.46 250.19))
 		(stroke (width 0) (type default))
-		(uuid "8bc7728b-fd14-5d42-8012-1a1df3bfd7ae")
+		(uuid "aefa16a6-dd6b-5e1a-b2b1-629ca8b577f0")
 	)
 	(label "MUX4_SCL"
 		(at 251.46 250.19 0)
@@ -20608,12 +20615,12 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "e75f57fe-b1cf-5e69-94b5-bc992bea75f3")
+		(uuid "7a2d1aad-6c81-507a-aecf-d641001e0ef2")
 	)
 	(wire
 		(pts (xy 243.84 242.57) (xy 243.84 240.03))
 		(stroke (width 0) (type default))
-		(uuid "aefa16a6-dd6b-5e1a-b2b1-629ca8b577f0")
+		(uuid "f81683ef-28ef-5d47-a40c-ef20b102a55f")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -20685,7 +20692,7 @@
 	(wire
 		(pts (xy 248.92 247.65) (xy 251.46 247.65))
 		(stroke (width 0) (type default))
-		(uuid "f3f0c381-3e23-5f00-bc7f-cd2e629203d4")
+		(uuid "5d205f3a-b202-5e37-8e8a-de2df8cf3049")
 	)
 	(label "MUX4_SDA"
 		(at 251.46 247.65 0)
@@ -20693,7 +20700,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "68981da6-5aac-5727-841a-aad93a897657")
+		(uuid "b7f0e218-d279-5613-b24b-3200f167c545")
 	)
 	(symbol
 		(lib_id "Power_Protection:USBLC6-2SC6")
@@ -20790,7 +20797,7 @@
 	(wire
 		(pts (xy 162.56 284.48) (xy 160.02 284.48))
 		(stroke (width 0) (type default))
-		(uuid "5d205f3a-b202-5e37-8e8a-de2df8cf3049")
+		(uuid "4385423d-8ba0-51b1-8f7a-05c1e5c2fdcc")
 	)
 	(label "MUX5_SDA"
 		(at 160.02 284.48 180)
@@ -20798,12 +20805,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "b7f0e218-d279-5613-b24b-3200f167c545")
+		(uuid "ba123c72-2c6e-558c-a52f-d03c10625618")
 	)
 	(wire
 		(pts (xy 167.64 292.1) (xy 167.64 294.64))
 		(stroke (width 0) (type default))
-		(uuid "4385423d-8ba0-51b1-8f7a-05c1e5c2fdcc")
+		(uuid "0a078e8f-cda5-506f-aadd-dd3d0ff008fc")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -20875,7 +20882,7 @@
 	(wire
 		(pts (xy 162.56 287.02) (xy 160.02 287.02))
 		(stroke (width 0) (type default))
-		(uuid "dfa56dc6-7985-53c9-bf22-6210bda810bc")
+		(uuid "d755e59c-98ac-5595-bdaf-2fcac9cb75a5")
 	)
 	(label "MUX5_SCL"
 		(at 160.02 287.02 180)
@@ -20883,12 +20890,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "376a3378-a641-5095-9dc0-5835b15a81eb")
+		(uuid "71454b2a-40eb-5223-93a0-bfd4c1458a2b")
 	)
 	(wire
 		(pts (xy 172.72 287.02) (xy 175.26 287.02))
 		(stroke (width 0) (type default))
-		(uuid "d755e59c-98ac-5595-bdaf-2fcac9cb75a5")
+		(uuid "a37a577a-4cc0-566f-a901-5809eb74122f")
 	)
 	(label "MUX5_SCL"
 		(at 175.26 287.02 0)
@@ -20896,12 +20903,12 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "71454b2a-40eb-5223-93a0-bfd4c1458a2b")
+		(uuid "6d58dffe-d842-55ef-b537-51b7196e4776")
 	)
 	(wire
 		(pts (xy 167.64 279.4) (xy 167.64 276.86))
 		(stroke (width 0) (type default))
-		(uuid "a37a577a-4cc0-566f-a901-5809eb74122f")
+		(uuid "ad19f0ea-131c-5f66-8faa-2d60e7111579")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -20973,7 +20980,7 @@
 	(wire
 		(pts (xy 172.72 284.48) (xy 175.26 284.48))
 		(stroke (width 0) (type default))
-		(uuid "afee70ed-75bc-55e0-8335-a060cde77b2e")
+		(uuid "12010b6b-ee5a-5e0b-a7b2-dc7388a90e11")
 	)
 	(label "MUX5_SDA"
 		(at 175.26 284.48 0)
@@ -20981,7 +20988,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "567ac238-ad2d-57a4-bfd0-ca9e9dfbb1b5")
+		(uuid "9a1b865e-eb1c-5a3f-8a59-b65f83b1da3b")
 	)
 	(symbol
 		(lib_id "Power_Protection:USBLC6-2SC6")
@@ -21078,7 +21085,7 @@
 	(wire
 		(pts (xy 200.66 284.48) (xy 198.12 284.48))
 		(stroke (width 0) (type default))
-		(uuid "12010b6b-ee5a-5e0b-a7b2-dc7388a90e11")
+		(uuid "2251137b-d91a-59f6-9165-6b63e4f3584c")
 	)
 	(label "MUX6_SDA"
 		(at 198.12 284.48 180)
@@ -21086,12 +21093,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "9a1b865e-eb1c-5a3f-8a59-b65f83b1da3b")
+		(uuid "81820779-0896-59b6-8f1f-47f787973770")
 	)
 	(wire
 		(pts (xy 205.74 292.1) (xy 205.74 294.64))
 		(stroke (width 0) (type default))
-		(uuid "2251137b-d91a-59f6-9165-6b63e4f3584c")
+		(uuid "6954f6f3-2fab-581f-a3d0-e66cd9b11bb5")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -21163,7 +21170,7 @@
 	(wire
 		(pts (xy 200.66 287.02) (xy 198.12 287.02))
 		(stroke (width 0) (type default))
-		(uuid "3cc8ce09-09f8-5b71-aea7-66c9db95e407")
+		(uuid "029353a0-b828-506b-b043-9c061f97b058")
 	)
 	(label "MUX6_SCL"
 		(at 198.12 287.02 180)
@@ -21171,12 +21178,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "090ab11c-c777-58c3-b571-1f0d92f1c120")
+		(uuid "1a907796-d59b-588b-8722-da4ee2fff0b7")
 	)
 	(wire
 		(pts (xy 210.82 287.02) (xy 213.36 287.02))
 		(stroke (width 0) (type default))
-		(uuid "029353a0-b828-506b-b043-9c061f97b058")
+		(uuid "1ed3d51f-0931-5ea9-bcd4-8cbd21546173")
 	)
 	(label "MUX6_SCL"
 		(at 213.36 287.02 0)
@@ -21184,12 +21191,12 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "1a907796-d59b-588b-8722-da4ee2fff0b7")
+		(uuid "76777b6a-236c-5333-ab9d-8d7c6f3fbefd")
 	)
 	(wire
 		(pts (xy 205.74 279.4) (xy 205.74 276.86))
 		(stroke (width 0) (type default))
-		(uuid "1ed3d51f-0931-5ea9-bcd4-8cbd21546173")
+		(uuid "5f998a4d-220f-5318-a2bd-df6c21fb8218")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -21261,7 +21268,7 @@
 	(wire
 		(pts (xy 210.82 284.48) (xy 213.36 284.48))
 		(stroke (width 0) (type default))
-		(uuid "d3802d3f-2375-5d07-a96d-8bbc835e9bcd")
+		(uuid "5b2bc7d2-ba8c-5ac1-a4c8-7e327b6d8ab7")
 	)
 	(label "MUX6_SDA"
 		(at 213.36 284.48 0)
@@ -21269,7 +21276,7 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "9e2b24d5-3c6c-56d1-9b13-4da6921afe6f")
+		(uuid "7abb4183-dd39-56e4-84e6-3e81d7432f07")
 	)
 	(symbol
 		(lib_id "Power_Protection:USBLC6-2SC6")
@@ -21366,7 +21373,7 @@
 	(wire
 		(pts (xy 238.76 284.48) (xy 236.22 284.48))
 		(stroke (width 0) (type default))
-		(uuid "5b2bc7d2-ba8c-5ac1-a4c8-7e327b6d8ab7")
+		(uuid "59d09733-56ea-5feb-8f42-ab3819a86552")
 	)
 	(label "MUX7_SDA"
 		(at 236.22 284.48 180)
@@ -21374,12 +21381,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "7abb4183-dd39-56e4-84e6-3e81d7432f07")
+		(uuid "848646bb-c751-597e-8389-6c077c2c9ee5")
 	)
 	(wire
 		(pts (xy 243.84 292.1) (xy 243.84 294.64))
 		(stroke (width 0) (type default))
-		(uuid "59d09733-56ea-5feb-8f42-ab3819a86552")
+		(uuid "f575c2a9-b1b7-5a45-947a-882e44201a74")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -21451,7 +21458,7 @@
 	(wire
 		(pts (xy 238.76 287.02) (xy 236.22 287.02))
 		(stroke (width 0) (type default))
-		(uuid "30947eb8-b4fe-5745-ab87-3f54d12d286a")
+		(uuid "77d3e42f-9eb6-5992-8df7-d17996fa4c1e")
 	)
 	(label "MUX7_SCL"
 		(at 236.22 287.02 180)
@@ -21459,12 +21466,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "0c081e47-8ecb-51cb-bea6-738afd05ec65")
+		(uuid "7d2fae86-2139-5855-977d-78ff8dac1165")
 	)
 	(wire
 		(pts (xy 248.92 287.02) (xy 251.46 287.02))
 		(stroke (width 0) (type default))
-		(uuid "77d3e42f-9eb6-5992-8df7-d17996fa4c1e")
+		(uuid "f2a7ccb9-8783-53f4-a5dc-e424f2672043")
 	)
 	(label "MUX7_SCL"
 		(at 251.46 287.02 0)
@@ -21472,12 +21479,12 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "7d2fae86-2139-5855-977d-78ff8dac1165")
+		(uuid "53b01fde-7ec1-5e31-869a-4cbf51937799")
 	)
 	(wire
 		(pts (xy 243.84 279.4) (xy 243.84 276.86))
 		(stroke (width 0) (type default))
-		(uuid "f2a7ccb9-8783-53f4-a5dc-e424f2672043")
+		(uuid "0374b11d-d1df-567a-91ef-7bc59a8f1e25")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -21549,7 +21556,7 @@
 	(wire
 		(pts (xy 248.92 284.48) (xy 251.46 284.48))
 		(stroke (width 0) (type default))
-		(uuid "cf59b15c-1c8e-5cce-9fef-6f7f48c790f1")
+		(uuid "92be429e-d757-5b52-b47d-37010a558379")
 	)
 	(label "MUX7_SDA"
 		(at 251.46 284.48 0)
@@ -21557,14 +21564,14 @@
 			(font (size 1.27 1.27))
 			(justify left bottom)
 		)
-		(uuid "2b1f8cab-2c85-54a6-a851-e3a452d87921")
+		(uuid "b580fd75-2608-5eba-a917-d95e0e5751e3")
 	)
 	(rectangle
 		(start 12.7 160.02)
 		(end 266.7 304.8)
 		(stroke (width 0.15) (type dash))
 		(fill (type none))
-		(uuid "e0f915e0-6650-5a91-b74b-dcab4ebd238b")
+		(uuid "3a010117-150c-55e8-9106-0f09d1de2577")
 	)
 	(text "TCA9548A (0x71): pressure sensors on ch 0-1, Qwiic on ch 2-7"
 		(exclude_from_sim no)
@@ -21573,7 +21580,7 @@
 			(font (size 2 2) (bold yes))
 			(justify left top)
 		)
-		(uuid "4f6556db-5648-5ad9-bcc7-955677faaeb0")
+		(uuid "5511b6bb-59e7-5bad-9161-5260b055b85e")
 	)
 	(embedded_fonts no)
 )
