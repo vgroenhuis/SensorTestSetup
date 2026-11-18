@@ -4,6 +4,7 @@
 #include "board.h"
 #include "display.h"
 #include "sensors.h"
+#include "i2cbus.h"
 #include "web.h"
 #include "closer_access.h"
 #include "closer_demo.h"
@@ -37,6 +38,13 @@ static void stats_task(void *arg) {
             closer_demo_set_stat("mh_v", s.mcp3008_v[MCP3008_CH_MH]);
         }
         closer_demo_set_stat("sample_hz", s.rate_hz);
+        i2cbus_t b;
+        i2cbus_get(&b);
+        closer_demo_set_stat("mcp23017_ok", b.mcp_ok);
+        closer_demo_set_stat("pca9685_ok", b.pca_ok);
+        // (closer_demo keeps 16 numbers, 4 of them its own: a sensor that's absent just doesn't update its own.)
+        if (b.pressure_ok[0]) closer_demo_set_stat("pressure0_bar", b.pressure_bar[0]);
+        if (b.pressure_ok[1]) closer_demo_set_stat("pressure1_bar", b.pressure_bar[1]);
         vTaskDelay(pdMS_TO_TICKS(5000));
     }
 }
@@ -54,9 +62,11 @@ void app_main(void) {
     static char control_page[64];       // (the QR code link; the site sends it on to the demo's page)
     snprintf(control_page, sizeof control_page, "q/%s", closer_demo_name());
     closer_access_init(control_page, NULL);
+    closer_access_set_digits(4);        // (shown on the OLED, for whoever sits at the desk)
     spi_start();
     display_start(SPI_HOST_ID, display_footer);
     sensors_start(SPI_HOST_ID);
+    i2cbus_start();
     web_start();
     xTaskCreate(stats_task, "stats", 3072, NULL, 2, NULL);
     ESP_LOGI(TAG, "SensorTest running, firmware %s", closer_demo_version());

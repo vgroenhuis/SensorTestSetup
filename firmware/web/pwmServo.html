@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>PWM Servo Control</title>
+		<link rel="stylesheet" href="stylesheet.css">
+	</head>
+	<body>
+		<div class="container">
+			<h1>PCA9685 Servo Control</h1>
+			<div class="card">
+				<div id="control"></div>
+				<div id="pwmStatus" class="status">Connecting...</div>
+			</div>
+			<div class="card">
+				<h2>Channels</h2>
+				<table class="pwm-table">
+					<thead><tr><th>Ch</th><th>Mode</th><th>Range</th><th>Output</th></tr></thead>
+					<tbody id="channelTable"></tbody>
+				</table>
+				<div class="graph-caption" id="frequencyCaption"></div>
+			</div>
+			<div class="card needs-control locked" id="channelCard">
+				<h2>Channel <span id="channelTitle">0</span></h2>
+				<div class="graph-controls">
+					<label for="servoChannel">Channel (0–15)</label>
+					<input id="servoChannel" class="time-window-input" type="number" min="0" max="15" value="0" inputmode="numeric" aria-label="Channel">
+				</div>
+				<div class="graph-controls">
+					<label for="valueSlider"><span id="sliderLabel">Position</span>: <span id="valueDisplay">0.50</span></label>
+					<input id="valueSlider" type="range" min="0" max="1" step="0.01" value="0.5" style="width:100%">
+				</div>
+				<div class="graph-actions">
+					<button id="applyValueButton" class="btn" type="button">Apply</button>
+					<button id="offButton" class="btn" type="button">Off</button>
+					<label style="display:inline-flex;align-items:center;gap:6px;margin-left:12px;">
+						<input id="autoUpdateCheckbox" type="checkbox"> Auto update
+					</label>
+				</div>
+				<div id="servoMicrosecondsPanel">
+					<div class="graph-controls">
+						<label for="servoPulseUs">Pulse width (microseconds)</label>
+						<input id="servoPulseUs" class="time-window-input" type="text" value="1500" inputmode="numeric" aria-label="Servo pulse width in microseconds">
+					</div>
+					<div class="graph-actions">
+						<button id="setServoButton" class="btn" type="button">Set pulse</button>
+						<button id="setAsMinButton" class="btn" type="button">Set as min</button>
+						<button id="setAsMaxButton" class="btn" type="button">Set as max</button>
+					</div>
+				</div>
+
+				<hr style="margin: 20px 0; border: 1px solid #ddd;">
+
+				<div class="graph-controls">
+					<label for="configMode">Mode</label>
+					<select id="configMode" class="time-window-input" aria-label="Channel mode">
+						<option value="servo">Servo</option>
+						<option value="raw">Raw PWM</option>
+					</select>
+				</div>
+				<div id="servoCalibrationPanel">
+					<div class="graph-controls">
+						<label for="configMinPulse">Min pulse (μs)</label>
+						<input id="configMinPulse" class="time-window-input" type="text" value="500" inputmode="numeric">
+					</div>
+					<div class="graph-controls">
+						<label for="configMaxPulse">Max pulse (μs)</label>
+						<input id="configMaxPulse" class="time-window-input" type="text" value="2500" inputmode="numeric">
+					</div>
+				</div>
+				<div class="graph-actions">
+					<button id="saveChannelConfigButton" class="btn" type="button">Save channel config</button>
+				</div>
+			</div>
+			<div class="card needs-control locked" id="frequencyCard">
+				<h2>PWM frequency (all channels)</h2>
+				<div class="graph-controls">
+					<label for="pwmFrequency">Frequency (Hz)</label>
+					<input id="pwmFrequency" class="time-window-input" type="text" value="50" inputmode="numeric">
+					<small style="display: block; margin-top: 5px; color: #666;">50 Hz for hobby servos (24–1500 Hz)</small>
+				</div>
+				<div class="graph-actions">
+					<button id="setPwmFrequencyButton" class="btn" type="button">Set frequency</button>
+				</div>
+			</div>
+			<div id="commandStatus" class="status"></div>
+			<a href="./" class="btn">Back to control panel</a>
+		</div>
+		<script type="module" src="pwmServo.js"></script>
+	</body>
+</html>

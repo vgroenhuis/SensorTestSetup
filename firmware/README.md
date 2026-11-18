@@ -8,7 +8,8 @@ here, the PlatformIO firmware is the one that has it.
 | --- | --- | --- |
 | yes | OLED (SSD1306, 128x64): Wi-Fi state, address, access code, updates | SPI |
 | yes | MCP3008: potentiometer (ch 7), MH sensor (ch 6), all 8 channels | SPI |
-| | MCP23017, PCA9685 servos, TCA9548 + 2x WF100DPZ pressure, VL53L7CX ToF | I2C |
+| yes | MCP23017 (16 GPIO), PCA9685 (16 servo/PWM), TCA9548 + 2x WF100DPZ pressure | I2C |
+| | VL53L7CX ToF | I2C |
 | | L298N motor + encoder, HC-SR04 ultrasonic, HX711 load cell | GPIO |
 | | Input-output matrix | |
 
@@ -23,6 +24,9 @@ Pins: `main/board.h`.
   absent (`"ok":false`) and the rest carries on.
 * One WebSocket, `/ws`, for every page: a page sends `{"sub":["pot"]}` and gets `{"t":"pot",...}` messages at that
   topic's rate (see `main/web.h`). The CloSer server's proxy allows 3 sockets per device, so one is all a page uses.
+* Watching is open to everyone; changing something (MCP23017 pins, servos and PWM, zero calibration) needs control:
+  one person at a time, with the 4-digit code the OLED shows (`closer_access` in `closer_demo`; the pages share
+  `web/device.js` for it). Settings are kept in NVS, and a part that is re-plugged or glitches gets them again.
 * Web pages are in `web/`, gzipped into the firmware at build time (`tools/pack_web.py`): an OTA update carries them
   too. All links are relative, so the pages work on the board and through `/labdemos/device/<id>/` on the server.
 

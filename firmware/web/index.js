@@ -1,12 +1,20 @@
 const statusElement = document.getElementById("status");
+const partsElement = document.getElementById("parts");
+
+const PART_NAMES = {
+	mcp3008: "MCP3008", mcp23017: "MCP23017", pca9685: "PCA9685", tca9548: "TCA9548",
+	pressure0: "pressure sensor 0", pressure1: "pressure sensor 1",
+};
 
 function show(s) {
 	const uptimeMin = Math.floor(s.uptime_s / 60);
 	statusElement.textContent =
 		`${s.host} · firmware ${s.fw} · up ${uptimeMin} min · ${s.ssid} ${s.rssi} dBm · ` +
-		`${(s.heap / 1024).toFixed(0)} kB free · sensors ${s.sample_hz.toFixed(0)} Hz · ` +
-		`MCP3008 ${s.mcp3008 ? "ok" : "not found"}`;
-	statusElement.classList.toggle("error", !s.mcp3008);
+		`${(s.heap / 1024).toFixed(0)} kB free · ${s.clients} viewer${s.clients === 1 ? "" : "s"}`;
+	const missing = Object.keys(PART_NAMES).filter((key) => s.parts[key] === false);
+	partsElement.textContent = missing.length ? "Not answering: " + missing.map((key) => PART_NAMES[key]).join(", ")
+		: "All parts answer.";
+	partsElement.classList.toggle("error", missing.length > 0);
 }
 
 function connect() {

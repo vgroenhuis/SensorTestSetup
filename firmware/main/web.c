@@ -1,6 +1,7 @@
 #include "web.h"
 #include "board.h"
 #include "sensors.h"
+#include "i2cbus.h"
 #include "closer_access.h"
 #include "closer_demo.h"
 #include "closer_udp.h"
@@ -21,9 +22,11 @@
 
 static const char *TAG = "web";
 
-typedef enum { TOPIC_STATUS, TOPIC_POT, TOPIC_MH, TOPIC_MCP3008, TOPIC_COUNT } topic_t;
-static const char *const TOPIC_NAMES[TOPIC_COUNT] = {"status", "pot", "mh", "mcp3008"};
-static const int TOPIC_PERIOD_MS[TOPIC_COUNT] = {500, 50, 50, 50};
+typedef enum {
+    TOPIC_STATUS, TOPIC_POT, TOPIC_MH, TOPIC_MCP3008, TOPIC_MCP23017, TOPIC_PRESSURE, TOPIC_PWM, TOPIC_COUNT
+} topic_t;
+static const char *const TOPIC_NAMES[TOPIC_COUNT] = {"status", "pot", "mh", "mcp3008", "mcp23017", "pressure", "pwm"};
+static const int TOPIC_PERIOD_MS[TOPIC_COUNT] = {500, 50, 50, 50, 50, 50, 250};
 #define TICK_MS 50
 
 #define MAX_CLIENTS 6
@@ -94,23 +97,56 @@ static bool send_text(int fd, const char *s, size_t n) {
 
 // ------------------------------------------------------------------ topic messages
 
-static int status_json(char *out, size_t len, int fd, const sensors_t *s, int n_clients) {
+#define TF(b) ((b) ? "true" : "false")
+
+static int status_json(char *out, size_t len, int fd, const sensors_t *s, const i2cbus_t *b, int n_clients) {
     closer_demo_status_t st;
     closer_demo_get_status(&st);
+    char code[12], link[8];
+    int code_s = closer_access_code(code, sizeof code, link, sizeof link);
     return snprintf(out, len,
                     "{\"t\":\"status\",\"fw\":\"%s\",\"host\":\"%s\",\"uptime_s\":%lld,\"heap\":%u,\"ip\":\"%s\","
-                    "\"rssi\":%d,\"ssid\":\"%s\",\"clients\":%d,\"sample_hz\":%.1f,\"mcp3008\":%s,\"access\":\"%s\"}",
+                    "\"rssi\":%d,\"ssid\":\"%s\",\"clients\":%d,\"sample_hz\":%.1f,\"parts\":{\"mcp3008\":%s,"
+                    "\"mcp23017\":%s,\"pca9685\":%s,\"tca9548\":%s,\"pressure0\":%s,\"pressure1\":%s},"
+                    "\"access\":\"%s\",\"code\":%d}",
                     closer_demo_version(), closer_demo_name(), esp_timer_get_time() / 1000000,
                     (unsigned)heap_caps_get_free_size(MALLOC_CAP_DEFAULT), st.ip, st.rssi, st.ssid, n_clients,
-                    s->rate_hz, s->mcp3008_ok ? "true" : "false", fd >= 0 ? closer_access_state(fd) : "none");
+                    s->rate_hz, TF(s->mcp3008_ok), TF(b->mcp_ok), TF(b->pca_ok), TF(b->tca_ok), TF(b->pressure_ok[0]),
+                    TF(b->pressure_ok[1]), fd >= 0 ? closer_access_state(fd) : "none", code_s);
+}
+
+static int pwm_json(char *out, size_t len, const i2cbus_t *b) {
+    int n = snprintf(out, len, "{\"t\":\"pwm\",\"ok\":%s,\"hz\":%.2f,\"ch\":[", TF(b->pca_ok), b->pwm_hz);
+    for (int ch = 0; ch < PWM_CHANNELS && n < (int)len; ch++) {
+        const pwm_channel_cfg_t *c = &b->pwm[ch];
+        n += snprintf(out + n, len - n, "%s{\"mode\":\"%s\",\"min\":%u,\"max\":%u,\"us\":%d,\"duty\":%.4f}",
+                      ch ? "," : "", c->mode == PWM_SERVO ? "servo" : "raw", c->min_us, c->max_us, b->pwm_us[ch],
+                      b->pwm_duty[ch]);
+    }
+    if (n < (int)len) n += snprintf(out + n, len - n, "]}");
+    return n;
 }
 
 // Caller holds the lock.
-static int topic_json(topic_t t, char *out, size_t len, int fd, const sensors_t *s) {
-    const char *ok = s->mcp3008_ok ? "true" : "false";
+static int topic_json(topic_t t, char *out, size_t len, int fd, const sensors_t *s, const i2cbus_t *b) {
+    const char *ok = TF(s->mcp3008_ok);
     switch (t) {
     case TOPIC_STATUS:
-        return status_json(out, len, fd, s, count_clients());
+        return status_json(out, len, fd, s, b, count_clients());
+    case TOPIC_MCP23017: {
+        const mcp23017_cfg_t *c = &b->mcp;
+        return snprintf(out, len,
+                        "{\"t\":\"mcp23017\",\"ok\":%s,\"a\":%u,\"b\":%u,\"cfg\":{\"modeA\":%u,\"pullupA\":%u,"
+                        "\"outputA\":%u,\"modeB\":%u,\"pullupB\":%u,\"outputB\":%u}}",
+                        TF(b->mcp_ok), b->gpio_a, b->gpio_b, c->mode_a, c->pullup_a, c->out_a, c->mode_b,
+                        c->pullup_b, c->out_b);
+    }
+    case TOPIC_PRESSURE:
+        return snprintf(out, len, "{\"t\":\"pressure\",\"ok\":[%s,%s],\"bar\":[%.4f,%.4f],\"hz\":%.1f}",
+                        TF(b->pressure_ok[0]), TF(b->pressure_ok[1]), b->pressure_bar[0], b->pressure_bar[1],
+                        b->pressure_hz);
+    case TOPIC_PWM:
+        return pwm_json(out, len, b);
     case TOPIC_POT:
         return snprintf(out, len, "{\"t\":\"pot\",\"ok\":%s,\"voltage\":%.3f}", ok, s->mcp3008_v[MCP3008_CH_POT]);
     case TOPIC_MH:
@@ -127,12 +163,14 @@ static int topic_json(topic_t t, char *out, size_t len, int fd, const sensors_t 
 }
 
 static void stream_task(void *arg) {
-    static char buf[512];
+    static char buf[1600];
+    static i2cbus_t b;
     TickType_t wake = xTaskGetTickCount();
     for (;;) {
         vTaskDelayUntil(&wake, pdMS_TO_TICKS(TICK_MS));
         sensors_t s;
         sensors_get(&s);
+        i2cbus_get(&b);
         int64_t now = now_ms();
         xSemaphoreTake(lock, portMAX_DELAY);
         for (int i = 0; i < MAX_CLIENTS; i++) {
@@ -140,7 +178,7 @@ static void stream_task(void *arg) {
             for (int t = 0; t < TOPIC_COUNT && c->fd >= 0; t++) {
                 if (!(c->topics & 1u << t) || now < c->due_ms[t]) continue;
                 c->due_ms[t] = now + TOPIC_PERIOD_MS[t] - TICK_MS / 2;
-                int n = topic_json(t, buf, sizeof buf, c->fd, &s);
+                int n = topic_json(t, buf, sizeof buf, c->fd, &s, &b);
                 if (n > 0 && n < (int)sizeof buf && !send_text(c->fd, buf, n)) c->fd = -1;      // (gone)
             }
         }
@@ -150,9 +188,58 @@ static void stream_task(void *arg) {
 
 // ------------------------------------------------------------------ handlers
 
+static int num(const cJSON *o, const char *key, int dflt) {
+    const cJSON *v = cJSON_GetObjectItem(o, key);
+    return cJSON_IsNumber(v) ? v->valueint : dflt;
+}
+
+// A command that changes something: only from the client in control. The reply says what happened.
+static int command(int fd, cJSON *j, char *reply, size_t len) {
+    const char *what = NULL;
+    bool ok = false;
+    cJSON *v;
+    if ((v = cJSON_GetObjectItem(j, "mcp23017")) && cJSON_IsObject(v)) {
+        what = "mcp23017";
+        i2cbus_t b;
+        i2cbus_get(&b);
+        mcp23017_cfg_t c = {num(v, "modeA", b.mcp.mode_a), num(v, "pullupA", b.mcp.pullup_a),
+                            num(v, "modeB", b.mcp.mode_b), num(v, "pullupB", b.mcp.pullup_b),
+                            num(v, "outputA", b.mcp.out_a), num(v, "outputB", b.mcp.out_b)};
+        if (closer_access_has(fd)) ok = i2cbus_mcp_set(&c);
+    } else if ((v = cJSON_GetObjectItem(j, "pwm")) && cJSON_IsObject(v)) {
+        what = "pwm";
+        int ch = num(v, "ch", -1);
+        cJSON *x;
+        if (!closer_access_has(fd)) {
+        } else if (cJSON_IsNumber(x = cJSON_GetObjectItem(v, "us"))) {
+            ok = i2cbus_pwm_set_us(ch, x->valueint);
+        } else if (cJSON_IsNumber(x = cJSON_GetObjectItem(v, "value"))) {
+            ok = i2cbus_pwm_set_value(ch, (float)x->valuedouble);
+        } else if (cJSON_GetObjectItem(v, "off")) {
+            ok = i2cbus_pwm_off(ch);
+        }
+    } else if ((v = cJSON_GetObjectItem(j, "pwm_cfg")) && cJSON_IsObject(v)) {
+        what = "pwm_cfg";
+        cJSON *m = cJSON_GetObjectItem(v, "mode");
+        pwm_channel_cfg_t c = {.mode = cJSON_IsString(m) && strcmp(m->valuestring, "raw") == 0 ? PWM_RAW : PWM_SERVO,
+                               .min_us = num(v, "min", 500), .max_us = num(v, "max", 2500)};
+        if (closer_access_has(fd)) ok = i2cbus_pwm_set_cfg(num(v, "ch", -1), &c);
+    } else if (cJSON_IsNumber(v = cJSON_GetObjectItem(j, "pwm_hz"))) {
+        what = "pwm_hz";
+        if (closer_access_has(fd)) ok = i2cbus_pwm_set_hz((float)v->valuedouble);
+    } else if (cJSON_IsNumber(v = cJSON_GetObjectItem(j, "pressure_zero"))) {
+        what = "pressure_zero";
+        if (closer_access_has(fd)) ok = i2cbus_pressure_zero(v->valueint);
+    }
+    if (!what) return 0;
+    if (!closer_access_has(fd)) return snprintf(reply, len, "{\"need\":1,\"cmd\":\"%s\"}", what);
+    closer_access_used(fd);
+    return snprintf(reply, len, "{\"cmd\":\"%s\",\"ok\":%s}", what, TF(ok));
+}
+
 static esp_err_t ws_handler(httpd_req_t *req) {
     if (req->method == HTTP_GET) return ESP_OK;          // the handshake
-    char buf[200];
+    char buf[300];
     httpd_ws_frame_t frame = {.type = HTTPD_WS_TYPE_TEXT, .payload = (uint8_t *)buf};
     esp_err_t err = httpd_ws_recv_frame(req, &frame, sizeof buf - 1);
     if (err != ESP_OK) return err;
@@ -184,6 +271,8 @@ static esp_err_t ws_handler(httpd_req_t *req) {
                     if (strcmp(item->valuestring, TOPIC_NAMES[t]) == 0) topics |= 1u << t;
             }
             client_subscribe(fd, topics);
+        } else if (j) {
+            n = command(fd, j, reply, sizeof reply);
         }
         cJSON_Delete(j);
     }
@@ -196,10 +285,12 @@ static esp_err_t ws_handler(httpd_req_t *req) {
 }
 
 static esp_err_t state_get(httpd_req_t *req) {
-    char buf[512];
+    char buf[640];
     sensors_t s;
     sensors_get(&s);
-    int n = status_json(buf, sizeof buf, -1, &s, web_clients());
+    i2cbus_t b;
+    i2cbus_get(&b);
+    int n = status_json(buf, sizeof buf, -1, &s, &b, web_clients());
     httpd_resp_set_type(req, "application/json");
     return httpd_resp_send(req, buf, n);
 }

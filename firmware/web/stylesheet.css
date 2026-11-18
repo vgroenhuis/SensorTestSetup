@@ -708,3 +708,67 @@ button.btn {
     flex-wrap: wrap;
     margin-top: 12px;
 }
+
+/* (.btn's display would otherwise beat the hidden attribute) */
+[hidden] {
+    display: none !important;
+}
+
+/* Control bar (device.js): asking for control with the code on the OLED */
+.control-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+.control-row .btn {
+    margin-top: 0;
+}
+
+.control-code {
+    width: 6em;
+    letter-spacing: 0.2em;
+}
+
+.control-msg {
+    margin-top: 8px;
+}
+
+/* Parts of a page that only work with control */
+.needs-control.locked {
+    opacity: 0.55;
+}
+
+.needs-control.locked input,
+.needs-control.locked select,
+.needs-control.locked button {
+    pointer-events: none;
+}
+
+button.btn:disabled {
+    background: #9aa3c9;
+    cursor: default;
+}
+
+/* PWM channel overview */
+.pwm-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.pwm-table th,
+.pwm-table td {
+    padding: 4px 6px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+.pwm-table tr.selected td {
+    background: #e3e8ff;
+}
+
+.pwm-table tr {
+    cursor: pointer;
+}

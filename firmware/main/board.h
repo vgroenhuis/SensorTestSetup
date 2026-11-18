@@ -1,4 +1,4 @@
-// Pins of the breadboard setup (ESP32-C5-DevKitC-1 N16R4), as wired in the PlatformIO firmware
+// Pins of the breadboard setup (ESP32-C5-DevKitC-1 N16R8), as wired in the PlatformIO firmware
 // (ESP32_C5_Breadboard_PlatformIO/src). Its README pinout table is older than the wiring in places.
 #pragma once
 
