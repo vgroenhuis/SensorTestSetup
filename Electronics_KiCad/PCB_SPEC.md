@@ -1,4 +1,4 @@
-# SensorTestSetup PCB: specification (draft 0.3)
+# SensorTestSetup PCB: specification (draft 0.4)
 
 Status: **draft for review**. All decisions D1–D16 are settled (section 12); what is left are the *(verify)* items.
 Values marked *(verify)* have to be checked against the datasheet before they go into the schematic.
@@ -20,7 +20,7 @@ explain and try out sensors and actuators, and for the CloSer lab demos page.
 2. **Every part can be explained.** Parts are visible and labelled on the silkscreen (name, bus, address or pins), with
    test points for the scope and logic analyser.
 3. **Easy to extend.** Spare connectors on every bus.
-4. **Runs anywhere:** from USB-C PD, or for quick demos from its own 18650 cell (everything, the motors and servos at
+4. **Runs anywhere:** from USB-C PD, or for quick demos from its own two 18650 cells (everything, the motors and servos at
    reduced current).
 
 ## 2. Lessons from the breadboard and the ESP-IDF firmware
@@ -46,9 +46,9 @@ flowchart LR
   SW --> VBUS[V_BUS 9–12 V<br>INA260]
   PROG[USB-C PROG 5 V] --> HUB[USB hub]
   HUB --> A & B
-  VBUS --> MUX[input select] --> CHG[BQ25895 charger<br>+ 18650]
+  VBUS --> C5V[5 V buck] --> MUX[input select] --> CHG[2S charger + balancing<br>2× 18650 in series]
   PROG -. 5 V .-> MUX
-  CHG --> VSYS[VSYS] --> R33[3.3 V buck-boost] & R5[5 V boost] & B12[12 V boost<br>battery only, ~1.5 A]
+  CHG --> VSYS[VSYS 6–8.4 V] --> R33[3.3 V buck] & R5[5 V buck] & B12[12 V boost<br>battery only, ~1.5 A]
   B12 -. ideal-diode OR .-> VBUS
   VBUS --> SERVO[V_SERVO buck 5/6 V] & MOT[TB6612FNG] & DXL[V_DXL switch]
   subgraph A[ESP32-C5 'main': Wi-Fi, web, display]
@@ -59,7 +59,7 @@ flowchart LR
   end
   A <-- UART link --> B
   A -- SPI --> TFT[2.4'' ST7789 TFT] & ADC8[MCP3008: pot, MH, LDR]
-  A -- I2C main --> I2CDEV[MCP23017, PCA9685, TCA9548, INA260, HUSB238,<br>BQ25895, IMU, BME280, AS5600, VEML7700, ADS1115]
+  A -- I2C main --> I2CDEV[MCP23017, PCA9685, TCA9548, INA260, HUSB238,<br>2S charger, IMU, BME280, AS5600, VEML7700, ADS1115]
   A -- GPIO --> HX[HX711] & US[HC-SR04 + level shifter]
   B -- I2C 2 --> TOF[VL53L7CX]
   B -- GPIO --> MOT & ENC[2 encoders] & DXLBUF[half-duplex buffer] --> DXL
@@ -134,24 +134,25 @@ All 19 usable pins of 'io' are used; 'main' has 11/12 left for the UART0 header.
 | --- | --- | --- | --- |
 | VBUS_PD | USB-C **POWER**, HUSB238 PD sink (I2C 0x08), default **12 V**, jumper for 9 V *(no 15/20 V options: TB6612 VM and the charger)* | 3 A | |
 | **V_BUS** | VBUS_PD after the load switch (closes on a valid contract, soft start), or the 12 V battery boost when there is no PD (ideal-diode OR); then the INA260 | 3 A from PD, ~1.5 A from the battery | TB6612 VM, V_SERVO, V_DXL, charger input (PD only) |
-| **VSYS** | BQ25895 power path (I2C 0x6A) from V_BUS or VBUS_PROG (input selector, e.g. TPS2121 *(verify)*), and the **18650** | 3 A | 3.3 V and 5 V converters |
-| **3.3 V** | buck-boost from VSYS (e.g. TPS63020 *(verify)*) | ≥ 1.5 A | both ESP32s (Wi-Fi peaks ~0.5 A each), sensors, TFT |
-| **5 V** | boost from VSYS | ≥ 1 A | HC-SR04, level shifter, Dynamixel buffer (if 5 V), exposed 5 V |
+| **VSYS** | the battery: **2× 18650 in series (2S, 6.0–8.4 V)**, charged by a 2S charger with cell balancing and I2C (e.g. BQ25887, 0x6A *(verify)*) from 5 V: VBUS_PROG, or a 5 V buck from V_BUS (input selector, e.g. TPS2121 *(verify)*); with a power path or load sharing so the board runs while charging and with flat cells *(verify)* | 3 A | 3.3 V, 5 V and 12 V converters |
+| **3.3 V** | buck from VSYS | ≥ 1.5 A | both ESP32s (Wi-Fi peaks ~0.5 A each), sensors, TFT |
+| **5 V** | buck from VSYS | ≥ 1 A | HC-SR04, level shifter, Dynamixel buffer (if 5 V), exposed 5 V |
 | **12 V boost** | from VSYS, **only without PD** (enabled by the charger's "no input" state or by firmware *(verify)*), current limit ~1.5 A | ~18 W | V_BUS on battery |
 | **V_SERVO** | buck from V_BUS, jumper 5 / 6 V | ≥ 3 A | 8 servo headers, ≥ 470 µF bulk |
 | **V_DXL** | V_BUS through a load switch with current limit, enabled by the MCP23017 (pull-down: off at reset) | ≥ 3 A | Dynamixel only (9–12 V; the XL430 takes 6.5–12 V) |
 
-* **Battery** (D11): one 18650 in a holder on the back, charged from either USB-C, for **quick demos without external
-  power**. Everything runs on it: the logic and sensors take about 1.5 W (6–7 hours from a 3000 mAh cell *(estimate)*);
-  a 12 V boost supplies V_BUS for the motors, servos and Dynamixel at up to ~1.5 A (18 W, so 5–6 A from the cell: a
-  **high-drain cell** of ≥ 10 A, e.g. Samsung 30Q or Molicel P28A *(verify)*, and a boost converter rated for it, e.g.
-  TPS61088 *(verify)*). The firmware reads the battery (BQ25895) and the current (INA260) and limits the motor PWM and
-  servo moves on battery; the charger's power path and the cell's protection must carry the boost's input current
-  *(verify the BQ25895 BATFET rating)*.
+* **Battery** (D11): **two 18650 cells in series (2S)** in holders on the back, for **quick demos without external
+  power**. Why 2S: 18 W at 12 V draws ~3 A from 2S (6–8.4 V), well within a cell's ~8 A, against 5–7 A from one cell;
+  3S (up to 12.6 V) would exceed the XL430's 12 V and needs a more complex charger. Everything runs on it: the logic and
+  sensors take about 1.5 W, so roughly a day from 2× 3000 mAh (~44 Wh) *(estimate)*; a 12 V boost (e.g. TPS61088
+  *(verify)*) supplies V_BUS for the motors, servos and Dynamixel at up to ~1.5 A. The firmware reads the battery
+  (charger) and the current (INA260) and limits the motor PWM and servo moves on battery.
+* Battery protection: a 2S protection circuit (over-charge, over-discharge, over-current, short circuit) if the cells
+  are unprotected *(verify which cells)*; cell balancing in the charger; an NTC on the cells.
 * **Power switch** (like LynXP §2.2): one multi-pole switch breaks **CC1 and CC2** (so a powerbank wakes up on every
   switch-on and renegotiates) and the **enable of the 3.3 V and 5 V converters** (so the battery doesn't drain). Charging
   continues while switched off. No separate emergency stop: the motors run free, and the firmware stops them (STBY, PWM).
-* **Monitoring**: the INA260 measures everything on V_BUS; the BQ25895's ADC reads battery voltage, charge current and
+* **Monitoring**: the INA260 measures everything on V_BUS; the charger's ADC reads battery voltage, charge current and
   input voltage; the HUSB238 reports the PD contract. All three on the main I2C bus, with a page in the firmware.
 * Protection: TVS on VBUS_PD (≥ 15 V standoff) and VBUS_PROG; USB-C sink capacitance ≤ 10 µF before the load switch
   *(verify)*; bulk capacitors behind it; the battery with protection (in the charger, or a DW01-type protector *(verify)*).
@@ -173,7 +174,7 @@ All 19 usable pins of 'io' are used; 'main' has 11/12 left for the UART0 header.
 | ADS1115 16-bit ADC | I2C main | 0x48 | inputs on a header (compare with the MCP3008's 10 bits) |
 | 2× WF100DPZ pressure | TCA9548 ch 0, 1 | 0x6D | hose barbs on the board edge |
 | VL53L7CX ToF | I2C 2 ('io') | 0x29 | **on the board, facing up**: nothing taller within its 60° cone; AVDD and IOVDD 3.3 V *(verify)* |
-| IMU (LSM6DSO or ICM-42688 *(verify)*) | I2C main | 0x6B (0x6A is the BQ25895) | |
+| IMU (LSM6DSO or ICM-42688 *(verify)*) | I2C main | 0x6B (0x6A is the charger) | |
 | BME280 / BME688 | I2C main | 0x76 | away from the regulators (self-heating) |
 | VEML7700 light | I2C main | 0x10 | |
 | AS5600 magnetic angle + knob with magnet | I2C main | 0x36 | |
@@ -195,11 +196,11 @@ All 19 usable pins of 'io' are used; 'main' has 11/12 left for the UART0 header.
 | Dynamixel XL430 port | UART ('io') | | as LynXP §11.3: 2× JST EH 3-pin (GND, V_DXL, DATA), tri-state buffer pair (74LVC2G241 or 2× 74LVC1G125) for half duplex, pull-up on DATA, logic level per the XL430 datasheet *(verify)* |
 | RGB status LED | GPIO27 ('main') | | |
 | HUSB238 | I2C main | 0x08 | |
-| BQ25895 | I2C main | 0x6A | |
+| 2S charger (e.g. BQ25887) | I2C main | 0x6A *(verify)* | |
 
 ### I2C addresses (main bus)
 
-0x08 HUSB238 · 0x10 VEML7700 · 0x20 MCP23017 · 0x36 AS5600 · 0x40 INA260 · 0x41 PCA9685 · 0x48 ADS1115 · 0x6A BQ25895 ·
+0x08 HUSB238 · 0x10 VEML7700 · 0x20 MCP23017 · 0x36 AS5600 · 0x40 INA260 · 0x41 PCA9685 · 0x48 ADS1115 · 0x6A charger ·
 0x6B IMU · 0x70 (PCA9685 All-Call: kept free) · 0x71 TCA9548 · 0x76 BME280. Behind the TCA9548: 0x6D ×2 + spares.
 Second bus ('io'): 0x29 VL53L7CX + one Qwiic connector.
 
@@ -216,7 +217,7 @@ bus has room now that the VL53L7CX has its own; the register map is the same, so
 | --- | --- | --- |
 | USB-C POWER | PD sink (CC, VBUS) | 1 |
 | USB-C PROG | USB 2.0 data + 5 V | 1 |
-| 18650 holder | through-hole, on the back | 1 |
+| 18650 holder | through-hole, on the back | 2 |
 | Motor + encoder | JST-PH 6-pin (M+, M−, VCC, GND, A, B) + 2-pin screw terminal, in parallel | 2 (A, B; D16) |
 | Servos | 3-pin 2.54 mm (GND, V_SERVO, signal), ~220 Ω series resistors | 8 |
 | Dynamixel | JST EH 3-pin (B3B-EH-A *(verify)*), in parallel | 2 |
@@ -255,7 +256,7 @@ bus has room now that the VL53L7CX has its own; the register map is the same, so
   the other as a part: to decide in firmware).
 * TFT: ST7789 through `esp_lcd` (u8g2 is monochrome), with a simple drawing layer or LVGL.
 * Address changes: PCA9685 0x41, TCA9548 0x71 (constants in `i2cbus.c`).
-* New drivers and pages: IMU, BME280, VEML7700, AS5600, ADS1115, INA260, HUSB238, BQ25895 (battery and PD page), LDR,
+* New drivers and pages: IMU, BME280, VEML7700, AS5600, ADS1115, INA260, HUSB238, the charger (battery and PD page), LDR,
   IR reflective sensor, Dynamixel (Protocol 2.0), a second motor; all of them matrix inputs or outputs.
 * On battery: limit the motor PWM and servo moves to the boost's current (INA260), and show the battery on the display.
 
@@ -264,7 +265,7 @@ bus has room now that the VL53L7CX has its own; the register map is the same, so
 | # | Decision |
 | --- | --- |
 | D1 | ESP32-C5 modules on the board (now two: section 4). |
-| D2 | Motors and servos run from USB-C PD (12 V), like LynXP from a powerbank; plus an 18650 for the rest. |
+| D2 | Motors and servos run from USB-C PD (12 V), like LynXP from a powerbank; plus two 18650 cells (draft 0.4: 2S) for quick demos. |
 | D3 | A 2.4" 240×320 ST7789 TFT module (in stock). |
 | D4 | VL53L7CX on the board, facing up. |
 | D5 | ~100 × 150 mm, may grow. |
@@ -273,7 +274,7 @@ bus has room now that the VL53L7CX has its own; the register map is the same, so
 | D8 | TB6612FNG. |
 | D9 | Designed by Claude (Fable 5.2), ordered and assembled at JLCPCB. |
 | D10 | UART link between the two ESP32s. |
-| D11 | The 18650 powers everything for quick demos: a 12 V boost (~1.5 A) feeds the motors and servos without PD. |
+| D11 | Two 18650 cells in series (2S) power everything for quick demos: a 12 V boost (~1.5 A) feeds the motors and servos without PD. |
 | D12 | No extra PWM chip for the motor driver: PWM from 'io' (LEDC). |
 | D13 | An on-board IR reflective sensor, plus a 4-pin socket for a standard MH sensor module. |
 | D14 | WROOM-1 modules with PCB antennas at opposite edges. |
