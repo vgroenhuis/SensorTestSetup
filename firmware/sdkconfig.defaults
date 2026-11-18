@@ -15,10 +15,11 @@ CONFIG_HTTPD_WS_SUPPORT=y
 # No Bluetooth: Wi-Fi has the radio to itself (closer_ble then does nothing).
 CONFIG_BT_ENABLED=n
 CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y
-# closer_udp: two UDP sockets next to the web server, heartbeats and updates
-CONFIG_LWIP_MAX_SOCKETS=16
+# The web server (up to 16 connections: pages, WebSockets, the lab demos proxy), closer_udp's two UDP sockets,
+# heartbeats and updates, DNS, SNTP
+CONFIG_LWIP_MAX_SOCKETS=24
 
-# 4 MB PSRAM on the N16R4 module: big allocations (TLS buffers) go there, internal RAM stays free for Wi-Fi.
+# 8 MB PSRAM on the N16R8 module: big allocations (TLS buffers) go there, internal RAM stays free for Wi-Fi.
 CONFIG_SPIRAM=y
 CONFIG_SPIRAM_IGNORE_NOTFOUND=y
 CONFIG_SPIRAM_USE_MALLOC=y

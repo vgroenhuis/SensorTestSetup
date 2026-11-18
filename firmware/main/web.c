@@ -32,7 +32,7 @@ static const char *const TOPIC_NAMES[TOPIC_COUNT] = {"status", "pot", "mh", "mcp
 static const int TOPIC_PERIOD_MS[TOPIC_COUNT] = {500, 50, 50, 50, 50, 50, 250, 100, 50, 50, 50};
 #define TICK_MS 50
 
-#define MAX_CLIENTS 6
+#define MAX_CLIENTS 12
 typedef struct {
     int fd;                     // -1: free
     uint32_t topics;            // bit per topic_t
@@ -344,13 +344,23 @@ static esp_err_t ws_handler(httpd_req_t *req) {
     return ESP_OK;
 }
 
+// A file or a single request: the connection closes after it. Left open (keep-alive), the connections of every page
+// load would fill the server's slots, and when they're full it closes the least recently used one: often a page's
+// WebSocket ("Disconnected, retrying..."), especially through the lab demos proxy.
+static esp_err_t send_and_close(httpd_req_t *req, const char *body, size_t len) {
+    httpd_resp_set_hdr(req, "Connection", "close");
+    esp_err_t e = httpd_resp_send(req, body, len);
+    httpd_sess_trigger_close(req->handle, httpd_req_to_sockfd(req));
+    return e;
+}
+
 static esp_err_t state_get(httpd_req_t *req) {
     char buf[700];
     static snapshot_t x;            // (only the server task gets here)
     snapshot(&x);
     int n = status_json(buf, sizeof buf, -1, &x, web_clients());
     httpd_resp_set_type(req, "application/json");
-    return httpd_resp_send(req, buf, n);
+    return send_and_close(req, buf, n);
 }
 
 // Every other GET: a file from web/ (gzipped in the firmware); "/" is index.html.
@@ -366,9 +376,12 @@ static esp_err_t file_get(httpd_req_t *req) {
         httpd_resp_set_type(req, WEB_FILES[i].type);
         httpd_resp_set_hdr(req, "Content-Encoding", "gzip");
         httpd_resp_set_hdr(req, "Cache-Control", "no-cache");
-        return httpd_resp_send(req, (const char *)WEB_FILES[i].start, WEB_FILES[i].end - WEB_FILES[i].start);
+        return send_and_close(req, (const char *)WEB_FILES[i].start, WEB_FILES[i].end - WEB_FILES[i].start);
     }
-    return httpd_resp_send_404(req);
+    httpd_resp_set_hdr(req, "Connection", "close");
+    esp_err_t e = httpd_resp_send_404(req);
+    httpd_sess_trigger_close(req->handle, httpd_req_to_sockfd(req));
+    return e;
 }
 
 static void on_close(httpd_handle_t hd, int fd) {
@@ -384,7 +397,7 @@ void web_start(void) {
     httpd_config_t c = HTTPD_DEFAULT_CONFIG();
     c.lru_purge_enable = true;
     c.stack_size = 6144;
-    c.max_open_sockets = 8;
+    c.max_open_sockets = 16;        // (CONFIG_LWIP_MAX_SOCKETS 24, less the server's own 3 and the rest's 5)
     c.max_uri_handlers = 16;        // (9 in use: 3 here, 3 for the Wi-Fi settings page, 3 for the UDP test)
     c.send_wait_timeout = 2;        // a stalled viewer must not hold the others up for long
     c.close_fn = on_close;
