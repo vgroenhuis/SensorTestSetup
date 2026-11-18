@@ -49,6 +49,7 @@ void i2cbus_get(i2cbus_t *out);
 
 // Setters: false (and nothing changes) when the part is absent or a value is out of range.
 bool i2cbus_mcp_set(const mcp23017_cfg_t *cfg);
+bool i2cbus_mcp_output(int bank, int bit, bool level);  // one output pin, not saved (for the matrix)
 bool i2cbus_pwm_set_us(int ch, int us);             // 100..5000 us
 bool i2cbus_pwm_set_value(int ch, float v);         // 0..1: servo between min and max, raw: duty cycle
 bool i2cbus_pwm_off(int ch);

@@ -14,9 +14,10 @@
 //   {"motor":{"mode":"direct"|"api"|"pot"}} | {"motor":{"forward":"ccw"|"cw"}} | {"motor":{"speed":-1..1}} |
 //   {"motor":{"in1":bool,"in2":bool}}       {"encoder_zero":1}    {"loadcell_tare":1}
 //   {"tof":{"side":4|8,"filter":bool,"max_mm":20..4000}}   (any subset)
+//   {"matrix":{"set":{route}}} | {"matrix":{"delete":id}} | {"matrix":{"clear":1}}    (see matrix.h)
 //
 // Topics: status (2 Hz: also which parts answer, who has control, seconds left of a shown code), pot, mh, mcp3008,
-// mcp23017, pressure, encoder, ultrasonic, loadcell, tof (20 Hz), motor (10 Hz), pwm (4 Hz). A reading whose part doesn't
+// mcp23017, pressure, encoder, ultrasonic, loadcell, tof (20 Hz), motor (10 Hz), pwm, matrix (4 Hz). A reading whose part doesn't
 // answer has "ok":false.
 #pragma once
 

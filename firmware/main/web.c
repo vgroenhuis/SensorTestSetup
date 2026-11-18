@@ -4,6 +4,7 @@
 #include "i2cbus.h"
 #include "gpioparts.h"
 #include "tof.h"
+#include "matrix.h"
 #include "closer_access.h"
 #include "closer_demo.h"
 #include "closer_udp.h"
@@ -26,11 +27,11 @@ static const char *TAG = "web";
 
 typedef enum {
     TOPIC_STATUS, TOPIC_POT, TOPIC_MH, TOPIC_MCP3008, TOPIC_MCP23017, TOPIC_PRESSURE, TOPIC_PWM,
-    TOPIC_MOTOR, TOPIC_ENCODER, TOPIC_ULTRASONIC, TOPIC_LOADCELL, TOPIC_TOF, TOPIC_COUNT
+    TOPIC_MOTOR, TOPIC_ENCODER, TOPIC_ULTRASONIC, TOPIC_LOADCELL, TOPIC_TOF, TOPIC_MATRIX, TOPIC_COUNT
 } topic_t;
 static const char *const TOPIC_NAMES[TOPIC_COUNT] = {"status", "pot", "mh", "mcp3008", "mcp23017", "pressure", "pwm",
-                                                     "motor", "encoder", "ultrasonic", "loadcell", "tof"};
-static const int TOPIC_PERIOD_MS[TOPIC_COUNT] = {500, 50, 50, 50, 50, 50, 250, 100, 50, 50, 50, 50};
+                                                     "motor", "encoder", "ultrasonic", "loadcell", "tof", "matrix"};
+static const int TOPIC_PERIOD_MS[TOPIC_COUNT] = {500, 50, 50, 50, 50, 50, 250, 100, 50, 50, 50, 50, 250};
 #define TICK_MS 50
 
 #define MAX_CLIENTS 12
@@ -133,6 +134,76 @@ static int tof_json(char *out, size_t len, const tof_t *t) {
     return n;
 }
 
+// {"t":"matrix","in":[names],"out":[names],"routes":[{"id":0,"name":..,"enabled":..,"in":..,"in_ch":..,"in_min":..,
+// "in_max":..,"invert":..,"out":..,"out_ch":..,"threshold":..,"ok":..,"raw":..,"value":..},...]}
+static int matrix_json(char *out, size_t len) {
+    static matrix_route_t r[MATRIX_ROUTES];
+    static matrix_live_t l[MATRIX_ROUTES];
+    matrix_get(r, l);
+    int n = snprintf(out, len, "{\"t\":\"matrix\",\"routes\":[");
+    bool first = true;
+    for (int i = 0; i < MATRIX_ROUTES && n < (int)len; i++) {
+        if (!r[i].used) continue;
+        n += snprintf(out + n, len - n,
+                      "%s{\"id\":%d,\"name\":\"%s\",\"enabled\":%s,\"in\":\"%s\",\"in_ch\":%u,\"in_min\":%g,"
+                      "\"in_max\":%g,\"invert\":%s,\"out\":\"%s\",\"out_ch\":%u,\"threshold\":%g,\"ok\":%s,"
+                      "\"raw\":%.3f,\"value\":%.3f}",
+                      first ? "" : ",", i, r[i].name, TF(r[i].enabled), MATRIX_IN_NAMES[r[i].in], r[i].in_ch, r[i].in_min,
+                      r[i].in_max, TF(r[i].invert), MATRIX_OUT_NAMES[r[i].out], r[i].out_ch, r[i].threshold,
+                      TF(l[i].in_ok), l[i].in_raw, l[i].value);
+        first = false;
+    }
+    if (n < (int)len) n += snprintf(out + n, len - n, "]}");
+    return n;
+}
+
+static int num(const cJSON *o, const char *key, int dflt);
+
+static int name_index(const char *const names[], int count, const cJSON *v) {
+    for (int i = 0; i < count && cJSON_IsString(v); i++)
+        if (strcmp(v->valuestring, names[i]) == 0) return i;
+    return -1;
+}
+
+static double dnum(const cJSON *o, const char *key, double dflt) {
+    const cJSON *v = cJSON_GetObjectItem(o, key);
+    return cJSON_IsNumber(v) ? v->valuedouble : dflt;
+}
+
+// {"set":{route, "id" for an existing one}} | {"delete":id} | {"clear":1}
+static bool matrix_command(const cJSON *v) {
+    const cJSON *x;
+    if ((x = cJSON_GetObjectItem(v, "set")) && cJSON_IsObject(x)) {
+        matrix_route_t r = {0};
+        int in = name_index(MATRIX_IN_NAMES, IN_COUNT, cJSON_GetObjectItem(x, "in"));
+        int out = name_index(MATRIX_OUT_NAMES, OUT_COUNT, cJSON_GetObjectItem(x, "out"));
+        if (in < 0 || out < 0) return false;
+        r.in = in;
+        r.out = out;
+        r.in_ch = num(x, "in_ch", 0);
+        r.out_ch = num(x, "out_ch", 0);
+        r.in_min = dnum(x, "in_min", 0);
+        r.in_max = dnum(x, "in_max", 1);
+        r.threshold = dnum(x, "threshold", 0.5);
+        r.enabled = !cJSON_IsFalse(cJSON_GetObjectItem(x, "enabled"));
+        r.invert = cJSON_IsTrue(cJSON_GetObjectItem(x, "invert"));
+        const cJSON *name = cJSON_GetObjectItem(x, "name");
+        if (cJSON_IsString(name)) {
+            // (printable ASCII without quotes or backslashes: it goes into JSON as it is)
+            size_t k = 0;
+            for (const char *c = name->valuestring; *c && k < sizeof r.name - 1; c++)
+                r.name[k++] = (*c >= 32 && *c < 127 && *c != '"' && *c != 0x5C) ? *c : '_';   // (0x5C: backslash)
+        }
+        return matrix_set(num(x, "id", -1), &r) >= 0;
+    }
+    if (cJSON_IsNumber(x = cJSON_GetObjectItem(v, "delete"))) return matrix_delete(x->valueint);
+    if (cJSON_GetObjectItem(v, "clear")) {
+        matrix_clear();
+        return true;
+    }
+    return false;
+}
+
 static const char *const MOTOR_MODES[] = {"direct", "api", "pot"};
 
 static int status_json(char *out, size_t len, int fd, const snapshot_t *x, int n_clients) {
@@ -187,6 +258,8 @@ static int topic_json(topic_t t, char *out, size_t len, int fd, const snapshot_t
     case TOPIC_ULTRASONIC:
         return snprintf(out, len, "{\"t\":\"ultrasonic\",\"ok\":%s,\"distanceMm\":%.1f,\"hz\":%.1f}", TF(g->us_ok),
                         g->us_mm, g->us_hz);
+    case TOPIC_MATRIX:
+        return matrix_json(out, len);
     case TOPIC_TOF:
         return tof_json(out, len, &x->tof);
     case TOPIC_LOADCELL:
@@ -222,7 +295,7 @@ static int topic_json(topic_t t, char *out, size_t len, int fd, const snapshot_t
 }
 
 static void stream_task(void *arg) {
-    static char buf[1600];
+    static char buf[4096];         // (the largest: the matrix with 12 routes)
     static snapshot_t x;
     TickType_t wake = xTaskGetTickCount();
     for (;;) {
@@ -308,6 +381,9 @@ static int command(int fd, cJSON *j, char *reply, size_t len) {
             gpioparts_encoder_zero();
             ok = true;
         }
+    } else if ((v = cJSON_GetObjectItem(j, "matrix")) && cJSON_IsObject(v)) {
+        what = "matrix";
+        if (closer_access_has(fd)) ok = matrix_command(v);
     } else if ((v = cJSON_GetObjectItem(j, "tof")) && cJSON_IsObject(v)) {
         what = "tof";
         if (closer_access_has(fd)) {
@@ -330,7 +406,7 @@ static int command(int fd, cJSON *j, char *reply, size_t len) {
 
 static esp_err_t ws_handler(httpd_req_t *req) {
     if (req->method == HTTP_GET) return ESP_OK;          // the handshake
-    char buf[300];
+    char buf[400];
     httpd_ws_frame_t frame = {.type = HTTPD_WS_TYPE_TEXT, .payload = (uint8_t *)buf};
     esp_err_t err = httpd_ws_recv_frame(req, &frame, sizeof buf - 1);
     if (err != ESP_OK) return err;

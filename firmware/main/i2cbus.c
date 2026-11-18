@@ -105,6 +105,24 @@ static void mcp_check(void) {
     if (state.mcp_ok != was || state.mcp_ok) ESP_LOGI(TAG, "MCP23017 %s", state.mcp_ok ? "set up" : "not found");
 }
 
+// One output pin, not saved (the matrix sets them many times a second; flash would wear out). Only a pin that is an
+// output, and only when it changes.
+bool i2cbus_mcp_output(int bank, int bit, bool level) {
+    if (bank < 0 || bank > 1 || bit < 0 || bit > 7) return false;
+    xSemaphoreTake(lock, portMAX_DELAY);
+    uint8_t mode = bank ? state.mcp.mode_b : state.mcp.mode_a;
+    uint8_t *out = bank ? &state.mcp.out_b : &state.mcp.out_a;
+    bool ok = state.mcp_ok && !(mode >> bit & 1);
+    uint8_t v = level ? *out | 1 << bit : *out & ~(1 << bit);
+    if (ok && v != *out) {
+        *out = v;
+        ok = state.mcp_ok = wr1(mcp_dev, MCP_OLATA + bank, v);
+        publish();
+    }
+    xSemaphoreGive(lock);
+    return ok;
+}
+
 bool i2cbus_mcp_set(const mcp23017_cfg_t *cfg) {
     xSemaphoreTake(lock, portMAX_DELAY);
     bool ok = state.mcp_ok;

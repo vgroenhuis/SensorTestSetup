@@ -1,17 +1,18 @@
 # SensorTestSetup firmware (ESP-IDF 6.1, ESP32-C5)
 
 ESP-IDF rewrite of `../ESP32_C5_Breadboard_PlatformIO`, for the CloSer lab demos
-(https://closer.ram.eemcs.utwente.nl/labdemos/). Being ported one group of sensors at a time; until a sensor is
-here, the PlatformIO firmware is the one that has it.
+(https://closer.ram.eemcs.utwente.nl/labdemos/). It has every part of the PlatformIO firmware; the lab demos page for it
+is in `../labdemo/`.
 
-| Done | Part | Bus |
+| Part | Bus | Code |
 | --- | --- | --- |
-| yes | OLED (SSD1306, 128x64): Wi-Fi state, address, access code, updates | SPI |
-| yes | MCP3008: potentiometer (ch 7), MH sensor (ch 6), all 8 channels | SPI |
-| yes | MCP23017 (16 GPIO), PCA9685 (16 servo/PWM), TCA9548 + 2x WF100DPZ pressure | I2C |
-| yes | VL53L7CX ToF (4x4 / 8x8; ST's driver in `components/vl53l7cx`) | I2C |
-| yes | L298N motor (speed, direct, follow the pot) + encoder (PCNT), HC-SR04 ultrasonic, HX711 load cell | GPIO |
-| | Input-output matrix | |
+| OLED (SSD1306, 128x64): Wi-Fi state, address, access code, updates | SPI | `display.c` |
+| MCP3008: potentiometer (ch 7), MH sensor (ch 6), all 8 channels | SPI | `sensors.c` |
+| MCP23017 (16 GPIO), PCA9685 (16 servo/PWM), TCA9548 + 2x WF100DPZ pressure | I2C | `i2cbus.c` |
+| VL53L7CX ToF (4x4 / 8x8; ST's driver in `components/vl53l7cx`) | I2C | `tof.cpp` |
+| L298N motor (speed, direct, follow the pot) + encoder (PCNT), HC-SR04 ultrasonic, HX711 load cell | GPIO | `gpioparts.c` |
+| Input-output matrix: routes from any sensor to a servo, the motor or an MCP23017 pin | | `matrix.c` |
+| Web server: pages, `/ws` topics and commands (list in `web.h`) | | `web.c` |
 
 Pins: `main/board.h`.
 

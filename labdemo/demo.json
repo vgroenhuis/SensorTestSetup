@@ -1,0 +1,34 @@
+{
+  "title": "Sensor test setup",
+  "summary": "A desk full of sensors and actuators around one ESP32-C5: potentiometer, distance, pressure, time-of-flight, load cell, servos and a DC motor with encoder. Watch each part live in the browser, and connect sensors to actuators with the input-output matrix.",
+  "kind": "esp32",
+  "access": "open",
+  "note": "",
+  "responsible": "Vincent Groenhuis",
+  "students": [],
+  "year": 2026,
+  "hardware": [
+    "ESP32-C5-DevKitC-1 (N16R8)",
+    "SSD1306 OLED 128x64 (SPI)",
+    "MCP3008 8-channel ADC: potentiometer, MH sensor module",
+    "MCP23017 I/O expander",
+    "PCA9685 16-channel servo driver",
+    "TCA9548 I2C multiplexer + 2x WF100DPZ pressure sensor",
+    "VL53L7CX time-of-flight sensor (8x8 zones)",
+    "HC-SR04 ultrasonic distance sensor",
+    "HX711 load cell amplifier + load cell",
+    "L298N motor driver + DC gear motor with encoder"
+  ],
+  "image": "sensortest.jpg",
+  "port": 80,
+  "path": "/",
+  "repo": "https://github.com/vgroenhuis/SensorTestSetup",
+  "interval": 60,
+  "live": "/ws",
+  "proxy": true,
+  "wifi_panel": true,
+  "control": "code",
+  "admin_paths": [
+    "api/wifi/config"
+  ]
+}

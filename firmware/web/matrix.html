@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Input-Output Matrix</title>
+		<link rel="stylesheet" href="stylesheet.css">
+	</head>
+	<body>
+		<div class="container">
+			<h1>Input-Output Matrix</h1>
+			<div class="card">
+				<p>Routes connect a sensor to an actuator: the input is scaled from its range to 0..1 and drives the output.
+				They run on the board 50 times a second, also when nobody has this page open.</p>
+				<div id="control"></div>
+			</div>
+
+			<div class="card">
+				<h2>Routes</h2>
+				<table class="matrix-table">
+					<thead><tr><th>Name</th><th>From</th><th>To</th><th>Now</th><th>On</th><th></th></tr></thead>
+					<tbody id="routeTable"></tbody>
+				</table>
+				<p id="emptyState" class="graph-caption">No routes yet.</p>
+				<div id="matrixStatus" class="status">Connecting...</div>
+			</div>
+
+			<div class="card needs-control locked" id="editCard">
+				<h2 id="formTitle">New route</h2>
+				<div class="graph-actions">
+					Examples:
+					<button class="btn btn-small" type="button" data-preset="potServo">Pot → servo 0</button>
+					<button class="btn btn-small" type="button" data-preset="distanceMotor">Distance → motor</button>
+					<button class="btn btn-small" type="button" data-preset="pressureLed">Pressure → MCP23017 A0</button>
+				</div>
+				<div class="form-section">
+					<div class="form-row">
+						<label for="routeName">Name</label>
+						<input id="routeName" class="form-input" maxlength="23" placeholder="e.g. Pot to servo">
+					</div>
+					<div class="form-row">
+						<label for="inputType">Input</label>
+						<select id="inputType" class="form-input"></select>
+						<select id="inputChannel" class="form-input"></select>
+					</div>
+					<div class="form-row">
+						<label for="inputMin">Input range (<span id="inputUnit"></span>)</label>
+						<input id="inputMin" class="form-input" type="number" step="any"> to
+						<input id="inputMax" class="form-input" type="number" step="any">
+					</div>
+					<div class="form-row">
+						<label><input id="invertInput" type="checkbox"> Invert (1 − value)</label>
+					</div>
+					<div class="form-row">
+						<label for="outputType">Output</label>
+						<select id="outputType" class="form-input"></select>
+						<select id="outputChannel" class="form-input"></select>
+					</div>
+					<div class="form-row" id="thresholdRow">
+						<label for="threshold">High at or above (0..1)</label>
+						<input id="threshold" class="form-input" type="number" min="0" max="1" step="0.01" value="0.5">
+					</div>
+					<p id="outputNote" class="graph-caption"></p>
+					<div class="form-actions">
+						<button id="saveButton" class="btn" type="button">Add route</button>
+						<button id="cancelButton" class="btn" type="button" hidden>Cancel</button>
+						<button id="clearAllButton" class="btn btn-danger" type="button">Delete all routes</button>
+					</div>
+				</div>
+			</div>
+			<a href="./" class="btn">Back to control panel</a>
+		</div>
+		<script type="module" src="matrix.js"></script>
+	</body>
+</html>
