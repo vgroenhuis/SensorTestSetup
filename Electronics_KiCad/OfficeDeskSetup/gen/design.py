@@ -14,7 +14,7 @@ FP = dict(
     C1206='Capacitor_SMD:C_1206_3216Metric', CP8='Capacitor_SMD:CP_Elec_8x10', CP10='Capacitor_SMD:CP_Elec_10x10',
     LED='LED_SMD:LED_0603_1608Metric', SMA='Diode_SMD:D_SMA', SMB='Diode_SMD:D_SMB', L7='OfficeDeskSetup:IND-SMD_L7.0-W6.6',
     L10='OfficeDeskSetup:IND-SMD_L11.5-W10.5', R2512='Resistor_SMD:R_2512_6332Metric',
-    BTN='Button_Switch_SMD:SW_SPST_TL3342', TP='TestPoint:TestPoint_Pad_D1.5mm',
+    BTN='OfficeDeskSetup:SW-SMD_4P-L5.1-W5.1-P3.70-LS6.5-TL_H1.5', TP='TestPoint:TestPoint_Pad_D1.5mm',
     JPO='Jumper:SolderJumper-2_P1.3mm_Open_RoundedPad1.0x1.5mm', JPB='Jumper:SolderJumper-2_P1.3mm_Bridged_RoundedPad1.0x1.5mm',
     JP3='Jumper:SolderJumper-3_P1.3mm_Bridged12_RoundedPad1.0x1.5mm', FUSE='Fuse:Fuse_Littelfuse-NANO2-451_453',
     QWIIC='Connector_JST:JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal', USBC='Connector_USB:USB_C_Receptacle_HRO_TYPE-C-31-M-12',
@@ -50,8 +50,23 @@ def socket(n):
     return 'Connector_PinSocket_2.54mm:PinSocket_1x%02d_P2.54mm_Vertical' % n
 
 
+# LCSC numbers of the connectors, buttons and panel pots, by footprint (stock checked 2026-11-18)
+FP_LCSC = {
+    header(3): 'C49257', header(5): 'C32713271', header(9): 'C27985193',
+    'Connector_PinHeader_2.54mm:PinHeader_2x04_P2.54mm_Vertical': 'C32713277',
+    'Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Vertical': 'C32713278',
+    socket(4): 'C2718488', socket(8): 'C27438',
+    FP['PH4']: 'C131334', FP['PH6']: 'C131342',              # JST B4B/B6B-PH-K-S
+    FP['SCREW2']: 'C8465',                                     # WJ500V-5.08-2P screw terminal
+    FP['BTN']: 'C318884',                                      # XKB TS-1187A-B-A-B, 5.1 x 5.1 mm tact switch
+    FP['POT']: 'C351173',                                      # Alps RK09K1130A70, 10 k linear
+}
+
+
 def fields(fp='', lcsc=None, **more):
     f = {'Footprint': fp}
+    if lcsc is None:
+        lcsc = FP_LCSC.get(fp)
     if lcsc:
         f['LCSC'] = lcsc
     f.update(more)

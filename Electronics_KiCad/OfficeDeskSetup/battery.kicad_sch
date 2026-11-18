@@ -5610,7 +5610,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Footprint" "Button_Switch_SMD:SW_SPST_TL3342"
+		(property "Footprint" "OfficeDeskSetup:SW-SMD_4P-L5.1-W5.1-P3.70-LS6.5-TL_H1.5"
 			(at 200.66 134.62 0)
 			(hide yes)
 			(show_name no)
@@ -5629,6 +5629,15 @@
 			)
 		)
 		(property "Description" "Push button switch, generic, two pins"
+			(at 200.66 134.62 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font (size 1.27 1.27))
+			)
+		)
+		(property "LCSC" "C318884"
 			(at 200.66 134.62 0)
 			(hide yes)
 			(show_name no)

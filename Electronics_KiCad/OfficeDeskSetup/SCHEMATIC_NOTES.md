@@ -95,6 +95,7 @@ the footprints reference them). Each was checked against the datasheet, and the 
 | Toggle switch 2MS1T1B1M1QES-5 | C496169 | SW-TH_2MS1T1B1M1QES-5 | pad 2 (middle) is the common |
 | Power switch 2MD1T1B1M1QES-5 (DPDT) | C496170 | SW-TH_2MD1T1B1M1QES-5 | poles 1-2-3 and 4-5-6, commons 2 and 5 |
 | Inductor FXL0630-6R8-M (6.8 µH, 5 A / 6 A sat) | C167221 | IND-SMD_L7.0-W6.6 | 2 pads, 6.0 mm apart; replaces KiCad's Bourns SRP7028A footprint (that part is not stocked) |
+| Tact switch TS-1187A-B-A-B (5.1 × 5.1 mm) | C318884 | SW-SMD_4P-L5.1-W5.1-P3.70-LS6.5-TL_H1.5 | pads renumbered 1, 1, 2, 2: LCSC's symbol joins pads 1–2 and 3–4 inside, the switch is between the pairs; replaces the TL3342 (out of stock) |
 | Inductor FXL1040-2R2-M (2.2 µH, 12 A / 18 A sat) | C167228 | IND-SMD_L11.5-W10.5 | 2 pads, 9.5 mm apart; 11.5 × 10 mm body, replaces the 10 × 10 SRP1038C footprint |
 
 Also found by the pad check: the INA226 shunt used KiCad's 4-terminal `R_Shunt` on a 2-pad 2512 footprint, so the
@@ -137,5 +138,15 @@ inductors, NTC, fuse, green/yellow LEDs and the SMAJ5.0A are extended parts.
   basic part; change `LED_LCSC` / the values for other colours).
 * Crystal X322512MSB4SI: 20 pF load. Check against the CH334R (the 15 pF load capacitors are DNP).
 
-Still without an LCSC number: connectors, pin headers and sockets, push buttons, the panel potentiometers (RK09K),
-test points, solder jumpers and net ties (the last three are copper only).
+Connectors, buttons and panel pots get theirs by footprint (`FP_LCSC` in `gen/design.py`):
+
+| Part | LCSC | Notes |
+| --- | --- | --- |
+| Pin headers 1×3, 1×5, 1×9, 2×4, 2×5 (2.54 mm, vertical) | C49257, C32713271, C27985193, C32713277, C32713278 | plain headers, not boxed |
+| Female headers 1×4, 1×8 | C2718488, C27438 | TFT, MH module, HC-SR04 |
+| JST PH 4-pin, 6-pin (B4B/B6B-PH-K-S) | C131334, C131342 | load cell, motors |
+| Screw terminal 2-pin 5.08 mm (WJ500V-5.08-2P) | C8465 | fits the Phoenix MKDS 1,5 footprint (same pitch); check the hole size at layout |
+| Tact switch TS-1187A-B-A-B | C318884 | basic part; 9 buttons |
+| Panel pot Alps RK09K1130A70, 10 k | C351173 | check the shaft length/style before ordering |
+
+Only test points, solder jumpers and net ties (copper only) and the DNP ISET resistor have no LCSC number.

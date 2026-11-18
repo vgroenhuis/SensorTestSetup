@@ -4479,7 +4479,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Footprint" "Button_Switch_SMD:SW_SPST_TL3342"
+		(property "Footprint" "OfficeDeskSetup:SW-SMD_4P-L5.1-W5.1-P3.70-LS6.5-TL_H1.5"
 			(at 134.62 43.18 0)
 			(hide yes)
 			(show_name no)
@@ -4498,6 +4498,15 @@
 			)
 		)
 		(property "Description" "Push button switch, generic, two pins"
+			(at 134.62 43.18 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font (size 1.27 1.27))
+			)
+		)
+		(property "LCSC" "C318884"
 			(at 134.62 43.18 0)
 			(hide yes)
 			(show_name no)
@@ -4738,7 +4747,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Footprint" "Button_Switch_SMD:SW_SPST_TL3342"
+		(property "Footprint" "OfficeDeskSetup:SW-SMD_4P-L5.1-W5.1-P3.70-LS6.5-TL_H1.5"
 			(at 134.62 58.42 0)
 			(hide yes)
 			(show_name no)
@@ -4757,6 +4766,15 @@
 			)
 		)
 		(property "Description" "Push button switch, generic, two pins"
+			(at 134.62 58.42 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font (size 1.27 1.27))
+			)
+		)
+		(property "LCSC" "C318884"
 			(at 134.62 58.42 0)
 			(hide yes)
 			(show_name no)
@@ -7803,6 +7821,15 @@
 				(font (size 1.27 1.27))
 			)
 		)
+		(property "LCSC" "C131342"
+			(at 373.38 34.29 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font (size 1.27 1.27))
+			)
+		)
 		(pin "1"
 			(uuid "d427b00f-5dbe-5bfd-9229-94b406d8e816")
 		)
@@ -8073,6 +8100,15 @@
 			)
 		)
 		(property "Description" "Generic screw terminal, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 368.3 54.61 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font (size 1.27 1.27))
+			)
+		)
+		(property "LCSC" "C8465"
 			(at 368.3 54.61 0)
 			(hide yes)
 			(show_name no)
@@ -9018,6 +9054,15 @@
 				(font (size 1.27 1.27))
 			)
 		)
+		(property "LCSC" "C131342"
+			(at 459.74 34.29 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font (size 1.27 1.27))
+			)
+		)
 		(pin "1"
 			(uuid "729d8d82-884f-576f-a7eb-194dcbbeeff3")
 		)
@@ -9288,6 +9333,15 @@
 			)
 		)
 		(property "Description" "Generic screw terminal, single row, 01x02, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 454.66 54.61 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font (size 1.27 1.27))
+			)
+		)
+		(property "LCSC" "C8465"
 			(at 454.66 54.61 0)
 			(hide yes)
 			(show_name no)

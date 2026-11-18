@@ -5259,6 +5259,15 @@
 				(font (size 1.27 1.27))
 			)
 		)
+		(property "LCSC" "C351173"
+			(at 83.82 39.37 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font (size 1.27 1.27))
+			)
+		)
 		(pin "1"
 			(uuid "cacd13dc-cf29-590c-b5d4-fcfcdb31e978")
 		)
@@ -5480,6 +5489,15 @@
 			)
 		)
 		(property "Description" "Potentiometer"
+			(at 83.82 72.39 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font (size 1.27 1.27))
+			)
+		)
+		(property "LCSC" "C351173"
 			(at 83.82 72.39 0)
 			(hide yes)
 			(show_name no)
@@ -5717,6 +5735,15 @@
 				(font (size 1.27 1.27))
 			)
 		)
+		(property "LCSC" "C351173"
+			(at 83.82 107.95 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font (size 1.27 1.27))
+			)
+		)
 		(pin "1"
 			(uuid "38dc1a22-3566-569e-a6a9-92e389c7599e")
 		)
@@ -5938,6 +5965,15 @@
 			)
 		)
 		(property "Description" "Potentiometer"
+			(at 83.82 143.51 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font (size 1.27 1.27))
+			)
+		)
+		(property "LCSC" "C351173"
 			(at 83.82 143.51 0)
 			(hide yes)
 			(show_name no)
@@ -7104,6 +7140,15 @@
 				(font (size 1.27 1.27))
 			)
 		)
+		(property "LCSC" "C49257"
+			(at 187.96 31.75 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font (size 1.27 1.27))
+			)
+		)
 		(pin "1"
 			(uuid "32cb9d83-32fb-5d3c-8cb4-a45ff8b62179")
 		)
@@ -7685,6 +7730,15 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 271.78 31.75 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font (size 1.27 1.27))
+			)
+		)
+		(property "LCSC" "C2718488"
 			(at 271.78 31.75 0)
 			(hide yes)
 			(show_name no)
@@ -12336,6 +12390,15 @@
 				(font (size 1.27 1.27))
 			)
 		)
+		(property "LCSC" "C49257"
+			(at 149.86 184.15 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font (size 1.27 1.27))
+			)
+		)
 		(pin "1"
 			(uuid "0f54791b-b6ac-5df4-a16a-eb25a98cc18f")
 		)
@@ -12558,6 +12621,15 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 149.86 201.93 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font (size 1.27 1.27))
+			)
+		)
+		(property "LCSC" "C49257"
 			(at 149.86 201.93 0)
 			(hide yes)
 			(show_name no)
@@ -12796,6 +12868,15 @@
 				(font (size 1.27 1.27))
 			)
 		)
+		(property "LCSC" "C49257"
+			(at 149.86 219.71 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font (size 1.27 1.27))
+			)
+		)
 		(pin "1"
 			(uuid "5ba09288-7385-5563-a665-06ed5a5455ec")
 		)
@@ -13018,6 +13099,15 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x03, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 149.86 237.49 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font (size 1.27 1.27))
+			)
+		)
+		(property "LCSC" "C49257"
 			(at 149.86 237.49 0)
 			(hide yes)
 			(show_name no)
@@ -18958,6 +19048,15 @@
 				(font (size 1.27 1.27))
 			)
 		)
+		(property "LCSC" "C131334"
+			(at 474.98 184.15 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font (size 1.27 1.27))
+			)
+		)
 		(pin "1"
 			(uuid "6f0a6802-b4a2-56d1-a738-c11744698163")
 		)
@@ -19173,6 +19272,15 @@
 			)
 		)
 		(property "Description" "Generic connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)"
+			(at 38.1 290.83 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font (size 1.27 1.27))
+			)
+		)
+		(property "LCSC" "C2718488"
 			(at 38.1 290.83 0)
 			(hide yes)
 			(show_name no)
