@@ -2,7 +2,7 @@
 
 Status: **draft for review**. All decisions D1–D16 are settled (section 12). Draft 0.7: the parts list with JLCPCB
 numbers and stock (section 14), corrected after a fuller search (the HUSB238, AS5600, BQ77915 and the ESP32-C5-WROOM-1U
-are in stock); **D14 is open again** (antenna, section 4). The remaining *(verify)* items are datasheet details.
+are in stock); D14 settled on the WROOM-1U with external antennas. The remaining *(verify)* items are datasheet details.
 Values marked *(verify)* have to be checked against the datasheet before they go into the schematic.
 
 Key words: **must** = hard requirement, **should** = strongly preferred, **may** = optional.
@@ -67,11 +67,8 @@ flowchart LR
 
 ## 4. Two ESP32-C5s
 
-* **Must**: two ESP32-C5 modules with 16 MB flash and 8 MB PSRAM (as now). At JLCPCB only the **WROOM-1U** (external
-  antenna, U.FL) is in stock: ESP32-C5-WROOM-1U-N16R8-V1.2, C54951857, 684 pcs; the WROOM-1 (PCB antenna) is not
-  (Mouser has it, for JLCPCB's global sourcing or consigned parts). **D14 (reopened)**: the WROOM-1U with two dual-band
-  external antennas (assembled by JLCPCB, the antennas can sit far apart and outside an enclosure; as on LynXP), or the
-  WROOM-1 through global sourcing (no cables). Recommendation: the WROOM-1U.
+* **Must**: two **ESP32-C5-WROOM-1U-N16R8** modules (D14): 16 MB flash, 8 MB PSRAM as now, with a U.FL connector for an
+  external antenna (as on LynXP). In stock at JLCPCB (C54951857, 684 pcs), unlike the WROOM-1 with PCB antenna.
 * **ESP 'main'**: Wi-Fi, web server, lab demos reports and updates, the display, the SPI parts (MCP3008, TFT), the main I2C
   bus, the HX711 and the ultrasonic sensor.
 * **ESP 'io'**: the parts that need many pins or exact timing: motor driver and encoders, the VL53L7CX on its own bus,
@@ -84,9 +81,9 @@ flowchart LR
   native USB (GPIO13/14): two serial ports and JTAG, no USB-UART chips. 5.1 kΩ Rd on CC, ESD protection (USBLC6-2 or
   similar) on D+/D−. Each module: EN reset button, BOOT button on GPIO28, EN RC delay (10 kΩ / 1 µF).
 * **Should**: a UART0 header (GND, TX, RX, EN, BOOT) on 'main' for flashing with an external adapter.
-* Antennas (D14): with the WROOM-1U, two 2.4/5 GHz antennas on U.FL cables, mounted at opposite ends of the board or
-  the desk setup; with the WROOM-1, the module antennas on **opposite board edges** with keep-out zones. Either way away
-  from the motor driver, the converters and the battery.
+* Antennas: two **dual-band 2.4/5 GHz** antennas on U.FL cables (the board uses 5 GHz now: iotroam, channel 112), mounted
+  at opposite ends of the board or the desk setup, away from the motor driver, the converters and the battery; mounting
+  points (holes or adhesive areas) on the board. Keep the modules themselves away from those parts too.
 
 ## 5. Pins
 
@@ -287,7 +284,7 @@ bus has room now that the VL53L7CX has its own; the register map is the same, so
 | D11 | Three 18650 cells in series (3S), charged by a buck-boost charger from either USB-C (5–20 V, best 15 V PD); the pack voltage is the system rail. |
 | D12 | No extra PWM chip for the motor driver: PWM from 'io' (LEDC). |
 | D13 | An on-board IR reflective sensor, plus a 4-pin socket for a standard MH sensor module. |
-| D14 | **Reopened** (draft 0.7): only the WROOM-1U (external antenna) is at JLCPCB; recommendation: WROOM-1U (section 4). |
+| D14 | ESP32-C5-WROOM-1U with two external dual-band antennas (the WROOM-1 is not in stock at JLCPCB). |
 | D15 | I2C addresses as on LynXP (PCA9685 0x41, current sensor 0x40): no preference, so aligned. |
 | D16 | A second motor port on the TB6612's channel B. |
 
@@ -306,8 +303,8 @@ Low stock (under ~100) is marked: enough for a few prototypes, order soon or res
 
 | Function | Part | JLCPCB / LCSC | Stock | Notes |
 | --- | --- | --- | --- | --- |
-| MCU module ×2 | ESP32-C5-WROOM-1U-N16R8-V1.2 (external antenna) | C54951857 | 684 | ~$5.85; the WROOM-1 (PCB antenna, C53054799) has 0: D14 |
-| Antenna ×2 (with WROOM-1U) | 2.4/5 GHz dual-band, U.FL cable | *(choose)* | | |
+| MCU module ×2 | ESP32-C5-WROOM-1U-N16R8-V1.2 (external antenna) | C54951857 | 684 | ~$5.85 |
+| Antenna ×2 | **dual-band** 2.4/5 GHz with U.FL cable, bought separately *(choose)* | — | — | JLCPCB's U.FL antennas are 2.4 GHz only; its one dual-band antenna (KH02.4G(5.8G)-01, SMA, C2932733, 41) needs a U.FL-SMA pigtail |
 | Charger (3S, buck-boost, power path) | BQ25792RQMR | C2862876 | 6555 | QFN-29 4×4, ~$2.11 |
 | PD sink | HUSB238_002DD | C7471904 | 16980 | as LynXP; also HUSB238A (C24833806, 1902); alternative CH224Q (C46061833, 20829) |
 | Current / power monitor | INA226AIDGSR + shunt (e.g. 10 mΩ 2512) | C49851 | 55711 | replaces the INA260 (~$7) |
