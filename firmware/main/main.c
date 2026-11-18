@@ -44,7 +44,8 @@ static void stats_task(void *arg) {
 static void spi_start(void) {
     spi_bus_config_t bc = {.sclk_io_num = PIN_SPI_SCLK, .mosi_io_num = PIN_SPI_MOSI, .miso_io_num = PIN_SPI_MISO,
                            .quadwp_io_num = -1, .quadhd_io_num = -1, .max_transfer_sz = 256};
-    ESP_ERROR_CHECK(spi_bus_initialize(SPI_HOST_ID, &bc, SPI_DMA_DISABLED));
+    // DMA: without it a transaction is at most 64 bytes, and an OLED page is 128.
+    ESP_ERROR_CHECK(spi_bus_initialize(SPI_HOST_ID, &bc, SPI_DMA_CH_AUTO));
     gpio_pullup_en(PIN_SPI_MISO);       // (a missing MCP3008 then reads its null bit as 1: see sensors.c)
 }
 
