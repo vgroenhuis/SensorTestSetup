@@ -43,7 +43,7 @@ explain and try out sensors and actuators, and for the CloSer lab demos page.
 
 ```mermaid
 flowchart LR
-  PD[USB-C POWER<br>HUSB238, 15 V] --> SW{{power switch<br>CC1, CC2, EN}}
+  PD[USB-C POWER<br>HUSB238, 15 V] --> SW{{power switch<br>CC1, EN}}
   SW --> CHG[buck-boost charger, power path<br>BQ25792: input 1]
   PROG[USB-C PROG 5 V] --> HUB[USB hub]
   PROG -- input 2 --> CHG
@@ -154,10 +154,10 @@ All 19 usable pins of 'io' are used; 'main' has 11/12 left for the UART0 header.
   external charge/discharge MOSFETs; thresholds by variant *(verify for -04)*), so unprotected cells fit standard holders;
   an NTC on the cells for the charger and the protector.
 * **Power switch**: drives the enable of a **load switch between the charger's system output and V_BUS**, so switched
-  off, nothing on the board draws from the pack, and the charger keeps charging from either USB-C port. A second and
-  third pole can break **CC1 and CC2** as on LynXP §2.2 (a powerbank then wakes up and renegotiates on every switch-on),
-  selected by solder jumpers, **off by default**: with them, a PD charger no longer charges the pack while the board is
-  switched off. No separate emergency stop: the motors run free, and the firmware stops them (STBY, PWM).
+  off, nothing on the board draws from the pack, and the charger keeps charging from either USB-C port. A DPDT
+  toggle: the second pole breaks **CC1 only** (CC2 is direct), so a powerbank wakes up and renegotiates on every
+  switch-on as on LynXP §2.2 when the plug lands on CC1; flip the plug to charge with the board switched off. A solder
+  jumper (open) bypasses the CC1 pole. No separate emergency stop: the motors run free, and the firmware stops them (STBY, PWM).
 * **Monitoring**: the INA226 measures everything the board uses (on V_BUS); the charger's ADC reads the input voltages
   and currents, the battery voltage and the charge current; the HUSB238 reports the PD contract. All three on the main I2C bus, with a page in the firmware.
 * Protection: TVS on VBUS_PD (≥ 22 V standoff: 20 V can be selected) and VBUS_PROG; USB-C sink capacitance ≤ 10 µF
@@ -315,7 +315,8 @@ Low stock (under ~100) is marked: enough for a few prototypes, order soon or res
 | 5 V buck | AP63205WU-7 | C2071056 | 62073 | 2 A |
 | V_SERVO buck (≥ 3 A) | TPS54331DR (or LMR33630BDDAR, C544370) | C9865 | 348919 | |
 | 3S protector + balancing | BQ7791504PWR | C2873309 | 1004 | other threshold variants -00 (495), -14 (326) |
-| Protection MOSFETs | dual N-MOSFET, ≥ 20 V, low R_DS(on) *(choose)* | | | charge and discharge path |
+| MOSFETs ×6 (charger input pairs, protection) | BSC0902NSI (30 V, 2.8 mΩ, ±20 V gate, SuperSO8) | C534382 | 389 | alternatives BSC0902NS (C153230), WSD30160DN56 (C377870) |
+| Power switch | Dailywell 2MD1T1B1M1QES-5 (DPDT toggle) | C496170 | 500 | pole 1 EN, pole 2 CC1 |
 | 18650 holder ×3 | MY-18650-01 | C2979183 | 14089 | |
 | USB hub (2 ports used) | CH334R | C4154405 | 15978 | QSOP-16 |
 | USB-C ×2 | TYPE-C-31-M-12 | C165948 | 506683 | |

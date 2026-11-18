@@ -7746,8 +7746,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "ed66ebc2-f80b-5c37-aaaf-c70fc1ddacfd")
-		(property "Reference" "JP9"
+		(uuid "d1d99008-b189-5cb8-8941-a17b2199aca5")
+		(property "Reference" "JP8"
 			(at 266.7 52.07 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7791,18 +7791,18 @@
 			)
 		)
 		(pin "1"
-			(uuid "478cdceb-7a1d-5ecd-8af0-2b5a09903434")
+			(uuid "b043750e-7efd-5d10-98d9-c5ba4b4228a9")
 		)
 		(pin "2"
-			(uuid "72dd8dc6-dd1b-51a0-b83d-369881513277")
+			(uuid "b2f2bb97-f434-5886-8ed6-bd4a4252f19a")
 		)
 		(pin "3"
-			(uuid "a11cb18e-02c8-5c88-8eb8-4779fb9465c5")
+			(uuid "74fd3c90-3df1-5463-98da-d8b2c6548ccd")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/f7f3c589-a666-5966-b5ba-976e80077f5a"
-					(reference "JP9")
+					(reference "JP8")
 					(unit 1)
 				)
 			)
@@ -8614,8 +8614,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "e3c84d3f-f572-5838-baa5-31a602d77728")
-		(property "Reference" "JP10"
+		(uuid "ed66ebc2-f80b-5c37-aaaf-c70fc1ddacfd")
+		(property "Reference" "JP9"
 			(at 370.84 40.68 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8659,15 +8659,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "ec81490a-75ba-5eb1-9c65-f5c42e22e44f")
+			(uuid "478cdceb-7a1d-5ecd-8af0-2b5a09903434")
 		)
 		(pin "2"
-			(uuid "b938fe26-b740-55c4-b1d7-602732107427")
+			(uuid "72dd8dc6-dd1b-51a0-b83d-369881513277")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/f7f3c589-a666-5966-b5ba-976e80077f5a"
-					(reference "JP10")
+					(reference "JP9")
 					(unit 1)
 				)
 			)
@@ -17134,8 +17134,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "8f3ee84e-ea00-524a-8825-5f8991e6ccbb")
-		(property "Reference" "JP11"
+		(uuid "e3c84d3f-f572-5838-baa5-31a602d77728")
+		(property "Reference" "JP10"
 			(at 360.68 247.65 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -17179,18 +17179,18 @@
 			)
 		)
 		(pin "1"
-			(uuid "0079f144-b066-533f-ae66-1c5a73056bae")
+			(uuid "ec81490a-75ba-5eb1-9c65-f5c42e22e44f")
 		)
 		(pin "2"
-			(uuid "43c4f574-695d-5cd9-89bd-4083a3a16bb4")
+			(uuid "b938fe26-b740-55c4-b1d7-602732107427")
 		)
 		(pin "3"
-			(uuid "57399eb6-5d17-50be-9fd5-456b1278e424")
+			(uuid "235c4ffa-903f-5c21-bfcd-9b7718ad516a")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/f7f3c589-a666-5966-b5ba-976e80077f5a"
-					(reference "JP11")
+					(reference "JP10")
 					(unit 1)
 				)
 			)

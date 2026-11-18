@@ -32,7 +32,14 @@ FP = dict(
 FP.update({k: 'OfficeDeskSetup:' + v for k, v in dict(
     MLT8530='BUZ-SMD_4P-L8.5-W8.5-P8.50-BR', TPS25947='VQFN-10_L2.0-W2.0-P0.45-TL', VL53L7CX='LGA-16_L6.4-W3.0_VL53L5CXV0GC-1',
     WF100DPZ='SOP-6_L7.0-W7.0-P2.54-LS10.3-TL', ITR20001='OPTO-TH_4P_ITR20001-T-F316', AHT20='SENSOR-SMD_L3.0-W3.0-P1.00-BR',
-    VEML7700='SENSOR-SMD_EML7700-TT', TOGGLE='SW-TH_2MS1T1B1M1QES-5').items()})
+    VEML7700='SENSOR-SMD_EML7700-TT', TOGGLE='SW-TH_2MS1T1B1M1QES-5', TOGGLE2='SW-TH_2MD1T1B1M1QES-5').items()})
+FP['TDSON8'] = 'Package_TO_SOT_SMD:TDSON-8-1'
+
+
+def fet(b, s, g, d, note):
+    """BSC0902NSI: 30 V, 2.8 mOhm at 10 V, +-20 V gate (Infineon SuperSO8: 1-3 S, 4 G, 5-8 and pad D)."""
+    b.ic('Transistor_FET:BSC028N06LS3', 'Q', 'BSC0902NSI', {'1': s, '4': g, '5': d},   # pins 2, 3 stacked under 1
+         fields=fields(FP['TDSON8'], 'C534382', Note=note))
 
 
 def header(n):
@@ -141,9 +148,9 @@ def custom_symbols(lib):
                             description='Reflective optical sensor: IR LED and phototransistor (datasheet Rev 6: 1 A, 2 K, 3 E, 4 C)')
     s['MLT8530'] = lib.box('MLT-8530', [(1, '+', P), (4, '-', P)], [(2, 'dummy', NCT), (3, 'dummy', NCT)], ref='BZ',
                            footprint=FP['MLT8530'], description='Magnetic buzzer 2.7 kHz, 16 ohm; coil on pads 1 (+) and 4 (-), pads 2 and 3 are dummies')
-    s['SW4PDT'] = lib.box('SW_4PDT', [(2, 'COM1', P), (5, 'COM2', P), (8, 'COM3', P), (11, 'COM4', P)],
-                          [(1, '1 ON', P), (3, '1 OFF', P), (4, '2 ON', P), (6, '2 OFF', P), (7, '3 ON', P), (9, '3 OFF', P),
-                           (10, '4 ON', P), (12, '4 OFF', P)], ref='SW', footprint='', description='Slide switch, 4 poles (3 used), on-off')
+    s['SWDPDT'] = lib.box('SW_DPDT', [(2, 'COM1', P), (5, 'COM2', P)], [(1, '1 ON', P), (3, '1 OFF', P), (4, '2 ON', P), (6, '2 OFF', P)],
+                          ref='SW', footprint=FP['TOGGLE2'],
+                          description='Miniature DPDT toggle switch (Dailywell 2MD1T1B1M1QES-5): poles 1-2-3 and 4-5-6, commons 2 and 5')
     return s
 
 
@@ -164,9 +171,9 @@ def usb_and_pd(d, X):
 
     b = sh.block('USB-C POWER: PD sink, 15 V (HUSB238, I2C 0x08)')
     b.ic('Connector:USB_C_Receptacle_USB2.0_16P', 'J', 'USB-C POWER',
-         {'A4': 'VBUS_PD', 'A5': 'PD_CC1_CONN', 'B5': 'PD_CC2_CONN', 'A6': 'PD_DP', 'B6': 'PD_DP', 'A7': 'PD_DM', 'B7': 'PD_DM',
+         {'A4': 'VBUS_PD', 'A5': 'PD_CC1_CONN', 'B5': 'PD_CC2', 'A6': 'PD_DP', 'B6': 'PD_DP', 'A7': 'PD_DM', 'B7': 'PD_DM',
           'A8': NC, 'B8': NC, 'A1': 'GND', 'SH': 'GND'}, fields=fields(FP['USBC'], 'C165948'))
-    b.note('CC1/CC2 reach the HUSB238 through the\npower switch poles (sheet 3), bypassed by\nsolder jumpers that are closed by default.')
+    b.note('CC1 reaches the HUSB238 through the power\nswitch (sheet 3); CC2 is direct.')
     b.col()
     b.ic('Interface_USB:HUSB238_xxxDD', 'U', 'HUSB238_002DD',
          {'VIN': 'VBUS_PD', 'D+': 'PD_DP', 'D-': 'PD_DM', 'CC1': 'PD_CC1', 'CC2': 'PD_CC2', 'SDA': 'I2C_SDA', 'SCL': 'I2C_SCL',
@@ -221,13 +228,11 @@ def battery(d, X):
 
     b = sh.block('Input selection: PD (input 1) and PROG (input 2)')
     for n, src in ((1, 'VBUS_PD'), (2, 'VBUS_PROG')):
-        b.ic('Device:Q_NMOS', 'Q', 'NMOS 30V 8A', {'S': src, 'G': 'CHG_ACDRV%d' % n, 'D': 'CHG_IN%d_MID' % n},
-             fields=fields('', Note='choose: 30 V, low R_DS(on); source to the input'))
-        b.ic('Device:Q_NMOS', 'Q', 'NMOS 30V 8A', {'S': 'CHG_VBUS', 'G': 'CHG_ACDRV%d' % n, 'D': 'CHG_IN%d_MID' % n},
-             fields=fields('', Note='choose: 30 V, low R_DS(on); source to the charger'))
+        fet(b, 'CHG_IN%d_MID' % n, 'CHG_ACDRV%d' % n, src, 'ACFET%d: drain to the input' % n)
+        fet(b, 'CHG_IN%d_MID' % n, 'CHG_ACDRV%d' % n, 'CHG_VBUS', 'RBFET%d: drain to the charger VBUS' % n)
         if n == 1:
             b.col()
-    b.note('Back-to-back N-MOSFETs, drains\ntogether, gates on ACDRVx (verify\nwith the BQ25792 datasheet).')
+    b.note('Back-to-back N-MOSFETs, SOURCES together\n(ACDRVx drives 5 V above the common source;\nBQ25798 datasheet Figure 7-4).')
 
     b = sh.block('Buck-boost charger BQ25792 (I2C 0x6B): 3S, 750 kHz, NVDC power path')
     b.ic('Battery_Management:BQ25798', 'U', 'BQ25792RQMR',
@@ -306,10 +311,8 @@ def battery(d, X):
     R(b, '100k', 'BQ_OCDP', 'BAT_N')
     b.col()
     two(b, 'R', '5mR 1W', 'BAT_N', 'BQ_SRN', fp=FP['R2512'])
-    b.ic('Device:Q_NMOS', 'Q', 'NMOS 30V 20A', {'S': 'BQ_SRN', 'G': 'BQ_DSG_G', 'D': 'BQ_FET_MID'},
-         fields=fields('', Note='choose: discharge FET, 30 V, under 10 mOhm'))
-    b.ic('Device:Q_NMOS', 'Q', 'NMOS 30V 20A', {'S': 'GND', 'G': 'BQ_CHG_G', 'D': 'BQ_FET_MID'},
-         fields=fields('', Note='choose: charge FET, 30 V, under 10 mOhm'))
+    fet(b, 'BQ_SRN', 'BQ_DSG_G', 'BQ_FET_MID', 'discharge FET')
+    fet(b, 'GND', 'BQ_CHG_G', 'BQ_FET_MID', 'charge FET')
     R(b, '4.53k', 'BQ_DSG', 'BQ_DSG_G')
     R(b, '1M', 'BQ_CHG', 'BQ_CHG_G')
     R(b, '3.3M', 'BQ_CHG_G', 'GND')
@@ -339,14 +342,13 @@ def rails(d, X):
     sh = d.sheet('rails', 'Power switch, V_BUS, 3.3 V, 5 V, V_SERVO, V_DXL')
 
     b = sh.block('Power switch, V_BUS eFuse (5 A), INA226 (I2C 0x40)')
-    b.ic(X['SW4PDT'], 'SW', 'POWER 4PDT slide',
-         {'COM1': 'CHG_SYS', '1 ON': 'VBUS_EN_SW', '1 OFF': NC, 'COM2': 'PD_CC1_CONN', '2 ON': 'PD_CC1', '2 OFF': NC,
-          'COM3': 'PD_CC2_CONN', '3 ON': 'PD_CC2', '3 OFF': NC, 'COM4': NC, '4 ON': NC, '4 OFF': NC}, fields=fields('', Note='choose the part'))
-    two(b, 'JPB', 'CC1 always', 'PD_CC1_CONN', 'PD_CC1')
-    two(b, 'JPB', 'CC2 always', 'PD_CC2_CONN', 'PD_CC2')
+    b.ic(X['SWDPDT'], 'SW', 'POWER',
+         {'COM1': 'CHG_SYS', '1 ON': 'VBUS_EN_SW', '1 OFF': NC, 'COM2': 'PD_CC1_CONN', '2 ON': 'PD_CC1', '2 OFF': NC},
+         fields=fields(FP['TOGGLE2'], 'C496170'))
+    two(b, 'JPO', 'CC1 always', 'PD_CC1_CONN', 'PD_CC1')
     R(b, '1M', 'VBUS_EN_SW', 'VBUS_EN')
     R(b, '169k', 'VBUS_EN', 'GND')
-    b.note('Switch off: EN low, nothing draws from the pack;\nthe charger keeps working. EN divider: on above\nabout 8.3 V. Cut both CC jumpers to let the switch\nalso break CC1/CC2 (PD renegotiates at switch-on).')
+    b.note('Switch off: EN low, nothing draws from the pack. Pole 2\nbreaks CC1 (PD renegotiates at switch-on); CC2 is direct,\nso with the plug the other way round the charger also\nworks with the switch off. Bridge the CC1 jumper to\nleave CC1 unswitched. EN divider: on above about 8.3 V.')
     b.col()
     b.ic(X['TPS25947'], 'U', 'TPS259472ARPWR',
          {'IN': 'CHG_SYS', 'EN/UVLO': 'VBUS_EN', 'OVCSEL': 'VBUS_OVCSEL', 'ITIMER': NC, 'GND': 'GND', 'OUT': 'VBUS_SW',

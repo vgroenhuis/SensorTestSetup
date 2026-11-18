@@ -1273,194 +1273,6 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "Device:Q_NMOS"
-			(pin_numbers
-				(hide yes)
-			)
-			(pin_names
-				(offset 0)
-				(hide yes)
-			)
-			(exclude_from_sim no)
-			(in_bom yes)
-			(on_board yes)
-			(in_pos_files yes)
-			(duplicate_pin_numbers_are_jumpers no)
-			(property "Reference" "Q"
-				(at 5.08 1.27 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font (size 1.27 1.27))
-					(justify left)
-				)
-			)
-			(property "Value" "Q_NMOS"
-				(at 5.08 -1.27 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(effects
-					(font (size 1.27 1.27))
-					(justify left)
-				)
-			)
-			(property "Footprint" ""
-				(at 5.08 2.54 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font (size 1.27 1.27))
-				)
-			)
-			(property "Datasheet" ""
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font (size 1.27 1.27))
-				)
-			)
-			(property "Description" "N-MOSFET transistor"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font (size 1.27 1.27))
-				)
-			)
-			(property "ki_keywords" "NMOS N-MOS"
-				(at 0 0 0)
-				(show_name no)
-				(do_not_autoplace no)
-				(hide yes)
-				(effects
-					(font (size 1.27 1.27))
-				)
-			)
-			(symbol "Q_NMOS_0_1"
-				(polyline
-					(pts (xy 0.254 1.905) (xy 0.254 -1.905))
-					(stroke (width 0.254) (type default))
-					(fill (type none))
-				)
-				(polyline
-					(pts (xy 0.254 0) (xy -2.54 0))
-					(stroke (width 0) (type default))
-					(fill (type none))
-				)
-				(polyline
-					(pts (xy 0.762 2.286) (xy 0.762 1.27))
-					(stroke (width 0.254) (type default))
-					(fill (type none))
-				)
-				(polyline
-					(pts (xy 0.762 0.508) (xy 0.762 -0.508))
-					(stroke (width 0.254) (type default))
-					(fill (type none))
-				)
-				(polyline
-					(pts (xy 0.762 -1.27) (xy 0.762 -2.286))
-					(stroke (width 0.254) (type default))
-					(fill (type none))
-				)
-				(polyline
-					(pts (xy 0.762 -1.778) (xy 3.302 -1.778) (xy 3.302 1.778) (xy 0.762 1.778))
-					(stroke (width 0) (type default))
-					(fill (type none))
-				)
-				(polyline
-					(pts (xy 1.016 0) (xy 2.032 0.381) (xy 2.032 -0.381) (xy 1.016 0))
-					(stroke (width 0) (type default))
-					(fill (type outline))
-				)
-				(circle
-					(center 1.651 0)
-					(radius 2.794)
-					(stroke (width 0.254) (type default))
-					(fill (type none))
-				)
-				(polyline
-					(pts (xy 2.54 2.54) (xy 2.54 1.778))
-					(stroke (width 0) (type default))
-					(fill (type none))
-				)
-				(circle
-					(center 2.54 1.778)
-					(radius 0.254)
-					(stroke (width 0) (type default))
-					(fill (type outline))
-				)
-				(circle
-					(center 2.54 -1.778)
-					(radius 0.254)
-					(stroke (width 0) (type default))
-					(fill (type outline))
-				)
-				(polyline
-					(pts (xy 2.54 -2.54) (xy 2.54 0) (xy 0.762 0))
-					(stroke (width 0) (type default))
-					(fill (type none))
-				)
-				(polyline
-					(pts (xy 2.921 0.381) (xy 3.683 0.381))
-					(stroke (width 0) (type default))
-					(fill (type none))
-				)
-				(polyline
-					(pts (xy 3.302 0.381) (xy 2.921 -0.254) (xy 3.683 -0.254) (xy 3.302 0.381))
-					(stroke (width 0) (type default))
-					(fill (type none))
-				)
-			)
-			(symbol "Q_NMOS_1_1"
-				(pin passive line
-					(at 2.54 5.08 270)
-					(length 2.54)
-					(name "D"
-						(effects
-							(font (size 1.27 1.27))
-						)
-					)
-					(number "D"
-						(effects
-							(font (size 1.27 1.27))
-						)
-					)
-				)
-				(pin input line
-					(at -5.08 0 0)
-					(length 2.54)
-					(name "G"
-						(effects
-							(font (size 1.27 1.27))
-						)
-					)
-					(number "G"
-						(effects
-							(font (size 1.27 1.27))
-						)
-					)
-				)
-				(pin passive line
-					(at 2.54 -5.08 90)
-					(length 2.54)
-					(name "S"
-						(effects
-							(font (size 1.27 1.27))
-						)
-					)
-					(number "S"
-						(effects
-							(font (size 1.27 1.27))
-						)
-					)
-				)
-			)
-			(embedded_fonts no)
-		)
 		(symbol "Device:R"
 			(pin_numbers
 				(hide yes)
@@ -2292,6 +2104,232 @@
 			)
 			(embedded_fonts no)
 		)
+		(symbol "Transistor_FET:BSC028N06LS3"
+			(pin_names
+				(offset 0)
+				(hide yes)
+			)
+			(exclude_from_sim no)
+			(in_bom yes)
+			(on_board yes)
+			(in_pos_files yes)
+			(duplicate_pin_numbers_are_jumpers no)
+			(property "Reference" "Q"
+				(at 5.08 1.905 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font (size 1.27 1.27))
+					(justify left)
+				)
+			)
+			(property "Value" "BSC028N06LS3"
+				(at 5.08 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(effects
+					(font (size 1.27 1.27))
+					(justify left)
+				)
+			)
+			(property "Footprint" "Package_TO_SOT_SMD:TDSON-8-1"
+				(at 5.08 -1.905 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font (size 1.27 1.27) (italic yes))
+					(justify left)
+				)
+			)
+			(property "Datasheet" "http://www.infineon.com/dgdl/Infineon-BSC028N06LS3-DS-v02_02-en.pdf?fileId=db3a30431ddc9372011ebafa4c607f8c"
+				(at 5.08 -3.81 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font (size 1.27 1.27))
+					(justify left)
+				)
+			)
+			(property "Description" "100A Id, 60V Vds, OptiMOS N-Channel Power MOSFET, 2.8mOhm Ron, Qg (typ) 31.0nC, PG-TDSON-8"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font (size 1.27 1.27))
+				)
+			)
+			(property "ki_keywords" "OptiMOS Power MOSFET N-MOS"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font (size 1.27 1.27))
+				)
+			)
+			(property "ki_fp_filters" "TDSON*"
+				(at 0 0 0)
+				(show_name no)
+				(do_not_autoplace no)
+				(hide yes)
+				(effects
+					(font (size 1.27 1.27))
+				)
+			)
+			(symbol "BSC028N06LS3_0_1"
+				(polyline
+					(pts (xy 0.254 1.905) (xy 0.254 -1.905))
+					(stroke (width 0.254) (type default))
+					(fill (type none))
+				)
+				(polyline
+					(pts (xy 0.254 0) (xy -2.54 0))
+					(stroke (width 0) (type default))
+					(fill (type none))
+				)
+				(polyline
+					(pts (xy 0.762 2.286) (xy 0.762 1.27))
+					(stroke (width 0.254) (type default))
+					(fill (type none))
+				)
+				(polyline
+					(pts (xy 0.762 0.508) (xy 0.762 -0.508))
+					(stroke (width 0.254) (type default))
+					(fill (type none))
+				)
+				(polyline
+					(pts (xy 0.762 -1.27) (xy 0.762 -2.286))
+					(stroke (width 0.254) (type default))
+					(fill (type none))
+				)
+				(polyline
+					(pts (xy 0.762 -1.778) (xy 3.302 -1.778) (xy 3.302 1.778) (xy 0.762 1.778))
+					(stroke (width 0) (type default))
+					(fill (type none))
+				)
+				(polyline
+					(pts (xy 1.016 0) (xy 2.032 0.381) (xy 2.032 -0.381) (xy 1.016 0))
+					(stroke (width 0) (type default))
+					(fill (type outline))
+				)
+				(circle
+					(center 1.651 0)
+					(radius 2.794)
+					(stroke (width 0.254) (type default))
+					(fill (type none))
+				)
+				(polyline
+					(pts (xy 2.54 2.54) (xy 2.54 1.778))
+					(stroke (width 0) (type default))
+					(fill (type none))
+				)
+				(circle
+					(center 2.54 1.778)
+					(radius 0.254)
+					(stroke (width 0) (type default))
+					(fill (type outline))
+				)
+				(circle
+					(center 2.54 -1.778)
+					(radius 0.254)
+					(stroke (width 0) (type default))
+					(fill (type outline))
+				)
+				(polyline
+					(pts (xy 2.54 -2.54) (xy 2.54 0) (xy 0.762 0))
+					(stroke (width 0) (type default))
+					(fill (type none))
+				)
+				(polyline
+					(pts (xy 2.794 0.508) (xy 2.921 0.381) (xy 3.683 0.381) (xy 3.81 0.254))
+					(stroke (width 0) (type default))
+					(fill (type none))
+				)
+				(polyline
+					(pts (xy 3.302 0.381) (xy 2.921 -0.254) (xy 3.683 -0.254) (xy 3.302 0.381))
+					(stroke (width 0) (type default))
+					(fill (type none))
+				)
+			)
+			(symbol "BSC028N06LS3_1_1"
+				(pin passive line
+					(at 2.54 -5.08 90)
+					(length 2.54)
+					(name "S"
+						(effects
+							(font (size 1.27 1.27))
+						)
+					)
+					(number "1"
+						(effects
+							(font (size 1.27 1.27))
+						)
+					)
+				)
+				(pin passive line
+					(at 2.54 -5.08 90)
+					(length 2.54)
+					(hide yes)
+					(name "S"
+						(effects
+							(font (size 1.27 1.27))
+						)
+					)
+					(number "2"
+						(effects
+							(font (size 1.27 1.27))
+						)
+					)
+				)
+				(pin passive line
+					(at 2.54 -5.08 90)
+					(length 2.54)
+					(hide yes)
+					(name "S"
+						(effects
+							(font (size 1.27 1.27))
+						)
+					)
+					(number "3"
+						(effects
+							(font (size 1.27 1.27))
+						)
+					)
+				)
+				(pin input line
+					(at -5.08 0 0)
+					(length 5.08)
+					(name "G"
+						(effects
+							(font (size 1.27 1.27))
+						)
+					)
+					(number "4"
+						(effects
+							(font (size 1.27 1.27))
+						)
+					)
+				)
+				(pin passive line
+					(at 2.54 5.08 270)
+					(length 2.54)
+					(name "D"
+						(effects
+							(font (size 1.27 1.27))
+						)
+					)
+					(number "5"
+						(effects
+							(font (size 1.27 1.27))
+						)
+					)
+				)
+			)
+			(embedded_fonts no)
+		)
 		(symbol "power:+3V3"
 			(power global)
 			(pin_numbers
@@ -2488,8 +2526,8 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:Q_NMOS")
-		(at 35.56 44.45 0)
+		(lib_id "Transistor_FET:BSC028N06LS3")
+		(at 35.56 41.91 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -2499,7 +2537,7 @@
 		(dnp no)
 		(uuid "4a69a18c-d2d3-50cd-bee2-e5b0e5238e8b")
 		(property "Reference" "Q1"
-			(at 40.64 43.18 0)
+			(at 40.64 40 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2507,8 +2545,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "NMOS 30V 8A"
-			(at 40.64 45.72 0)
+		(property "Value" "BSC0902NSI"
+			(at 40.64 41.91 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2516,8 +2554,8 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
-			(at 35.56 44.45 0)
+		(property "Footprint" "Package_TO_SOT_SMD:TDSON-8-1"
+			(at 35.56 41.91 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2525,8 +2563,8 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Datasheet" ""
-			(at 35.56 44.45 0)
+		(property "Datasheet" "http://www.infineon.com/dgdl/Infineon-BSC028N06LS3-DS-v02_02-en.pdf?fileId=db3a30431ddc9372011ebafa4c607f8c"
+			(at 35.56 41.91 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2534,8 +2572,8 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Description" "N-MOSFET transistor"
-			(at 35.56 44.45 0)
+		(property "Description" "100A Id, 60V Vds, OptiMOS N-Channel Power MOSFET, 2.8mOhm Ron, Qg (typ) 31.0nC, PG-TDSON-8"
+			(at 35.56 41.91 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2543,8 +2581,8 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Note" "choose: 30 V, low R_DS(on); source to the input"
-			(at 35.56 44.45 0)
+		(property "LCSC" "C534382"
+			(at 35.56 41.91 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2552,14 +2590,29 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(pin "D"
-			(uuid "85169923-c98e-536d-a24c-33710292dcad")
+		(property "Note" "ACFET1: drain to the input"
+			(at 35.56 41.91 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font (size 1.27 1.27))
+			)
 		)
-		(pin "G"
-			(uuid "9770de08-ced9-5d8a-922a-9f4a5305231d")
+		(pin "1"
+			(uuid "976c8da7-41c3-53e5-b95c-6d1de0ba69ff")
 		)
-		(pin "S"
-			(uuid "f857849c-f3de-53e0-908a-881d22619fc0")
+		(pin "2"
+			(uuid "faef4fcc-f167-58c5-9202-b9cb2210b4e2")
+		)
+		(pin "3"
+			(uuid "ac9bd6a3-3ed2-5442-ad08-ba6afc0b74bc")
+		)
+		(pin "4"
+			(uuid "96c3b435-73aa-5ffc-addd-ac456ac14b7a")
+		)
+		(pin "5"
+			(uuid "23dee625-c2c5-5e0f-943a-b9fab73e2f7d")
 		)
 		(instances
 			(project "OfficeDeskSetup"
@@ -2571,25 +2624,25 @@
 		)
 	)
 	(wire
-		(pts (xy 38.1 39.37) (xy 38.1 36.83))
+		(pts (xy 38.1 46.99) (xy 38.1 49.53))
 		(stroke (width 0) (type default))
 		(uuid "0abe6a5d-5f79-5fed-b060-14056172cf37")
 	)
 	(label "CHG_IN1_MID"
-		(at 38.1 36.83 90)
+		(at 38.1 49.53 270)
 		(effects
 			(font (size 1.27 1.27))
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "6cdd7621-5a38-570d-b37f-0309184e8ca1")
 	)
 	(wire
-		(pts (xy 30.48 44.45) (xy 27.94 44.45))
+		(pts (xy 30.48 41.91) (xy 27.94 41.91))
 		(stroke (width 0) (type default))
 		(uuid "4af56179-2dc0-59dc-b4af-866e4792e8f7")
 	)
 	(label "CHG_ACDRV1"
-		(at 27.94 44.45 180)
+		(at 27.94 41.91 180)
 		(effects
 			(font (size 1.27 1.27))
 			(justify right bottom)
@@ -2597,21 +2650,21 @@
 		(uuid "a99cd2e9-ecd3-5101-9ac8-3dc3d236fabb")
 	)
 	(wire
-		(pts (xy 38.1 49.53) (xy 38.1 52.07))
+		(pts (xy 38.1 36.83) (xy 38.1 34.29))
 		(stroke (width 0) (type default))
 		(uuid "485f6c8f-291b-536d-b16e-0e9cf537b626")
 	)
 	(global_label "VBUS_PD"
 		(shape passive)
-		(at 38.1 52.07 270)
+		(at 38.1 34.29 90)
 		(fields_autoplaced yes)
 		(effects
 			(font (size 1 1))
-			(justify right)
+			(justify left)
 		)
 		(uuid "81cda3e7-78bf-5b8e-a71f-b73e88042669")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 38.1 52.07 0)
+			(at 38.1 34.29 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2621,7 +2674,7 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:Q_NMOS")
+		(lib_id "Transistor_FET:BSC028N06LS3")
 		(at 35.56 87.63 0)
 		(unit 1)
 		(body_style 1)
@@ -2632,7 +2685,7 @@
 		(dnp no)
 		(uuid "4f109f9b-a901-5292-aad8-79e8fcbfe90d")
 		(property "Reference" "Q2"
-			(at 40.64 86.36 0)
+			(at 40.64 85.72 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2640,8 +2693,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "NMOS 30V 8A"
-			(at 40.64 88.9 0)
+		(property "Value" "BSC0902NSI"
+			(at 40.64 87.63 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2649,7 +2702,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Package_TO_SOT_SMD:TDSON-8-1"
 			(at 35.56 87.63 0)
 			(hide yes)
 			(show_name no)
@@ -2658,7 +2711,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "http://www.infineon.com/dgdl/Infineon-BSC028N06LS3-DS-v02_02-en.pdf?fileId=db3a30431ddc9372011ebafa4c607f8c"
 			(at 35.56 87.63 0)
 			(hide yes)
 			(show_name no)
@@ -2667,7 +2720,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Description" "N-MOSFET transistor"
+		(property "Description" "100A Id, 60V Vds, OptiMOS N-Channel Power MOSFET, 2.8mOhm Ron, Qg (typ) 31.0nC, PG-TDSON-8"
 			(at 35.56 87.63 0)
 			(hide yes)
 			(show_name no)
@@ -2676,7 +2729,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Note" "choose: 30 V, low R_DS(on); source to the charger"
+		(property "LCSC" "C534382"
 			(at 35.56 87.63 0)
 			(hide yes)
 			(show_name no)
@@ -2685,14 +2738,29 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(pin "D"
-			(uuid "fe564c3d-845e-5f8d-9064-e9e35e830554")
+		(property "Note" "RBFET1: drain to the charger VBUS"
+			(at 35.56 87.63 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font (size 1.27 1.27))
+			)
 		)
-		(pin "G"
-			(uuid "7036c9fa-6b24-54a9-a890-759da7e990c1")
+		(pin "1"
+			(uuid "22c44d4c-1899-5735-b669-1e91d2773d47")
 		)
-		(pin "S"
-			(uuid "d31530b9-94ee-52f2-b92f-1bfedc70f4ef")
+		(pin "2"
+			(uuid "d32d3e88-7446-5a7f-8db7-f3c9419f4d3d")
+		)
+		(pin "3"
+			(uuid "be2bd96c-ba9d-5fb3-ba49-86c92dbe5c88")
+		)
+		(pin "4"
+			(uuid "be7420bf-b285-53b2-a774-65de927994db")
+		)
+		(pin "5"
+			(uuid "d8280914-4337-5ffe-bba4-70e4c3b7bbf4")
 		)
 		(instances
 			(project "OfficeDeskSetup"
@@ -2704,15 +2772,15 @@
 		)
 	)
 	(wire
-		(pts (xy 38.1 82.55) (xy 38.1 80.01))
+		(pts (xy 38.1 92.71) (xy 38.1 95.25))
 		(stroke (width 0) (type default))
 		(uuid "e227fce5-2f66-5176-8b15-91424256c6e6")
 	)
 	(label "CHG_IN1_MID"
-		(at 38.1 80.01 90)
+		(at 38.1 95.25 270)
 		(effects
 			(font (size 1.27 1.27))
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "f17ea73f-1388-5c8c-8d24-bb126a18cf34")
 	)
@@ -2730,21 +2798,21 @@
 		(uuid "856c32d1-9481-58b8-ad76-d3613f958332")
 	)
 	(wire
-		(pts (xy 38.1 92.71) (xy 38.1 95.25))
+		(pts (xy 38.1 82.55) (xy 38.1 80.01))
 		(stroke (width 0) (type default))
 		(uuid "2046cf24-e328-5794-8383-816d25d7d4fc")
 	)
 	(global_label "CHG_VBUS"
 		(shape passive)
-		(at 38.1 95.25 270)
+		(at 38.1 80.01 90)
 		(fields_autoplaced yes)
 		(effects
 			(font (size 1 1))
-			(justify right)
+			(justify left)
 		)
 		(uuid "77733650-811d-5fda-abdd-5edb6da9c749")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 38.1 95.25 0)
+			(at 38.1 80.01 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2754,7 +2822,7 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:Q_NMOS")
+		(lib_id "Transistor_FET:BSC028N06LS3")
 		(at 78.74 44.45 0)
 		(unit 1)
 		(body_style 1)
@@ -2765,7 +2833,7 @@
 		(dnp no)
 		(uuid "c30fe513-ea4a-50fe-808d-f4bb140a38c0")
 		(property "Reference" "Q3"
-			(at 83.82 43.18 0)
+			(at 83.82 42.54 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2773,8 +2841,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "NMOS 30V 8A"
-			(at 83.82 45.72 0)
+		(property "Value" "BSC0902NSI"
+			(at 83.82 44.45 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2782,7 +2850,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Package_TO_SOT_SMD:TDSON-8-1"
 			(at 78.74 44.45 0)
 			(hide yes)
 			(show_name no)
@@ -2791,7 +2859,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "http://www.infineon.com/dgdl/Infineon-BSC028N06LS3-DS-v02_02-en.pdf?fileId=db3a30431ddc9372011ebafa4c607f8c"
 			(at 78.74 44.45 0)
 			(hide yes)
 			(show_name no)
@@ -2800,7 +2868,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Description" "N-MOSFET transistor"
+		(property "Description" "100A Id, 60V Vds, OptiMOS N-Channel Power MOSFET, 2.8mOhm Ron, Qg (typ) 31.0nC, PG-TDSON-8"
 			(at 78.74 44.45 0)
 			(hide yes)
 			(show_name no)
@@ -2809,7 +2877,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Note" "choose: 30 V, low R_DS(on); source to the input"
+		(property "LCSC" "C534382"
 			(at 78.74 44.45 0)
 			(hide yes)
 			(show_name no)
@@ -2818,14 +2886,29 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(pin "D"
-			(uuid "2dfb9fb9-f9d0-543e-8d0b-2a02b55ca194")
+		(property "Note" "ACFET2: drain to the input"
+			(at 78.74 44.45 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font (size 1.27 1.27))
+			)
 		)
-		(pin "G"
-			(uuid "83bff344-2ec1-5c92-a517-a1996c5c2eb2")
+		(pin "1"
+			(uuid "7770fd3f-106c-54f3-8f17-d61e025a6387")
 		)
-		(pin "S"
-			(uuid "fab26a54-8c42-5e05-b60e-ef329b6722be")
+		(pin "2"
+			(uuid "74536fe4-ff8b-5377-a96c-d23cccc76fa6")
+		)
+		(pin "3"
+			(uuid "2733eb65-e442-5d8c-becf-71f741fefc8c")
+		)
+		(pin "4"
+			(uuid "58b4fbcc-b910-5b16-abdb-1f609a19b473")
+		)
+		(pin "5"
+			(uuid "900ce67b-71b1-5164-a5d1-e74614a0515f")
 		)
 		(instances
 			(project "OfficeDeskSetup"
@@ -2837,15 +2920,15 @@
 		)
 	)
 	(wire
-		(pts (xy 81.28 39.37) (xy 81.28 36.83))
+		(pts (xy 81.28 49.53) (xy 81.28 52.07))
 		(stroke (width 0) (type default))
 		(uuid "f55cbdd8-58c5-590a-9b7d-b0bd45852b0e")
 	)
 	(label "CHG_IN2_MID"
-		(at 81.28 36.83 90)
+		(at 81.28 52.07 270)
 		(effects
 			(font (size 1.27 1.27))
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "f0fc6238-8b13-5eab-8d37-0f51ee271e27")
 	)
@@ -2863,21 +2946,21 @@
 		(uuid "84e9199f-5612-55d7-992c-e832b1f8474f")
 	)
 	(wire
-		(pts (xy 81.28 49.53) (xy 81.28 52.07))
+		(pts (xy 81.28 39.37) (xy 81.28 36.83))
 		(stroke (width 0) (type default))
 		(uuid "56280f90-3cc4-5ac4-b1ce-3082523511af")
 	)
 	(global_label "VBUS_PROG"
 		(shape passive)
-		(at 81.28 52.07 270)
+		(at 81.28 36.83 90)
 		(fields_autoplaced yes)
 		(effects
 			(font (size 1 1))
-			(justify right)
+			(justify left)
 		)
 		(uuid "ad63d042-cdef-5022-8d56-c76e42e218d0")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 81.28 52.07 0)
+			(at 81.28 36.83 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -2887,7 +2970,7 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:Q_NMOS")
+		(lib_id "Transistor_FET:BSC028N06LS3")
 		(at 78.74 87.63 0)
 		(unit 1)
 		(body_style 1)
@@ -2898,7 +2981,7 @@
 		(dnp no)
 		(uuid "334a670c-dec6-5e9d-9e12-869b98bd8e21")
 		(property "Reference" "Q4"
-			(at 83.82 86.36 0)
+			(at 83.82 85.72 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2906,8 +2989,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "NMOS 30V 8A"
-			(at 83.82 88.9 0)
+		(property "Value" "BSC0902NSI"
+			(at 83.82 87.63 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -2915,7 +2998,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Package_TO_SOT_SMD:TDSON-8-1"
 			(at 78.74 87.63 0)
 			(hide yes)
 			(show_name no)
@@ -2924,7 +3007,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "http://www.infineon.com/dgdl/Infineon-BSC028N06LS3-DS-v02_02-en.pdf?fileId=db3a30431ddc9372011ebafa4c607f8c"
 			(at 78.74 87.63 0)
 			(hide yes)
 			(show_name no)
@@ -2933,7 +3016,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Description" "N-MOSFET transistor"
+		(property "Description" "100A Id, 60V Vds, OptiMOS N-Channel Power MOSFET, 2.8mOhm Ron, Qg (typ) 31.0nC, PG-TDSON-8"
 			(at 78.74 87.63 0)
 			(hide yes)
 			(show_name no)
@@ -2942,7 +3025,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Note" "choose: 30 V, low R_DS(on); source to the charger"
+		(property "LCSC" "C534382"
 			(at 78.74 87.63 0)
 			(hide yes)
 			(show_name no)
@@ -2951,14 +3034,29 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(pin "D"
-			(uuid "564d3c78-6afe-5664-9ad2-964bf1766c48")
+		(property "Note" "RBFET2: drain to the charger VBUS"
+			(at 78.74 87.63 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font (size 1.27 1.27))
+			)
 		)
-		(pin "G"
-			(uuid "bfb94ae8-e9f9-5fdf-8355-bb6aed72910d")
+		(pin "1"
+			(uuid "941bb09f-f9eb-53e6-9381-5a99ebd94302")
 		)
-		(pin "S"
-			(uuid "f3d12ec4-ee93-528d-9bac-5dedf739c5ff")
+		(pin "2"
+			(uuid "e496c36d-b805-51de-843c-21e57e4d90e3")
+		)
+		(pin "3"
+			(uuid "ca1739da-1f30-5b03-8180-e29132e33109")
+		)
+		(pin "4"
+			(uuid "cbcc725b-c2b0-52d7-9101-2f4b0ea98489")
+		)
+		(pin "5"
+			(uuid "896380d0-4569-5e94-8992-64d8cbfa1f53")
 		)
 		(instances
 			(project "OfficeDeskSetup"
@@ -2970,15 +3068,15 @@
 		)
 	)
 	(wire
-		(pts (xy 81.28 82.55) (xy 81.28 80.01))
+		(pts (xy 81.28 92.71) (xy 81.28 95.25))
 		(stroke (width 0) (type default))
 		(uuid "bde26247-d19f-5791-9e76-16f7a02f7aac")
 	)
 	(label "CHG_IN2_MID"
-		(at 81.28 80.01 90)
+		(at 81.28 95.25 270)
 		(effects
 			(font (size 1.27 1.27))
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "9aa0eb85-89df-576b-95c6-147fdb9aee7e")
 	)
@@ -2996,21 +3094,21 @@
 		(uuid "4056a32d-96ef-5c42-9290-a0fa83715927")
 	)
 	(wire
-		(pts (xy 81.28 92.71) (xy 81.28 95.25))
+		(pts (xy 81.28 82.55) (xy 81.28 80.01))
 		(stroke (width 0) (type default))
 		(uuid "1cf51f8d-ab88-5404-9383-a678c4973671")
 	)
 	(global_label "CHG_VBUS"
 		(shape passive)
-		(at 81.28 95.25 270)
+		(at 81.28 80.01 90)
 		(fields_autoplaced yes)
 		(effects
 			(font (size 1 1))
-			(justify right)
+			(justify left)
 		)
 		(uuid "51aebd2b-e9d7-5660-a19d-b1697721d7bd")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 81.28 95.25 0)
+			(at 81.28 80.01 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -3019,7 +3117,7 @@
 			)
 		)
 	)
-	(text "Back-to-back N-MOSFETs, drains\ntogether, gates on ACDRVx (verify\nwith the BQ25792 datasheet)."
+	(text "Back-to-back N-MOSFETs, SOURCES together\n(ACDRVx drives 5 V above the common source;\nBQ25798 datasheet Figure 7-4)."
 		(exclude_from_sim no)
 		(at 58.42 111.76 0)
 		(effects
@@ -10451,7 +10549,7 @@
 		(uuid "342161d7-7108-5016-b055-c1e22a9ae90f")
 	)
 	(symbol
-		(lib_id "Device:Q_NMOS")
+		(lib_id "Transistor_FET:BSC028N06LS3")
 		(at 185.42 191.77 0)
 		(unit 1)
 		(body_style 1)
@@ -10462,7 +10560,7 @@
 		(dnp no)
 		(uuid "86ff7117-a621-55da-8c1d-cfd21a256183")
 		(property "Reference" "Q5"
-			(at 190.5 190.5 0)
+			(at 190.5 189.86 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -10470,8 +10568,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "NMOS 30V 20A"
-			(at 190.5 193.04 0)
+		(property "Value" "BSC0902NSI"
+			(at 190.5 191.77 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -10479,7 +10577,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Package_TO_SOT_SMD:TDSON-8-1"
 			(at 185.42 191.77 0)
 			(hide yes)
 			(show_name no)
@@ -10488,7 +10586,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "http://www.infineon.com/dgdl/Infineon-BSC028N06LS3-DS-v02_02-en.pdf?fileId=db3a30431ddc9372011ebafa4c607f8c"
 			(at 185.42 191.77 0)
 			(hide yes)
 			(show_name no)
@@ -10497,7 +10595,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Description" "N-MOSFET transistor"
+		(property "Description" "100A Id, 60V Vds, OptiMOS N-Channel Power MOSFET, 2.8mOhm Ron, Qg (typ) 31.0nC, PG-TDSON-8"
 			(at 185.42 191.77 0)
 			(hide yes)
 			(show_name no)
@@ -10506,7 +10604,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Note" "choose: discharge FET, 30 V, under 10 mOhm"
+		(property "LCSC" "C534382"
 			(at 185.42 191.77 0)
 			(hide yes)
 			(show_name no)
@@ -10515,14 +10613,29 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(pin "D"
-			(uuid "98705dc5-b985-570a-b089-e3269f9b4f31")
+		(property "Note" "discharge FET"
+			(at 185.42 191.77 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font (size 1.27 1.27))
+			)
 		)
-		(pin "G"
-			(uuid "31604fe6-efcb-5569-a139-052bf30b5ee1")
+		(pin "1"
+			(uuid "e9728cd8-a785-5dea-8c6b-145e07c0a04e")
 		)
-		(pin "S"
-			(uuid "43f83dc0-b64e-5da4-a35b-51f0221b0098")
+		(pin "2"
+			(uuid "82c79ffd-e839-52a8-9312-fe5dff8bbec2")
+		)
+		(pin "3"
+			(uuid "1f1d1e94-67dd-543b-9735-2903ae1974a2")
+		)
+		(pin "4"
+			(uuid "ab7a9558-f7e8-556f-ab16-7c9fade3128d")
+		)
+		(pin "5"
+			(uuid "5c0f6350-a7fb-5f86-be2b-1d9905fb5b20")
 		)
 		(instances
 			(project "OfficeDeskSetup"
@@ -10534,15 +10647,15 @@
 		)
 	)
 	(wire
-		(pts (xy 187.96 186.69) (xy 187.96 184.15))
+		(pts (xy 187.96 196.85) (xy 187.96 199.39))
 		(stroke (width 0) (type default))
 		(uuid "e03ea0ce-25f6-56eb-8a4e-25ea829432cf")
 	)
-	(label "BQ_FET_MID"
-		(at 187.96 184.15 90)
+	(label "BQ_SRN"
+		(at 187.96 199.39 270)
 		(effects
 			(font (size 1.27 1.27))
-			(justify left bottom)
+			(justify right bottom)
 		)
 		(uuid "01002186-024a-57ad-8579-15b3a2f02ffd")
 	)
@@ -10560,20 +10673,20 @@
 		(uuid "460e93bd-5fc8-5d9b-a786-c8c47209f103")
 	)
 	(wire
-		(pts (xy 187.96 196.85) (xy 187.96 199.39))
+		(pts (xy 187.96 186.69) (xy 187.96 184.15))
 		(stroke (width 0) (type default))
 		(uuid "1392eacd-0801-513b-8747-2e6eb4e6a011")
 	)
-	(label "BQ_SRN"
-		(at 187.96 199.39 270)
+	(label "BQ_FET_MID"
+		(at 187.96 184.15 90)
 		(effects
 			(font (size 1.27 1.27))
-			(justify right bottom)
+			(justify left bottom)
 		)
 		(uuid "0dd20c72-c2c7-53f3-b139-007b3ec91c36")
 	)
 	(symbol
-		(lib_id "Device:Q_NMOS")
+		(lib_id "Transistor_FET:BSC028N06LS3")
 		(at 185.42 229.87 0)
 		(unit 1)
 		(body_style 1)
@@ -10584,7 +10697,7 @@
 		(dnp no)
 		(uuid "b513ec3d-a6cd-59ec-86a4-b2c8db9af842")
 		(property "Reference" "Q6"
-			(at 190.5 228.6 0)
+			(at 190.5 227.96 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -10592,8 +10705,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "NMOS 30V 20A"
-			(at 190.5 231.14 0)
+		(property "Value" "BSC0902NSI"
+			(at 190.5 229.87 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -10601,7 +10714,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Package_TO_SOT_SMD:TDSON-8-1"
 			(at 185.42 229.87 0)
 			(hide yes)
 			(show_name no)
@@ -10610,7 +10723,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Datasheet" ""
+		(property "Datasheet" "http://www.infineon.com/dgdl/Infineon-BSC028N06LS3-DS-v02_02-en.pdf?fileId=db3a30431ddc9372011ebafa4c607f8c"
 			(at 185.42 229.87 0)
 			(hide yes)
 			(show_name no)
@@ -10619,7 +10732,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Description" "N-MOSFET transistor"
+		(property "Description" "100A Id, 60V Vds, OptiMOS N-Channel Power MOSFET, 2.8mOhm Ron, Qg (typ) 31.0nC, PG-TDSON-8"
 			(at 185.42 229.87 0)
 			(hide yes)
 			(show_name no)
@@ -10628,7 +10741,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Note" "choose: charge FET, 30 V, under 10 mOhm"
+		(property "LCSC" "C534382"
 			(at 185.42 229.87 0)
 			(hide yes)
 			(show_name no)
@@ -10637,14 +10750,29 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(pin "D"
-			(uuid "07c93dbf-0f14-5d1c-b503-188c366eeb6c")
+		(property "Note" "charge FET"
+			(at 185.42 229.87 0)
+			(hide yes)
+			(show_name no)
+			(do_not_autoplace no)
+			(effects
+				(font (size 1.27 1.27))
+			)
 		)
-		(pin "G"
-			(uuid "8ba0a29d-51c1-54f8-8852-2f533b94f9d7")
+		(pin "1"
+			(uuid "81ca78ae-ffed-57c6-8e2a-586c5f578ddd")
 		)
-		(pin "S"
-			(uuid "11582fec-c6ee-54fa-b141-89d61833f4a9")
+		(pin "2"
+			(uuid "c1ab005b-d13a-5f4f-bbf4-fcd34dbebb9e")
+		)
+		(pin "3"
+			(uuid "99c8095e-9b30-5de0-ab1c-7de9480dc534")
+		)
+		(pin "4"
+			(uuid "6f2cd5bf-a433-56a2-ac63-6c87bd70e26a")
+		)
+		(pin "5"
+			(uuid "9365f92f-5470-52b6-a7ea-eb2ca4887c8c")
 		)
 		(instances
 			(project "OfficeDeskSetup"
@@ -10656,35 +10784,9 @@
 		)
 	)
 	(wire
-		(pts (xy 187.96 224.79) (xy 187.96 222.25))
-		(stroke (width 0) (type default))
-		(uuid "4fc37260-5b52-5ce4-93b2-5e290132cd0e")
-	)
-	(label "BQ_FET_MID"
-		(at 187.96 222.25 90)
-		(effects
-			(font (size 1.27 1.27))
-			(justify left bottom)
-		)
-		(uuid "80b2f3cd-f7eb-5cd9-b62f-3b4bd712cf36")
-	)
-	(wire
-		(pts (xy 180.34 229.87) (xy 177.8 229.87))
-		(stroke (width 0) (type default))
-		(uuid "8d81edb4-30a2-5976-b644-cfc57c071d44")
-	)
-	(label "BQ_CHG_G"
-		(at 177.8 229.87 180)
-		(effects
-			(font (size 1.27 1.27))
-			(justify right bottom)
-		)
-		(uuid "0ad71bfd-9891-5e2b-8139-ba6eba783ee5")
-	)
-	(wire
 		(pts (xy 187.96 234.95) (xy 187.96 237.49))
 		(stroke (width 0) (type default))
-		(uuid "06b15caa-22e9-5ee1-bcb3-50eab7f242c5")
+		(uuid "4fc37260-5b52-5ce4-93b2-5e290132cd0e")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -10752,6 +10854,32 @@
 				)
 			)
 		)
+	)
+	(wire
+		(pts (xy 180.34 229.87) (xy 177.8 229.87))
+		(stroke (width 0) (type default))
+		(uuid "608c899e-8138-5750-84bd-207a2f987408")
+	)
+	(label "BQ_CHG_G"
+		(at 177.8 229.87 180)
+		(effects
+			(font (size 1.27 1.27))
+			(justify right bottom)
+		)
+		(uuid "d630cd37-331c-521f-828c-035c15f9fc56")
+	)
+	(wire
+		(pts (xy 187.96 224.79) (xy 187.96 222.25))
+		(stroke (width 0) (type default))
+		(uuid "a6f25a56-3807-5242-b007-bf9c80ae80ed")
+	)
+	(label "BQ_FET_MID"
+		(at 187.96 222.25 90)
+		(effects
+			(font (size 1.27 1.27))
+			(justify left bottom)
+		)
+		(uuid "44d2d781-590b-5946-b5e0-a89e498286c7")
 	)
 	(symbol
 		(lib_id "Device:R")

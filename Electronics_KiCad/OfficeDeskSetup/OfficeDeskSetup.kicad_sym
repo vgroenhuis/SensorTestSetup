@@ -1570,7 +1570,7 @@
 		)
 		(embedded_fonts no)
 	)
-	(symbol "SW_4PDT"
+	(symbol "SW_DPDT"
 		(pin_names
 			(offset 1.016)
 		)
@@ -1580,7 +1580,7 @@
 		(in_pos_files yes)
 		(duplicate_pin_numbers_are_jumpers no)
 		(property "Reference" "SW"
-			(at -7.62 15.24 0)
+			(at -7.62 10.16 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1588,8 +1588,8 @@
 				(justify left)
 			)
 		)
-		(property "Value" "SW_4PDT"
-			(at -7.62 13.46 0)
+		(property "Value" "SW_DPDT"
+			(at -7.62 8.38 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -1597,7 +1597,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "OfficeDeskSetup:SW-TH_2MD1T1B1M1QES-5"
 			(at 0 0 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1615,7 +1615,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Description" "Slide switch, 4 poles (3 used), on-off"
+		(property "Description" "Miniature DPDT toggle switch (Dailywell 2MD1T1B1M1QES-5): poles 1-2-3 and 4-5-6, commons 2 and 5"
 			(at 0 0 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -1624,17 +1624,17 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(symbol "SW_4PDT_0_1"
+		(symbol "SW_DPDT_0_1"
 			(rectangle
-				(start -7.62 12.7)
-				(end 7.62 -10.16)
+				(start -7.62 7.62)
+				(end 7.62 -5.08)
 				(stroke (width 0.254) (type default))
 				(fill (type background))
 			)
 		)
-		(symbol "SW_4PDT_1_1"
+		(symbol "SW_DPDT_1_1"
 			(pin passive line
-				(at -10.16 10.16 0)
+				(at -10.16 5.08 0)
 				(length 2.54)
 				(name "COM1"
 					(effects
@@ -1648,7 +1648,7 @@
 				)
 			)
 			(pin passive line
-				(at -10.16 7.62 0)
+				(at -10.16 2.54 0)
 				(length 2.54)
 				(name "COM2"
 					(effects
@@ -1662,35 +1662,7 @@
 				)
 			)
 			(pin passive line
-				(at -10.16 5.08 0)
-				(length 2.54)
-				(name "COM3"
-					(effects
-						(font (size 1.27 1.27))
-					)
-				)
-				(number "8"
-					(effects
-						(font (size 1.27 1.27))
-					)
-				)
-			)
-			(pin passive line
-				(at -10.16 2.54 0)
-				(length 2.54)
-				(name "COM4"
-					(effects
-						(font (size 1.27 1.27))
-					)
-				)
-				(number "11"
-					(effects
-						(font (size 1.27 1.27))
-					)
-				)
-			)
-			(pin passive line
-				(at 10.16 10.16 180)
+				(at 10.16 5.08 180)
 				(length 2.54)
 				(name "1 ON"
 					(effects
@@ -1704,7 +1676,7 @@
 				)
 			)
 			(pin passive line
-				(at 10.16 7.62 180)
+				(at 10.16 2.54 180)
 				(length 2.54)
 				(name "1 OFF"
 					(effects
@@ -1718,7 +1690,7 @@
 				)
 			)
 			(pin passive line
-				(at 10.16 5.08 180)
+				(at 10.16 0 180)
 				(length 2.54)
 				(name "2 ON"
 					(effects
@@ -1732,7 +1704,7 @@
 				)
 			)
 			(pin passive line
-				(at 10.16 2.54 180)
+				(at 10.16 -2.54 180)
 				(length 2.54)
 				(name "2 OFF"
 					(effects
@@ -1740,62 +1712,6 @@
 					)
 				)
 				(number "6"
-					(effects
-						(font (size 1.27 1.27))
-					)
-				)
-			)
-			(pin passive line
-				(at 10.16 0 180)
-				(length 2.54)
-				(name "3 ON"
-					(effects
-						(font (size 1.27 1.27))
-					)
-				)
-				(number "7"
-					(effects
-						(font (size 1.27 1.27))
-					)
-				)
-			)
-			(pin passive line
-				(at 10.16 -2.54 180)
-				(length 2.54)
-				(name "3 OFF"
-					(effects
-						(font (size 1.27 1.27))
-					)
-				)
-				(number "9"
-					(effects
-						(font (size 1.27 1.27))
-					)
-				)
-			)
-			(pin passive line
-				(at 10.16 -5.08 180)
-				(length 2.54)
-				(name "4 ON"
-					(effects
-						(font (size 1.27 1.27))
-					)
-				)
-				(number "10"
-					(effects
-						(font (size 1.27 1.27))
-					)
-				)
-			)
-			(pin passive line
-				(at 10.16 -7.62 180)
-				(length 2.54)
-				(name "4 OFF"
-					(effects
-						(font (size 1.27 1.27))
-					)
-				)
-				(number "12"
 					(effects
 						(font (size 1.27 1.27))
 					)

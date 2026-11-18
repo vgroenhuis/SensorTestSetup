@@ -53,11 +53,19 @@ github.com/espressif/kicad-libraries. Regenerating overwrites the sheets: once t
   firmware's channel numbers change); ch 7 is on an analog input header (the ADS1115 header keeps 4 inputs).
 * **Dynamixel DIR**: pulled **up** (10 k), not down as in section 5: the 74AHCT1G125 enable is active low, so a pulled-up
   DIR keeps the transmitter off at reset. Firmware: transmit with DIR low (invert RTS).
-* **Power switch**: a 4-pole slide switch (3 poles used): pole 1 takes the eFuse EN (through a 1 M / 169 k divider from
-  the charger's SYS output), poles 2 and 3 break CC1 and CC2, each bypassed by a solder jumper that is **closed** by
-  default, so by default the switch does not break CC (section 6). The part is still to be chosen.
+* **Power switch**: DPDT toggle (Dailywell 2MD1T1B1M1QES-5, C496170; no 3- or 4-pole switch is stocked at JLCPCB).
+  Pole 1 takes the eFuse EN (through a 1 M / 169 k divider from the charger's SYS output); pole 2 breaks **CC1 only**,
+  CC2 goes straight to the HUSB238. With the switch off, a plug that lands on CC1 sees no Rd, so a power bank stays
+  asleep; flip the plug (CC2) to charge with the switch off. Solder jumper JP4 (open) bypasses pole 2 if CC1 should
+  never be switched.
 * **V_BUS switch**: TPS259472 eFuse, current limit about 5 A; V_DXL: the same part at about 3 A.
-* **Charger inputs**: two back-to-back N-MOSFET pairs on ACDRV1/ACDRV2 (VAC1 = PD, VAC2 = PROG). The BQ25792 symbol
+* **Charger inputs**: two back-to-back N-MOSFET pairs on ACDRV1/ACDRV2 (VAC1 = PD, VAC2 = PROG), **sources
+  together** (ACFET drain to the input, RBFET drain to VBUS; BQ25798 datasheet Figure 7-4: ACDRV drives 5 V above the
+  common source). The earlier drafts had the drains together.
+* **MOSFETs**: all six (Q1–Q4 input, Q5–Q6 protection) are Infineon BSC0902NSI (C534382): 30 V, 2.8 mΩ at 10 V,
+  ±20 V gate (the BQ77915 drives the gates to about VDD, up to 14 V), SuperSO8 = KiCad `TDSON-8-1` (1–3 S, 4 G,
+  5–8 and pad D). One part number for all six keeps a single extended-part fee. Drop-in alternatives: BSC0902NS
+  (C153230), WSD30160DN56 (C377870). The BQ25792 symbol
   is KiCad's BQ25798 (same package and pins); the value and LCSC number say BQ25792.
 * **Battery protection**: BQ77915 with low-side charge and discharge FETs and a 5 mΩ sense resistor: the pack's minus
   (`BAT_N`) is **not** GND. The 10 k NTC for the charger (TS) and the one for the protector are separate parts.
@@ -85,6 +93,7 @@ the footprints reference them). Each was checked against the datasheet, and the 
 | AHT20 | C2757850 | SENSOR-SMD_L3.0-W3.0-P1.00-BR | Aosong V1.0 Table 5: 1 NC, 2 VDD, 3 SCL, 4 SDA, 5 GND, 6 NC (**the symbol was wrong**); land pattern as Figure 8; VDD through 330 R with 10 uF, as the datasheet asks |
 | VEML7700-TT | C1850416 | SENSOR-SMD_EML7700-TT | pins match the LCSC symbol |
 | Toggle switch 2MS1T1B1M1QES-5 | C496169 | SW-TH_2MS1T1B1M1QES-5 | pad 2 (middle) is the common |
+| Power switch 2MD1T1B1M1QES-5 (DPDT) | C496170 | SW-TH_2MD1T1B1M1QES-5 | poles 1-2-3 and 4-5-6, commons 2 and 5 |
 
 Also found by the pad check: the INA226 shunt used KiCad's 4-terminal `R_Shunt` on a 2-pad 2512 footprint, so the
 sense lines had no pads. Now a 2-terminal 2512 with two net ties (NT1, NT2) for the Kelvin sense lines: place them on
@@ -99,7 +108,7 @@ the specification, distributor summaries and reference designs. Items are also m
 | --- | --- |
 | TPS259472ARPW (custom symbol) | The ILM resistors (665 Ω for 5 A, 1.1 kΩ for 3 A); OVCSEL for the 13.8 V clamp |
 | BQ77915 (custom symbol) | Pin numbers 1–14 (15–24 confirmed); CCFG for 3 cells; VC3–VC5 tied; filter, gate and LD values; -04 thresholds |
-| BQ25792 | PROG 13.7 k (3S, 750 kHz); ILIM_HIZ divider; TS divider 5.23 k / 30.1 k; inductor 2.2 µH; input FET wiring |
+| BQ25792 | PROG 13.7 k (3S, 750 kHz); ILIM_HIZ divider; TS divider 5.23 k / 30.1 k; inductor 2.2 µH; input FET wiring now per Figure 7-4 (common source) |
 | HUSB238 | VSET resistors (14 k = 15 V, 10 k = 12 V, 6.04 k = 9 V, open = 20 V); ISET open = 3.25 A |
 | WF100DPZ | Supply at 3.3 V; CSB left open (I2C mode) |
 | TPS54331 (custom symbol) | Compensation (29.4 k, 1 nF, 47 pF) and the inductors: check with TI's design tool for 3.3 V and 5/6 V |
@@ -107,5 +116,4 @@ the specification, distributor summaries and reference designs. Items are also m
 | AS5600 | 3.3 V mode (VDD5V and VDD3V3 tied) |
 | MCP23017 | GPA7/GPB7 output-only |
 
-Parts still to choose (no footprint yet): the four charger input MOSFETs, the two protection MOSFETs and the power
-switch. Import their footprints the same way once chosen.
+All parts now have a footprint. Most passives still need an LCSC number.
