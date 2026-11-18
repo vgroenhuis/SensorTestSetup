@@ -58,7 +58,7 @@ flowchart LR
     direction TB
   end
   A <-- UART link --> B
-  A -- SPI --> TFT[2.4'' ST7789 TFT] & ADC8[MCP3008: pot, MH, LDR]
+  A -- SPI --> TFT[2.4'' ST7789 TFT] & ADC8[MCP3008: 4 pots, MH, LDR]
   A -- I2C main --> I2CDEV[MCP23017, PCA9685, TCA9548, INA226, HUSB238,<br>charger, IMU, AHT20, AS5600, VEML7700, ADS1115]
   A -- GPIO --> HX[HX711] & US[HC-SR04 + level shifter]
   B -- I2C 2 --> TOF[VL53L7CX]
@@ -172,11 +172,11 @@ All 19 usable pins of 'io' are used; 'main' has 11/12 left for the UART0 header.
 
 | Part | Bus / pin | Address | Notes |
 | --- | --- | --- | --- |
-| Potentiometer (panel, with knob) | MCP3008 ch 7 | | front edge |
+| Potentiometers (4, panel, with knob) | MCP3008 ch 0–3 (pots 0–3) | | front edge; e.g. one per servo |
 | MH sensor module socket: 4-pin female header (VCC, GND, DO, AO) for a standard MH module | MCP3008 ch 6 (AO), MCP23017 bank B (DO) | | VCC 3.3 V (5 V by jumper *(verify the AO level)*); the same channel as now |
 | IR reflective sensor ITR20001/T with LM393 comparator and threshold trimmer, on board (D13) | MCP3008 ch 4 (analog), MCP23017 bank B (digital) | | facing up or over the board edge; IR LED on a jumper |
 | LDR (with divider) | MCP3008 ch 5 | | next to the VEML7700, to compare |
-| MCP3008 | SPI ('main') | | ch 0–3 on analog input headers |
+| MCP3008 | SPI ('main') | | ch 7 on an analog input header (ch 0–3: pots) |
 | ADS1115 16-bit ADC | I2C main | 0x48 | inputs on a header (compare with the MCP3008's 10 bits) |
 | 2× WF100DPZ pressure | TCA9548 ch 0, 1 | 0x6D | hose barbs on the board edge |
 | VL53L7CX ToF | I2C 2 ('io') | 0x29 | **on the board, facing up**: nothing taller within its 60° cone; AVDD and IOVDD 3.3 V *(verify)* |
@@ -188,6 +188,7 @@ All 19 usable pins of 'io' are used; 'main' has 11/12 left for the UART0 header.
 | HX711 | GPIO ('main') | | load cell on a connector; RATE on a jumper (10/80 Hz) |
 | HC-SR04 | GPIO ('main') | | on a connector, level-shifted ECHO |
 | Buttons (4) | MCP23017 bank B | | |
+| Rocker switches (2) | MCP23017 GPA4, GPA5 | | front edge; PCB-mount mini rocker, part and footprint *(to choose)* |
 | Motor encoders (2) | PCNT ('io') | | 3.3 V supply, RC filter footprints (DNP) |
 
 ### Outputs
@@ -195,7 +196,7 @@ All 19 usable pins of 'io' are used; 'main' has 11/12 left for the UART0 header.
 | Part | Bus / pin | Address | Notes |
 | --- | --- | --- | --- |
 | TFT 2.4" 240×320, ST7789 (Zhongjingyuan module: GND, VCC, SCL, SDA, RES, DC, CS, BLK) | SPI ('main') | | 8-pin female header, the module plugs in; mounting holes under it |
-| MCP23017 | I2C main | 0x20 | bank A: 8 LEDs (A7 output-only *(verify)*); bank B: buttons, MH digital out, header; also V_DXL enable and PCA9685 OE |
+| MCP23017 | I2C main | 0x20 | bank A: 4 LEDs, 2 rocker switches, GPA6/GPA7 free (A7 output-only *(verify)*); bank B: buttons, MH digital out, header; also V_DXL enable and PCA9685 OE |
 | PCA9685 | I2C main | **0x41** | 8 servo headers (ch 0–7); ch 8: buzzer through a MOSFET; ch 9–15 on a header; OE pulled high until firmware enables |
 | TCA9548 | I2C main | **0x71** | ch 0–1 pressure; ch 2–7 Qwiic connectors |
 | TB6612FNG | GPIO ('io') | | two motor ports (A: the gear motor; B: spare), VM = V_BUS, thermal copper |
@@ -230,7 +231,7 @@ bus has room now that the VL53L7CX has its own; the register map is the same, so
 | Load cell | JST-PH 4-pin (E+, E−, A+, A−) | 1 |
 | HC-SR04 | 4-pin 2.54 mm female (VCC, TRIG, ECHO, GND) | 1 |
 | Qwiic / STEMMA QT (JST-SH 4-pin, 3.3 V) | main bus: 2; behind the TCA9548: 6; 'io' bus: 1 | 9 |
-| Analog in (GND, 3.3 V, signal) | MCP3008 ch 0–3, ADS1115 ch 0–3 | 8 |
+| Analog in (GND, 3.3 V, signal) | MCP3008 ch 7, ADS1115 ch 0–3 | 5 |
 | MH sensor module | 4-pin female (VCC, GND, DO, AO) | 1 |
 | MCP23017 bank B header | 2×5 (I/O, GND, 3.3 V) | 1 |
 | PCA9685 ch 9–15 header | with GND and 5 V | 1 |
@@ -250,7 +251,7 @@ bus has room now that the VL53L7CX has its own; the register map is the same, so
 ## 10. Mechanical
 
 * About 100 × 150 mm, larger where needed (all the parts above have priority over size). 4× M3 mounting holes.
-* Front edge: TFT, potentiometer, AS5600 knob, buttons, power switch. Rear/side edges: USB-C, motor, servo, Dynamixel and
+* Front edge: TFT, 4 potentiometers, AS5600 knob, buttons, 2 rocker switches, power switch. Rear/side edges: USB-C, motor, servo, Dynamixel and
   sensor connectors, pressure hose barbs.
 * VL53L7CX facing up with a clear 60° cone; the light sensors (LDR, VEML7700) uncovered; the AHT20 away from heat.
 * Silkscreen: every part's name, bus and address; connector pin names and voltages; board name and revision.

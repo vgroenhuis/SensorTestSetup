@@ -51,6 +51,7 @@ TWO = {  # kind: (symbol, reference prefix, default footprint)
     'TVS': ('Device:D_TVS', 'D', FP['SMB']), 'NTC': ('Device:Thermistor_NTC', 'TH', FP['R']), 'LDR': ('Device:R_Photo', 'R', FP['LDR']),
     'FUSE': ('Device:Fuse', 'F', FP['FUSE']), 'JPO': ('Jumper:SolderJumper_2_Open', 'JP', FP['JPO']),
     'JPB': ('Jumper:SolderJumper_2_Bridged', 'JP', FP['JPB']), 'SW': ('Switch:SW_Push', 'SW', FP['BTN']),
+    'ROCKER': ('Switch:SW_SPST', 'SW', ''),     # PCB-mount mini rocker, part and footprint to be chosen
 }
 
 
@@ -574,10 +575,10 @@ def mcu_io(d, X):
 def i2c_parts(d, X):
     sh = d.sheet('i2c_parts', 'Main I2C bus: MCP23017, PCA9685, TCA9548 with pressure sensors')
 
-    b = sh.block('MCP23017 (0x20): LEDs on bank A, buttons and controls on bank B')
+    b = sh.block('MCP23017 (0x20): LEDs and rocker switches on bank A, buttons and controls on bank B')
     nets = {'V_{DD}': '+3V3', 'V_{SS}': 'GND', 'SCK': 'I2C_SCL', 'SDA': 'I2C_SDA', 'A0': 'GND', 'A1': 'GND', 'A2': 'GND',
-            '~{RESET}': 'MCP_RESET', 'INTA': NC, 'INTB': NC}
-    for i in range(8):
+            '~{RESET}': 'MCP_RESET', 'INTA': NC, 'INTB': NC, 'GPA4': 'ROCKER0', 'GPA5': 'ROCKER1', 'GPA6': NC, 'GPA7': NC}
+    for i in range(4):
         nets['GPA%d' % i] = 'LED%d' % i
     for i, n in enumerate(['BTN0', 'BTN1', 'BTN2', 'BTN3', 'MH_DO', 'IR_DO', 'DXL_EN', 'PCA_OE']):
         nets['GPB%d' % i] = n
@@ -585,18 +586,20 @@ def i2c_parts(d, X):
     R(b, '10k', '+3V3', 'MCP_RESET')
     C(b, '100nF', '+3V3')
     b.col()
-    for i in range(8):
+    for i in range(4):
         R(b, '1k', 'LED%d' % i, 'LED%d_A' % i)
     b.col()
-    for i in range(8):
+    for i in range(4):
         two(b, 'LED', 'LED%d' % i, 'GND', 'LED%d_A' % i)
     b.col()
     for i in range(4):
         two(b, 'SW', 'BTN%d' % i, 'BTN%d' % i, 'GND')
+    for i in range(2):
+        two(b, 'ROCKER', 'ROCKER%d' % i, 'ROCKER%d' % i, 'GND')
     b.ic('Connector_Generic:Conn_02x05_Odd_Even', 'J', 'MCP23017 bank B',
          {'1': 'BTN0', '2': 'BTN1', '3': 'BTN2', '4': 'BTN3', '5': 'MH_DO', '6': 'IR_DO', '7': 'DXL_EN', '8': 'PCA_OE', '9': 'GND', '10': '+3V3'},
          fields=fields('Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Vertical'))
-    b.note('Buttons use the MCP23017 pull-ups. GPA7 and GPB7\nare outputs only (LED7, PCA_OE).')
+    b.note('Buttons and rocker switches use the MCP23017\npull-ups. GPB7 is output only (PCA_OE); GPA6\nand GPA7 are free (GPA7 output only).')
 
     b = sh.block('PCA9685 (0x41): 8 servos, buzzer, 7 spare channels')
     nets = {'VDD': '+3V3', 'VSS': 'GND', 'SCL': 'I2C_SCL', 'SDA': 'I2C_SDA', 'A0': '+3V3', 'A1': 'GND', 'A2': 'GND', 'A3': 'GND', 'A4': 'GND',
@@ -654,27 +657,26 @@ def i2c_parts(d, X):
 def sensors(d, X):
     sh = d.sheet('sensors', 'Sensors: analog inputs, ADCs, IMU, climate, light, angle, load cell, ultrasonic')
 
-    b = sh.block('MCP3008 10-bit ADC (SPI): pot, MH, LDR, IR, 4 inputs')
+    b = sh.block('MCP3008 10-bit ADC (SPI): 4 pots, MH, LDR, IR, 1 input')
     b.ic('Analog_ADC:MCP3008', 'U', 'MCP3008T-I/SL',
          {'Vdd': '+3V3', 'Vref': '+3V3', 'AGND': 'GND', 'DGND': 'GND', 'CLK': 'SPI_SCLK', 'Din': 'SPI_MOSI', 'Dout': 'SPI_MISO',
-          '~{CS}/SHDN': 'MCP3008_CS', 'CH0': 'A10_0', 'CH1': 'A10_1', 'CH2': 'A10_2', 'CH3': 'A10_3', 'CH4': 'IR_AO', 'CH5': 'LDR_AO',
-          'CH6': 'MH_AO', 'CH7': 'POT'}, fields=fields(FP['SOIC16'], 'C2651321'))
+          '~{CS}/SHDN': 'MCP3008_CS', 'CH0': 'POT0', 'CH1': 'POT1', 'CH2': 'POT2', 'CH3': 'POT3', 'CH4': 'IR_AO', 'CH5': 'LDR_AO',
+          'CH6': 'MH_AO', 'CH7': 'A10_7'}, fields=fields(FP['SOIC16'], 'C2651321'))
     C(b, '100nF', '+3V3')
     C(b, '1uF', '+3V3')
     R(b, '10k', '+3V3', 'MCP3008_CS')
     b.col()
-    for i in range(4):
-        R(b, '1k', 'A10_%d_CONN' % i, 'A10_%d' % i)
-    for i in range(4):
-        C(b, '10nF', 'A10_%d' % i)
+    for i in range(4):      # POT0-3 on ch 0-3
+        b.ic('Device:R_Potentiometer', 'RV', '10k', {'1': '+3V3', '2': 'POT%d' % i, '3': 'GND'}, fields=fields(FP['POT']))
     b.col()
     for i in range(4):
-        conn(b, 'AIN %d (10 bit)' % i, ['GND', '+3V3', 'A10_%d_CONN' % i], header(3))
+        C(b, '100nF', 'POT%d' % i)
+    R(b, '1k', 'A10_7_CONN', 'A10_7')
+    C(b, '10nF', 'A10_7')
+    b.col()
+    conn(b, 'AIN 7 (10 bit)', ['GND', '+3V3', 'A10_7_CONN'], header(3))
 
-    b = sh.block('Potentiometer, LDR')
-    b.ic('Device:R_Potentiometer', 'RV', '10k', {'1': '+3V3', '2': 'POT', '3': 'GND'}, fields=fields(FP['POT']))
-    C(b, '100nF', 'POT')
-    b.col()
+    b = sh.block('LDR')
     two(b, 'LDR', 'GL5528', '+3V3', 'LDR_AO', lcsc='C125627')
     R(b, '10k', 'LDR_AO', 'GND')
 
@@ -777,7 +779,7 @@ Sheets
   3  Power switch, V_BUS (eFuse, INA226), 3.3 V, 5 V, V_SERVO, V_DXL
   4  ESP32-C5 'main': Wi-Fi, web, TFT, SPI, main I2C bus
   5  ESP32-C5 'io': motors, encoders, Dynamixel, VL53L7CX on its own I2C bus
-  6  Main I2C bus: MCP23017 (LEDs, buttons), PCA9685 (servos, buzzer), TCA9548 (pressure, Qwiic)
+  6  Main I2C bus: MCP23017 (LEDs, buttons, rockers), PCA9685 (servos, buzzer), TCA9548 (pressure, Qwiic)
   7  Sensors: MCP3008, ADS1115, IMU, AHT20, VEML7700, AS5600, HX711, HC-SR04, IR reflective, MH socket
 
 Nets that cross sheets have global labels; power rails: GND, +3V3, +5V (symbols), V_BUS, V_SERVO, V_DXL (labels).
