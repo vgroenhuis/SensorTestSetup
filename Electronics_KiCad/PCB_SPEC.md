@@ -139,11 +139,12 @@ All 19 usable pins of 'io' are used; 'main' has 11/12 left for the UART0 header.
 | **5 V** | buck from VSYS | ≥ 1 A | HC-SR04, level shifter, Dynamixel buffer (if 5 V), exposed 5 V |
 | **12 V boost** | from VSYS, **only without PD** (enabled by the charger's "no input" state or by firmware *(verify)*), current limit ~1.5 A | ~18 W | V_BUS on battery |
 | **V_SERVO** | buck from V_BUS, jumper 5 / 6 V | ≥ 3 A | 8 servo headers, ≥ 470 µF bulk |
-| **V_DXL** | V_BUS through a load switch with current limit, enabled by the MCP23017 (pull-down: off at reset) | ≥ 3 A | Dynamixel only (9–12 V; the XL430 takes 6.5–12 V) |
+| **V_DXL** | V_BUS through a load switch with current limit, enabled by the MCP23017 (pull-down: off at reset) | ≥ 3 A | Dynamixel only (9–12 V; the XL430 is made for 3S packs, up to 12.6 V, nominal 11.1 V) |
 
 * **Battery** (D11): **two 18650 cells in series (2S)** in holders on the back, for **quick demos without external
   power**. Why 2S: 18 W at 12 V draws ~3 A from 2S (6–8.4 V), well within a cell's ~8 A, against 5–7 A from one cell;
-  3S (up to 12.6 V) would exceed the XL430's 12 V and needs a more complex charger. Everything runs on it: the logic and
+  3S (9–12.6 V) would suit the XL430 (made for 3S packs) and save the boost, but charging it from USB-C needs a
+  buck-boost charger or a 15/20 V PD contract, and 2S is simpler. Everything runs on it: the logic and
   sensors take about 1.5 W, so roughly a day from 2× 3000 mAh (~44 Wh) *(estimate)*; a 12 V boost (e.g. TPS61088
   *(verify)*) supplies V_BUS for the motors, servos and Dynamixel at up to ~1.5 A. The firmware reads the battery
   (charger) and the current (INA260) and limits the motor PWM and servo moves on battery.
