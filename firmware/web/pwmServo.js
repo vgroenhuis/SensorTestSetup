@@ -159,6 +159,6 @@ $("setPwmFrequencyButton").addEventListener("click", setFrequency);
 frequencyInput.addEventListener("keydown", (e) => { if (e.key === "Enter") setFrequency(); });
 
 try {
-	autoUpdateCheckbox.checked = localStorage.getItem("pwmServo.autoUpdate") === "true";
+	autoUpdateCheckbox.checked = localStorage.getItem("pwmServo.autoUpdate") !== "false";     // (on unless switched off)
 	autoUpdateCheckbox.addEventListener("change", () => localStorage.setItem("pwmServo.autoUpdate", String(autoUpdateCheckbox.checked)));
 } catch (e) {}
