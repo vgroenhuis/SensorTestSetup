@@ -1,227 +1,284 @@
-# SensorTestSetup PCB: specification (draft 0.1)
+# SensorTestSetup PCB: specification (draft 0.2)
 
-Status: **draft for review**. Decisions still open are marked **D1**, **D2**, ... (list at the end). Values marked
-*(verify)* still have to be checked against a datasheet before they go into the schematic.
+Status: **draft for review**. Draft 0.1's decisions D1–D9 are settled (section 13); new open questions are **D10–D16**.
+Values marked *(verify)* have to be checked against the datasheet before they go into the schematic.
+
+Key words: **must** = hard requirement, **should** = strongly preferred, **may** = optional.
+
+Designed together with the LynXP main PCB ([LynXP `Schematic/PCB_requirements.md`](https://github.com/vgroenhuis/LynXP)):
+the same PD input, motor driver, Dynamixel port and I2C addresses, so the boards share parts and firmware drivers.
+
+The PCB is designed by Claude (Fable 5.2) from this specification, and ordered and assembled at JLCPCB: prefer parts
+from JLCPCB's assembly library (basic parts where possible), and give each chosen part its LCSC number *(verify stock)*.
 
 ## 1. Purpose
 
-Replace the breadboard with one PCB that carries as many of the sensors as possible, for the permanent desk setup used
-to explain and try out sensors and actuators, and for the CloSer lab demos page.
-
-Guiding requirements, in order:
+Replace the breadboard with one PCB carrying as many of the sensors as possible, for the permanent desk setup used to
+explain and try out sensors and actuators, and for the CloSer lab demos page.
 
 1. **It always works.** Power on and every part works; a missing, broken or disconnected part never stops the rest.
-2. **Every part can be explained.** Parts are visible, labelled on the silkscreen with name, bus and address/pins,
-   and have test points for the scope / logic analyser.
-3. **Easy to extend.** Spare connectors on each bus, so a new sensor can be tried without a new board.
-4. **The current firmware keeps working** with as few changes as possible (`firmware/main/board.h` and the drivers).
+2. **Every part can be explained.** Parts are visible and labelled on the silkscreen (name, bus, address or pins), with
+   test points for the scope and logic analyser.
+3. **Easy to extend.** Spare connectors on every bus.
+4. **Runs anywhere:** from USB-C PD (everything) or from its own 18650 cell (everything except the motors and servos).
 
 ## 2. Lessons from the breadboard and the ESP-IDF firmware
 
-| # | Finding | Consequence for the PCB |
+| # | Finding | Consequence |
 | --- | --- | --- |
-| L1 | The ESP32-C5 has 29 GPIOs; after flash/PSRAM, USB and the console **only GPIO27 is free** (pin table in section 7). | New on-board parts go on I2C (or replace a GPIO part); not on new GPIOs. |
-| L2 | Four signals are on **strapping pins** (SDA on 2, SCLK on 7, OLED CS on 25, MCP3008 CS on 28) *(verify the C5 strap list)*. | Move them off strapping pins where possible, or give them pull resistors that keep the boot levels right. |
-| L3 | **I2C address clash:** the PCA9685's default All-Call address is 0x70, the same as the TCA9548. It works only because the firmware switches All-Call off before talking to the TCA9548. | TCA9548 at **0x71** (A0 high) or another address. Full address map in section 8. |
-| L4 | The VL53L7CX firmware upload (~84 kB) **blocks the shared I2C bus** for seconds; the other parts timed out until the firmware split the upload into small pieces. | Give the VL53L7CX its own bus (the C5 has a second, LP I2C) or run its bus at 1 MHz with proper pull-ups. |
-| L5 | The HC-SR04 runs at 5 V; its **ECHO output is 5 V** into a 3.3 V GPIO *(verify the current wiring)*. | Level shifting (divider or buffer), or a 3.3 V variant (HC-SR04P / RCWL-1601). |
-| L6 | The **L298N** is a bipolar driver: ~2 V drop, gets hot, no current sense. | A modern driver with current sense (section 6). |
-| L7 | The motor and the logic share supplies on the breadboard; the boards dropped off USB a few times during testing *(cause not proven)*. | Separate motor and servo supplies, a star ground, bulk capacitors, and the logic powered through its own regulator. |
-| L8 | A sensor with a fixed address (WF100DPZ, 0x6D) needs the multiplexer to have two of them. | Keep the TCA9548: its spare channels also let students connect several identical sensors. |
+| L1 | One ESP32-C5 has no free GPIO left (only GPIO27). | **Two ESP32-C5 modules** (section 4). |
+| L2 | Strapping pins: GPIO15 is used by the PSRAM; GPIO27 has a pull-up; **GPIO28 must be HIGH at reset** (pull-up): use it only as an output, never driven from outside. The other strapping pins have no effect (no fuse bits set, GPIO28 high at boot). | Pin maps in section 5 follow this. |
+| L3 | PCA9685 All-Call (0x70) = TCA9548 default address. | TCA9548 at **0x71**; PCA9685 at **0x41** (0x40 is the INA260, as on LynXP). |
+| L4 | The VL53L7CX firmware upload (~84 kB) blocks a shared I2C bus for seconds. | The VL53L7CX gets **its own I2C bus** on the second ESP32. |
+| L5 | The HC-SR04 ECHO output is 5 V. | **Level shifter** on ECHO. |
+| L6 | The L298N: ~2 V drop, hot, no current sense. | **TB6612FNG**, as on LynXP. |
+| L7 | Motor and logic share supplies on the breadboard. | Separate rails, servos on their own converter, star ground. |
+| L8 | The WF100DPZ has a fixed address (0x6D). | Keep the TCA9548; its spare channels take more identical sensors. |
 | L9 | Breadboard contacts are the main cause of "unreliable". | Everything soldered or on keyed, locking connectors. |
+| L10 | Motor-driver signals that float at reset can start a motor. | Pull-downs on all PWM and direction lines; PCA9685 OE pulled high (outputs off) until firmware enables it. |
 
-## 3. Requirements
-
-### Function
-* **R1** All parts of the current setup work on the PCB (section 5), with the same firmware features.
-* **R2** On-board where the part doesn't have to move or be handled: ADC, I/O expander, PWM driver, multiplexer,
-  pressure sensors, load cell amplifier, motor driver, display, potentiometer, (new) environmental / motion sensors.
-* **R3** Off-board on a connector where the part is mechanical or has to point somewhere: motor with encoder, servos,
-  load cell, ultrasonic sensor, ToF sensor (or on-board facing up: **D4**), MH sensor module.
-* **R4** At least 2 spare connectors per bus type: I2C (Qwiic/STEMMA QT, 3.3 V), servo headers, an analog input, a
-  digital input/output (through the MCP23017).
-* **R5** USB-C for power and programming (the C5's native USB: flashing and the console, no USB-UART chip needed).
-
-### Power
-* **R6** Runs from **USB-C alone** with everything except the motor and servos (or with them at low load: **D2**).
-* **R7** A separate input (DC jack or screw terminal, 7–24 V) for the motor and servos.
-* **R8** The 3.3 V rail can deliver ≥ 1 A (ESP32-C5 Wi-Fi peaks ~0.5 A, VL53L7CX ~0.1 A, the rest ~0.1 A).
-* **R9** Servos on their own 5–6 V rail, ≥ 3 A, from the motor input.
-* **R10** Reverse-polarity protection and a resettable fuse on every power input; TVS / ESD protection on USB and on
-  connectors that leave the board.
-
-### Robustness ("always works")
-* **R11** The board boots correctly whatever is (or isn't) plugged in: no off-board part can pull a strapping pin.
-* **R12** An emergency stop / motor enable: a button (and connector) that cuts the motor driver's enable in hardware.
-* **R13** Supply monitoring: the motor input voltage on an ADC input (the old README already had "12–24 V sens").
-* **R14** Status LEDs: 3.3 V, 5 V, motor supply, one addressable RGB LED for the firmware (Wi-Fi / control state).
-* **R15** Reset and boot buttons, test points on every bus and supply, labelled.
-
-### Mechanical
-* **R16** Fits the desk setup: about 100 × 150 mm *(D5)*, four M3 mounting holes, all connectors on two edges,
-  silkscreen labels readable from above.
-* **R17** The display and the potentiometer reachable from the front edge.
-
-## 4. Block diagram
+## 3. Block diagram
 
 ```mermaid
 flowchart LR
-  USB[USB-C 5 V] --> LDO[3.3 V regulator ≥1 A]
-  DC[DC in 7–24 V] --> PROT[fuse + reverse polarity]
-  PROT --> MOT[motor driver]
-  PROT --> BUCK[5–6 V buck ≥3 A] --> SERVO[servo headers]
-  PROT -. diode-OR .-> LDO
-  LDO --> C5[ESP32-C5 module]
-  C5 -- I2C main --> MCP23017 & PCA9685 & TCA9548 & ADC2[ADC / new sensors] & OLED
-  TCA9548 --> P0[WF100DPZ #1] & P1[WF100DPZ #2] & SPARE[spare channels]
-  C5 -- I2C 2 --> TOF[VL53L7CX]
-  C5 -- SPI --> MCP3008
-  C5 -- GPIO --> MOT & ENC[encoder] & US[ultrasonic] & HX711
-  PCA9685 --> SERVO
+  PD[USB-C POWER<br>HUSB238, 12 V] --> SW{{power switch<br>CC1, CC2, EN}}
+  SW --> VBUS[V_BUS 9–12 V<br>INA260]
+  PROG[USB-C PROG 5 V] --> HUB[USB hub]
+  HUB --> A & B
+  VBUS --> MUX[input select] --> CHG[BQ25895 charger<br>+ 18650]
+  PROG -. 5 V .-> MUX
+  CHG --> VSYS[VSYS] --> R33[3.3 V buck-boost] & R5[5 V boost]
+  VBUS --> SERVO[V_SERVO buck 5/6 V] & MOT[TB6612FNG] & DXL[V_DXL switch]
+  subgraph A[ESP32-C5 'main': Wi-Fi, web, display]
+    direction TB
+  end
+  subgraph B[ESP32-C5 'io': real-time I/O, 2nd radio]
+    direction TB
+  end
+  A <-- UART link --> B
+  A -- SPI --> TFT[2.4'' ST7789 TFT] & ADC8[MCP3008: pot, MH, LDR]
+  A -- I2C main --> I2CDEV[MCP23017, PCA9685, TCA9548, INA260, HUSB238,<br>BQ25895, IMU, BME280, AS5600, VEML7700, ADS1115]
+  A -- GPIO --> HX[HX711] & US[HC-SR04 + level shifter]
+  B -- I2C 2 --> TOF[VL53L7CX]
+  B -- GPIO --> MOT & ENC[2 encoders] & DXLBUF[half-duplex buffer] --> DXL
 ```
 
-## 5. Parts
+## 4. Two ESP32-C5s
 
-### Kept from the current setup
+* **Must**: two ESP32-C5-WROOM-1 modules with PSRAM (N16R8, as now) *(verify availability; antenna: D14)*.
+* **ESP 'main'**: Wi-Fi, web server, lab demos reports and updates, the display, the SPI parts (MCP3008, TFT), the main I2C
+  bus, the HX711 and the ultrasonic sensor.
+* **ESP 'io'**: the parts that need many pins or exact timing: motor driver and encoders, the VL53L7CX on its own bus,
+  the Dynamixel port. Its own radio can search for a stronger Wi-Fi network or run an access point while 'main' stays
+  responsive.
+* **Link** between them: **D10**. Recommendation: **UART** at 2–5 Mbit/s with a third line as "data ready" if needed.
+  Reasons: the ESP32-C5 has **one general-purpose SPI controller** (SPI2); as an SPI slave, 'io' would have none left,
+  and the SPI link takes 5 pins on each side against 2 for UART (section 5 is full with SPI). The data is small: a ToF
+  frame (8×8) is ~1 kB at 15 Hz, under 20 kB/s; a 3 Mbit/s UART carries ~300 kB/s.
+* **Programming**: one USB-C **PROG** port with a USB 2.0 hub (e.g. CH334 or FE1.1s *(verify)*) to both modules'
+  native USB (GPIO13/14): two serial ports and JTAG, no USB-UART chips. 5.1 kΩ Rd on CC, ESD protection (USBLC6-2 or
+  similar) on D+/D−. Each module: EN reset button, BOOT button on GPIO28, EN RC delay (10 kΩ / 1 µF).
+* **Should**: a UART0 header (GND, TX, RX, EN, BOOT) on 'main' for flashing with an external adapter.
+* Antennas: keep-out zones per the module datasheet; the two antennas on **opposite board edges**, away from the motor
+  driver, the bucks and the battery.
 
-| Part | Interface | On PCB? | Notes |
-| --- | --- | --- | --- |
-| ESP32-C5 | — | yes | Module, not a DevKit: **ESP32-C5-WROOM-1 N16R8** *(D1)*. Same chip, flash and PSRAM as now. |
-| SSD1306 OLED 128×64 | SPI now | yes | Shows Wi-Fi, IP and the access code. Move to I2C (0x3C) to free 2 pins, or a bigger display *(D3)*. |
-| MCP3008 | SPI | yes | Classic SPI teaching example; keep on SPI. Potentiometer (ch 7) on board; other channels on a header. |
-| Potentiometer | MCP3008 ch 7 | yes | Panel-style with a knob, front edge. Also drives the motor's "follow the pot" mode. |
-| MH sensor module | MCP3008 ch 6 | connector | Analog input header (3 pins). |
-| MCP23017 | I2C 0x20 | yes | 16 I/O: bank A outputs to on-board LEDs (with a jumper to a header), bank B inputs on a header + 2 buttons. |
-| PCA9685 | I2C 0x40 | yes | 16 servo headers (3-pin, 0.1"), on the servo rail. |
-| TCA9548 | I2C 0x70 → **0x71** | yes | Channels 0–1: pressure sensors; channels 2–7: spare connectors (Qwiic). |
-| 2× WF100DPZ | I2C 0x6D (via mux) | yes | With hose barbs on the board edge. |
-| VL53L7CX | I2C 0x29 | **D4** | On a small board on a cable (to point it), or on-board facing up. Own I2C bus (L4). |
-| HC-SR04 | GPIO trig/echo | connector | 4-pin; level shifting on ECHO (L5). |
-| HX711 | GPIO | yes | Load cell on a 4-pin locking connector (E+, E−, A+, A−); RATE pin on a jumper (10/80 Hz). |
-| Motor driver | GPIO (PWM ×2) | yes | Replace the L298N: **DRV8874** or **DRV8871** (H-bridge with current sense, ≥ 2 A) *(verify)*; enable through the emergency stop. |
-| Gear motor + encoder | encoder → GPIO | connector | 6-pin: M+, M−, encoder VCC (3.3 V), GND, A, B. |
+## 5. Pins
 
-### Candidates to add on board (all I2C, so no extra GPIOs)
+Usable per module: GPIO 0–12 and 23–28 (13/14: USB; 15–22: flash/PSRAM). GPIO27 has a pull-up; GPIO28 is pulled up
+and output-only (section 2, L2). The designer may reassign pins; changes are documented so `firmware/main/board.h`
+follows.
 
-Proposed by teaching value and cost; pick in **D6**.
+### ESP 'main'
 
-| Part | What it shows | Address *(verify)* | Priority |
-| --- | --- | --- | --- |
-| IMU, e.g. LSM6DSO or ICM-42688 | acceleration, rotation (tilt the board) | 0x6A | high |
-| BME280 / BME688 | temperature, humidity, air pressure (vs. the gauge sensors) | 0x76 | high |
-| INA226 on the motor supply | current and power of the motor and servos | 0x44 (not 0x40: PCA9685) | high |
-| AS5600 magnetic angle sensor + knob | absolute angle vs. the potentiometer and the encoder | 0x36 | medium |
-| VEML7700 light sensor | ambient light | 0x10 | medium |
-| ADS1115 16-bit ADC | precision vs. the MCP3008's 10 bits | 0x48 | medium |
-| Addressable RGB LED (WS2812/SK6812) | status, and PWM/colour demos | GPIO27 | high |
-| Buzzer (via PCA9685 channel) | PWM frequency demo | — | low |
-| I2S MEMS microphone | sound level | needs 3 GPIOs | low (no pins) |
+| GPIO | Function | Notes |
+| --- | --- | --- |
+| 0 | SPI MISO | MCP3008 |
+| 1 | HX711 SCK | |
+| 2 / 3 | I2C main SDA / SCL | 2.2 kΩ pull-ups on board |
+| 4 | HC-SR04 ECHO | through the level shifter |
+| 5 | HX711 DOUT | |
+| 6 | HC-SR04 TRIG | |
+| 7 / 8 | SPI SCLK / MOSI | TFT and MCP3008 |
+| 9 | TFT DC | |
+| 10 | TFT RES | |
+| 11 / 12 | UART0 header | console / external flashing |
+| 23 / 26 | link UART TX / RX | 'main' TX 23 → 'io' RX 23; 'io' TX 26 → 'main' RX 26 |
+| 24 | TFT BLK (backlight PWM) | LEDC |
+| 25 | TFT CS | |
+| 27 | RGB status LED (WS2812/SK6812) | pull-up is harmless |
+| 28 | MCP3008 CS | output, idles high: fits the strap |
+
+### ESP 'io'
+
+| GPIO | Function | Notes |
+| --- | --- | --- |
+| 0 / 1 | TB6612 PWMA / PWMB | LEDC 20–30 kHz; pull-downs |
+| 2 / 3 | I2C 2 SDA / SCL (VL53L7CX) | 2.2 kΩ pull-ups; 1 MHz possible |
+| 4 | VL53L7CX INT | optional (firmware polls now) |
+| 5 / 6 | TB6612 AIN1 / AIN2 | pull-downs |
+| 7 / 8 | TB6612 BIN1 / BIN2 | pull-downs |
+| 9 / 10 | encoder motor A: A / B | PCNT |
+| 11 | Dynamixel DIR | UART RS-485 half-duplex RTS; weak pull-down |
+| 12 | Dynamixel RX | |
+| 23 / 26 | link UART RX / TX | |
+| 24 / 25 | encoder motor B: A / B | PCNT |
+| 27 | Dynamixel TX | idles high, the pull-up is harmless |
+| 28 | TB6612 STBY | output; high at reset (pull-up) = driver on, but PWM is pulled down, so the motors are off |
+
+All 19 usable pins of 'io' are used; 'main' has 11/12 left for the UART0 header.
 
 ## 6. Power
 
-| Rail | Source | Load | Proposal |
+| Rail | Source | Rating | Loads |
 | --- | --- | --- | --- |
-| 5 V USB | USB-C (5 V, up to 1.5 A with CC resistors) | regulator, HC-SR04, VL53L7CX AVDD | polyfuse + TVS |
-| 3.3 V | LDO or buck from 5 V (or from the motor input via diode-OR) | C5, sensors, OLED, encoder | ≥ 1 A, e.g. a buck (AP63203) *(verify)* rather than an LDO for the heat |
-| Servo 5–6 V | buck from the DC input | 16 servo headers | ≥ 3 A, jumper for 5 / 6 V |
-| Motor | DC input 7–24 V directly | motor driver | bulk capacitor ≥ 100 µF, reverse-polarity MOSFET, polyfuse |
+| VBUS_PD | USB-C **POWER**, HUSB238 PD sink (I2C 0x08), default **12 V**, jumper for 9 V *(no 15/20 V options: TB6612 VM and the charger)* | 3 A | |
+| **V_BUS** | VBUS_PD after the load switch (closes on a valid contract, soft start) and the INA260 | 3 A | TB6612 VM, V_SERVO, V_DXL, charger input |
+| **VSYS** | BQ25895 power path (I2C 0x6A) from V_BUS or VBUS_PROG (input selector, e.g. TPS2121 *(verify)*), and the **18650** | 3 A | 3.3 V and 5 V converters |
+| **3.3 V** | buck-boost from VSYS (e.g. TPS63020 *(verify)*) | ≥ 1.5 A | both ESP32s (Wi-Fi peaks ~0.5 A each), sensors, TFT |
+| **5 V** | boost from VSYS | ≥ 1 A | HC-SR04, level shifter, Dynamixel buffer (if 5 V), exposed 5 V |
+| **V_SERVO** | buck from V_BUS, jumper 5 / 6 V | ≥ 3 A | 8 servo headers, ≥ 470 µF bulk |
+| **V_DXL** | V_BUS through a load switch with current limit, enabled by the MCP23017 (pull-down: off at reset) | ≥ 3 A | Dynamixel only (9–12 V; the XL430 takes 6.5–12 V) |
 
-Grounds: one ground plane, with the motor and servo return currents kept away from the ESP32 and the analog parts
-(star point near the DC input). The MCP3008 gets its own filtered reference (RC or a reference IC).
+* **Battery**: one 18650 in a holder on the back, charged from either USB-C. On the battery alone, everything runs except
+  the motors, servos and Dynamixel (no V_BUS): about 1.5 W, so 6–7 hours from a 3000 mAh cell *(estimate)*. More on
+  battery: **D11**.
+* **Power switch** (like LynXP §2.2): one multi-pole switch breaks **CC1 and CC2** (so a powerbank wakes up on every
+  switch-on and renegotiates) and the **enable of the 3.3 V and 5 V converters** (so the battery doesn't drain). Charging
+  continues while switched off. No separate emergency stop: the motors run free, and the firmware stops them (STBY, PWM).
+* **Monitoring**: the INA260 measures everything on V_BUS; the BQ25895's ADC reads battery voltage, charge current and
+  input voltage; the HUSB238 reports the PD contract. All three on the main I2C bus, with a page in the firmware.
+* Protection: TVS on VBUS_PD (≥ 15 V standoff) and VBUS_PROG; USB-C sink capacitance ≤ 10 µF before the load switch
+  *(verify)*; bulk capacitors behind it; the battery with protection (in the charger, or a DW01-type protector *(verify)*).
+* Power-good LEDs on V_BUS, 3.3 V, 5 V, V_SERVO, V_DXL; charge LED; test points on every rail.
+* Exposed power (like LynXP §3.1): screw terminals and 2.54 mm headers for V_BUS, V_SERVO, 5 V, 3.3 V, GND, labelled
+  with their voltage.
 
-## 7. Pins
+## 7. Parts on the board
 
-ESP32-C5: GPIO 0–28; ADC on GPIO 1–6; USB on 13/14; console UART on 11/12; the module's flash and PSRAM use the pins
-the DevKit doesn't bring out (15–22) *(verify for the WROOM-1 N16R8)*. Strapping pins *(verify)*: 2, 7, 25, 27, 28.
+### Sensors and inputs
 
-| GPIO | Now (breadboard) | Proposal for the PCB |
-| --- | --- | --- |
-| 0 | SPI MISO | SPI MISO |
-| 1 | HX711 SCK | ADC: motor supply voltage (R13) — HX711 SCK moves |
-| 2 | I2C SDA (strap) | HX711 SCK (strap-safe: output, idle low *(verify level)*) |
-| 3 | I2C SCL | I2C SCL |
-| 4 | encoder B | encoder B |
-| 5 | HX711 DOUT | HX711 DOUT |
-| 6 | HC-SR04 trig | HC-SR04 trig |
-| 7 | SPI SCLK (strap) | SPI SCLK (keep; pull-down per strap level *(verify)*) |
-| 8 | SPI MOSI | SPI MOSI |
-| 9 | OLED D/C | I2C SDA (main bus) |
-| 10 | HC-SR04 echo | HC-SR04 echo (level shifted) |
-| 11/12 | console UART | spare / test points (console is on USB) |
-| 13/14 | USB | USB-C |
-| 23/24 | motor IN2/IN1 | motor IN2/IN1 |
-| 25 | OLED CS (strap) | LP I2C / second bus for the VL53L7CX *(verify which pins the LP I2C can use)* |
-| 26 | encoder A | encoder A |
-| 27 | free (strap) | RGB status LED (output only, strap-safe level *(verify)*) |
-| 28 | MCP3008 CS (strap, BOOT button) | MCP3008 CS (keep: idle high = normal boot) |
-
-This frees pins by moving the OLED to I2C (**D3**); the emergency stop works in hardware on the driver's enable and
-is read back through the MCP23017.
-
-## 8. I2C addresses
-
-| Address | Main bus | Behind the TCA9548 | Second bus |
+| Part | Bus / pin | Address | Notes |
 | --- | --- | --- | --- |
-| 0x20 | MCP23017 | | |
-| 0x29 | | | VL53L7CX |
-| 0x36 | AS5600 (candidate) | | |
-| 0x3C | SSD1306 (if on I2C) | | |
-| 0x40 | PCA9685 | | |
-| 0x44 | INA226 (candidate) | | |
-| 0x48 | ADS1115 (candidate) | | |
-| 0x6A | IMU (candidate) | | |
-| 0x6D | | WF100DPZ ch 0 and ch 1 | |
-| 0x70 | (PCA9685 All-Call: off in firmware) | | |
-| 0x71 | TCA9548 | | |
-| 0x76 | BME280 (candidate) | | |
+| Potentiometer (panel, with knob) | MCP3008 ch 7 | | front edge |
+| MH sensor (integrated: sensor + LM393 comparator + threshold trimmer) | MCP3008 ch 6 (analog), MCP23017 (digital out) | | which sensor: **D13** |
+| LDR (with divider) | MCP3008 ch 5 | | next to the VEML7700, to compare |
+| MCP3008 | SPI ('main') | | ch 0–4 on analog input headers |
+| ADS1115 16-bit ADC | I2C main | 0x48 | inputs on a header (compare with the MCP3008's 10 bits) |
+| 2× WF100DPZ pressure | TCA9548 ch 0, 1 | 0x6D | hose barbs on the board edge |
+| VL53L7CX ToF | I2C 2 ('io') | 0x29 | **on the board, facing up**: nothing taller within its 60° cone; AVDD and IOVDD 3.3 V *(verify)* |
+| IMU (LSM6DSO or ICM-42688 *(verify)*) | I2C main | 0x6B (0x6A is the BQ25895) | |
+| BME280 / BME688 | I2C main | 0x76 | away from the regulators (self-heating) |
+| VEML7700 light | I2C main | 0x10 | |
+| AS5600 magnetic angle + knob with magnet | I2C main | 0x36 | |
+| INA260 current / power | I2C main | 0x40 | on V_BUS |
+| HX711 | GPIO ('main') | | load cell on a connector; RATE on a jumper (10/80 Hz) |
+| HC-SR04 | GPIO ('main') | | on a connector, level-shifted ECHO |
+| Buttons (4) | MCP23017 bank B | | |
+| Motor encoders (2) | PCNT ('io') | | 3.3 V supply, RC filter footprints (DNP) |
 
-Pull-ups: 2.2 kΩ on each bus, on the board (not on the plug-in modules), with jumpers to remove them.
+### Outputs
 
-## 9. Connectors
+| Part | Bus / pin | Address | Notes |
+| --- | --- | --- | --- |
+| TFT 2.4" 240×320, ST7789 (Zhongjingyuan module: GND, VCC, SCL, SDA, RES, DC, CS, BLK) | SPI ('main') | | 8-pin female header, the module plugs in; mounting holes under it |
+| MCP23017 | I2C main | 0x20 | bank A: 8 LEDs (A7 output-only *(verify)*); bank B: buttons, MH digital out, header; also V_DXL enable and PCA9685 OE |
+| PCA9685 | I2C main | **0x41** | 8 servo headers (ch 0–7); ch 8: buzzer through a MOSFET; ch 9–15 on a header; OE pulled high until firmware enables |
+| TCA9548 | I2C main | **0x71** | ch 0–1 pressure; ch 2–7 Qwiic connectors |
+| TB6612FNG | GPIO ('io') | | two motor ports (A: the gear motor; B: spare), VM = V_BUS, thermal copper |
+| Dynamixel XL430 port | UART ('io') | | as LynXP §11.3: 2× JST EH 3-pin (GND, V_DXL, DATA), tri-state buffer pair (74LVC2G241 or 2× 74LVC1G125) for half duplex, pull-up on DATA, logic level per the XL430 datasheet *(verify)* |
+| RGB status LED | GPIO27 ('main') | | |
+| HUSB238 | I2C main | 0x08 | |
+| BQ25895 | I2C main | 0x6A | |
+
+### I2C addresses (main bus)
+
+0x08 HUSB238 · 0x10 VEML7700 · 0x20 MCP23017 · 0x36 AS5600 · 0x40 INA260 · 0x41 PCA9685 · 0x48 ADS1115 · 0x6A BQ25895 ·
+0x6B IMU · 0x70 (PCA9685 All-Call: kept free) · 0x71 TCA9548 · 0x76 BME280. Behind the TCA9548: 0x6D ×2 + spares.
+Second bus ('io'): 0x29 VL53L7CX + one Qwiic connector.
+
+The PCA9685 stays on the main bus, not behind the TCA9548: with the TCA9548 at 0x71 there is no clash, and behind the
+multiplexer every servo update would need a channel switch first (and stop when the multiplexer hangs). A second
+PCA9685 (for more servos) could go behind it, as both would share an address.
+
+The MCP23017 stays on I2C rather than an MCP23S17 on SPI: the SPI bus of 'main' carries the TFT's frames, and the I2C
+bus has room now that the VL53L7CX has its own; the register map is the same, so the firmware could follow if needed.
+
+## 8. Connectors
 
 | Connector | Type | Count |
 | --- | --- | --- |
-| USB-C | USB 2.0, 5 V | 1 |
-| Motor/servo power in | DC jack 5.5/2.1 mm + 2-pin screw terminal | 1 |
-| Motor + encoder | JST-PH 6-pin (or XH) | 1 |
-| Servos | 3-pin 0.1" headers (GND, V+, signal), keyed by silkscreen | 16 (or 8: **D7**) |
-| Load cell | JST-PH 4-pin | 1 |
-| HC-SR04 | 4-pin 0.1" socket or JST-PH | 1 |
-| ToF | JST-SH 6-pin (I2C + power + INT/LPn) | 1 |
-| I2C spare | Qwiic / STEMMA QT (JST-SH 4-pin, 3.3 V) | 2 main bus + 6 behind the TCA9548 |
-| Analog in | 3-pin (GND, 3.3 V, signal) for MCP3008 ch 0–6 | 7 |
-| MCP23017 bank B | 2×5 header (8 I/O, GND, 3.3 V) | 1 |
-| Emergency stop | 2-pin, normally closed, jumper if unused | 1 |
+| USB-C POWER | PD sink (CC, VBUS) | 1 |
+| USB-C PROG | USB 2.0 data + 5 V | 1 |
+| 18650 holder | through-hole, on the back | 1 |
+| Motor + encoder | JST-PH 6-pin (M+, M−, VCC, GND, A, B) + 2-pin screw terminal, in parallel | 2 (A, B) |
+| Servos | 3-pin 2.54 mm (GND, V_SERVO, signal), ~220 Ω series resistors | 8 |
+| Dynamixel | JST EH 3-pin (B3B-EH-A *(verify)*), in parallel | 2 |
+| Load cell | JST-PH 4-pin (E+, E−, A+, A−) | 1 |
+| HC-SR04 | 4-pin 2.54 mm female (VCC, TRIG, ECHO, GND) | 1 |
+| Qwiic / STEMMA QT (JST-SH 4-pin, 3.3 V) | main bus: 2; behind the TCA9548: 6; 'io' bus: 1 | 9 |
+| Analog in (GND, 3.3 V, signal) | MCP3008 ch 0–4, ADS1115 ch 0–3 | 9 |
+| MCP23017 bank B header | 2×5 (I/O, GND, 3.3 V) | 1 |
+| PCA9685 ch 9–15 header | with GND and 5 V | 1 |
+| TFT | 8-pin 2.54 mm female | 1 |
+| UART0 ('main') | 5-pin: GND, TX, RX, EN, BOOT | 1 |
+| Exposed power | screw terminals + headers (section 6) | 1 set |
 
-## 10. Firmware impact
+## 9. Robustness ("always works")
 
-Each item is a small change in `firmware/main/board.h` plus the driver named:
+* The board boots the same whatever is plugged in: no connector pin reaches a strapping pin; GPIO28 only drives.
+* Every actuator is off until firmware enables it: PWM and direction lines pulled down, PCA9685 OE pulled high,
+  V_DXL off.
+* Each part reports present / absent in firmware (as now); a part that hangs a bus can't stop the other ESP32 or the
+  other bus.
+* ESD protection on the USB data lines and on the Qwiic and sensor connectors that leave the board.
 
-* OLED on I2C (if chosen): `display.c` from SPI to I2C (u8g2 supports both).
-* TCA9548 at 0x71: one constant in `i2cbus.c`.
-* VL53L7CX on its own bus: `tof.cpp` creates a second bus instead of `i2cbus_bus()`.
-* New motor driver: same two PWM inputs; add current sense (ADC) and the enable read-back.
-* New I2C sensors: each gets a reader in `i2cbus.c`, a `/ws` topic and a page, like the existing ones; the matrix can use
-  them as inputs.
+## 10. Mechanical
 
-## 11. Open decisions
+* About 100 × 150 mm, larger where needed (all the parts above have priority over size). 4× M3 mounting holes.
+* Front edge: TFT, potentiometer, AS5600 knob, buttons, power switch. Rear/side edges: USB-C, motor, servo, Dynamixel and
+  sensor connectors, pressure hose barbs.
+* VL53L7CX facing up with a clear 60° cone; the light sensors (LDR, VEML7700) uncovered; the BME280 away from heat.
+* Silkscreen: every part's name, bus and address; connector pin names and voltages; board name and revision.
 
-| # | Decision | Recommendation |
+## 11. Firmware impact
+
+* Split into two applications: **main** (the present firmware minus the 'io' parts) and **io** (motor, encoders,
+  ToF, Dynamixel), with a link protocol between them; both report to the lab demos server (two devices, or one with
+  the other as a part: to decide in firmware).
+* TFT: ST7789 through `esp_lcd` (u8g2 is monochrome), with a simple drawing layer or LVGL.
+* Address changes: PCA9685 0x41, TCA9548 0x71 (constants in `i2cbus.c`).
+* New drivers and pages: IMU, BME280, VEML7700, AS5600, ADS1115, INA260, HUSB238, BQ25895 (battery and PD page), LDR,
+  Dynamixel (Protocol 2.0), a second motor; all of them matrix inputs or outputs.
+
+## 12. Open questions
+
+| # | Question | Recommendation |
 | --- | --- | --- |
-| D1 | ESP32-C5 module on the board, or a socket for the DevKit | Module (WROOM-1 N16R8): smaller, no loose board; the DevKit is easy to swap but adds a second USB and loose pins. |
-| D2 | Must the motor and servos work from USB alone? | No: from the DC input only, with the USB powering the logic. USB can't deliver servo stall currents. |
-| D3 | Display: keep the 0.96" SSD1306 (on I2C), a 1.3" SH1106, or a colour TFT (ST7789, SPI) | 1.3" SH1106 on I2C: bigger, same driver family (u8g2), frees two pins. |
-| D4 | ToF sensor on the board (facing up) or on a cable | On a cable: it can be aimed at things, and replaced. |
-| D5 | Board size and mounting | ~100 × 150 mm, 4× M3, in the current desk position. |
-| D6 | Which new on-board sensors (section 5) | IMU, BME280, INA226 and the RGB LED; AS5600 if there is room. |
-| D7 | 16 or 8 servo headers | 8 on the board (the PCA9685's other 8 channels on a header). |
-| D8 | Keep the L298N footprint for the existing module, or a new driver chip | New driver chip (L6). |
-| D9 | Who designs the PCB (in-house, student, JLCPCB assembly) and the budget | — |
+| D10 | Link between the ESP32s: SPI or UART? | UART (section 4): fewer pins, keeps SPI free, ample speed. |
+| D11 | On battery alone: logic and sensors only, or also servos / motors (a 12 V boost, ~2 A from one cell)? | Logic and sensors only; motors, servos and Dynamixel with USB-C PD. |
+| D12 | "A 2nd TCA9548 for PWM control of the TB6612": a TCA9548 is an I2C multiplexer (no PWM). Was a second PCA9685 meant? | Neither: PWM from 'io' (LEDC 20–30 kHz, inaudible; the PCA9685 tops out at ~1.5 kHz, audible) and direction on 'io' GPIOs. |
+| D13 | Which sensor is the "MH sensor module" (sound, light, IR obstacle, flame, moisture...)? | Integrate that sensor with its LM393 comparator. |
+| D14 | Antennas: modules with PCB antenna (WROOM-1) at opposite edges, or WROOM-1U with external antennas (as LynXP)? | WROOM-1 on a desk board (no cables); -1U if the board ends up in an enclosure. |
+| D15 | Align the I2C addresses with LynXP (PCA9685 at 0x41, INA260 at 0x40)? | Yes (one firmware constant changes). |
+| D16 | Second motor port on the TB6612's channel B? | Yes: costs only a connector and two encoder pins. |
 
-## 12. Next steps
+## 13. Settled (from draft 0.1)
 
-1. Review this draft; settle D1–D9.
-2. Verify the items marked *(verify)*: strapping pins, LP I2C pins, flash/PSRAM pins of the module, driver and
-   regulator parts, sensor addresses.
-3. Complete the schematic in `OfficeDeskSetup/` (it has the DevKit, MCP3008, MCP23017, TCA9548, L298N and the pot now).
-4. Layout, order, and bring-up with the firmware, part by part (the firmware already reports each part as found or not).
+| # | Decision |
+| --- | --- |
+| D1 | ESP32-C5 modules on the board (now two: section 4). |
+| D2 | Motors and servos run from USB-C PD (12 V), like LynXP from a powerbank; plus an 18650 for the rest. |
+| D3 | A 2.4" 240×320 ST7789 TFT module (in stock). |
+| D4 | VL53L7CX on the board, facing up. |
+| D5 | ~100 × 150 mm, may grow. |
+| D6 | All candidate sensors on the board. |
+| D7 | 8 servo headers. |
+| D8 | TB6612FNG. |
+| D9 | Designed by Claude (Fable 5.2), ordered and assembled at JLCPCB. |
+
+## 14. Next steps
+
+1. Settle D10–D16.
+2. Verify the *(verify)* items and choose parts with LCSC numbers.
+3. Schematic in `OfficeDeskSetup/` (the present one has the DevKit, MCP3008, MCP23017, TCA9548, L298N and the pot).
+4. Layout, JLCPCB order, and bring-up part by part (the firmware already reports each part as found or not).
