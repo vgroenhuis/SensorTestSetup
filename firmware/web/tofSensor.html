@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>VL53L7CX ToF Sensor</title>
+		<link rel="stylesheet" href="stylesheet.css">
+	</head>
+	<body>
+		<div class="container tof-page-container">
+			<h1>VL53L7CX Time-of-Flight Sensor</h1>
+			<div class="card">
+				<p>Distances in a 4x4 (up to 60 frames/s) or 8x8 (up to 15 frames/s) grid over a 60&deg; x 60&deg; field of view.</p>
+
+				<h2>Sensor settings</h2>
+				<div id="control"></div>
+				<div id="tofSettings" class="needs-control locked">
+				<div class="graph-controls">
+					<label for="tofResolutionMode">ToF mode</label>
+					<select id="tofResolutionMode" class="time-window-input" aria-label="ToF resolution mode">
+						<option value="4x4">4x4</option>
+						<option value="8x8" selected>8x8</option>
+					</select>
+				</div>
+				<div class="graph-controls">
+					<label class="setting-row tof-setting-row" for="outlierEnabled">
+						<input type="checkbox" id="outlierEnabled" checked>
+						<span>Remove distances above threshold</span>
+					</label>
+					<label for="outlierThresholdMm">Outlier threshold (mm)</label>
+					<input id="outlierThresholdMm" class="time-window-input" type="text" value="350" inputmode="numeric" aria-label="Outlier threshold in millimeters">
+				</div>
+				</div>
+				<div id="status" class="status"></div>
+
+				<h2>View settings (this browser only)</h2>
+				<label class="setting-row tof-setting-row">
+					<input id="tofShowStatusCode" type="checkbox">
+					<span>Show status code in cells</span>
+				</label>
+				<label class="setting-row tof-setting-row">
+					<input id="tofHideInvalidDistance" type="checkbox">
+					<span>Hide distance if status is invalid</span>
+				</label>
+				<label class="setting-row tof-setting-row">
+					<input id="tof3dUseOrthographic" type="checkbox">
+					<span>Use orthographic projection (3D view)</span>
+				</label>
+				<div class="graph-actions">
+					<button id="pauseTofButton" class="btn" type="button">Pause map</button>
+				</div>
+			</div>
+
+			<div class="card">
+				<button id="tof3dViewHeader" class="tof-collapsible-button" aria-expanded="true" aria-controls="tof3dSectionBody">3D Surface View</button>
+				<div id="tof3dSectionBody">
+					<div id="tof3dCanvasWrap" class="tof-3d-canvas-wrap">
+						<canvas id="tof3dCanvas" class="tof-3d-canvas" aria-label="3D ToF surface view"></canvas>
+					</div>
+					<div class="tof-3d-hint">Drag to orbit, wheel/pinch to zoom. Floor is at sensor base level; sensor looks upward with 60 degree x 60 degree field of view.</div>
+					<div id="tof3dStatus" class="status">Connecting...</div>
+				</div>
+			</div>
+
+			<div class="card">
+				<button id="tof2dViewHeader" class="tof-collapsible-button" aria-expanded="true" aria-controls="tof2dSectionBody">2D Distance Map</button>
+				<div id="tof2dSectionBody">
+					<p>Tiles are highlighted when target status is valid (5 or 9).</p>
+				<div class="tof-summary-grid" aria-live="polite">
+					<div class="tof-summary-card">
+						<span class="tof-summary-label">Resolution</span>
+						<span id="tofResolutionValue" class="tof-summary-value">--</span>
+					</div>
+					<div class="tof-summary-card">
+						<span class="tof-summary-label">Valid zones</span>
+						<span id="tofValidZonesValue" class="tof-summary-value">--</span>
+					</div>
+					<div class="tof-summary-card">
+						<span class="tof-summary-label">Last update</span>
+						<span id="tofLastUpdateValue" class="tof-summary-value">--</span>
+					</div>
+				</div>
+				<div id="tofGrid" class="tof-grid" aria-live="polite"></div>
+				<div id="tofStatus" class="status">Connecting...</div>
+				</div>
+				<a href="./" class="btn">Back to control panel</a>
+			</div>
+		</div>
+		<script type="module" src="tofServerSettings.js"></script>
+		<script type="module" src="tofSensor.js"></script>
+		<script type="module" src="tofSensor3d.js"></script>
+	</body>
+</html>

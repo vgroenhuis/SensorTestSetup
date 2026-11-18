@@ -3,6 +3,7 @@
 #include "sensors.h"
 #include "i2cbus.h"
 #include "gpioparts.h"
+#include "tof.h"
 #include "closer_access.h"
 #include "closer_demo.h"
 #include "closer_udp.h"
@@ -25,11 +26,11 @@ static const char *TAG = "web";
 
 typedef enum {
     TOPIC_STATUS, TOPIC_POT, TOPIC_MH, TOPIC_MCP3008, TOPIC_MCP23017, TOPIC_PRESSURE, TOPIC_PWM,
-    TOPIC_MOTOR, TOPIC_ENCODER, TOPIC_ULTRASONIC, TOPIC_LOADCELL, TOPIC_COUNT
+    TOPIC_MOTOR, TOPIC_ENCODER, TOPIC_ULTRASONIC, TOPIC_LOADCELL, TOPIC_TOF, TOPIC_COUNT
 } topic_t;
 static const char *const TOPIC_NAMES[TOPIC_COUNT] = {"status", "pot", "mh", "mcp3008", "mcp23017", "pressure", "pwm",
-                                                     "motor", "encoder", "ultrasonic", "loadcell"};
-static const int TOPIC_PERIOD_MS[TOPIC_COUNT] = {500, 50, 50, 50, 50, 50, 250, 100, 50, 50, 50};
+                                                     "motor", "encoder", "ultrasonic", "loadcell", "tof"};
+static const int TOPIC_PERIOD_MS[TOPIC_COUNT] = {500, 50, 50, 50, 50, 50, 250, 100, 50, 50, 50, 50};
 #define TICK_MS 50
 
 #define MAX_CLIENTS 12
@@ -106,12 +107,30 @@ typedef struct {
     sensors_t s;
     i2cbus_t b;
     gpioparts_t g;
+    tof_t tof;
 } snapshot_t;
 
 static void snapshot(snapshot_t *x) {
     sensors_get(&x->s);
     i2cbus_get(&x->b);
     gpioparts_get(&x->g);
+    tof_get(&x->tof);
+}
+
+// {"t":"tof","ok":..,"side":8,"hz":..,"frame":n,"filter":..,"max_mm":..,"d":[mm..],"s":[status..],"n":[targets..]},
+// zones row by row as the sensor gives them.
+static int tof_json(char *out, size_t len, const tof_t *t) {
+    int zones = t->side * t->side;
+    int n = snprintf(out, len, "{\"t\":\"tof\",\"ok\":%s,\"side\":%u,\"hz\":%.1f,\"frame\":%lu,\"filter\":%s,"
+                     "\"max_mm\":%u,\"d\":[", TF(t->ok), t->side, t->hz, (unsigned long)t->frames, TF(t->filter),
+                     t->max_mm);
+    for (int z = 0; z < zones && n < (int)len; z++) n += snprintf(out + n, len - n, "%s%d", z ? "," : "", t->distance_mm[z]);
+    if (n < (int)len) n += snprintf(out + n, len - n, "],\"s\":[");
+    for (int z = 0; z < zones && n < (int)len; z++) n += snprintf(out + n, len - n, "%s%u", z ? "," : "", t->status[z]);
+    if (n < (int)len) n += snprintf(out + n, len - n, "],\"n\":[");
+    for (int z = 0; z < zones && n < (int)len; z++) n += snprintf(out + n, len - n, "%s%u", z ? "," : "", t->targets[z]);
+    if (n < (int)len) n += snprintf(out + n, len - n, "]}");
+    return n;
 }
 
 static const char *const MOTOR_MODES[] = {"direct", "api", "pot"};
@@ -127,11 +146,11 @@ static int status_json(char *out, size_t len, int fd, const snapshot_t *x, int n
                     "{\"t\":\"status\",\"fw\":\"%s\",\"host\":\"%s\",\"uptime_s\":%lld,\"heap\":%u,\"ip\":\"%s\","
                     "\"rssi\":%d,\"ssid\":\"%s\",\"clients\":%d,\"sample_hz\":%.1f,\"parts\":{\"mcp3008\":%s,"
                     "\"mcp23017\":%s,\"pca9685\":%s,\"tca9548\":%s,\"pressure0\":%s,\"pressure1\":%s,"
-                    "\"hx711\":%s,\"ultrasonic\":%s},\"access\":\"%s\",\"code\":%d}",
+                    "\"hx711\":%s,\"ultrasonic\":%s,\"vl53l7cx\":%s},\"access\":\"%s\",\"code\":%d}",
                     closer_demo_version(), closer_demo_name(), esp_timer_get_time() / 1000000,
                     (unsigned)heap_caps_get_free_size(MALLOC_CAP_DEFAULT), st.ip, st.rssi, st.ssid, n_clients,
                     s->rate_hz, TF(s->mcp3008_ok), TF(b->mcp_ok), TF(b->pca_ok), TF(b->tca_ok), TF(b->pressure_ok[0]),
-                    TF(b->pressure_ok[1]), TF(x->g.hx_ok), TF(x->g.us_ok), fd >= 0 ? closer_access_state(fd) : "none",
+                    TF(b->pressure_ok[1]), TF(x->g.hx_ok), TF(x->g.us_ok), TF(x->tof.ok), fd >= 0 ? closer_access_state(fd) : "none",
                     code_s);
 }
 
@@ -168,6 +187,8 @@ static int topic_json(topic_t t, char *out, size_t len, int fd, const snapshot_t
     case TOPIC_ULTRASONIC:
         return snprintf(out, len, "{\"t\":\"ultrasonic\",\"ok\":%s,\"distanceMm\":%.1f,\"hz\":%.1f}", TF(g->us_ok),
                         g->us_mm, g->us_hz);
+    case TOPIC_TOF:
+        return tof_json(out, len, &x->tof);
     case TOPIC_LOADCELL:
         return snprintf(out, len, "{\"t\":\"loadcell\",\"ok\":%s,\"grams\":%.2f,\"raw\":%ld,\"hz\":%.1f}", TF(g->hx_ok),
                         g->hx_units, (long)g->hx_raw, g->hx_hz);
@@ -286,6 +307,16 @@ static int command(int fd, cJSON *j, char *reply, size_t len) {
         if (closer_access_has(fd)) {
             gpioparts_encoder_zero();
             ok = true;
+        }
+    } else if ((v = cJSON_GetObjectItem(j, "tof")) && cJSON_IsObject(v)) {
+        what = "tof";
+        if (closer_access_has(fd)) {
+            tof_t t;
+            tof_get(&t);
+            cJSON *f = cJSON_GetObjectItem(v, "filter");
+            ok = (!cJSON_GetObjectItem(v, "side") || tof_set_resolution(num(v, "side", 0))) &&
+                 ((!f && !cJSON_GetObjectItem(v, "max_mm")) ||
+                  tof_set_filter(f ? cJSON_IsTrue(f) : t.filter, num(v, "max_mm", t.max_mm)));
         }
     } else if (cJSON_GetObjectItem(j, "loadcell_tare")) {
         what = "loadcell_tare";

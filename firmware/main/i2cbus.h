@@ -9,6 +9,7 @@
 #pragma once
 #include <stdbool.h>
 #include <stdint.h>
+#include "driver/i2c_master.h"
 
 #define PWM_CHANNELS        16
 #define PRESSURE_SENSORS    2
@@ -43,6 +44,7 @@ typedef struct {
 } i2cbus_t;
 
 void i2cbus_start(void);
+i2c_master_bus_handle_t i2cbus_bus(void);         // for other parts on the bus (the VL53L7CX: tof.cpp)
 void i2cbus_get(i2cbus_t *out);
 
 // Setters: false (and nothing changes) when the part is absent or a value is out of range.

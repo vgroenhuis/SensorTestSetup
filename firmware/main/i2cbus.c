@@ -17,7 +17,7 @@ static const char *TAG = "i2c";
 #define ADDR_PCA9685        0x40
 #define ADDR_TCA9548        0x70
 #define ADDR_WF100DPZ       0x6D
-#define TIMEOUT_MS          20
+#define TIMEOUT_MS          50          // (also covers waiting for a VL53L7CX transfer to end)
 #define PERIOD_MS           20          // the input loop
 #define RETRY_MS            1000        // looking again for an absent part, and checking a present one's settings
 
@@ -368,6 +368,8 @@ static i2c_master_dev_handle_t add(uint8_t addr) {
     ESP_ERROR_CHECK(i2c_master_bus_add_device(bus, &dc, &d));
     return d;
 }
+
+i2c_master_bus_handle_t i2cbus_bus(void) { return bus; }
 
 void i2cbus_start(void) {
     lock = xSemaphoreCreateMutex();

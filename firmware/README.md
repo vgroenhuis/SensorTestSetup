@@ -9,7 +9,7 @@ here, the PlatformIO firmware is the one that has it.
 | yes | OLED (SSD1306, 128x64): Wi-Fi state, address, access code, updates | SPI |
 | yes | MCP3008: potentiometer (ch 7), MH sensor (ch 6), all 8 channels | SPI |
 | yes | MCP23017 (16 GPIO), PCA9685 (16 servo/PWM), TCA9548 + 2x WF100DPZ pressure | I2C |
-| | VL53L7CX ToF | I2C |
+| yes | VL53L7CX ToF (4x4 / 8x8; ST's driver in `components/vl53l7cx`) | I2C |
 | yes | L298N motor (speed, direct, follow the pot) + encoder (PCNT), HC-SR04 ultrasonic, HX711 load cell | GPIO |
 | | Input-output matrix | |
 

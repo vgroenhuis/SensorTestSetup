@@ -6,6 +6,7 @@
 #include "sensors.h"
 #include "i2cbus.h"
 #include "gpioparts.h"
+#include "tof.h"
 #include "web.h"
 #include "closer_access.h"
 #include "closer_demo.h"
@@ -78,6 +79,7 @@ void app_main(void) {
     sensors_start(SPI_HOST_ID);
     i2cbus_start();
     gpioparts_start();
+    tof_start();
     web_start();
     xTaskCreate(stats_task, "stats", 3072, NULL, 2, NULL);
     ESP_LOGI(TAG, "SensorTest running, firmware %s", closer_demo_version());
