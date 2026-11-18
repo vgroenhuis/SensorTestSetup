@@ -291,7 +291,8 @@ bus has room now that the VL53L7CX has its own; the register map is the same, so
 ## 13. Next steps
 
 1. Check the datasheet details listed in section 14; order the ESP32-C5 modules (not at JLCPCB).
-2. Schematic in `OfficeDeskSetup/` (the present one has the DevKit, MCP3008, MCP23017, TCA9548, L298N and the pot).
+2. Schematic in `OfficeDeskSetup/`: revision 0.1 done (seven sheets); see `OfficeDeskSetup/SCHEMATIC_NOTES.md` for
+   the choices made and the datasheet details still to verify, then ERC in KiCad 10.
 3. Layout, JLCPCB order, and bring-up part by part (the firmware already reports each part as found or not).
 
 ## 14. Parts (checked at JLCPCB, 2026-11-18)
