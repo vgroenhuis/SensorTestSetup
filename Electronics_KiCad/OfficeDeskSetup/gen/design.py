@@ -424,9 +424,11 @@ def rails(d, X):
          {'1': 'V_BUS', '2': 'GND', '3': 'V_SERVO', '4': 'GND', '5': '+5V', '6': 'GND', '7': '+3V3', '8': 'GND'},
          fields=fields('Connector_PinHeader_2.54mm:PinHeader_2x04_P2.54mm_Vertical'))
 
+    # Not flagged: nets already driven by a power-output pin (CHG_SYS: BQ25792 SYS, BAT_P: BQ25792 BAT,
+    # HUB_3V3: CH334 VDD33 LDO); a flag there is a power output against a power output.
     b = sh.block('Power flags (for the electrical rules check)')
-    for net in ('GND', '+3V3', '+5V', 'V_BUS', 'V_SERVO', 'V_DXL', 'VBUS_PD', 'VBUS_PROG', 'CHG_SYS', 'CHG_VBUS', 'BAT_P', 'BAT_N',
-                'BQ_VDD', 'VBUS_SW', 'HUB_3V3', 'HX_AVDD'):
+    for net in ('GND', '+3V3', '+5V', 'V_BUS', 'V_SERVO', 'V_DXL', 'VBUS_PD', 'VBUS_PROG', 'CHG_VBUS', 'BAT_N',
+                'BQ_VDD', 'VBUS_SW', 'HX_AVDD'):
         flag(b, net)
 
 
@@ -437,7 +439,7 @@ def esp32(b, name, tag, gpio, usb):
     names = {11: 'U0TXD/GPIO11', 12: 'U0RXD/GPIO12'}
     for n, net in gpio.items():
         nets[names.get(n, 'GPIO%d' % n)] = net
-    b.ic('PCM_Espressif:ESP32-C5-WROOM-1U', 'U', 'ESP32-C5-WROOM-1U-N16R8 ' + name, nets,
+    b.ic('OfficeDeskSetup:ESP32-C5-WROOM-1U', 'U', 'ESP32-C5-WROOM-1U-N16R8 ' + name, nets,
          fields=fields('PCM_Espressif:ESP32-C5-WROOM-1U', 'C54951857'))
     b.col()
     R(b, '10k', '+3V3', tag + '_EN')

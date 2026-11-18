@@ -3453,24 +3453,13 @@
 		(stroke (width 0) (type default))
 		(uuid "f37ab73a-1e5f-5588-8dca-ff19c720450d")
 	)
-	(global_label "BAT_P"
-		(shape passive)
+	(label "BAT_P"
 		(at 167.64 85.09 0)
-		(fields_autoplaced yes)
 		(effects
-			(font (size 1 1))
-			(justify left)
+			(font (size 1.27 1.27))
+			(justify left bottom)
 		)
-		(uuid "7dc73fc7-38f0-5158-9371-cb541edcfec4")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 167.64 85.09 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
+		(uuid "9417ee26-5642-580c-b8df-9b34443c483e")
 	)
 	(wire
 		(pts (xy 165.1 54.61) (xy 167.64 54.61))
@@ -3516,24 +3505,13 @@
 		(stroke (width 0) (type default))
 		(uuid "1baa2960-f702-5198-870a-bbdd6f1467e1")
 	)
-	(global_label "BAT_P"
-		(shape passive)
+	(label "BAT_P"
 		(at 167.64 74.93 0)
-		(fields_autoplaced yes)
 		(effects
-			(font (size 1 1))
-			(justify left)
+			(font (size 1.27 1.27))
+			(justify left bottom)
 		)
-		(uuid "27a51665-bc95-50b1-9fe9-c28e86b409bb")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 167.64 74.93 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
+		(uuid "005a5d7f-70ba-589b-bfb0-dba525347286")
 	)
 	(wire
 		(pts (xy 165.1 80.01) (xy 167.64 80.01))
@@ -4064,24 +4042,13 @@
 		(stroke (width 0) (type default))
 		(uuid "7fd5137b-150e-50e3-bf31-b461d0367a33")
 	)
-	(global_label "BAT_P"
-		(shape passive)
+	(label "BAT_P"
 		(at 207.01 50.8 0)
-		(fields_autoplaced yes)
 		(effects
-			(font (size 1 1))
-			(justify left)
+			(font (size 1.27 1.27))
+			(justify left bottom)
 		)
-		(uuid "9d1e9095-dccf-54e2-9c39-4e9bad9953a0")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 207.01 50.8 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
+		(uuid "5d78d0ce-decd-5977-b85c-7ca5853828b4")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -7175,7 +7142,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 226.06 73.66 0)
+		(at 226.06 71.12 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7185,7 +7152,7 @@
 		(dnp no)
 		(uuid "cc5cca79-6bed-5ceb-b01b-6cd58abe2e07")
 		(property "Reference" "C23"
-			(at 228.36 72.36 0)
+			(at 228.36 69.82 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7194,7 +7161,7 @@
 			)
 		)
 		(property "Value" "10uF 25V"
-			(at 228.36 74.96 0)
+			(at 228.36 72.42 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7203,7 +7170,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
-			(at 226.06 73.66 0)
+			(at 226.06 71.12 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7212,7 +7179,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 226.06 73.66 0)
+			(at 226.06 71.12 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7221,7 +7188,7 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
-			(at 226.06 73.66 0)
+			(at 226.06 71.12 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7245,37 +7212,26 @@
 		)
 	)
 	(wire
-		(pts (xy 226.06 69.85) (xy 226.06 67.31))
+		(pts (xy 226.06 67.31) (xy 226.06 64.77))
 		(stroke (width 0) (type default))
 		(uuid "00637c56-6995-50d0-8d14-dc95b947bc41")
 	)
-	(global_label "BAT_P"
-		(shape passive)
-		(at 226.06 67.31 90)
-		(fields_autoplaced yes)
+	(label "BAT_P"
+		(at 226.06 64.77 90)
 		(effects
-			(font (size 1 1))
-			(justify left)
+			(font (size 1.27 1.27))
+			(justify left bottom)
 		)
-		(uuid "4d703619-2f1e-5f69-b3a3-f984ddbaa500")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 226.06 67.31 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
+		(uuid "c3569bc8-077f-5840-bb8a-678d4a45afd7")
 	)
 	(wire
-		(pts (xy 226.06 77.47) (xy 226.06 80.01))
+		(pts (xy 226.06 74.93) (xy 226.06 77.47))
 		(stroke (width 0) (type default))
 		(uuid "b2d78b8f-40bd-57b6-abc4-81b7f9c96242")
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 226.06 80.01 0)
+		(at 226.06 77.47 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7285,7 +7241,7 @@
 		(dnp no)
 		(uuid "22233a75-b54a-5663-9446-b819b9cd9fec")
 		(property "Reference" "#PWR45"
-			(at 226.06 80.01 0)
+			(at 226.06 77.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7294,7 +7250,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 226.06 83.81 0)
+			(at 226.06 81.27 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7302,7 +7258,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 226.06 80.01 0)
+			(at 226.06 77.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7311,7 +7267,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 226.06 80.01 0)
+			(at 226.06 77.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7320,7 +7276,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 226.06 80.01 0)
+			(at 226.06 77.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7342,7 +7298,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 241.3 73.66 0)
+		(at 241.3 71.12 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7352,7 +7308,7 @@
 		(dnp no)
 		(uuid "bb3337ef-96e1-5dfd-bf91-8e500fbddd80")
 		(property "Reference" "C24"
-			(at 243.6 72.36 0)
+			(at 243.6 69.82 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7361,7 +7317,7 @@
 			)
 		)
 		(property "Value" "10uF 25V"
-			(at 243.6 74.96 0)
+			(at 243.6 72.42 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7370,7 +7326,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_1206_3216Metric"
-			(at 241.3 73.66 0)
+			(at 241.3 71.12 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7379,7 +7335,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 241.3 73.66 0)
+			(at 241.3 71.12 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7388,7 +7344,7 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
-			(at 241.3 73.66 0)
+			(at 241.3 71.12 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7412,37 +7368,26 @@
 		)
 	)
 	(wire
-		(pts (xy 241.3 69.85) (xy 241.3 67.31))
+		(pts (xy 241.3 67.31) (xy 241.3 64.77))
 		(stroke (width 0) (type default))
 		(uuid "dd592569-bb00-5c49-a173-7384e1b055a9")
 	)
-	(global_label "BAT_P"
-		(shape passive)
-		(at 241.3 67.31 90)
-		(fields_autoplaced yes)
+	(label "BAT_P"
+		(at 241.3 64.77 90)
 		(effects
-			(font (size 1 1))
-			(justify left)
+			(font (size 1.27 1.27))
+			(justify left bottom)
 		)
-		(uuid "32e993fa-1707-5202-b8bd-a86381b00116")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 241.3 67.31 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
+		(uuid "b240b14e-fa7f-5e78-89f3-e8993e61b4e1")
 	)
 	(wire
-		(pts (xy 241.3 77.47) (xy 241.3 80.01))
+		(pts (xy 241.3 74.93) (xy 241.3 77.47))
 		(stroke (width 0) (type default))
 		(uuid "7f20e77b-5704-5941-b152-4276990fbac1")
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 241.3 80.01 0)
+		(at 241.3 77.47 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7452,7 +7397,7 @@
 		(dnp no)
 		(uuid "e2df2195-23ed-5596-98b9-2aefbe6b91db")
 		(property "Reference" "#PWR46"
-			(at 241.3 80.01 0)
+			(at 241.3 77.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7461,7 +7406,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 241.3 83.81 0)
+			(at 241.3 81.27 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7469,7 +7414,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 241.3 80.01 0)
+			(at 241.3 77.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7478,7 +7423,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 241.3 80.01 0)
+			(at 241.3 77.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7487,7 +7432,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 241.3 80.01 0)
+			(at 241.3 77.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7509,7 +7454,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 256.54 73.66 0)
+		(at 256.54 71.12 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7519,7 +7464,7 @@
 		(dnp no)
 		(uuid "a7cfcfe4-fb07-56ea-b675-476554aec513")
 		(property "Reference" "C25"
-			(at 258.84 72.36 0)
+			(at 258.84 69.82 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7528,7 +7473,7 @@
 			)
 		)
 		(property "Value" "100nF 50V"
-			(at 258.84 74.96 0)
+			(at 258.84 72.42 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7537,7 +7482,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric"
-			(at 256.54 73.66 0)
+			(at 256.54 71.12 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7546,7 +7491,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 256.54 73.66 0)
+			(at 256.54 71.12 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7555,7 +7500,7 @@
 			)
 		)
 		(property "Description" "Unpolarized capacitor"
-			(at 256.54 73.66 0)
+			(at 256.54 71.12 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7579,37 +7524,26 @@
 		)
 	)
 	(wire
-		(pts (xy 256.54 69.85) (xy 256.54 67.31))
+		(pts (xy 256.54 67.31) (xy 256.54 64.77))
 		(stroke (width 0) (type default))
 		(uuid "1eb9dba9-7872-5663-931a-356e34476483")
 	)
-	(global_label "BAT_P"
-		(shape passive)
-		(at 256.54 67.31 90)
-		(fields_autoplaced yes)
+	(label "BAT_P"
+		(at 256.54 64.77 90)
 		(effects
-			(font (size 1 1))
-			(justify left)
+			(font (size 1.27 1.27))
+			(justify left bottom)
 		)
-		(uuid "fddb3b00-df3b-5481-81db-ee5c3eb90dcb")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 256.54 67.31 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
+		(uuid "e1aa10d8-5b05-58ac-a21b-eb3b7f87749e")
 	)
 	(wire
-		(pts (xy 256.54 77.47) (xy 256.54 80.01))
+		(pts (xy 256.54 74.93) (xy 256.54 77.47))
 		(stroke (width 0) (type default))
 		(uuid "77c4a8b5-14c0-5f95-ad92-e3972abaf0c3")
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 256.54 80.01 0)
+		(at 256.54 77.47 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7619,7 +7553,7 @@
 		(dnp no)
 		(uuid "387f30a7-c8a4-54d7-9ac3-19add4b027c7")
 		(property "Reference" "#PWR47"
-			(at 256.54 80.01 0)
+			(at 256.54 77.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7628,7 +7562,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 256.54 83.81 0)
+			(at 256.54 81.27 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7636,7 +7570,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 256.54 80.01 0)
+			(at 256.54 77.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7645,7 +7579,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 256.54 80.01 0)
+			(at 256.54 77.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7654,7 +7588,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 256.54 80.01 0)
+			(at 256.54 77.47 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7676,7 +7610,7 @@
 	)
 	(text "PROG 13.7k: 3 cells, 750 kHz (verify). ILIM_HIZ divider: about 3 A input limit (verify);\nfirmware sets the input current by source (PD contract, or 0.5 A on PROG).\nTS: 5.23k / 30.1k with a 10k NTC at the cells. CE low: charging enabled.\nCHARGE LED on REGN, so it also works with the board switched off."
 		(exclude_from_sim no)
-		(at 223.52 91.44 0)
+		(at 223.52 88.9 0)
 		(effects
 			(font (size 1.27 1.27))
 			(justify left top)
@@ -7685,7 +7619,7 @@
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 228.6 115.57 0)
+		(at 228.6 113.03 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7695,7 +7629,7 @@
 		(dnp no)
 		(uuid "44aa474d-6596-527b-b7f0-c4cf02ad5346")
 		(property "Reference" "TP3"
-			(at 228.6 108.71 0)
+			(at 228.6 106.17 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7703,7 +7637,7 @@
 			)
 		)
 		(property "Value" "CHG_SYS"
-			(at 228.6 110.49 0)
+			(at 228.6 107.95 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7711,7 +7645,7 @@
 			)
 		)
 		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
-			(at 228.6 115.57 0)
+			(at 228.6 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7720,7 +7654,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 228.6 115.57 0)
+			(at 228.6 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7729,7 +7663,7 @@
 			)
 		)
 		(property "Description" "test point"
-			(at 228.6 115.57 0)
+			(at 228.6 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7750,13 +7684,13 @@
 		)
 	)
 	(wire
-		(pts (xy 228.6 115.57) (xy 228.6 118.11))
+		(pts (xy 228.6 113.03) (xy 228.6 115.57))
 		(stroke (width 0) (type default))
 		(uuid "3fe598d7-2ca9-5134-8622-943c3ca940b7")
 	)
 	(global_label "CHG_SYS"
 		(shape passive)
-		(at 228.6 118.11 270)
+		(at 228.6 115.57 270)
 		(fields_autoplaced yes)
 		(effects
 			(font (size 1 1))
@@ -7764,7 +7698,7 @@
 		)
 		(uuid "c497e2e1-e2db-5d5c-860c-ca61ae7976aa")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 228.6 118.11 0)
+			(at 228.6 115.57 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7775,7 +7709,7 @@
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 241.3 115.57 0)
+		(at 241.3 113.03 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7785,7 +7719,7 @@
 		(dnp no)
 		(uuid "c9fadd6f-d4b7-5075-8a31-9fb9bfdfb836")
 		(property "Reference" "TP4"
-			(at 241.3 108.71 0)
+			(at 241.3 106.17 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7793,7 +7727,7 @@
 			)
 		)
 		(property "Value" "BAT_P"
-			(at 241.3 110.49 0)
+			(at 241.3 107.95 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7801,7 +7735,7 @@
 			)
 		)
 		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
-			(at 241.3 115.57 0)
+			(at 241.3 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7810,7 +7744,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 241.3 115.57 0)
+			(at 241.3 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7819,7 +7753,7 @@
 			)
 		)
 		(property "Description" "test point"
-			(at 241.3 115.57 0)
+			(at 241.3 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7840,32 +7774,21 @@
 		)
 	)
 	(wire
-		(pts (xy 241.3 115.57) (xy 241.3 118.11))
+		(pts (xy 241.3 113.03) (xy 241.3 115.57))
 		(stroke (width 0) (type default))
 		(uuid "7ab8fd45-61de-5f73-a090-4be92d5b18bd")
 	)
-	(global_label "BAT_P"
-		(shape passive)
-		(at 241.3 118.11 270)
-		(fields_autoplaced yes)
+	(label "BAT_P"
+		(at 241.3 115.57 270)
 		(effects
-			(font (size 1 1))
-			(justify right)
+			(font (size 1.27 1.27))
+			(justify right bottom)
 		)
-		(uuid "eb6ec6ff-2296-573b-a6b4-a56856d39165")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 241.3 118.11 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
+		(uuid "b386dd68-c3a7-5a2c-8532-000b98780a5b")
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 254 115.57 0)
+		(at 254 113.03 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7875,7 +7798,7 @@
 		(dnp no)
 		(uuid "ee304be8-c1a6-55d5-b826-42e4b30453d3")
 		(property "Reference" "TP5"
-			(at 254 108.71 0)
+			(at 254 106.17 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7883,7 +7806,7 @@
 			)
 		)
 		(property "Value" "CHG_INT"
-			(at 254 110.49 0)
+			(at 254 107.95 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7891,7 +7814,7 @@
 			)
 		)
 		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
-			(at 254 115.57 0)
+			(at 254 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7900,7 +7823,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 254 115.57 0)
+			(at 254 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7909,7 +7832,7 @@
 			)
 		)
 		(property "Description" "test point"
-			(at 254 115.57 0)
+			(at 254 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7930,12 +7853,12 @@
 		)
 	)
 	(wire
-		(pts (xy 254 115.57) (xy 254 118.11))
+		(pts (xy 254 113.03) (xy 254 115.57))
 		(stroke (width 0) (type default))
 		(uuid "9d1214bd-95b5-5726-9ae7-606f4e8042c3")
 	)
 	(label "CHG_INT"
-		(at 254 118.11 270)
+		(at 254 115.57 270)
 		(effects
 			(font (size 1.27 1.27))
 			(justify right bottom)
@@ -7944,7 +7867,7 @@
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 266.7 115.57 0)
+		(at 266.7 113.03 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7954,7 +7877,7 @@
 		(dnp no)
 		(uuid "5e840021-2519-57f5-878f-6cf406bea2a9")
 		(property "Reference" "TP6"
-			(at 266.7 108.71 0)
+			(at 266.7 106.17 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7962,7 +7885,7 @@
 			)
 		)
 		(property "Value" "CHG_REGN"
-			(at 266.7 110.49 0)
+			(at 266.7 107.95 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7970,7 +7893,7 @@
 			)
 		)
 		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
-			(at 266.7 115.57 0)
+			(at 266.7 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7979,7 +7902,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 266.7 115.57 0)
+			(at 266.7 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7988,7 +7911,7 @@
 			)
 		)
 		(property "Description" "test point"
-			(at 266.7 115.57 0)
+			(at 266.7 113.03 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8009,12 +7932,12 @@
 		)
 	)
 	(wire
-		(pts (xy 266.7 115.57) (xy 266.7 118.11))
+		(pts (xy 266.7 113.03) (xy 266.7 115.57))
 		(stroke (width 0) (type default))
 		(uuid "35a6401e-d2f2-59d4-8865-4dec8c3bc63d")
 	)
 	(label "CHG_REGN"
-		(at 266.7 118.11 270)
+		(at 266.7 115.57 270)
 		(effects
 			(font (size 1.27 1.27))
 			(justify right bottom)
@@ -8480,24 +8403,13 @@
 		(stroke (width 0) (type default))
 		(uuid "59bd3e7f-5e82-5d46-b6e8-62cd96610220")
 	)
-	(global_label "BAT_P"
-		(shape passive)
+	(label "BAT_P"
 		(at 34.29 195.58 0)
-		(fields_autoplaced yes)
 		(effects
-			(font (size 1 1))
-			(justify left)
+			(font (size 1.27 1.27))
+			(justify left bottom)
 		)
-		(uuid "56699b8d-3766-5239-8abf-3bc32062044e")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 34.29 195.58 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
+		(uuid "86e417e6-a61f-54b5-b531-dfbf28826bfc")
 	)
 	(symbol
 		(lib_id "OfficeDeskSetup:BQ7791504PW")
