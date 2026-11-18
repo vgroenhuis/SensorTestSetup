@@ -1,8 +1,8 @@
-# SensorTestSetup PCB: specification (draft 0.6)
+# SensorTestSetup PCB: specification (draft 0.7)
 
-Status: **draft for review**. All decisions D1–D16 are settled (section 12). Draft 0.6 adds the parts list with JLCPCB
-numbers and stock (section 14), which replaced several parts that are not in stock; the remaining *(verify)* items are
-datasheet details for the schematic.
+Status: **draft for review**. All decisions D1–D16 are settled (section 12). Draft 0.7: the parts list with JLCPCB
+numbers and stock (section 14), corrected after a fuller search (the HUSB238, AS5600, BQ77915 and the ESP32-C5-WROOM-1U
+are in stock); **D14 is open again** (antenna, section 4). The remaining *(verify)* items are datasheet details.
 Values marked *(verify)* have to be checked against the datasheet before they go into the schematic.
 
 Key words: **must** = hard requirement, **should** = strongly preferred, **may** = optional.
@@ -43,7 +43,7 @@ explain and try out sensors and actuators, and for the CloSer lab demos page.
 
 ```mermaid
 flowchart LR
-  PD[USB-C POWER<br>CH224Q, 15 V] --> SW{{power switch<br>CC1, CC2, EN}}
+  PD[USB-C POWER<br>HUSB238, 15 V] --> SW{{power switch<br>CC1, CC2, EN}}
   SW --> CHG[buck-boost charger, power path<br>BQ25792: input 1]
   PROG[USB-C PROG 5 V] --> HUB[USB hub]
   PROG -- input 2 --> CHG
@@ -59,7 +59,7 @@ flowchart LR
   end
   A <-- UART link --> B
   A -- SPI --> TFT[2.4'' ST7789 TFT] & ADC8[MCP3008: pot, MH, LDR]
-  A -- I2C main --> I2CDEV[MCP23017, PCA9685, TCA9548, INA226, CH224Q,<br>charger, IMU, BME688, MT6701, VEML7700, ADS1115]
+  A -- I2C main --> I2CDEV[MCP23017, PCA9685, TCA9548, INA226, HUSB238,<br>charger, IMU, BME688, AS5600, VEML7700, ADS1115]
   A -- GPIO --> HX[HX711] & US[HC-SR04 + level shifter]
   B -- I2C 2 --> TOF[VL53L7CX]
   B -- GPIO --> MOT & ENC[2 encoders] & DXLBUF[half-duplex buffer] --> DXL
@@ -67,8 +67,11 @@ flowchart LR
 
 ## 4. Two ESP32-C5s
 
-* **Must**: two ESP32-C5-WROOM-1-N16R8 modules (as now). **Not in stock at JLCPCB** (section 14): through JLCPCB's
-  global sourcing or consigned parts (Mouser has them), or soldered by hand after assembly.
+* **Must**: two ESP32-C5 modules with 16 MB flash and 8 MB PSRAM (as now). At JLCPCB only the **WROOM-1U** (external
+  antenna, U.FL) is in stock: ESP32-C5-WROOM-1U-N16R8-V1.2, C54951857, 684 pcs; the WROOM-1 (PCB antenna) is not
+  (Mouser has it, for JLCPCB's global sourcing or consigned parts). **D14 (reopened)**: the WROOM-1U with two dual-band
+  external antennas (assembled by JLCPCB, the antennas can sit far apart and outside an enclosure; as on LynXP), or the
+  WROOM-1 through global sourcing (no cables). Recommendation: the WROOM-1U.
 * **ESP 'main'**: Wi-Fi, web server, lab demos reports and updates, the display, the SPI parts (MCP3008, TFT), the main I2C
   bus, the HX711 and the ultrasonic sensor.
 * **ESP 'io'**: the parts that need many pins or exact timing: motor driver and encoders, the VL53L7CX on its own bus,
@@ -81,8 +84,9 @@ flowchart LR
   native USB (GPIO13/14): two serial ports and JTAG, no USB-UART chips. 5.1 kΩ Rd on CC, ESD protection (USBLC6-2 or
   similar) on D+/D−. Each module: EN reset button, BOOT button on GPIO28, EN RC delay (10 kΩ / 1 µF).
 * **Should**: a UART0 header (GND, TX, RX, EN, BOOT) on 'main' for flashing with an external adapter.
-* Antennas: WROOM-1 modules with **PCB antennas** (D14), keep-out zones per the module datasheet, the two antennas on
-  **opposite board edges**, away from the motor driver, the converters and the battery.
+* Antennas (D14): with the WROOM-1U, two 2.4/5 GHz antennas on U.FL cables, mounted at opposite ends of the board or
+  the desk setup; with the WROOM-1, the module antennas on **opposite board edges** with keep-out zones. Either way away
+  from the motor driver, the converters and the battery.
 
 ## 5. Pins
 
@@ -133,7 +137,7 @@ All 19 usable pins of 'io' are used; 'main' has 11/12 left for the UART0 header.
 
 | Rail | Source | Rating | Loads |
 | --- | --- | --- | --- |
-| VBUS_PD | USB-C **POWER**, **CH224Q** PD sink (I2C 0x22), default **15 V** (CFG resistor *(verify the CH224Q table)*), jumpers for 20 V / 12 V / 9 V | 3 A (45 W at 15 V) | charger input 1 |
+| VBUS_PD | USB-C **POWER**, **HUSB238** PD sink (I2C 0x08, as LynXP), default **15 V** (voltage-select resistor *(verify)*), jumpers for 20 V / 12 V / 9 V | 3 A (45 W at 15 V) | charger input 1 |
 | VBUS_PROG | USB-C **PROG** (5 V) | 0.5–1.5 A | USB hub, charger input 2 (slow charging, logic on a PC alone) |
 | **V_BUS** | the charger's system output (NVDC power path): the battery voltage, **9–12.6 V**, from the inputs when present, from the pack otherwise; then the INA226 with a shunt | ≥ 5 A (the BQ25792's battery switch: 6 A continuous, higher peaks *(verify in the datasheet)*) | 3.3 V, 5 V, V_SERVO, TB6612 VM, V_DXL |
 | **3.3 V** | buck from V_BUS | ≥ 1.5 A | both ESP32s (Wi-Fi peaks ~0.5 A each), sensors, TFT |
@@ -149,16 +153,16 @@ All 19 usable pins of 'io' are used; 'main' has 11/12 left for the UART0 header.
   3.6–24 V, integrated switches, I2C 0x6B) *(verify the part, its JLCPCB availability and its currents)*. Input 1: the
   PD port (15 V: ~45 W, charges in about 1.5 hours while the board runs); input 2: the PROG port (5 V: slow charging,
   ~8 hours). It charges from 5, 9, 12, 15 or 20 V, so any USB-C charger or powerbank works, a 15 V one best.
-* **Cells**: **protected** high-drain 18650s (each with its own protection circuit: no 3S protector chip is in stock at
-  JLCPCB, section 14); holders for the longer protected cells (~70 mm); a **balancer per cell** (3× HY2213-BB3A, 4.20 V,
-  the charger does not balance); an NTC on the cells for the charger.
+* **Cells**: high-drain 18650s; **3S protection with cell balancing: BQ77915** (3–5S protector, passive balancing,
+  external charge/discharge MOSFETs; thresholds by variant *(verify for -04)*), so unprotected cells fit standard holders;
+  an NTC on the cells for the charger and the protector.
 * **Power switch**: drives the enable of a **load switch between the charger's system output and V_BUS**, so switched
   off, nothing on the board draws from the pack, and the charger keeps charging from either USB-C port. A second and
   third pole can break **CC1 and CC2** as on LynXP §2.2 (a powerbank then wakes up and renegotiates on every switch-on),
   selected by solder jumpers, **off by default**: with them, a PD charger no longer charges the pack while the board is
   switched off. No separate emergency stop: the motors run free, and the firmware stops them (STBY, PWM).
 * **Monitoring**: the INA226 measures everything the board uses (on V_BUS); the charger's ADC reads the input voltages
-  and currents, the battery voltage and the charge current; the CH224Q reports the PD contract. All three on the main I2C bus, with a page in the firmware.
+  and currents, the battery voltage and the charge current; the HUSB238 reports the PD contract. All three on the main I2C bus, with a page in the firmware.
 * Protection: TVS on VBUS_PD (≥ 22 V standoff: 20 V can be selected) and VBUS_PROG; USB-C sink capacitance ≤ 10 µF
   before the charger *(verify)*; bulk capacitors on V_BUS; the cells' own protection.
 * Power-good LEDs on V_BUS, 3.3 V, 5 V, V_SERVO, V_DXL; charge LED; test points on every rail.
@@ -182,7 +186,7 @@ All 19 usable pins of 'io' are used; 'main' has 11/12 left for the UART0 header.
 | IMU LSM6DS3TR-C | I2C main | 0x6A (0x6B is the charger) | |
 | BME688: temperature, humidity, air pressure, gas | I2C main | 0x76 | away from the regulators (self-heating); no barometer alone is in stock |
 | VEML7700 light | I2C main | 0x10 | |
-| MT6701 magnetic angle + knob with magnet | I2C main | 0x06 *(verify)* | in stock where the AS5600 is not |
+| AS5600 magnetic angle + knob with magnet | I2C main | 0x36 | |
 | INA226 current / power, with a shunt resistor | I2C main | 0x40 | on V_BUS |
 | HX711 | GPIO ('main') | | load cell on a connector; RATE on a jumper (10/80 Hz) |
 | HC-SR04 | GPIO ('main') | | on a connector, level-shifted ECHO |
@@ -200,12 +204,12 @@ All 19 usable pins of 'io' are used; 'main' has 11/12 left for the UART0 header.
 | TB6612FNG | GPIO ('io') | | two motor ports (A: the gear motor; B: spare), VM = V_BUS, thermal copper |
 | Dynamixel XL430 port | UART ('io') | | as LynXP §11.3: 2× JST EH 3-pin (GND, V_DXL, DATA), DATA is **5 V TTL** (ROBOTIS: a level shifter for 3.3 V controllers): TX through a 74AHCT1G125 at 5 V (TTL inputs take 3.3 V), enabled by DIR (RTS, inverted in the UART if needed); RX through a 74LVC1G34 at 3.3 V (5 V-tolerant input); 10 kΩ pull-up on DATA to 5 V *(verify against the ROBOTIS communication circuit)* |
 | RGB status LED | GPIO27 ('main') | | |
-| CH224Q PD sink | I2C main | 0x22 | |
+| HUSB238 PD sink | I2C main | 0x08 | |
 | Charger (BQ25792) | I2C main | 0x6B *(verify)* | |
 
 ### I2C addresses (main bus)
 
-0x06 MT6701 · 0x10 VEML7700 · 0x20 MCP23017 · 0x22 CH224Q · 0x40 INA226 · 0x41 PCA9685 · 0x48 ADS1115 · 0x6A IMU ·
+0x08 HUSB238 · 0x10 VEML7700 · 0x20 MCP23017 · 0x36 AS5600 · 0x40 INA226 · 0x41 PCA9685 · 0x48 ADS1115 · 0x6A IMU ·
 0x6B charger · 0x70 (PCA9685 All-Call: kept free) · 0x71 TCA9548 · 0x76 BME688. Behind the TCA9548: 0x6D ×2 + spares.
 Second bus ('io'): 0x29 VL53L7CX + one Qwiic connector.
 
@@ -249,7 +253,7 @@ bus has room now that the VL53L7CX has its own; the register map is the same, so
 ## 10. Mechanical
 
 * About 100 × 150 mm, larger where needed (all the parts above have priority over size). 4× M3 mounting holes.
-* Front edge: TFT, potentiometer, MT6701 knob, buttons, power switch. Rear/side edges: USB-C, motor, servo, Dynamixel and
+* Front edge: TFT, potentiometer, AS5600 knob, buttons, power switch. Rear/side edges: USB-C, motor, servo, Dynamixel and
   sensor connectors, pressure hose barbs.
 * VL53L7CX facing up with a clear 60° cone; the light sensors (LDR, VEML7700) uncovered; the BME688 away from heat.
 * Silkscreen: every part's name, bus and address; connector pin names and voltages; board name and revision.
@@ -261,7 +265,7 @@ bus has room now that the VL53L7CX has its own; the register map is the same, so
   the other as a part: to decide in firmware).
 * TFT: ST7789 through `esp_lcd` (u8g2 is monochrome), with a simple drawing layer or LVGL.
 * Address changes: PCA9685 0x41, TCA9548 0x71 (constants in `i2cbus.c`).
-* New drivers and pages: IMU, BME688, VEML7700, MT6701, ADS1115, INA226, CH224Q, the charger (battery and PD page), LDR,
+* New drivers and pages: IMU, BME688, VEML7700, AS5600, ADS1115, INA226, HUSB238, the charger (battery and PD page), LDR,
   IR reflective sensor, Dynamixel (Protocol 2.0), a second motor; all of them matrix inputs or outputs.
 * Battery and charging on the display and a page (charger ADC, INA226); a low-battery warning, and actuators off before
   the protection cuts the pack.
@@ -283,7 +287,7 @@ bus has room now that the VL53L7CX has its own; the register map is the same, so
 | D11 | Three 18650 cells in series (3S), charged by a buck-boost charger from either USB-C (5–20 V, best 15 V PD); the pack voltage is the system rail. |
 | D12 | No extra PWM chip for the motor driver: PWM from 'io' (LEDC). |
 | D13 | An on-board IR reflective sensor, plus a 4-pin socket for a standard MH sensor module. |
-| D14 | WROOM-1 modules with PCB antennas at opposite edges. |
+| D14 | **Reopened** (draft 0.7): only the WROOM-1U (external antenna) is at JLCPCB; recommendation: WROOM-1U (section 4). |
 | D15 | I2C addresses as on LynXP (PCA9685 0x41, current sensor 0x40): no preference, so aligned. |
 | D16 | A second motor port on the TB6612's channel B. |
 
@@ -302,16 +306,18 @@ Low stock (under ~100) is marked: enough for a few prototypes, order soon or res
 
 | Function | Part | JLCPCB / LCSC | Stock | Notes |
 | --- | --- | --- | --- | --- |
-| MCU module ×2 | ESP32-C5-WROOM-1-N16R8 | C53054799 | **0** | global sourcing / consigned (Mouser ~€6), or hand-soldered |
+| MCU module ×2 | ESP32-C5-WROOM-1U-N16R8-V1.2 (external antenna) | C54951857 | 684 | ~$5.85; the WROOM-1 (PCB antenna, C53054799) has 0: D14 |
+| Antenna ×2 (with WROOM-1U) | 2.4/5 GHz dual-band, U.FL cable | *(choose)* | | |
 | Charger (3S, buck-boost, power path) | BQ25792RQMR | C2862876 | 6555 | QFN-29 4×4, ~$2.11 |
-| PD sink | CH224Q | C46061833 | 20829 | replaces the HUSB238 (out of stock: **also for LynXP**) |
+| PD sink | HUSB238_002DD | C7471904 | 16980 | as LynXP; also HUSB238A (C24833806, 1902); alternative CH224Q (C46061833, 20829) |
 | Current / power monitor | INA226AIDGSR + shunt (e.g. 10 mΩ 2512) | C49851 | 55711 | replaces the INA260 (~$7) |
 | V_BUS and V_DXL switches (eFuse, 2.7–23 V) | TPS259472ARPWR | C3662789 | 7423 | current limit by resistor |
 | 3.3 V buck (≥ 1.5 A) | TPS54331DR | C9865 | 348919 | 3.5–28 V in, 3 A; the AP63203 is out of stock |
 | 5 V buck | AP63205WU-7 | C2071056 | 62073 | 2 A |
 | V_SERVO buck (≥ 3 A) | TPS54331DR (or LMR33630BDDAR, C544370) | C9865 | 348919 | |
-| Cell balancer ×3 | HY2213-BB3A | C113632 | 12317 | 4.20 V |
-| 18650 holder ×3 | MY-18650-01 | C2979183 | 14089 | check the fit of protected cells |
+| 3S protector + balancing | BQ7791504PWR | C2873309 | 1004 | other threshold variants -00 (495), -14 (326) |
+| Protection MOSFETs | dual N-MOSFET, ≥ 20 V, low R_DS(on) *(choose)* | | | charge and discharge path |
+| 18650 holder ×3 | MY-18650-01 | C2979183 | 14089 | |
 | USB hub (2 ports used) | CH334R | C4154405 | 15978 | QSOP-16 |
 | USB-C ×2 | TYPE-C-31-M-12 | C165948 | 506683 | |
 | USB ESD ×2 | USBLC6-2SC6 | C2827654 | 206099 | |
@@ -325,7 +331,7 @@ Low stock (under ~100) is marked: enough for a few prototypes, order soon or res
 | I/O expander | MCP23017-E/SO | C47023 | 1325 | SOIC-28 (the SSOP has 252) |
 | PWM / servo driver | PCA9685PW,118 | C2678753 | 2277 | |
 | I2C multiplexer | TCA9548APWR | C130026 | 16053 | |
-| 10-bit ADC (SPI) | MCP3008-I/SL | C1520159 | 490 | |
+| 10-bit ADC (SPI) | MCP3008T-I/SL | C2651321 | 1387 | (the -I/SL, C1520159, has 490) |
 | 16-bit ADC (I2C) | ADS1115IDGSR | C37593 | 3842 | |
 | Load cell amplifier | HX711 | C6705483 | 124495 | |
 | Pressure ×2 | WF100DPZ 10BG S6 DT | C22388673 | **75** | 0–1 MPa, SMD; the 0–40 kPa version (1BG S6, C3001182, 340) is more sensitive for blowing |
@@ -333,7 +339,7 @@ Low stock (under ~100) is marked: enough for a few prototypes, order soon or res
 | IMU | LSM6DS3TR-C | C967633 | 16104 | ~$1.32 (LSM6DSO: $3.99) |
 | Environment | BME688 | C3664478 | 4347 | ~$11.50; BME280 has 17, the barometers (BMP280/390, SPL06, DPS310, LPS22HB) none |
 | Light | VEML7700-TT | C1850416 | 6114 | |
-| Magnetic angle | MT6701CT-ACD-R | C3202694 | 3886 | SOP-8; the AS5600 has 10 |
+| Magnetic angle | AS5600-ASOT-SOIC8 | C55240803 | 1300 | alternative MT6701CT-ACD-R (C3202694, 3886) |
 | IR reflective | ITR20001/T | C264269 | 14397 | through-hole |
 | Comparator | LM393DR2G | C7955 | 317261 | **basic** part |
 | LDR | GL5528 | C125627 | 17107 | through-hole |
@@ -345,16 +351,18 @@ Low stock (under ~100) is marked: enough for a few prototypes, order soon or res
 | Qwiic connector | SM04B-SRSS-TB compatible (XY) | C51940130 | 19223 | |
 | TFT 2.4" ST7789 | (module in stock at the lab) | — | — | on an 8-pin header |
 
-Not in stock and replaced: HUSB238 (→ CH224Q), INA260 (→ INA226), BME280 (→ BME688), AS5600 (→ MT6701), 3S protector
-chips BQ77915, S-8209, S-8253, BM3451 (→ protected cells + HY2213); the ESP32-C5 modules have no replacement (see above).
+Replaced: BME280 (17 in stock) and every barometer (BMP280, BMP390, SPL06, DPS310, LPS22HB: none) → BME688; INA260 (in
+stock, but ~$7) → INA226 + shunt; LSM6DSO → LSM6DS3TR-C (cheaper). Searched with the full result lists (draft 0.6
+looked at only the first few results and wrongly reported the HUSB238, AS5600, BQ77915 and the WROOM-1U as absent).
 
 ### Datasheet details still to check
 
-* CH224Q: the CFG resistor for 15 V (the CH224K table is 56 kΩ) and its I2C registers.
+* HUSB238: the voltage-select resistor for 15 V and the sleep/enable for the power switch (LynXP §2.2).
+* BQ77915 variant -04: over/under-voltage thresholds for 4.2 V cells, balancing current, the MOSFETs.
 * BQ25792: battery-switch current (6 A from a TI forum answer), input current limits, the system minimum (~9.2 V for 3S).
 * TB6612FNG: recommended VM range up to 12.6 V.
 * XL430: the ROBOTIS communication circuit (pull-up value, buffer polarity).
-* MT6701: I2C address and the magnet (diametric, distance).
+* AS5600: the magnet (diametric, 6 mm, distance) and the knob.
 * MCP23017: GPA7/GPB7 output-only in the current datasheet.
 * VL53L7CX: supply pins (AVDD, IOVDD) at 3.3 V and the layout of its keep-out.
 
