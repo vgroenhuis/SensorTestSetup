@@ -34,8 +34,12 @@ In an ESP-IDF 6.1 shell (Windows: ESP-IDF PowerShell from the installer):
 The version is the first line of `VERSION`.
 
 ## First flash (USB, once)
-Register the demo on the CloSer server (`python -m labdemos.cli add sensortest`, prints the key once), then put
-in `local/` (not in git):
+Register the demo on the CloSer server. `labdemos.cli` is part of the server code (GitHub `vgroenhuis/closer-server`)
+and runs there, from its virtualenv:
+
+    cd ~/closer-deploy/labdemos && .venv/bin/python -m labdemos.cli add sensortest
+
+It prints the key once. Then put in `local/` (not in git):
 * `sensortest.json`: `{"ssid": "...", "password": "...", "base_url": "https://closer.ram.eemcs.utwente.nl/labdemos"}`
   (optionally `"more": [{"ssid": ..., "password": ...}]`)
 * `sensortest.key`: the key
@@ -47,5 +51,6 @@ Wi-Fi settings and key live in the nvs partition (0x9000); OTA updates never tou
 `local/sensortest-settings.bin` at 0x9000.
 
 ## Updates
-Bump `VERSION`, `idf.py build`, then on the server `labdemos.cli publish sensortest build/sensortest.bin`. The board
+Bump `VERSION`, `idf.py build`, copy `build/sensortest.bin` to the server, then there (in `~/closer-deploy/labdemos`)
+`.venv/bin/python -m labdemos.cli publish sensortest <path>/sensortest.bin`. The board
 installs it within a minute; a version that can't report to the server within 2 minutes is rolled back.
