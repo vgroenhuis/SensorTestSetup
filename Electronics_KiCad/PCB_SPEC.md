@@ -59,7 +59,7 @@ flowchart LR
   end
   A <-- UART link --> B
   A -- SPI --> TFT[2.4'' ST7789 TFT] & ADC8[MCP3008: pot, MH, LDR]
-  A -- I2C main --> I2CDEV[MCP23017, PCA9685, TCA9548, INA226, HUSB238,<br>charger, IMU, BME688, AS5600, VEML7700, ADS1115]
+  A -- I2C main --> I2CDEV[MCP23017, PCA9685, TCA9548, INA226, HUSB238,<br>charger, IMU, AHT20, AS5600, VEML7700, ADS1115]
   A -- GPIO --> HX[HX711] & US[HC-SR04 + level shifter]
   B -- I2C 2 --> TOF[VL53L7CX]
   B -- GPIO --> MOT & ENC[2 encoders] & DXLBUF[half-duplex buffer] --> DXL
@@ -181,7 +181,7 @@ All 19 usable pins of 'io' are used; 'main' has 11/12 left for the UART0 header.
 | 2× WF100DPZ pressure | TCA9548 ch 0, 1 | 0x6D | hose barbs on the board edge |
 | VL53L7CX ToF | I2C 2 ('io') | 0x29 | **on the board, facing up**: nothing taller within its 60° cone; AVDD and IOVDD 3.3 V *(verify)* |
 | IMU LSM6DS3TR-C | I2C main | 0x6A (0x6B is the charger) | |
-| BME688: temperature, humidity, air pressure, gas | I2C main | 0x76 | away from the regulators (self-heating); no barometer alone is in stock |
+| AHT20: temperature, humidity | I2C main | 0x38 | away from the regulators (self-heating); no barometer (none is cheap and in stock; the pressure demo is the WF100DPZ pair) |
 | VEML7700 light | I2C main | 0x10 | |
 | AS5600 magnetic angle + knob with magnet | I2C main | 0x36 | |
 | INA226 current / power, with a shunt resistor | I2C main | 0x40 | on V_BUS |
@@ -207,7 +207,7 @@ All 19 usable pins of 'io' are used; 'main' has 11/12 left for the UART0 header.
 ### I2C addresses (main bus)
 
 0x08 HUSB238 · 0x10 VEML7700 · 0x20 MCP23017 · 0x36 AS5600 · 0x40 INA226 · 0x41 PCA9685 · 0x48 ADS1115 · 0x6A IMU ·
-0x6B charger · 0x70 (PCA9685 All-Call: kept free) · 0x71 TCA9548 · 0x76 BME688. Behind the TCA9548: 0x6D ×2 + spares.
+0x6B charger · 0x70 (PCA9685 All-Call: kept free) · 0x71 TCA9548 · 0x38 AHT20. Behind the TCA9548: 0x6D ×2 + spares.
 Second bus ('io'): 0x29 VL53L7CX + one Qwiic connector.
 
 The PCA9685 stays on the main bus, not behind the TCA9548: with the TCA9548 at 0x71 there is no clash, and behind the
@@ -252,7 +252,7 @@ bus has room now that the VL53L7CX has its own; the register map is the same, so
 * About 100 × 150 mm, larger where needed (all the parts above have priority over size). 4× M3 mounting holes.
 * Front edge: TFT, potentiometer, AS5600 knob, buttons, power switch. Rear/side edges: USB-C, motor, servo, Dynamixel and
   sensor connectors, pressure hose barbs.
-* VL53L7CX facing up with a clear 60° cone; the light sensors (LDR, VEML7700) uncovered; the BME688 away from heat.
+* VL53L7CX facing up with a clear 60° cone; the light sensors (LDR, VEML7700) uncovered; the AHT20 away from heat.
 * Silkscreen: every part's name, bus and address; connector pin names and voltages; board name and revision.
 
 ## 11. Firmware impact
@@ -262,7 +262,7 @@ bus has room now that the VL53L7CX has its own; the register map is the same, so
   the other as a part: to decide in firmware).
 * TFT: ST7789 through `esp_lcd` (u8g2 is monochrome), with a simple drawing layer or LVGL.
 * Address changes: PCA9685 0x41, TCA9548 0x71 (constants in `i2cbus.c`).
-* New drivers and pages: IMU, BME688, VEML7700, AS5600, ADS1115, INA226, HUSB238, the charger (battery and PD page), LDR,
+* New drivers and pages: IMU, AHT20, VEML7700, AS5600, ADS1115, INA226, HUSB238, the charger (battery and PD page), LDR,
   IR reflective sensor, Dynamixel (Protocol 2.0), a second motor; all of them matrix inputs or outputs.
 * Battery and charging on the display and a page (charger ADC, INA226); a low-battery warning, and actuators off before
   the protection cuts the pack.
@@ -334,7 +334,7 @@ Low stock (under ~100) is marked: enough for a few prototypes, order soon or res
 | Pressure ×2 | WF100DPZ 10BG S6 DT | C22388673 | **75** | 0–1 MPa, SMD; the 0–40 kPa version (1BG S6, C3001182, 340) is more sensitive for blowing |
 | Time-of-flight | VL53L7CXV0GC/1 | C5270520 | **31** | ~$11 |
 | IMU | LSM6DS3TR-C | C967633 | 16104 | ~$1.32 (LSM6DSO: $3.99) |
-| Environment | BME688 | C3664478 | 4347 | ~$11.50; BME280 has 17, the barometers (BMP280/390, SPL06, DPS310, LPS22HB) none |
+| Temperature, humidity | AHT20 | C2757850 | 28332 | ~$0.80 (a BME280 is ~$9, a BME688 ~$11.50; no barometer needed) |
 | Light | VEML7700-TT | C1850416 | 6114 | |
 | Magnetic angle | AS5600-ASOT-SOIC8 | C55240803 | 1300 | alternative MT6701CT-ACD-R (C3202694, 3886) |
 | IR reflective | ITR20001/T | C264269 | 14397 | through-hole |
@@ -348,7 +348,8 @@ Low stock (under ~100) is marked: enough for a few prototypes, order soon or res
 | Qwiic connector | SM04B-SRSS-TB compatible (XY) | C51940130 | 19223 | |
 | TFT 2.4" ST7789 | (module in stock at the lab) | — | — | on an 8-pin header |
 
-Replaced: BME280 (17 in stock) and every barometer (BMP280, BMP390, SPL06, DPS310, LPS22HB: none) → BME688; INA260 (in
+Replaced: BME280 (17 in stock, ~$9) → AHT20, without a barometer (BMP280, BMP390, SPL06, DPS310, LPS22HB: none in stock;
+all in-stock WF100DPZ versions are gauge sensors); INA260 (in
 stock, but ~$7) → INA226 + shunt; LSM6DSO → LSM6DS3TR-C (cheaper). Searched with the full result lists (draft 0.6
 looked at only the first few results and wrongly reported the HUSB238, AS5600, BQ77915 and the WROOM-1U as absent).
 
