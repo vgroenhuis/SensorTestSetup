@@ -74,7 +74,7 @@ void app_main(void) {
     static char control_page[64];       // (the QR code link; the site sends it on to the demo's page)
     snprintf(control_page, sizeof control_page, "q/%s", closer_demo_name());
     closer_access_init(control_page, on_control_change);
-    closer_access_set_digits(4);        // (shown on the OLED, for whoever sits at the desk)
+    closer_access_set_digits(2);        // (shown on the OLED, for whoever sits at the desk; quick to type on a phone)
     spi_start();
     display_start(SPI_HOST_ID, display_footer);
     sensors_start(SPI_HOST_ID);

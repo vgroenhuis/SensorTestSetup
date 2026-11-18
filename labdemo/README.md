@@ -25,7 +25,7 @@ pressure to an output pin. Its routes run on the board itself, also with no page
 
 **Open demo** (above, while it is active) opens the board's own page with a link to each part. Everyone can watch every
 page. Changing something (a servo, the motor, an output pin, a setting, a route) needs **control**: one person at a time.
-Click *Ask for control* and type the 4-digit code the board's display shows; control ends when you release it, close the
+Click *Ask for control* and type the 2-digit code the board's display shows; control ends when you release it, close the
 page, or after 10 minutes without using it. Nothing on the board can be changed without someone at the desk.
 
 The motor's *follow the potentiometer* mode and the matrix routes keep running without control, so the setup shows
