@@ -4,8 +4,13 @@ fanout(): Freerouting 2.5 treats the nets of a plane as connected by the plane a
 down to it, so every SMD pad on a plane net gets one here, before routing: a via beside the pad with a short track,
 or a few vias inside a large (exposed) pad.
 
-stitch(): GND vias on a grid wherever there is room, after routing, so the GND pours on F.Cu and B.Cu are tied to
-the In1 GND plane everywhere instead of hanging on single pads.
+stitch(): GND vias on a grid wherever there is room, so the GND pours on F.Cu and B.Cu are tied to the In1 GND plane
+everywhere instead of hanging on single pads. Only once everything is routed (a via grid is in the way of routing by
+hand), as a command:
+
+    "C:/Program Files/KiCad/10.0/bin/python.exe" gen/planevias.py OfficeDeskSetup.kicad_pcb [--pitch 5]
+
+It adds the vias, refills the zones with kicad-cli and saves the board; the project file is left as it was.
 """
 import math
 
@@ -174,3 +179,29 @@ def stitch(board, net, pitch=5.0, d=0.6, drill=0.3, clr=0.3, edge=1.5):
             x += pitch
         y += pitch
     return n
+
+
+def main():
+    import argparse
+    import os
+    import subprocess
+    import sys
+    ap = argparse.ArgumentParser(description='Add GND stitching vias to a fully routed board.')
+    ap.add_argument('pcb')
+    ap.add_argument('--pitch', type=float, default=5.0)
+    args = ap.parse_args()
+    base = os.path.splitext(args.pcb)[0]
+    keep = {f: open(f, encoding='utf-8').read() for f in (base + '.kicad_pro', base + '.kicad_prl') if os.path.exists(f)}
+    board = pcbnew.LoadBoard(args.pcb)
+    print('GND stitching vias: %d' % stitch(board, 'GND', args.pitch))
+    pcbnew.SaveBoard(args.pcb, board)
+    cli = os.path.join(os.path.dirname(sys.executable), 'kicad-cli.exe' if os.name == 'nt' else 'kicad-cli')
+    subprocess.run([cli, 'pcb', 'drc', '--refill-zones', '--save-board', '-o', base + '-stitch-drc.rpt', args.pcb],
+                   check=True, stdout=subprocess.DEVNULL)
+    os.remove(base + '-stitch-drc.rpt')
+    for f, text in keep.items():                 # SaveBoard rewrites the project file and drops its schematic sections
+        open(f, 'w', encoding='utf-8').write(text)
+
+
+if __name__ == '__main__':
+    main()

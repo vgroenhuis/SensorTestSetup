@@ -207,9 +207,17 @@ About 70 minutes. The work files go to `gen/route/` (ignored by git). Steps:
    2 mm minimum width, so a narrow neck counts as a cut). Otherwise the worst net loses its stage-2 tracks, and
    each removed net is then tried back on its own. Options `--max-plane`, `--slot-gap`, `--neck`; `--reuse`
    re-imports the routes of the previous run instead of routing again.
-4. **Finish**: loose vias and track stubs are removed, GND stitching vias go on a 5 mm grid wherever there is room
-   (about 500, tying the F.Cu and B.Cu GND pours to In1), the pours are added and KiCad refills all zones
-   (kicad-cli; pcbnew's filler from Python left stale fill around a few vias).
+4. **Finish**: loose vias and track stubs are removed, the GND pours are added on F.Cu and B.Cu and KiCad refills all
+   zones (kicad-cli; pcbnew's filler from Python left stale fill around a few vias).
+
+**GND stitching vias** (tying the F.Cu and B.Cu pours to In1 on a 5 mm grid, about 500) come last, once everything
+is routed, because a via grid is in the way of routing by hand:
+
+```
+"C:/Program Files/KiCad/10.0/bin/python.exe" gen/planevias.py OfficeDeskSetup.kicad_pcb
+```
+
+(`route.py --stitch` adds them too, for a board that Freerouting routes completely.)
 
 Each step runs in its own Python process: after a session import, pcbnew's SWIG objects come back untyped. The
 project file is left exactly as it was (SaveBoard rewrites it).
@@ -225,7 +233,7 @@ Result:
   the converter loops (keep the switch nodes small) and a look at the USB pairs.
 * Other DRC errors: 10 clearance errors inside the TPS25947 footprints (pad pitch below 0.15 mm clearance, as drawn
   by TI) and one 0.1475 mm track at JP6; 10 short 0.12 mm neck-downs at fine-pitch pins; tracks and pads at the
-  SK6812MINI-E cutout; 16 starved thermals on THT pads.
+  SK6812MINI-E cutout; 17 starved thermals on THT pads.
 * Earlier attempts: letting Freerouting use all four layers left 136 connections open but put 11 m of signal track
   through the planes; routing +3V3 as tracks (In2 as a signal layer) left 241–276 open. Freerouting's first pass
   is always its best: later passes rip up and do worse.

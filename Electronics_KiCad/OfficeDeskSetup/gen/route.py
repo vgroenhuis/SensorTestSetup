@@ -23,7 +23,8 @@ GND or +3V3 first gets a via to its plane (gen/planevias.py). Then two stages:
 --reuse imports the .ses files of an earlier run from the work directory instead of routing again (same placement
 only), e.g. to try another --neck.
 
-Afterwards GND stitching vias tie the GND pours on F.Cu and B.Cu to the GND plane. Net classes give the track widths.
+No GND stitching vias: they would be in the way of finishing the routing by hand. Add them once everything is
+routed, with gen/planevias.py (or --stitch here if Freerouting routes everything). Net classes give the track widths.
 Overwrites OfficeDeskSetup.kicad_pcb; the project file is left as it was.
 """
 import argparse
@@ -296,7 +297,8 @@ def finish(args, pcb):
     print('stage 2: %d nets taken out again: %s' % (len(dropped), ', '.join(dropped)))
 
     print('loose vias and track stubs removed: %d' % cleanup(board, {z.GetNetname() for z in zones(board)}, out))
-    print('GND stitching vias: %d' % planevias.stitch(board, 'GND'))
+    if args.stitch:
+        print('GND stitching vias: %d' % planevias.stitch(board, 'GND'))
     for layer, net in POURS.items():
         pour(board, layer, net)
     pcbnew.ZONE_FILLER(board).Fill(zones(board))
@@ -322,6 +324,7 @@ def main():
     ap.add_argument('--neck', type=float, default=2.0, help='mm: a plane narrower than this counts as cut')
     ap.add_argument('--max-plane', type=float, default=50.0, help='mm of plane track per net, and per slot')
     ap.add_argument('--slot-gap', type=float, default=2.0, help='mm: plane tracks closer than this form one slot')
+    ap.add_argument('--stitch', action='store_true', help='add GND stitching vias (only when everything is routed)')
     ap.add_argument('--reuse', action='store_true', help='import the .ses files of an earlier run, do not route')
     ap.add_argument('--threads', type=int, default=max(1, (os.cpu_count() or 2) - 2))
     ap.add_argument('--work', default=os.path.join(HERE, 'gen', 'route'))
