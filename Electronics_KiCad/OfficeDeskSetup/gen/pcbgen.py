@@ -31,7 +31,8 @@ IO = pcbnew.PCB_IO_MGR.FindPlugin(pcbnew.PCB_IO_MGR.KICAD_SEXP)
 
 W, H = 200.0, 150.0          # board size, mm; the front edge (user side) is y = H
 SX, SY = W / 180.0, H / 125.0   # the plan below was drawn for 180 x 125 mm and is scaled to W x H
-GAP = 0.6                    # space between courtyards when packing
+GAP = 1.0                    # space between courtyards when packing (routing channels)
+GAP_IC = 3.0                 # around parts with 8 or more pads, for their fanout
 EDGE = 1.0                   # keep courtyards this far from the board edge
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -58,7 +59,7 @@ EDGE_ROWS = [
 # placed inside (not on an edge, but fixed)
 FIXED = {
     'U14': dict(x=24, y=34, rot=0, side='F'),       # ESP32 'main', left
-    'U16': dict(x=152, y=34, rot=0, side='F'),      # ESP32 'io', right
+    'U16': dict(x=151, y=56.7, rot=0, side='F'),    # ESP32 'io', right (below the PCA9685 and the servo buck)
     'J10': dict(x=44, y=88, rot=0, side='F'),       # TFT socket, left of the holders' pads; the module lies to its right
     'U41': dict(x=166, y=110, rot=0, side='F'),     # AS5600 under the knob, front right
     'U22': dict(x=104, y=60, rot=0, side='F'),      # VL53L7CX facing up, clear of the TFT
@@ -80,43 +81,48 @@ PLANES = {'In1.Cu': 'GND'}     # solid; In2.Cu is a routing layer that gets a +3
 MIN_TRACK = 0.15               # Freerouting necks down to 0.15 mm at fine-pitch pins; JLCPCB does 0.1 mm
 HOLES = {'H1': (4, 4), 'H2': (W - 4, 4), 'H3': (4, H - 4), 'H4': (W - 4, H - 4)}
 
-# block (title prefix) -> region (x0, y0, x1, y1); parts are packed left to right, top to bottom
+# block (title prefix) -> region (x0, y0, x1, y1) in board mm; parts are packed left to right, top to bottom. Sized
+# for about 0.65 of the area that the parts take with their gaps (GAP, GAP_IC), so there is room to route
 REGIONS = [
-    ('USB-C POWER', (30, 9, 52, 22)),
-    ('USB-C PROG', (52, 9, 64, 22)),
-    ('USB hub', (40, 22, 60, 34)),
-    ('Input selection', (60, 9, 80, 22)),
-    ('Buck-boost charger', (36, 34, 62, 58)),
-    ('3S pack', (62, 34, 100, 52)),
-    ('Power switch', (80, 11, 112, 30)),
-    ('3.3 V buck', (100, 30, 122, 46)),
-    ('5 V buck', (112, 11, 124, 30)),
-    ('V_SERVO buck', (124, 11, 146, 26)),
-    ('V_DXL', (146, 46, 168, 56)),
-    ('Power-good LEDs', (100, 46, 116, 56)),
-    ('Exposed power', (112, 11, 124, 30)),
-    ("ESP32-C5 'main'", (8, 46, 36, 60)),
-    ('Main I2C bus', (8, 60, 24, 72)),
-    ('TFT', (40, 100, 62, 110)),
-    ('UART0 header', (8, 72, 24, 84)),
-    ("ESP32-C5 'io'", (140, 46, 168, 56)),
-    ('Motor driver', (124, 26, 140, 44)),
-    ('Motor A', (124, 44, 140, 52)),
-    ('Motor B', (124, 52, 140, 60)),
-    ('Dynamixel', (150, 60, 168, 72)),
-    ('VL53L7CX', (104, 60, 132, 68)),
-    ('MCP23017', (8, 84, 40, 110)),
-    ('PCA9685', (142, 18, 166, 46)),
-    ('TCA9548A', (8, 18, 16, 46)),
-    ('MCP3008', (64, 96, 132, 108)),
-    ('LDR', (132, 96, 140, 108)),
-    ('MH sensor', (140, 98, 150, 110)),
-    ('IR reflective', (150, 98, 168, 110)),
-    ('ADS1115', (150, 72, 168, 88)),
-    ('IMU', (98, 82, 110, 94)),
-    ('AHT20', (112, 82, 132, 94)),
-    ('HX711', (132, 72, 150, 96)),
-    ('HC-SR04', (64, 66, 96, 76)),
+    # rear row, along the connectors: USB-C, input selection, power switch, 5 V, motors
+    ('USB-C POWER', (30, 13, 50, 32)),
+    ('USB-C PROG', (50, 13, 62, 29)),
+    ('Input selection', (62, 13, 84, 38)),
+    ('Power switch', (84, 13, 114, 42)),
+    ('5 V buck', (114, 13, 130, 30)),
+    ('Exposed power', (114, 13, 130, 30)),
+    ('Motor driver', (130, 13, 158, 34)),
+    ('Motor A', (130, 34, 144, 42)),
+    ('Motor B', (144, 34, 158, 42)),
+    ('PCA9685', (158, 13, 188, 45)),                 # next to the servo headers on the right edge
+    # second row: hub, charger, 3S pack (over the holders), 3.3 V, V_SERVO
+    ('USB hub', (38, 32, 55, 48)),
+    ('Buck-boost charger', (38, 48, 72, 78)),
+    ('3S pack', (72, 42, 104, 72)),
+    ('3.3 V buck', (104, 42, 126, 67)),
+    ('V_SERVO buck', (126, 44, 158, 72)),
+    ('Power-good LEDs', (88, 72, 104, 82)),
+    ('VL53L7CX', (106, 67, 126, 80)),
+    ("ESP32-C5 'io'", (140, 72, 160, 85)),
+    ('V_DXL', (160, 82, 174, 96)),
+    ('Dynamixel', (174, 82, 188, 96)),
+    # left column, by the Qwiic connectors
+    ("ESP32-C5 'main'", (9, 56, 30, 68)),
+    ('Main I2C bus', (30, 56, 38, 70)),
+    ('TCA9548A', (9, 68, 38, 94)),
+    ('UART0 header', (9, 94, 30, 105)),
+    ('TFT', (30, 94, 46, 105)),
+    ('MCP23017', (11, 105, 46, 133)),
+    # middle and front: sensors, ADCs (under the TFT module only low parts)
+    ('IMU', (96, 84, 108, 94)),
+    ('AHT20', (108, 84, 128, 95)),
+    ('HX711', (140, 98, 162, 116)),
+    ('ADS1115', (162, 98, 188, 108)),
+    ('IR reflective', (162, 110, 188, 124)),
+    ('MH sensor', (150, 124, 162, 132)),
+    ('LDR', (140, 120, 150, 128)),
+    ('HC-SR04', (124, 124, 140, 132)),
+    ('MCP3008', (80, 120, 124, 130)),
     ('Mounting holes', None),
 ]
 
@@ -124,7 +130,7 @@ REGIONS = [
 def region(block):
     for prefix, r in REGIONS:
         if block.startswith(prefix):
-            return r and (r[0] * SX, r[1] * SY, r[2] * SX, r[3] * SY)
+            return r
     return None
 
 
@@ -234,11 +240,16 @@ class Grid:
         return None
 
 
+def gap(m):
+    return GAP_IC if m.GetPadCount() >= 8 else GAP
+
+
 def occupy(grid, m):
     """Mark a placed part: its courtyard if on top, only its through-hole pads and holes if on the back."""
     if not m.IsFlipped():
         x0, y0, x1, y1 = box(m)
-        grid.mark(x0 - GAP / 2, y0 - GAP / 2, x1 + GAP / 2, y1 + GAP / 2)
+        g = gap(m) / 2
+        grid.mark(x0 - g, y0 - g, x1 + g, y1 + g)
         return
     for pad in m.Pads():                 # SMD pads too: through-hole parts on top must clear them
         if True:
@@ -256,7 +267,7 @@ def pack(grid, mods, r):
         for rot in (0, 90):
             put(m, 0, 0, rot=rot)
             b = box(m)
-            w, h = b[2] - b[0] + GAP, b[3] - b[1] + GAP
+            w, h = b[2] - b[0] + gap(m), b[3] - b[1] + gap(m)
             grow = 0
             while grow <= max(W, H):
                 win = (r[0] - grow, r[1] - grow, r[2] + grow, r[3] + grow)
