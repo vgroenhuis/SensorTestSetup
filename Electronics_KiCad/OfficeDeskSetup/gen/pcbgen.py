@@ -76,8 +76,8 @@ NETCLASSES = {
     'Supply': (0.5, 0.15, 0.6, 0.3, ['+3V3', '+5V', 'SW_5V', 'CELL1', 'CELL2', 'CELL3', 'HUB_3V3', 'HX_AVDD', 'MH_VCC',
                                      'AHT_VDD', 'CHG_REGN', 'BQ_VDD', 'VBUS_EN_SW']),
 }
-PLANES = {'In1.Cu': 'GND'}     # solid; In2.Cu is a routing layer that gets a +3V3 pour, F.Cu and B.Cu get GND pours
-                               # after routing (gen/route.py)
+PLANES = {'In1.Cu': 'GND', 'In2.Cu': '+3V3'}   # signals route on F.Cu and B.Cu (GND pours after routing), with only
+                                                # a few short hops through the planes (gen/route.py)
 MIN_TRACK = 0.15               # Freerouting necks down to 0.15 mm at fine-pitch pins; JLCPCB does 0.1 mm
 HOLES = {'H1': (4, 4), 'H2': (W - 4, 4), 'H3': (4, H - 4), 'H4': (W - 4, H - 4)}
 
@@ -434,7 +434,7 @@ def main():
         z.SetNet(nets[net])
         z.SetLocalClearance(mm(0.3))
         z.SetMinThickness(mm(0.25))
-        z.SetPadConnection(pcbnew.ZONE_CONNECTION_THERMAL)
+        z.SetPadConnection(pcbnew.ZONE_CONNECTION_THT_THERMAL)    # solid to SMD pads (vias), thermal reliefs on THT
         ol = z.Outline()
         ol.NewOutline()
         for x, y in ((0.5, 0.5), (W - 0.5, 0.5), (W - 0.5, H - 0.5), (0.5, H - 0.5)):

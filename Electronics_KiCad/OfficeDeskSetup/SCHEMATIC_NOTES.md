@@ -160,7 +160,8 @@ design, run with KiCad's own Python:
 "C:/Program Files/KiCad/10.0/bin/python.exe" gen/pcbgen.py --espressif <path to Espressif.kicad_sym>
 ```
 
-* **200 × 150 mm**, 4 layers (F.Cu, In1 GND plane, In2, B.Cu), 3 mm corner radius, 4× M3 holes in the corners.
+* **200 × 150 mm**, 4 layers: F.Cu (signals, GND pour), In1 GND plane, In2 +3V3 plane, B.Cu (signals, GND pour);
+  3 mm corner radius, 4× M3 holes in the corners. Zones connect solidly to SMD pads, with thermal reliefs on THT.
 * Net classes: **Power** (1.0 mm tracks, 0.8/0.4 mm vias: USB-C VBUS, charger, battery, V_BUS, V_SERVO, V_DXL,
   motors) and **Supply** (0.5 mm: +3V3, +5V, cells, local supplies); everything else Default (0.2 mm, clearance
   0.15 mm). Minimum track width 0.15 mm.
@@ -191,24 +192,42 @@ The board is autorouted with [Freerouting](https://github.com/freerouting/freero
 "C:/Program Files/KiCad/10.0/bin/python.exe" gen/route.py --freerouting <freerouting-2.5.0.jar> --java <java.exe>
 ```
 
-It removes the tracks and the pours from an earlier run, exports Specctra DSN to `gen/route/` (ignored by git),
-routes, imports the session, pours GND on F.Cu and B.Cu and +3V3 on In2.Cu around the tracks, and fills all zones.
-Two fixes to the DSN that KiCad writes: In1.Cu is marked as a plane layer (otherwise Freerouting routes signals
-through the GND plane and cuts it up), and the board outline is pulled in so tracks keep the 0.5 mm edge clearance.
-12 passes take about an hour; more passes did not help (a 30-pass run only went back and forth).
+About 70 minutes. The work files go to `gen/route/` (ignored by git). Steps:
 
-Result (3 routing layers, solid GND):
+1. **Plane vias** (`gen/planevias.py`): Freerouting treats a plane's net as connected by the plane and never adds
+   the vias from SMD pads down to it, so every SMD pad on GND or +3V3 first gets one: a 0.6/0.3 mm via beside the
+   pad with a 0.3 mm track, outwards from the part, or up to 3 × 3 vias inside an exposed pad. Placed with KiCad's
+   own shape collision tests (470 vias). 9 fine-pitch pads get none: U38.3/5/6/8/12, U22.A7/C7, U8.8, U13.8.
+2. **Stage 1**: signals on F.Cu and B.Cu only. The inner layers are marked as plane layers in the Specctra DSN
+   (KiCad exports them as signal layers, and Freerouting then routes straight through the planes), and the board
+   outline is pulled in so tracks keep the 0.5 mm edge clearance.
+3. **Stage 2**: the stage-1 tracks are locked and Freerouting routes what is left with the planes open. A track
+   through a plane is kept only while the plane stays sound: at most 50 mm of plane track per net; plane tracks
+   closer together than 2 mm count as one slot of at most 50 mm; and each plane stays one piece (filled with a
+   2 mm minimum width, so a narrow neck counts as a cut). Otherwise the worst net loses its stage-2 tracks, and
+   each removed net is then tried back on its own. Options `--max-plane`, `--slot-gap`, `--neck`; `--reuse`
+   re-imports the routes of the previous run instead of routing again.
+4. **Finish**: loose vias and track stubs are removed, GND stitching vias go on a 5 mm grid wherever there is room
+   (about 500, tying the F.Cu and B.Cu GND pours to In1), the pours are added and KiCad refills all zones
+   (kicad-cli; pcbnew's filler from Python left stale fill around a few vias).
 
-* **Signals: routed**, except 7 single connections (MUX2/5/6, TCA_RESET, ADS_ALERT, B33_SS).
-* **Power nets: mostly not routed.** DRC finds 241 unconnected items: +3V3 121 (the In2 pour is cut up by the
-  tracks there), GND 49 (pads where the pours do not reach), and the 1 mm Power nets (V_BUS 24, VBUS_PROG,
-  CHG_SYS, BAT_P, VBUS_PD, CHG_VBUS, V_DXL). Spreading the placement out (the second placement) only took this
-  from 276 to 241: Freerouting's first pass is always its best, later passes rip up and do worse. These are best done by hand anyway, as short wide tracks or pours,
-  together with the converter loops (keep the switch nodes small) and a look at the USB pairs.
-* 51 starved thermals (pads whose thermal spokes to a pour are blocked), 11 clearance errors of which 10 are inside
-  the TPS25947 footprints (pad pitch below 0.15 mm clearance, as drawn by TI), 10 short 0.12 mm neck-downs at
-  fine-pitch pins.
-* A first run that let Freerouting use all four layers (planes on In1 GND and In2 +3V3) left fewer connections
-  open (136) but put 11 m of signal track through the two planes, so it was not kept.
+Each step runs in its own Python process: after a session import, pcbnew's SWIG objects come back untyped. The
+project file is left exactly as it was (SaveBoard rewrites it).
+
+Result:
+
+* **Signals: routed**, except one I2C_SCL connection (its 85 mm stage-2 route through the GND plane was taken out).
+  6 nets keep a short track through a plane (6–31 mm): BQ_AVDD, BSV_BOOT, VBUS_SW, BAT_N, DXL_EN, V_BUS.
+* **GND and +3V3: connected**, except U8.8 and U13.8 (GND pins of the TPS25947 without a via).
+* **Power nets: not finished.** DRC finds 80 unconnected items, nearly all on the 1 mm Power nets: V_BUS 20,
+  VBUS_PROG 10, BAT_P 8, BAT_N 8, VBUS_PD 8, CHG_SYS 8, CHG_VBUS 5, V_DXL 3, CHG_SW1/2, BQ_SRN. Freerouting
+  does not fit the wide tracks; these are best done by hand anyway, as short wide tracks or pours, together with
+  the converter loops (keep the switch nodes small) and a look at the USB pairs.
+* Other DRC errors: 10 clearance errors inside the TPS25947 footprints (pad pitch below 0.15 mm clearance, as drawn
+  by TI) and one 0.1475 mm track at JP6; 10 short 0.12 mm neck-downs at fine-pitch pins; tracks and pads at the
+  SK6812MINI-E cutout; 16 starved thermals on THT pads.
+* Earlier attempts: letting Freerouting use all four layers left 136 connections open but put 11 m of signal track
+  through the planes; routing +3V3 as tracks (In2 as a signal layer) left 241–276 open. Freerouting's first pass
+  is always its best: later passes rip up and do worse.
 
 Running `route.py` again **overwrites all tracks**: once routing is finished by hand, stop using it.
