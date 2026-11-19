@@ -153,7 +153,7 @@
         "min_text_height": 0.8,
         "min_text_thickness": 0.08,
         "min_through_hole_diameter": 0.3,
-        "min_track_width": 0.2,
+        "min_track_width": 0.15,
         "min_via_annular_width": 0.1,
         "min_via_diameter": 0.5,
         "solder_mask_to_copper_clearance": 0.0,
@@ -520,6 +520,44 @@
         "via_diameter": 0.6,
         "via_drill": 0.3,
         "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "Power",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 0,
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 1.0,
+        "tuning_profile": "",
+        "via_diameter": 0.8,
+        "via_drill": 0.4,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.15,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "Supply",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 1,
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.5,
+        "tuning_profile": "",
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
       }
     ],
     "meta": {
@@ -527,7 +565,152 @@
     },
     "net_colors": null,
     "netclass_assignments": null,
-    "netclass_patterns": []
+    "netclass_patterns": [
+      {
+        "netclass": "Power",
+        "pattern": "/2 Battery 3S: charger with power path, protection, balancing/BAT_P"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "/2 Battery 3S: charger with power path, protection, balancing/BQ_FET_MID"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "/2 Battery 3S: charger with power path, protection, balancing/BQ_SRN"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "/2 Battery 3S: charger with power path, protection, balancing/CHG_IN1_MID"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "/2 Battery 3S: charger with power path, protection, balancing/CHG_IN2_MID"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "/2 Battery 3S: charger with power path, protection, balancing/CHG_PMID"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "/2 Battery 3S: charger with power path, protection, balancing/CHG_SW1"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "/2 Battery 3S: charger with power path, protection, balancing/CHG_SW2"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "/3 Power switch, V_BUS, 3.3 V, 5 V, V_SERVO, V_DXL/SW_3V3"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "/3 Power switch, V_BUS, 3.3 V, 5 V, V_SERVO, V_DXL/SW_SERVO"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "/3 Power switch, V_BUS, 3.3 V, 5 V, V_SERVO, V_DXL/VBUS_SW"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "/5 ESP32-C5 'io': motors, encoders, Dynamixel, ToF/MOTA_N"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "/5 ESP32-C5 'io': motors, encoders, Dynamixel, ToF/MOTA_P"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "/5 ESP32-C5 'io': motors, encoders, Dynamixel, ToF/MOTB_N"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "/5 ESP32-C5 'io': motors, encoders, Dynamixel, ToF/MOTB_P"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "BAT_N"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "CHG_SYS"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "CHG_VBUS"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "VBUS_PD"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "VBUS_PROG"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "V_BUS"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "V_DXL"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "V_SERVO"
+      },
+      {
+        "netclass": "Supply",
+        "pattern": "+3V3"
+      },
+      {
+        "netclass": "Supply",
+        "pattern": "+5V"
+      },
+      {
+        "netclass": "Supply",
+        "pattern": "/1 USB-C: PD input, programming port, USB hub/HUB_3V3"
+      },
+      {
+        "netclass": "Supply",
+        "pattern": "/2 Battery 3S: charger with power path, protection, balancing/CELL1"
+      },
+      {
+        "netclass": "Supply",
+        "pattern": "/2 Battery 3S: charger with power path, protection, balancing/CELL2"
+      },
+      {
+        "netclass": "Supply",
+        "pattern": "/2 Battery 3S: charger with power path, protection, balancing/CELL3"
+      },
+      {
+        "netclass": "Supply",
+        "pattern": "/2 Battery 3S: charger with power path, protection, balancing/CHG_REGN"
+      },
+      {
+        "netclass": "Supply",
+        "pattern": "/3 Power switch, V_BUS, 3.3 V, 5 V, V_SERVO, V_DXL/SW_5V"
+      },
+      {
+        "netclass": "Supply",
+        "pattern": "/3 Power switch, V_BUS, 3.3 V, 5 V, V_SERVO, V_DXL/VBUS_EN_SW"
+      },
+      {
+        "netclass": "Supply",
+        "pattern": "/7 Sensors: analog inputs, ADCs, IMU, climate, light, angle, load cell, ultrasonic/MH_VCC"
+      },
+      {
+        "netclass": "Supply",
+        "pattern": "AHT_VDD"
+      },
+      {
+        "netclass": "Supply",
+        "pattern": "BQ_VDD"
+      },
+      {
+        "netclass": "Supply",
+        "pattern": "HX_AVDD"
+      }
+    ]
   },
   "pcbnew": {
     "last_paths": {

@@ -66,6 +66,18 @@ FIXED = {
     'BT2': dict(x=90, y=72.5, rot=0, side='B'),
     'BT3': dict(x=90, y=95, rot=0, side='B'),
 }
+# net classes: (track width, clearance, via diameter, via drill, nets by their short name)
+NETCLASSES = {
+    'Power': (1.0, 0.2, 0.8, 0.4, ['VBUS_PD', 'VBUS_PROG', 'CHG_VBUS', 'CHG_PMID', 'CHG_SYS', 'CHG_SW1', 'CHG_SW2',
+                                    'CHG_IN1_MID', 'CHG_IN2_MID', 'BAT_P', 'BAT_N', 'BQ_SRN', 'BQ_FET_MID', 'VBUS_SW',
+                                    'V_BUS', 'V_SERVO', 'SW_SERVO', 'SW_3V3', 'V_DXL', 'MOTA_P', 'MOTA_N', 'MOTB_P',
+                                    'MOTB_N']),
+    'Supply': (0.5, 0.15, 0.6, 0.3, ['+3V3', '+5V', 'SW_5V', 'CELL1', 'CELL2', 'CELL3', 'HUB_3V3', 'HX_AVDD', 'MH_VCC',
+                                     'AHT_VDD', 'CHG_REGN', 'BQ_VDD', 'VBUS_EN_SW']),
+}
+PLANES = {'In1.Cu': 'GND'}     # solid; In2.Cu is a routing layer that gets a +3V3 pour, F.Cu and B.Cu get GND pours
+                               # after routing (gen/route.py)
+MIN_TRACK = 0.15               # Freerouting necks down to 0.15 mm at fine-pitch pins; JLCPCB does 0.1 mm
 HOLES = {'H1': (4, 4), 'H2': (W - 4, 4), 'H3': (4, H - 4), 'H4': (W - 4, H - 4)}
 
 # block (title prefix) -> region (x0, y0, x1, y1); parts are packed left to right, top to bottom
@@ -403,11 +415,12 @@ def main():
         if over:
             problems.append('block "%s": %d parts outside its region: %s' % (title[:40], len(over), ' '.join(m.GetReference() for m in over)))
 
-    # GND planes on In1 and B.Cu
-    for layer in (pcbnew.In1_Cu, pcbnew.B_Cu):
+    # inner planes
+    board.GetDesignSettings().m_TrackMinWidth = mm(MIN_TRACK)
+    for lname, net in PLANES.items():
         z = pcbnew.ZONE(board)
-        z.SetLayer(layer)
-        z.SetNet(nets['GND'])
+        z.SetLayer(board.GetLayerID(lname))
+        z.SetNet(nets[net])
         z.SetLocalClearance(mm(0.3))
         z.SetMinThickness(mm(0.25))
         z.SetPadConnection(pcbnew.ZONE_CONNECTION_THERMAL)
@@ -448,9 +461,15 @@ def main():
     if pro in keep:
         old, new = json.loads(keep[pro]), json.load(open(pro, encoding='utf-8'))
         old['board'] = new['board']
-        for c in old.get('net_settings', {}).get('classes', []):
-            if c.get('name') == 'Default':
-                c['clearance'] = 0.15
+        ns = old.setdefault('net_settings', {})
+        default = next(c for c in ns['classes'] if c.get('name') == 'Default')
+        default['clearance'] = 0.15
+        ns['classes'] = [default]
+        ns['netclass_patterns'] = []
+        for i, (cls, (w, clr, vd, vdr, members)) in enumerate(NETCLASSES.items()):
+            c = dict(default, name=cls, track_width=w, clearance=clr, via_diameter=vd, via_drill=vdr, priority=i)
+            ns['classes'].append(c)
+            ns['netclass_patterns'] += [{'netclass': cls, 'pattern': n} for n in sorted(nets) if n.split('/')[-1] in members]
         with open(pro, 'w', encoding='utf-8') as f:
             json.dump(old, f, indent=2)
             f.write('\n')

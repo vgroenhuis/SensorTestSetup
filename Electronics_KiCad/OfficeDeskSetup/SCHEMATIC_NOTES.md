@@ -160,8 +160,10 @@ design, run with KiCad's own Python:
 "C:/Program Files/KiCad/10.0/bin/python.exe" gen/pcbgen.py --espressif <path to Espressif.kicad_sym>
 ```
 
-* **200 × 150 mm**, 4 layers (F.Cu, In1 GND, In2, B.Cu), 3 mm corner radius, 4× M3 holes in the corners. GND zones
-  on In1 and B.Cu (not filled yet: press B in KiCad).
+* **200 × 150 mm**, 4 layers (F.Cu, In1 GND plane, In2, B.Cu), 3 mm corner radius, 4× M3 holes in the corners.
+* Net classes: **Power** (1.0 mm tracks, 0.8/0.4 mm vias: USB-C VBUS, charger, battery, V_BUS, V_SERVO, V_DXL,
+  motors) and **Supply** (0.5 mm: +3V3, +5V, cells, local supplies); everything else Default (0.2 mm, clearance
+  0.15 mm). Minimum track width 0.15 mm.
 * **Rear edge**: USB-C PD and PROG, the power screw terminals and 2×4 header, motor screw terminals and encoder
   connectors. **Left edge**: the 9 Qwiic connectors and the two pressure sensors. **Right edge**: the 8 servo
   headers as a 3 × 8 block at 2.54 mm (their courtyards overlap on purpose), PWM 9–15, Dynamixel, analog inputs,
@@ -175,3 +177,33 @@ design, run with KiCad's own Python:
 * DRC errors left: unrouted connections; the servo courtyards; the SK6812MINI-E's own board cutout; the imported
   WF100DPZ footprints have an odd courtyard.
 * Running the script again **overwrites the board**: once parts are moved by hand in KiCad, stop using it.
+
+## PCB: autorouting (partial)
+
+The board is autorouted with [Freerouting](https://github.com/freerouting/freerouting) 2.5.0 by `gen/route.py`
+(KiCad's Python again; the .jar needs Java 25, the native freerouting-cli for Windows crashes):
+
+```
+"C:/Program Files/KiCad/10.0/bin/python.exe" gen/route.py --freerouting <freerouting-2.5.0.jar> --java <java.exe>
+```
+
+It removes the tracks and the pours from an earlier run, exports Specctra DSN to `gen/route/` (ignored by git),
+routes, imports the session, pours GND on F.Cu and B.Cu and +3V3 on In2.Cu around the tracks, and fills all zones.
+Two fixes to the DSN that KiCad writes: In1.Cu is marked as a plane layer (otherwise Freerouting routes signals
+through the GND plane and cuts it up), and the board outline is pulled in so tracks keep the 0.5 mm edge clearance.
+12 passes take about an hour; more passes did not help (a 30-pass run only went back and forth).
+
+Result (3 routing layers, solid GND):
+
+* **Signals: routed**, except one stub of MUX7_SCL at U26.
+* **Power nets: mostly not routed.** DRC finds 276 unconnected items: +3V3 130 (the In2 pour is cut up by the
+  tracks there), GND 52 (pads where the pours do not reach), and the 1 mm Power nets (V_BUS 27, V_SERVO 13,
+  VBUS_PROG, VBUS_PD, CHG_*, BAT_P, V_DXL). These are best done by hand anyway, as short wide tracks or pours,
+  together with the converter loops (keep the switch nodes small) and a look at the USB pairs.
+* 55 starved thermals (pads whose thermal spokes to a pour are blocked), 11 clearance errors of which 10 are inside
+  the TPS25947 footprints (pad pitch below 0.15 mm clearance, as drawn by TI) and one at JP7, 4 short 0.12 mm
+  neck-downs at fine-pitch pins.
+* A first run that let Freerouting use all four layers (planes on In1 GND and In2 +3V3) left fewer connections
+  open (136) but put 11 m of signal track through the two planes, so it was not kept.
+
+Running `route.py` again **overwrites all tracks**: once routing is finished by hand, stop using it.
