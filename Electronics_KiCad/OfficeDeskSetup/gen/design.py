@@ -5,8 +5,8 @@ Run `python3 gen/make.py` to (re)write the .kicad_sch files. Changes belong here
 """
 from schgen import NC
 
-REV = '0.1'
-DATE = '2026-11-18'
+REV = '0.2'
+DATE = '2026-11-20'
 
 # footprints (KiCad standard libraries); '' = to be chosen at layout
 FP = dict(
@@ -32,7 +32,9 @@ FP = dict(
 FP.update({k: 'OfficeDeskSetup:' + v for k, v in dict(
     MLT8530='BUZ-SMD_4P-L8.5-W8.5-P8.50-BR', TPS25947='VQFN-10_L2.0-W2.0-P0.45-TL', VL53L7CX='LGA-16_L6.4-W3.0_VL53L5CXV0GC-1',
     WF100DPZ='SOP-6_L7.0-W7.0-P2.54-LS10.3-TL', ITR20001='OPTO-TH_4P_ITR20001-T-F316', AHT20='SENSOR-SMD_L3.0-W3.0-P1.00-BR',
-    VEML7700='SENSOR-SMD_EML7700-TT', TOGGLE='SW-TH_2MS1T1B1M1QES-5', TOGGLE2='SW-TH_2MD1T1B1M1QES-5').items()})
+    VEML7700='SENSOR-SMD_EML7700-TT', TOGGLE='SW-TH_2MS1T1B1M1QES-5', TOGGLE2='SW-TH_2MD1T1B1M1QES-5',
+    ROCKER='SW-TH_SS21-BBIWG2-B', DCJACK='DC-IN-TH_HX-DC007B-2.5', B3F='KEY-TH_4P-L12.0-W12.0-P5.00-LS13.4-EH',
+    STANDOFF='SCREW-SMD_BD5.6-D4.1-H10', BANANA='BananaHole_4.1mm_Pad').items()})
 FP['TDSON8'] = 'Package_TO_SOT_SMD:TDSON-8-1'
 
 
@@ -52,7 +54,7 @@ def socket(n):
 
 # LCSC numbers of the connectors, buttons and panel pots, by footprint (stock checked 2026-11-18)
 FP_LCSC = {
-    header(3): 'C49257', header(5): 'C32713271', header(9): 'C27985193',
+    header(3): 'C49257', header(4): 'C42431808', header(5): 'C32713271', header(9): 'C27985193',
     'Connector_PinHeader_2.54mm:PinHeader_2x04_P2.54mm_Vertical': 'C32713277',
     'Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Vertical': 'C32713278',
     socket(4): 'C2718488', socket(8): 'C27438',
@@ -97,7 +99,7 @@ PASSIVES = {
           '10uF 25V': 'C13585', '10uF 35V': 'C13585', '22uF 10V': 'C12891', '22uF 25V': 'C12891', '47uF 10V': 'C96123'},
     'CP': {'100uF 35V elec': 'C2895269', '470uF 25V elec': 'C3445246'},
     'L': {'2.2uH 10A': 'C167228', '6.8uH 5A': 'C167221', '6.8uH 3A': 'C167221', 'ferrite 600R': 'C1002'},
-    'D': {'SS14': 'C2480', 'SS34': 'C8678'}, 'TVS': {'SMAJ5.0A': 'C19077523'},
+    'D': {'SS14': 'C2480', 'SS34': 'C8678'}, 'TVS': {'SMAJ5.0A': 'C19077523', 'SMBJ15A': 'C435932'},
     'NTC': {'10k B3435': 'C525660'}, 'FUSE': {'10A': 'C44479'},
 }
 LED_LCSC = {'red': 'C2286', 'green': 'C12624', 'yellow': 'C2287'}     # Kento KT-0603R/G/Y
@@ -195,6 +197,12 @@ def custom_symbols(lib):
     s['SWDPDT'] = lib.box('SW_DPDT', [(2, 'COM1', P), (5, 'COM2', P)], [(1, '1 ON', P), (3, '1 OFF', P), (4, '2 ON', P), (6, '2 OFF', P)],
                           ref='SW', footprint=FP['TOGGLE2'],
                           description='Miniature DPDT toggle switch (Dailywell 2MD1T1B1M1QES-5): poles 1-2-3 and 4-5-6, commons 2 and 5')
+    s['ROCKER'] = lib.box('SW_DPST', [(1, '1', P), (2, '2', P)], [('1A', '1A', P), ('2A', '2A', P)], ref='SW', footprint=FP['ROCKER'],
+                          description='Rocker switch DPST (SS21-BBIWG2-B): poles 1-1A and 2-2A')
+    s['DCJACK'] = lib.box('DC_JACK', [(1, 'PIN', P)], [(2, 'SLEEVE', P), (3, 'MOUNT', P)], ref='J', footprint=FP['DCJACK'],
+                          description='DC barrel jack 5.5 x 2.1 mm, 7 A (DC007B): centre pin 1, sleeve 2, mounting tabs 3')
+    s['B3F'] = lib.box('SW_B3F', [(1, '1', P), (2, '2', P)], [(4, '4', P), (3, '3', P)], ref='SW', footprint=FP['B3F'],
+                       description='Tact switch 12 x 12 mm (Omron B3F-4055): the switch is between diagonal pins 1 and 4')
     return s
 
 
@@ -386,13 +394,19 @@ def rails(d, X):
     sh = d.sheet('rails', 'Power switch, V_BUS, 3.3 V, 5 V, V_SERVO, V_DXL')
 
     b = sh.block('Power switch, V_BUS eFuse (5 A), INA226 (I2C 0x40)')
-    b.ic(X['SWDPDT'], 'SW', 'POWER',
-         {'COM1': 'CHG_SYS', '1 ON': 'VBUS_EN_SW', '1 OFF': NC, 'COM2': 'PD_CC1_CONN', '2 ON': 'PD_CC1', '2 OFF': NC},
-         fields=fields(FP['TOGGLE2'], 'C496170'))
+    b.ic(X['ROCKER'], 'SW', 'POWER', {'1': 'SW_SUPPLY', '1A': 'VBUS_EN_SW', '2': 'PD_CC1_CONN', '2A': 'PD_CC1'},
+         fields=fields(FP['ROCKER'], 'C6775929'))
     two(b, 'JPO', 'CC1 always', 'PD_CC1_CONN', 'PD_CC1')
+    two(b, 'D', 'SS14', 'SW_SUPPLY', 'CHG_SYS')
+    two(b, 'D', 'SS14', 'SW_SUPPLY', 'DC_12V')
     R(b, '1M', 'VBUS_EN_SW', 'VBUS_EN')
     R(b, '169k', 'VBUS_EN', 'GND')
-    b.note('Switch off: EN low, nothing draws from the pack. Pole 2\nbreaks CC1 (PD renegotiates at switch-on); CC2 is direct,\nso with the plug the other way round the charger also\nworks with the switch off. Bridge the CC1 jumper to\nleave CC1 unswitched. EN divider: on above about 8.3 V.')
+    R(b, '1M', 'VBUS_EN_SW', 'DC_EN')
+    R(b, '169k', 'DC_EN', 'GND')
+    b.ic('Transistor_FET:AO3400A', 'Q', 'AO3400A', {'G': 'DC_DET', 'S': 'GND', 'D': 'VBUS_EN'}, flow=True, fields=fields(FP['SOT23'], 'C20917'))
+    R(b, '100k', 'DC_12V', 'DC_DET')
+    R(b, '100k', 'DC_DET', 'GND')
+    b.note('Switch off: both EN low, nothing draws from the pack. The\nswitch is fed from the pack side (CHG_SYS) or the 12 V jack\nthrough a diode-OR. Pole 2 breaks CC1 (PD renegotiates at\nswitch-on); CC2 is direct, so with the plug the other way round\nthe charger also works with the switch off. Bridge the CC1\njumper to leave CC1 unswitched. EN dividers: on above about\n8.7 V. 12 V present: the FET holds the pack eFuse off, so\nV_BUS comes from the jack (no charging from 12 V).')
     b.col()
     b.ic(X['TPS25947'], 'U', 'TPS259472ARPWR',
          {'IN': 'CHG_SYS', 'EN/UVLO': 'VBUS_EN', 'OVCSEL': 'VBUS_OVCSEL', 'ITIMER': NC, 'GND': 'GND', 'OUT': 'VBUS_SW',
@@ -403,6 +417,20 @@ def rails(d, X):
     C(b, '1uF 25V', 'CHG_SYS')
     C(b, '1uF 25V', 'VBUS_SW')
     b.note('ILM 665R: 5 A. OVCSEL: the setting for the\n13.8 V clamp (open or GND): verify.')
+    b.col()
+    b.ic(X['DCJACK'], 'J', 'DC 12V', {'PIN': 'DC_12V', 'SLEEVE': 'GND', 'MOUNT': 'GND'}, fields=fields(FP['DCJACK'], 'C17701683'))
+    two(b, 'TVS', 'SMBJ15A', 'DC_12V', 'GND')
+    C(b, '10uF 25V', 'DC_12V', fp=FP['C1206'])
+    C(b, '1uF 25V', 'DC_12V')
+    tp(b, 'DC_12V')
+    b.ic(X['TPS25947'], 'U', 'TPS259472ARPWR',
+         {'IN': 'DC_12V', 'EN/UVLO': 'DC_EN', 'OVCSEL': 'DC_OVCSEL', 'ITIMER': NC, 'GND': 'GND', 'OUT': 'VBUS_SW',
+          'PG': NC, 'PGTH': 'GND', 'DVDT': 'DC_DVDT', 'ILM': 'DC_ILM'}, fields=fields(FP['TPS25947'], 'C3662789'))
+    R(b, '665R', 'DC_ILM', 'GND')
+    two(b, 'C', '10nF', 'DC_DVDT', 'GND')
+    two(b, 'JPO', 'OVCSEL', 'DC_OVCSEL', 'GND')
+    b.note('12 V input: second eFuse (5 A) into VBUS_SW.\nBoth eFuses block reverse current.')
+    b.ic('Mechanical:MountingHole_Pad', 'H', 'GND banana', {'1': 'GND'}, flow=True, fields=fields(FP['BANANA']), in_bom=False)
     b.col()
     # Shunt: a 2-terminal 2512; the sense lines leave its pads through net ties (Kelvin connection, placed on the pads)
     R(b, '10mR 2W', 'VBUS_SW', 'V_BUS', fp=FP['R2512'])
@@ -487,7 +515,7 @@ def rails(d, X):
     # HUB_3V3: CH334 VDD33 LDO); a flag there is a power output against a power output.
     b = sh.block('Power flags (for the electrical rules check)')
     for net in ('GND', '+3V3', '+5V', 'V_BUS', 'V_SERVO', 'V_DXL', 'VBUS_PD', 'VBUS_PROG', 'CHG_VBUS', 'BAT_N',
-                'BQ_VDD', 'VBUS_SW', 'HX_AVDD', 'AHT_VDD'):
+                'BQ_VDD', 'VBUS_SW', 'HX_AVDD', 'AHT_VDD', 'DC_12V'):
         flag(b, net)
 
 
@@ -549,10 +577,14 @@ def mcu_main(d, X):
     tp(b, 'LINK_I2M')
     b.note("Link UART: main TX (GPIO23) to io RX (GPIO23),\nio TX (GPIO26) to main RX (GPIO26).")
 
-    b = sh.block('Mounting holes (M3)')
+    b = sh.block('TFT standoffs: M3 x 10 SMD, at the module holes')
     for i in range(4):
+        b.ic('Mechanical:MountingHole_Pad', 'H', 'TFT standoff', {'1': 'GND'}, flow=True, fields=fields(FP['STANDOFF'], 'C2916370'))
+
+    b = sh.block('Mounting holes (M3)')
+    for i in range(8):
         b.ic('Mechanical:MountingHole', 'H', 'M3', {}, flow=True, fields=fields('MountingHole:MountingHole_3.2mm_M3'), in_bom=False)
-        if i == 1:
+        if i == 3:
             b.col()
 
 
@@ -651,8 +683,8 @@ def i2c_parts(d, X):
     for i in range(4):
         two(b, 'LED', 'LED%d' % i, 'GND', 'LED%d_A' % i)
     b.col()
-    for i in range(4):
-        two(b, 'SW', 'BTN%d' % i, 'BTN%d' % i, 'GND')
+    for i in range(4):      # Omron B3F-4055, 12 x 12 mm: room for a cap
+        b.ic(X['B3F'], 'SW', 'BTN%d' % i, {'1': 'BTN%d' % i, '4': 'GND', '2': NC, '3': NC}, flow=True, fields=fields(FP['B3F'], 'C84931'))
     for i in range(2):      # Dailywell 2MS1T1B1M1QES-5: miniature SPDT toggle, PCB pins (footprint: EasyEDA, C496169)
         b.ic('Switch:SW_SPDT', 'SW', 'TOGGLE%d' % i, {'A': 'TOGGLE%d' % i, 'B': 'GND', 'C': NC}, fields=fields(FP['TOGGLE'], 'C496169'))
     b.ic('Connector_Generic:Conn_02x05_Odd_Even', 'J', 'MCP23017 bank B',
@@ -674,8 +706,11 @@ def i2c_parts(d, X):
     for i in range(8):
         R(b, '220R', 'PWM%d' % i, 'SERVO%d' % i)
     b.col()
-    for i in range(8):
-        conn(b, 'SERVO %d' % i, ['GND', 'V_SERVO', 'SERVO%d' % i], header(3), flow=True)
+    for k in range(2):      # two banks of 4: rows of 1x4 headers (signal, V+, GND); a servo plug spans the three rows
+        s = range(4 * k, 4 * k + 4)
+        conn(b, 'SERVO %d-%d SIG' % (s[0], s[-1]), ['SERVO%d' % i for i in s], header(4), flow=True)
+        conn(b, 'SERVO %d-%d V+' % (s[0], s[-1]), ['V_SERVO'] * 4, header(4), flow=True)
+        conn(b, 'SERVO %d-%d GND' % (s[0], s[-1]), ['GND'] * 4, header(4), flow=True)
     R(b, '100R', 'PWM8', 'BUZ_G')
     R(b, '100k', 'BUZ_G', 'GND')
     two(b, 'D', 'SS14', '+3V3', 'BUZ_N')

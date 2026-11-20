@@ -1,4 +1,4 @@
-# SensorTestSetup PCB: schematic notes (revision 0.1)
+# SensorTestSetup PCB: schematic notes (revision 0.2)
 
 The schematic follows [`../PCB_SPEC.md`](../PCB_SPEC.md) (draft 0.7). It replaces the breadboard schematic that was in
 `OfficeDeskSetup.kicad_sch` (still in the git history). KiCad 10.
@@ -53,12 +53,27 @@ github.com/espressif/kicad-libraries. Regenerating overwrites the sheets: once t
   firmware's channel numbers change); ch 7 is on an analog input header (the ADS1115 header keeps 4 inputs).
 * **Dynamixel DIR**: pulled **up** (10 k), not down as in section 5: the 74AHCT1G125 enable is active low, so a pulled-up
   DIR keeps the transmitter off at reset. Firmware: transmit with DIR low (invert RTS).
-* **Power switch**: DPDT toggle (Dailywell 2MD1T1B1M1QES-5, C496170; no 3- or 4-pole switch is stocked at JLCPCB).
-  Pole 1 takes the eFuse EN (through a 1 M / 169 k divider from the charger's SYS output); pole 2 breaks **CC1 only**,
-  CC2 goes straight to the HUSB238. With the switch off, a plug that lands on CC1 sees no Rd, so a power bank stays
+* **Power switch** (rev 0.2): black DPST rocker SS21-BBIWG2-B (C6775929) at the rear edge. Pole 1 takes both eFuse
+  enables: it is fed through a diode-OR (2× SS14) from the charger's SYS output and from the 12 V jack (`SW_SUPPLY`),
+  and drives two 1 M / 169 k dividers (`VBUS_EN`, `DC_EN`; on above about 8.7 V). Pole 2 breaks **CC1 only**, CC2
+  goes straight to the HUSB238. With the switch off, a plug that lands on CC1 sees no Rd, so a power bank stays
   asleep; flip the plug (CC2) to charge with the switch off. Solder jumper JP4 (open) bypasses pole 2 if CC1 should
-  never be switched.
+  never be switched. (Rev 0.1 had a DPDT toggle; both OFF contacts were unused, so DPST does.)
+* **12 V input** (rev 0.2): DC jack 5.5 × 2.1 mm (DC007B, C17701683, 7 A) with an SMBJ15A TVS, 10 µF + 1 µF, and a
+  second TPS259472 eFuse (5 A, ILM 665 Ω, DVDT 10 nF, OVCSEL jumper) from `DC_12V` into `VBUS_SW`, the same node as
+  the pack's eFuse output. **12 V takes priority**: 100 k / 100 k from DC_12V drives an AO3400A that pulls the pack
+  eFuse's EN low, so with 12 V present V_BUS comes from the jack and the pack is not used. Both eFuses block reverse
+  current. There is **no charging from 12 V** (the charger's inputs stay the two USB-C ports).
+* **GND banana hole**: a plated 4.1 mm hole with a 7 mm pad on GND (`BananaHole_4.1mm_Pad`, project library) for a
+  4 mm banana plug, at the rear edge by the power switch.
 * **V_BUS switch**: TPS259472 eFuse, current limit about 5 A; V_DXL: the same part at about 3 A.
+* **Buttons** (rev 0.2): BTN0–3 are Omron B3F-4055 (12 × 12 mm, C84931) at 16 mm pitch, room for caps; the switch is
+  between the diagonal pins 1 (BTNx) and 4 (GND), pins 2 and 3 are left open, which is right whichever way the pins
+  pair inside.
+* **Servo outputs** (rev 0.2): two banks of four at the right edge, each three 1×4 header rows (signal inside, V+,
+  GND at the edge), so a servo plug spans the rows; black headers C42431808, rows marked S + G on the silkscreen.
+* **TFT standoffs**: four M3 × 10 SMD standoffs (SMTSO30100CTJ, C2916370, pad on GND) at the module's holes; the
+  module sits about 11 mm up on its socket, so add a 1 mm washer.
 * **Charger inputs**: two back-to-back N-MOSFET pairs on ACDRV1/ACDRV2 (VAC1 = PD, VAC2 = PROG), **sources
   together** (ACFET drain to the input, RBFET drain to VBUS; BQ25798 datasheet Figure 7-4: ACDRV drives 5 V above the
   common source). The earlier drafts had the drains together.
@@ -97,6 +112,14 @@ the footprints reference them). Each was checked against the datasheet, and the 
 | Inductor FXL0630-6R8-M (6.8 µH, 5 A / 6 A sat) | C167221 | IND-SMD_L7.0-W6.6 | 2 pads, 6.0 mm apart; replaces KiCad's Bourns SRP7028A footprint (that part is not stocked) |
 | Tact switch TS-1187A-B-A-B (5.1 × 5.1 mm) | C318884 | SW-SMD_4P-L5.1-W5.1-P3.70-LS6.5-TL_H1.5 | pads renumbered 1, 1, 2, 2: LCSC's symbol joins pads 1–2 and 3–4 inside, the switch is between the pairs; replaces the TL3342 (out of stock) |
 | Inductor FXL1040-2R2-M (2.2 µH, 12 A / 18 A sat) | C167228 | IND-SMD_L11.5-W10.5 | 2 pads, 9.5 mm apart; 11.5 × 10 mm body, replaces the 10 × 10 SRP1038C footprint |
+| Rocker SS21-BBIWG2-B (DPST, black) | C6775929 | SW-TH_SS21-BBIWG2-B | slotted pads; poles 1–1A and 2–2A (own symbol `SW_DPST`) |
+| DC jack DC007B-2.0 | C17701683 | DC-IN-TH_HX-DC007B-2.5 | pad 1 centre pin, pad 2 sleeve, the four tabs "3" to GND; the footprint of the 2.5 mm version has the same body and pads |
+| Omron B3F-4055 | C84931 | KEY-TH_4P-L12.0-W12.0-P5.00-LS13.4-EH | diagonal pins 1 and 4 used (own symbol `SW_B3F`) |
+| Standoff SMTSO30100CTJ (M3 × 10, SMD) | C2916370 | SCREW-SMD_BD5.6-D4.1-H10 | 6 mm pad with a 4.2 mm plated hole, pad "1" on GND |
+
+3D models only (the footprints stay KiCad's, the LCSC ones merge or renumber pins): the USB-C receptacle
+(`USB-C_SMD-TYPE-C-31-M-12_1.wrl`, offset 0, −1.4 mm, rotated 180°) and the RK09K pot (`RES-TH_RK09K1130A70.wrl`,
+offset 4, −2.5 mm, rotated 90°); `MODELS` in `gen/pcbgen.py` attaches them.
 
 Also found by the pad check: the INA226 shunt used KiCad's 4-terminal `R_Shunt` on a 2-pad 2512 footprint, so the
 sense lines had no pads. Now a 2-terminal 2512 with two net ties (NT1, NT2) for the Kelvin sense lines: place them on
@@ -142,45 +165,53 @@ Connectors, buttons and panel pots get theirs by footprint (`FP_LCSC` in `gen/de
 
 | Part | LCSC | Notes |
 | --- | --- | --- |
-| Pin headers 1×3, 1×5, 1×9, 2×4, 2×5 (2.54 mm, vertical) | C49257, C32713271, C27985193, C32713277, C32713278 | plain headers, not boxed |
+| Pin headers 1×3, 1×4, 1×5, 1×9, 2×4, 2×5 (2.54 mm, vertical) | C49257, C42431808, C32713271, C27985193, C32713277, C32713278 | plain headers, not boxed; the 1×4 (servo rows) is black: no coloured 1×4 is stocked |
 | Female headers 1×4, 1×8 | C2718488, C27438 | TFT, MH module, HC-SR04 |
 | JST PH 4-pin, 6-pin (B4B/B6B-PH-K-S) | C131334, C131342 | load cell, motors |
 | Screw terminal 2-pin 5.08 mm (WJ500V-5.08-2P) | C8465 | fits the Phoenix MKDS 1,5 footprint (same pitch); check the hole size at layout |
-| Tact switch TS-1187A-B-A-B | C318884 | basic part; 9 buttons |
+| Tact switch TS-1187A-B-A-B | C318884 | basic part; QON, RESET and BOOT ×2 |
+| Omron B3F-4055 | C84931 | BTN0–3 |
+| Rocker SS21-BBIWG2-B, DC jack DC007B-2.0, standoff SMTSO30100CTJ | C6775929, C17701683, C2916370 | power switch, 12 V input, TFT |
+| TVS SMBJ15A | C435932 | 12 V input |
 | Panel pot Alps RK09K1130A70, 10 k | C351173 | check the shaft length/style before ordering |
 
 Only test points, solder jumpers and net ties (copper only) and the DNP ISET resistor have no LCSC number.
 
-## PCB: rough placement
+## PCB: placement
 
-The placement is generated by `gen/pcbgen.py` from the same
-design, run with KiCad's own Python:
+The placement is generated by `gen/pcbgen.py` from the same design, run with KiCad's own Python:
 
 ```
 "C:/Program Files/KiCad/10.0/bin/python.exe" gen/pcbgen.py --espressif <path to Espressif.kicad_sym>
 ```
 
-* **200 × 150 mm**, 4 layers: F.Cu (signals, GND pour), In1 GND plane, In2 +3V3 plane, B.Cu (signals, GND pour);
-  3 mm corner radius, 4× M3 holes in the corners. Zones connect solidly to SMD pads, with thermal reliefs on THT.
-* Net classes: **Power** (1.0 mm tracks, 0.8/0.4 mm vias: USB-C VBUS, charger, battery, V_BUS, V_SERVO, V_DXL,
-  motors) and **Supply** (0.5 mm: +3V3, +5V, cells, local supplies); everything else Default (0.2 mm, clearance
-  0.15 mm). Minimum track width 0.15 mm.
-* **Rear edge**: USB-C PD and PROG, the power screw terminals and 2×4 header, motor screw terminals and encoder
-  connectors. **Left edge**: the 9 Qwiic connectors and the two pressure sensors. **Right edge**: the 8 servo
-  headers as a 3 × 8 block at 2.54 mm (their courtyards overlap on purpose), PWM 9–15, Dynamixel, analog inputs,
-  load cell. **Front edge**: power switch, 2 toggles, 4 buttons, 4 pots, HC-SR04 and MH sockets; AS5600 front right.
-* ESP32 'main' left, 'io' right (U.FL antennas, away from the converters). The three 18650 holders are on the back
-  in the middle; the TFT module lies over the area right of its socket J10 (outline on Dwgs.User), with only SMD
-  parts under it.
-* Every other schematic block is packed as a cluster in its own region (REGIONS in board mm): the power chain over
-  two rows at the rear (USB-C, input selection, power switch, 5 V, motor driver; then hub, charger, 3S pack over
-  the holders, 3.3 V, V_SERVO), PCA9685 next to the servo headers, sensors and ADCs in the middle and front. The
-  regions are sized for about two thirds of the area their parts take with 1 mm between parts and 3 mm around ICs
-  (8 or more pads), to leave room for routing.
-* Footprints carry the schematic symbol paths and KiCad's net names: DRC with schematic parity shows no
-  differences, so "Update PCB from Schematic" works from here. Default clearance 0.15 mm (fine-pitch VQFN/LGA pads).
-* DRC errors left: unrouted connections; the servo courtyards; the SK6812MINI-E's own board cutout; the imported
-  WF100DPZ footprints have an odd courtyard.
+* **270 × 200 mm** (rev 0.2; was 200 × 150), 4 layers: F.Cu (signals, GND pour), In1 GND plane, In2 +3V3 plane,
+  B.Cu (signals, GND pour); 3 mm corner radius, **8× M3 holes** (corners and edge middles). Zones connect solidly to
+  SMD pads, with thermal reliefs on THT. The board grew so that every block has 5 mm around it and room for labels.
+* Net classes: **Power** (1.0 mm tracks, 0.8/0.4 mm vias: USB-C VBUS, 12 V input, charger, battery, V_BUS, V_SERVO,
+  V_DXL, motors) and **Supply** (0.5 mm: +3V3, +5V, cells, local supplies); everything else Default (0.2 mm,
+  clearance 0.15 mm). Minimum track width 0.15 mm.
+* **Rear edge**: USB-C PD and PROG, 12 V jack, power rocker, GND banana hole, the power screw terminals (wire entries
+  outwards) and 2×4 header, motor screw terminals and encoder connectors. **Left edge**: the 9 Qwiic connectors and
+  the two pressure sensors. **Right edge**: the two servo banks, PWM 9–15, Dynamixel, analog inputs, load cell.
+  **Front edge**: 2 toggles, 4 B3F buttons, 4 pots, HC-SR04 and MH sockets; AS5600 front right.
+* Parts are named in the script by **stable keys** (`'J=USB-C POWER'`, `'RV=10k@RK09#2'`: prefix and value, `@` a
+  footprint name part, `#n` the n-th match), not by references, which shift when parts are added.
+* Each schematic block is packed into a compact **cluster**, which is then placed 5 mm from everything else at the
+  free spot nearest to its rectangle in `FLOORPLAN`: power at the rear (USB-C, power switch with the 12 V input,
+  bucks, motor driver, PCA9685 and V_SERVO by the servo banks), USB hub, input selection, ESP 'main' and the I2C
+  parts on the left, charger and pack in the middle between the holders' pads, ESP 'io', ToF, Dynamixel, ADCs and the
+  load cell on the right, sensors that must stay uncovered and the MCP3008 at the front. The blocks are placed
+  largest first.
+* The three 18650 holders are on the back in the middle; the TFT module lies over x 85–154, y 88–130 (to the left of
+  its socket; outline on Dwgs.User) on 4 standoffs, with only low parts under it.
+* **Silkscreen**: no references. Each block has an outline and its function; ICs carry their type, connectors and
+  switches their function, test points their net, LEDs their rail, pots their wiper net (POT0–3), and connectors
+  with 2 mm pitch or more the net of each pin. The credits (revision, Vincent Groenhuis, RaM, and the layout and
+  routing by Claude Opus 5.5) go in a free spot near the front.
+* Footprints carry the schematic symbol paths and KiCad's net names, so "Update PCB from Schematic" works from here.
+* DRC items expected before routing: the TPS259472 VQFN's own pad clearances, the servo rows' courtyards (2.54 mm
+  apart on purpose), the SK6812MINI-E's own board cutout, the WF100DPZ footprints' odd courtyards.
 * Running the script again **overwrites the board**: once parts are moved by hand in KiCad, stop using it.
 
 ## PCB: autorouting (partial)

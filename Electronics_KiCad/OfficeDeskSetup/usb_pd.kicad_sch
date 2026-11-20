@@ -6,8 +6,8 @@
 	(paper "A3")
 	(title_block
 		(title "SensorTestSetup PCB: USB-C: PD input, programming port, USB hub")
-		(date "2026-11-18")
-		(rev "0.1")
+		(date "2026-11-20")
+		(rev "0.2")
 		(company "RaM, University of Twente")
 	)
 	(lib_symbols

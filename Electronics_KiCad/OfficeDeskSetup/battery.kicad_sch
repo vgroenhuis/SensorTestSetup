@@ -6,8 +6,8 @@
 	(paper "A2")
 	(title_block
 		(title "SensorTestSetup PCB: Battery 3S: charger with power path, protection, balancing")
-		(date "2026-11-18")
-		(rev "0.1")
+		(date "2026-11-20")
+		(rev "0.2")
 		(company "RaM, University of Twente")
 	)
 	(lib_symbols

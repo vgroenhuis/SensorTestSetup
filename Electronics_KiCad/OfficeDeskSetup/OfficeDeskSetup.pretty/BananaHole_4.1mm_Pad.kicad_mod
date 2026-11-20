@@ -1,0 +1,22 @@
+(footprint "BananaHole_4.1mm_Pad"
+	(version 20240108)
+	(generator "pcbnew")
+	(layer "F.Cu")
+	(descr "Plated 4.1 mm hole for a 4 mm banana plug (the plug's springs grip the plating), 7 mm pad on both sides")
+	(tags "banana plug 4mm GND")
+	(attr through_hole)
+	(property "Reference" "REF**"
+		(at 0 -5 0)
+		(layer "F.Fab")
+		(effects (font (size 1 1) (thickness 0.15)))
+	)
+	(property "Value" "GND"
+		(at 0 5 0)
+		(layer "F.Fab")
+		(effects (font (size 1 1) (thickness 0.15)))
+	)
+	(fp_circle (center 0 0) (end 4 0) (stroke (width 0.2) (type solid)) (fill none) (layer "F.SilkS"))
+	(fp_circle (center 0 0) (end 4.25 0) (stroke (width 0.05) (type solid)) (fill none) (layer "F.CrtYd"))
+	(fp_circle (center 0 0) (end 4.25 0) (stroke (width 0.05) (type solid)) (fill none) (layer "B.CrtYd"))
+	(pad "1" thru_hole circle (at 0 0) (size 7 7) (drill 4.1) (layers "*.Cu" "*.Mask"))
+)

@@ -6,8 +6,8 @@
 	(paper "A3")
 	(title_block
 		(title "SensorTestSetup PCB")
-		(date "2026-11-18")
-		(rev "0.1")
+		(date "2026-11-20")
+		(rev "0.2")
 		(company "RaM, University of Twente")
 	)
 	(lib_symbols)
@@ -20,7 +20,7 @@
 		)
 		(uuid "0f5e401a-05fe-5a2d-9c89-252c756f3b7c")
 	)
-	(text "SensorTestSetup PCB, schematic revision 0.1: after Electronics_KiCad/PCB_SPEC.md (draft 0.7).\n\nSheets\n  1  USB-C: PD input (HUSB238), programming port, USB hub (CH334R)\n  2  Battery 3S: charger with power path (BQ25792), protection and balancing (BQ77915)\n  3  Power switch, V_BUS (eFuse, INA226), 3.3 V, 5 V, V_SERVO, V_DXL\n  4  ESP32-C5 'main': Wi-Fi, web, TFT, SPI, main I2C bus\n  5  ESP32-C5 'io': motors, encoders, Dynamixel, VL53L7CX on its own I2C bus\n  6  Main I2C bus: MCP23017 (LEDs, buttons, toggle switches), PCA9685 (servos, buzzer), TCA9548 (pressure, Qwiic)\n  7  Sensors: MCP3008, ADS1115, IMU, AHT20, VEML7700, AS5600, HX711, HC-SR04, IR reflective, MH socket\n\nNets that cross sheets have global labels; power rails: GND, +3V3, +5V (symbols), V_BUS, V_SERVO, V_DXL (labels).\n\nMain I2C bus (ESP 'main' GPIO2/3): 0x08 HUSB238, 0x10 VEML7700, 0x20 MCP23017, 0x36 AS5600, 0x38 AHT20, 0x40 INA226,\n0x41 PCA9685, 0x48 ADS1115, 0x6A LSM6DS3TR-C, 0x6B BQ25792, 0x71 TCA9548A (0x70 kept free: PCA9685 All-Call).\nBehind the TCA9548A: 0x6D WF100DPZ on ch 0 and 1; ch 2-7 Qwiic. I2C 2 (ESP 'io' GPIO2/3): 0x29 VL53L7CX + Qwiic.\n\nThe files are written by gen/make.py from gen/design.py. Values and pin numbers marked \"verify\" (see SCHEMATIC_NOTES.md)\nhave to be checked against the datasheets before layout."
+	(text "SensorTestSetup PCB, schematic revision 0.2: after Electronics_KiCad/PCB_SPEC.md (draft 0.7).\n\nSheets\n  1  USB-C: PD input (HUSB238), programming port, USB hub (CH334R)\n  2  Battery 3S: charger with power path (BQ25792), protection and balancing (BQ77915)\n  3  Power switch, V_BUS (eFuse, INA226), 3.3 V, 5 V, V_SERVO, V_DXL\n  4  ESP32-C5 'main': Wi-Fi, web, TFT, SPI, main I2C bus\n  5  ESP32-C5 'io': motors, encoders, Dynamixel, VL53L7CX on its own I2C bus\n  6  Main I2C bus: MCP23017 (LEDs, buttons, toggle switches), PCA9685 (servos, buzzer), TCA9548 (pressure, Qwiic)\n  7  Sensors: MCP3008, ADS1115, IMU, AHT20, VEML7700, AS5600, HX711, HC-SR04, IR reflective, MH socket\n\nNets that cross sheets have global labels; power rails: GND, +3V3, +5V (symbols), V_BUS, V_SERVO, V_DXL (labels).\n\nMain I2C bus (ESP 'main' GPIO2/3): 0x08 HUSB238, 0x10 VEML7700, 0x20 MCP23017, 0x36 AS5600, 0x38 AHT20, 0x40 INA226,\n0x41 PCA9685, 0x48 ADS1115, 0x6A LSM6DS3TR-C, 0x6B BQ25792, 0x71 TCA9548A (0x70 kept free: PCA9685 All-Call).\nBehind the TCA9548A: 0x6D WF100DPZ on ch 0 and 1; ch 2-7 Qwiic. I2C 2 (ESP 'io' GPIO2/3): 0x29 VL53L7CX + Qwiic.\n\nThe files are written by gen/make.py from gen/design.py. Values and pin numbers marked \"verify\" (see SCHEMATIC_NOTES.md)\nhave to be checked against the datasheets before layout."
 		(exclude_from_sim no)
 		(at 20.32 27.94 0)
 		(effects
