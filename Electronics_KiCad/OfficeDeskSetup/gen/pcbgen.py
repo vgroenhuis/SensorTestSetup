@@ -1158,6 +1158,8 @@ def main():
             ic_seen.add(key)
         if ref.startswith('H') and 'Banana' in fpname:
             text = 'GND'
+        if text and text.startswith('Qwiic '):  # one QWIIC heading over the row (below), each its bus here
+            text = text[len('Qwiic '):]
         if text:
             label_part(m, text)
 
@@ -1198,7 +1200,16 @@ def main():
             if resolve(key).startswith('J'):
                 pin_labels(mods[key], inward)
             placed.add(resolve(key))
+    qwiic = sorted((m for m in byref.values() if m.GetValue().startswith('Qwiic ')), key=lambda m: m.GetPosition().y)
+    if qwiic:                              # the heading, along the row before its first connector
+        first = qwiic[0]
+        lab = next(t for t in first.GraphicalItems() if isinstance(t, pcbnew.PCB_TEXT)
+                   and t.GetLayer() == pcbnew.F_SilkS and t.GetText() == first.GetValue()[len('Qwiic '):])
+        tb = bbox_mm(lab.GetBoundingBox())
+        heading = silk(board, 'QWIIC', (tb[0] + tb[2]) / 2, tb[1] - 0.6 - 2.6, size=1.0, angle=90)
     grid = Grid()
+    if qwiic:
+        grid.mark(*bbox_mm(heading.GetBoundingBox()))
     problems = []
     tops = [r for r in sorted(placed) if not byref[r].IsFlipped()]
     for i, a in enumerate(tops):                   # fixed parts must not collide with each other
