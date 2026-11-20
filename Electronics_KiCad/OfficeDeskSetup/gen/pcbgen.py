@@ -533,8 +533,7 @@ PART, NAME, HOLE, BACK_SMD, KEEPOUT = range(5)
 def spread(items, scale=SPREAD, step=0.05):
     """Move the movable items away from their block's centre, up to `scale` times their distance from it, wherever
     the room is: in steps, each item as far as it can go (or along x or y alone). Items are dicts: box, block (index;
-    -1: none), kind, gap, move, cut (a part with a cutout: keeps off SMD pads on the back), uncovered (keeps out of
-    KEEPOUT). Gaps: as packed within a block, BLOCK_GAP between blocks; never less than at the start. Returns the
+    -1: none), kind, gap, move, uncovered (keeps out of KEEPOUT). Parts keep off SMD pads on the back. Gaps: as packed within a block, BLOCK_GAP between blocks; never less than at the start. Returns the
     (dx, dy) of each item."""
     import numpy as np
     n = len(items)
@@ -552,7 +551,8 @@ def spread(items, scale=SPREAD, step=0.05):
             r = np.where(same, (g[i] + g) / 2, BLOCK_GAP)
             r = np.where(kind == NAME, np.where(same, 0.9, 1.2), r)
             r = np.where(kind == HOLE, 1.0, r)
-            r = np.where(kind == BACK_SMD, 0.5 if it.get('cut') else -1e9, r)
+            r = np.where(kind == BACK_SMD, 0.5, r)      # not over the holder contacts on the back: a part spread
+                                                        # over BT1's contact and its net tie crashed Freerouting
             r = np.where(kind == KEEPOUT, 0.0 if it.get('uncovered') else -1e9, r)
         r = np.minimum(r, _sep(B0, B0[i]) - 1e-6)     # never worse than at the start
         r[i] = -1e9
