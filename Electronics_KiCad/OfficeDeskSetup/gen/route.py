@@ -117,14 +117,14 @@ def only_nets(dsn, keep):
 
 
 def power_nets(board):
-    """Short names of the Power and Supply net class nets, without the plane nets."""
+    """Short names of the Power, Pack and Supply net class nets, without the plane nets."""
     ns = board.GetDesignSettings().m_NetSettings
     planes = {z.GetNetname().split('/')[-1] for z in zones(board)}
     out = set()
     for net in board.GetNetsByName().keys():
         name = str(net)
         cls = ns.GetEffectiveNetClass(name).GetName()
-        if any(c in cls for c in ('Power', 'Supply')) and name.split('/')[-1] not in planes:
+        if any(c in cls for c in ('Power', 'Pack', 'Supply')) and name.split('/')[-1] not in planes:
             out.add(name.split('/')[-1])
     return out
 

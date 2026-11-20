@@ -339,28 +339,38 @@ def battery(d, X):
         b.ic('Device:Battery_Cell', 'BT', '18650', {'1': 'CELL%d' % i, '2': 'CELL%d' % (i - 1) if i > 1 else 'BAT_N'},
              flow=True, fields=fields(FP['HOLDER'], 'C2979183', Note='holder MY-18650-01: footprint to check'))
     two(b, 'FUSE', '10A', 'CELL3', 'BAT_P')
+    # The pack current takes CELL1..3, BAT_N, BQ_SRN (2 mm tracks); the BQ77915 and its small parts hang off thin
+    # nets that leave through net ties: each cell tap at its holder contact, VSS/SRP and SRN on the sense resistor's
+    # pads (Kelvin). Tie: the value of the part whose pad the net tie sits on (gen/pcbgen.py places it there).
+    for i in (1, 2, 3):
+        b.ic('Device:NetTie_2', 'NT', 'CELL%d tap' % i, {'1': 'CELL%d' % i, '2': 'CELL%d_TAP' % i}, flow=True,
+             fields=fields('NetTie:NetTie-2_SMD_Pad0.5mm', Tie='18650'))
+    b.ic('Device:NetTie_2', 'NT', 'Kelvin BAT-', {'1': 'BAT_N', '2': 'BQ_VSS'}, flow=True,
+         fields=fields('NetTie:NetTie-2_SMD_Pad0.5mm', Tie='5mR 1W'))
+    b.ic('Device:NetTie_2', 'NT', 'Kelvin SRN', {'1': 'BQ_SRN', '2': 'BQ_SRN_K'}, flow=True,
+         fields=fields('NetTie:NetTie-2_SMD_Pad0.5mm', Tie='5mR 1W'))
     b.col()
     b.ic(X['BQ77915'], 'U', 'BQ7791504PWR',
          {'VDD': 'BQ_VDD', 'AVDD': 'BQ_AVDD', 'VC5': 'BQ_VC3', 'VC4': 'BQ_VC3', 'VC3': 'BQ_VC3', 'VC2': 'BQ_VC2', 'VC1': 'BQ_VC1',
-          'VC0': 'BQ_VC0', 'VSS': 'BAT_N', 'SRP': 'BAT_N', 'SRN': 'BQ_SRN', 'DSG': 'BQ_DSG', 'CHG': 'BQ_CHG', 'LD': 'BQ_LD',
-          'LPWR': NC, 'CBI': 'BAT_N', 'OCDP': 'BQ_OCDP', 'TS': 'BQ_TS', 'VTB': 'BQ_VTB', 'CCFG': 'BQ_AVDD', 'CBO': NC,
-          'PRES': 'BQ_PRES', 'CTRC': 'BAT_N', 'CTRD': 'BAT_N'}, fields=fields(FP['TSSOP24'], 'C2873309'))
+          'VC0': 'BQ_VC0', 'VSS': 'BQ_VSS', 'SRP': 'BQ_VSS', 'SRN': 'BQ_SRN_K', 'DSG': 'BQ_DSG', 'CHG': 'BQ_CHG', 'LD': 'BQ_LD',
+          'LPWR': NC, 'CBI': 'BQ_VSS', 'OCDP': 'BQ_OCDP', 'TS': 'BQ_TS', 'VTB': 'BQ_VTB', 'CCFG': 'BQ_AVDD', 'CBO': NC,
+          'PRES': 'BQ_PRES', 'CTRC': 'BQ_VSS', 'CTRD': 'BQ_VSS'}, fields=fields(FP['TSSOP24'], 'C2873309'))
     b.note('CCFG to AVDD: 3 cells; VC3..VC5 together (verify).\nCBI low: balancing on. Battery minus (BAT_N) is NOT GND:\nthe FETs sit between them.')
     b.col()
-    R(b, '1k', 'CELL3', 'BQ_VDD')
-    R(b, '100R', 'CELL3', 'BQ_VC3')
-    R(b, '100R', 'CELL2', 'BQ_VC2')
-    R(b, '100R', 'CELL1', 'BQ_VC1')
-    R(b, '100R', 'BAT_N', 'BQ_VC0')
+    R(b, '1k', 'CELL3_TAP', 'BQ_VDD')
+    R(b, '100R', 'CELL3_TAP', 'BQ_VC3')
+    R(b, '100R', 'CELL2_TAP', 'BQ_VC2')
+    R(b, '100R', 'CELL1_TAP', 'BQ_VC1')
+    R(b, '100R', 'BQ_VSS', 'BQ_VC0')
     two(b, 'C', '100nF', 'BQ_VC3', 'BQ_VC2')
     two(b, 'C', '100nF', 'BQ_VC2', 'BQ_VC1')
     two(b, 'C', '100nF', 'BQ_VC1', 'BQ_VC0')
-    two(b, 'C', '1uF 25V', 'BQ_VDD', 'BAT_N')
-    two(b, 'C', '1uF', 'BQ_AVDD', 'BAT_N')
+    two(b, 'C', '1uF 25V', 'BQ_VDD', 'BQ_VSS')
+    two(b, 'C', '1uF', 'BQ_AVDD', 'BQ_VSS')
     R(b, '10k', 'BQ_VTB', 'BQ_TS')
-    two(b, 'NTC', '10k B3435', 'BQ_TS', 'BAT_N')
+    two(b, 'NTC', '10k B3435', 'BQ_TS', 'BQ_VSS')
     R(b, '100k', 'BQ_PRES', 'BQ_VDD')
-    R(b, '100k', 'BQ_OCDP', 'BAT_N')
+    R(b, '100k', 'BQ_OCDP', 'BQ_VSS')
     b.col()
     two(b, 'R', '5mR 1W', 'BAT_N', 'BQ_SRN', fp=FP['R2512'])
     fet(b, 'BQ_SRN', 'BQ_DSG_G', 'BQ_FET_MID', 'discharge FET')
@@ -370,8 +380,9 @@ def battery(d, X):
     R(b, '3.3M', 'BQ_CHG_G', 'GND')
     R(b, '453k', 'BQ_LD', 'GND')
     b.note('Values after the BQ77905/15 reference circuit; cell filter,\nsense resistor, PRES and OCDP: verify for the -04 variant.')
-    for n in ('CELL1', 'CELL2', 'CELL3', 'BAT_N'):
-        tp(b, n)
+    for n in ('CELL1', 'CELL2', 'CELL3'):
+        tp(b, n + '_TAP', n)
+    tp(b, 'BQ_VSS', 'BAT_N')
 
 
 # ---------------------------------------------------------------------------------------------
@@ -434,8 +445,10 @@ def rails(d, X):
     b.col()
     # Shunt: a 2-terminal 2512; the sense lines leave its pads through net ties (Kelvin connection, placed on the pads)
     R(b, '10mR 2W', 'VBUS_SW', 'V_BUS', fp=FP['R2512'])
-    b.ic('Device:NetTie_2', 'NT', 'Kelvin +', {'1': 'VBUS_SW', '2': 'INA_INP'}, flow=True, fields=fields('NetTie:NetTie-2_SMD_Pad0.5mm'))
-    b.ic('Device:NetTie_2', 'NT', 'Kelvin -', {'1': 'V_BUS', '2': 'INA_INN'}, flow=True, fields=fields('NetTie:NetTie-2_SMD_Pad0.5mm'))
+    b.ic('Device:NetTie_2', 'NT', 'Kelvin +', {'1': 'VBUS_SW', '2': 'INA_INP'}, flow=True,
+         fields=fields('NetTie:NetTie-2_SMD_Pad0.5mm', Tie='10mR 2W'))
+    b.ic('Device:NetTie_2', 'NT', 'Kelvin -', {'1': 'V_BUS', '2': 'INA_INN'}, flow=True,
+         fields=fields('NetTie:NetTie-2_SMD_Pad0.5mm', Tie='10mR 2W'))
     b.ic('Sensor_Energy:INA226', 'U', 'INA226AIDGSR',
          {'VS': '+3V3', 'GND': 'GND', 'Vbus': 'V_BUS', 'Vin+': 'INA_INP', 'Vin-': 'INA_INN', 'A0': 'GND', 'A1': 'GND',
           'SDA': 'I2C_SDA', 'SCL': 'I2C_SCL', '~{Alert}': 'INA_ALERT'}, fields=fields('Package_SO:TSSOP-10_3x3mm_P0.5mm', 'C49851'))
@@ -515,7 +528,7 @@ def rails(d, X):
     # HUB_3V3: CH334 VDD33 LDO); a flag there is a power output against a power output.
     b = sh.block('Power flags (for the electrical rules check)')
     for net in ('GND', '+3V3', '+5V', 'V_BUS', 'V_SERVO', 'V_DXL', 'VBUS_PD', 'VBUS_PROG', 'CHG_VBUS', 'BAT_N',
-                'BQ_VDD', 'VBUS_SW', 'HX_AVDD', 'AHT_VDD', 'DC_12V'):
+                'BQ_VSS', 'BQ_VDD', 'VBUS_SW', 'HX_AVDD', 'AHT_VDD', 'DC_12V'):
         flag(b, net)
 
 

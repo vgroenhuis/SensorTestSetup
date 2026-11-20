@@ -90,7 +90,7 @@ UNCOVERED = ('IR reflective', 'AHT20', 'LDR', 'VL53L7CX')    # blocks with senso
 FIXED = {
     'U=AS5600-ASOT': (172, 126, 0, 'F'),                      # under the knob
     'BT=18650#1': (100, 30, 0, 'B'),                         # 18650 holders on the back, at the rear (no through-
-    'BT=18650#2': (100, 52.5, 0, 'B'),                       # hole parts and TFT standoffs over them); their pads
+    'BT=18650#2': (100, 52.5, 180, 'B'),                     # hole parts and TFT standoffs over them); their pads
     'BT=18650#3': (100, 75, 0, 'B'),                         # have pegs at x 72, 128 and 136
 }
 # corners, two beside the upper TFT standoffs, one at the left edge, one in the middle under
@@ -100,11 +100,12 @@ HOLES = {'H=M3#1': (4, 4), 'H=M3#2': (W - 4, 4), 'H=M3#3': (4, H - 4), 'H=M3#4':
 # net classes: (track width, clearance, via diameter, via drill, nets by their short name)
 NETCLASSES = {
     'Power': (1.0, 0.2, 0.8, 0.4, ['VBUS_PD', 'VBUS_PROG', 'CHG_VBUS', 'CHG_PMID', 'CHG_SYS', 'CHG_SW1', 'CHG_SW2',
-                                    'CHG_IN1_MID', 'CHG_IN2_MID', 'BAT_P', 'BAT_N', 'BQ_SRN', 'BQ_FET_MID', 'VBUS_SW',
+                                    'CHG_IN1_MID', 'CHG_IN2_MID', 'BAT_P', 'VBUS_SW',
                                     'V_BUS', 'V_SERVO', 'SW_SERVO', 'SW_3V3', 'V_DXL', 'MOTA_P', 'MOTA_N', 'MOTB_P',
                                     'MOTB_N', 'DC_12V',
-                                    'CELL1', 'CELL2', 'CELL3',      # the holders in series: the full pack current
                                     'SW_5V']),                      # 3 A buck switch node
+    'Pack': (2.0, 0.2, 0.8, 0.4, ['CELL1', 'CELL2', 'CELL3', 'BAT_N', 'BQ_SRN', 'BQ_FET_MID']),   # the cells in series
+                                                                    # and the protection FETs: the full pack current
     'Supply': (0.5, 0.15, 0.6, 0.3, ['+3V3', '+5V']),
 }
 # low-current supplies stay in the Default class (0.2 mm): CHG_REGN (BQ25792 gate-drive LDO, tens of mA), HUB_3V3
@@ -326,6 +327,43 @@ class Grid:
 
 def gap(m):
     return GAP_IC if m.GetPadCount() >= 8 else GAP
+
+
+def place_tie(board, m, host_value):
+    """A net tie onto the pad of its pad-1 net on a part with value `host_value` (the one nearest the parts of its
+    pad-2 net): pad 1 just inside that pad's edge, pad 2 outside it, towards those parts. Returns an error or None."""
+    p1, p2 = (next(p for p in m.Pads() if p.GetNumber() == n) for n in ('1', '2'))
+    n1, n2 = p1.GetNetCode(), p2.GetNetCode()
+    hosts = [p for p in board.GetPads() if p.GetNetCode() == n1 and p.GetParentFootprint().GetValue() == host_value]
+    far = [p for p in board.GetPads() if p.GetNetCode() == n2 and p.GetParentFootprint() is not m]
+    if not hosts or not far:
+        return 'net tie %s: no %s pad on its net' % (m.GetReference(), host_value)
+    tx = sum(pcbnew.ToMM(p.GetPosition().x) for p in far) / len(far)
+    ty = sum(pcbnew.ToMM(p.GetPosition().y) for p in far) / len(far)
+    def mm_xy(p):
+        return pcbnew.ToMM(p.GetPosition().x), pcbnew.ToMM(p.GetPosition().y)
+    host = min(hosts, key=lambda p: math.hypot(mm_xy(p)[0] - tx, mm_xy(p)[1] - ty))
+    hx, hy = mm_xy(host)
+    dx, dy = tx - hx, ty - hy
+    d = (1 if dx >= 0 else -1, 0) if abs(dx) >= abs(dy) else (0, 1 if dy >= 0 else -1)
+    if host.IsOnLayer(pcbnew.B_Cu) and not host.IsOnLayer(pcbnew.F_Cu) and not m.IsFlipped():
+        m.Flip(m.GetPosition(), pcbnew.FLIP_DIRECTION_LEFT_RIGHT)
+    best = None
+    for rot in (0, 90, 180, 270):                  # pad 1 -> pad 2 along d
+        m.SetOrientationDegrees(rot)
+        (ax, ay), (bx, by) = mm_xy(p1), mm_xy(p2)
+        dot = (bx - ax) * d[0] + (by - ay) * d[1]
+        if best is None or dot > best[0]:
+            best = (dot, rot)
+    m.SetOrientationDegrees(best[1])
+    bb = host.GetBoundingBox()
+    half = pcbnew.ToMM(bb.GetWidth() if d[0] else bb.GetHeight()) / 2
+    r1 = pcbnew.ToMM(p1.GetBoundingBox().GetWidth() if d[0] else p1.GetBoundingBox().GetHeight()) / 2
+    ax, ay = mm_xy(p1)
+    want = (hx + d[0] * (half - r1 - 0.05), hy + d[1] * (half - r1 - 0.05))
+    pos = m.GetPosition()
+    m.SetPosition(V(pcbnew.ToMM(pos.x) + want[0] - ax, pcbnew.ToMM(pos.y) + want[1] - ay))
+    return None
 
 
 def occupy(grid, m):
@@ -912,6 +950,7 @@ def main():
             return byref[resolve(key)]
     mods = Mods()
 
+    ties = {ref: comp[ref][0]['Tie'] for ref in byref if ref in comp and comp[ref][0].get('Tie')}
     servo_rows = {resolve(k) for bank in SERVO_BANKS for k in bank[1:]}
     tft_ref = resolve('J=TFT')
     block_of = {m.GetReference(): title for title, ms in blocks.items() for m in ms}
@@ -994,7 +1033,7 @@ def main():
     outlines, names = {}, []
     for title, ms in sorted(blocks.items(), key=order):
         r, name = region(title)
-        free = [m for m in ms if m.GetReference() not in placed]
+        free = [m for m in ms if m.GetReference() not in placed and m.GetReference() not in ties]
         if free:
             for m in free:
                 if m.GetReference().startswith('J'):
@@ -1002,7 +1041,26 @@ def main():
             if r is None:
                 problems.append('no region for block "%s": %s' % (title, ' '.join(m.GetReference() for m in free)))
                 continue
+            # a part with a cutout through the board (SK6812MINI-E) must also keep clear of SMD pads on the back
+            cut = [m for m in free if any(g.GetLayer() == pcbnew.Edge_Cuts for g in m.GraphicalItems())]
+            extra = []
+            if cut:
+                for ref in placed:
+                    if byref[ref].IsFlipped():
+                        for pad in byref[ref].Pads():
+                            if pad.GetAttribute() == pcbnew.PAD_ATTRIB_SMD:
+                                c0, r0, c1, r1 = grid.cells(*(v + g for v, g in zip(bbox_mm(pad.GetBoundingBox()),
+                                                                                    (-0.5, -0.5, 0.5, 0.5))))
+                                extra += [(rr, cc) for rr in range(r0, r1) for cc in range(c0, c1) if not grid.rows[rr][cc]]
+                for rr, cc in extra:
+                    grid.rows[rr][cc] = 1
             d = cluster(grid, free, r, tft_area if title.startswith(UNCOVERED) else None)
+            if extra:                              # free those cells again, but keep the block itself and its gap
+                for rr, cc in extra:
+                    grid.rows[rr][cc] = 0
+                bs = [box(m) for m in free]
+                grid.mark(min(q[0] for q in bs) - BLOCK_GAP / 2, min(q[1] for q in bs) - BLOCK_GAP / 2,
+                          max(q[2] for q in bs) + BLOCK_GAP / 2, max(q[3] for q in bs) + BLOCK_GAP / 2)
             if d is None:
                 problems.append('NO ROOM for block "%s"' % title[:40])
             elif d > 12:
@@ -1025,6 +1083,10 @@ def main():
         silk(board, name, bx[0] + 0.3, bx[1] - 0.9, size=size, justify=1)
         names.append((bx[0], bx[1] - 0.9 - size / 2 - 0.2, bx[0] + 0.3 + 0.8 * size * len(name), bx[1]))
 
+    for ref, host in sorted(ties.items()):
+        err = place_tie(board, byref[ref], host)
+        if err:
+            problems.append(err)
     obstacles = [box(byref[r]) for r in placed if not byref[r].IsFlipped()]
     failed = connection_lines(board, byref, block_of, outlines, obstacles, names)
     if failed:

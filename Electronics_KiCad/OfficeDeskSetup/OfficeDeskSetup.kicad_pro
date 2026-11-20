@@ -542,6 +542,25 @@
       },
       {
         "bus_width": 12,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "Pack",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "priority": 1,
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 2.0,
+        "tuning_profile": "",
+        "via_diameter": 0.8,
+        "via_drill": 0.4,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
         "clearance": 0.15,
         "diff_pair_gap": 0.25,
         "diff_pair_via_gap": 0.25,
@@ -551,7 +570,7 @@
         "microvia_drill": 0.1,
         "name": "Supply",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
-        "priority": 1,
+        "priority": 2,
         "schematic_color": "rgba(0, 0, 0, 0.000)",
         "track_width": 0.5,
         "tuning_profile": "",
@@ -569,14 +588,6 @@
       {
         "netclass": "Power",
         "pattern": "/2 Battery 3S: charger with power path, protection, balancing/BAT_P"
-      },
-      {
-        "netclass": "Power",
-        "pattern": "/2 Battery 3S: charger with power path, protection, balancing/BQ_FET_MID"
-      },
-      {
-        "netclass": "Power",
-        "pattern": "/2 Battery 3S: charger with power path, protection, balancing/BQ_SRN"
       },
       {
         "netclass": "Power",
@@ -608,6 +619,10 @@
       },
       {
         "netclass": "Power",
+        "pattern": "/3 Power switch, V_BUS, 3.3 V, 5 V, V_SERVO, V_DXL/SW_5V"
+      },
+      {
+        "netclass": "Power",
         "pattern": "/3 Power switch, V_BUS, 3.3 V, 5 V, V_SERVO, V_DXL/SW_SERVO"
       },
       {
@@ -629,10 +644,6 @@
       {
         "netclass": "Power",
         "pattern": "/5 ESP32-C5 'io': motors, encoders, Dynamixel, ToF/MOTB_P"
-      },
-      {
-        "netclass": "Power",
-        "pattern": "BAT_N"
       },
       {
         "netclass": "Power",
@@ -663,28 +674,36 @@
         "pattern": "V_SERVO"
       },
       {
+        "netclass": "Pack",
+        "pattern": "/2 Battery 3S: charger with power path, protection, balancing/BQ_FET_MID"
+      },
+      {
+        "netclass": "Pack",
+        "pattern": "/2 Battery 3S: charger with power path, protection, balancing/BQ_SRN"
+      },
+      {
+        "netclass": "Pack",
+        "pattern": "/2 Battery 3S: charger with power path, protection, balancing/CELL1"
+      },
+      {
+        "netclass": "Pack",
+        "pattern": "/2 Battery 3S: charger with power path, protection, balancing/CELL2"
+      },
+      {
+        "netclass": "Pack",
+        "pattern": "/2 Battery 3S: charger with power path, protection, balancing/CELL3"
+      },
+      {
+        "netclass": "Pack",
+        "pattern": "BAT_N"
+      },
+      {
         "netclass": "Supply",
         "pattern": "+3V3"
       },
       {
         "netclass": "Supply",
         "pattern": "+5V"
-      },
-      {
-        "netclass": "Power",
-        "pattern": "/2 Battery 3S: charger with power path, protection, balancing/CELL1"
-      },
-      {
-        "netclass": "Power",
-        "pattern": "/2 Battery 3S: charger with power path, protection, balancing/CELL2"
-      },
-      {
-        "netclass": "Power",
-        "pattern": "/2 Battery 3S: charger with power path, protection, balancing/CELL3"
-      },
-      {
-        "netclass": "Power",
-        "pattern": "/3 Power switch, V_BUS, 3.3 V, 5 V, V_SERVO, V_DXL/SW_5V"
       }
     ]
   },
