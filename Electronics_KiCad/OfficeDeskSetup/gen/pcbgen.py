@@ -46,7 +46,13 @@ SLACK = 1.15                 # clusters up to this much larger than the tightest
 COLUMN = 6                   # passives per column
 SPREAD = 1.5                 # after packing, a block's parts spread out up to this factor about its centre, into the
                              # free room around it (the open areas between the tight clusters)
-CLOSE = 1.5                  # block outlines: the union of the parts (0.4 mm around them), closed by this much (mm)
+CLOSE = 2.5                  # block outlines: the union of the parts (0.4 mm around them), closed by this much (mm)
+OUTLINE_WIDTH = 0.25         # block outline line width (mm): wider than the connection lines
+OUTLINE_DASH = False         # block outlines dashed (KiCad line style, set in the saved file)
+OUTLINE_ROUND = 1.5          # block outline corners rounded with this radius (mm; 0: square)
+LINK_CHAMFER = 1.0           # connection line corners cut at 45 degrees, this far (mm; 0: square), so lines
+                             # and the rounded outlines differ at a glance
+DASH_MARK = 0.1501           # outline width while building, to find the outlines in the saved file
 
 # ---------------------------------------------------------------------------------------------------------------
 # Edge parts, as rows along an edge: (keys, edge, start, gap, rotation[, pitch]). Parts follow each other from
@@ -828,6 +834,62 @@ def route_link(cost, used, ma, mb):
     return simple, [(j, i) for j, i, d in cells]
 
 
+def _arc(board, a, m, b, width):
+    s = pcbnew.PCB_SHAPE(board, pcbnew.SHAPE_T_ARC)
+    s.SetLayer(pcbnew.F_SilkS)
+    s.SetWidth(mm(width))
+    s.SetArcGeometry(V(*a), V(*m), V(*b))
+    board.Add(s)
+
+
+def draw_outline(board, loop):
+    """A block outline (corner points of a closed rectilinear polygon), with rounded corners if OUTLINE_ROUND."""
+    w = DASH_MARK if OUTLINE_DASH else OUTLINE_WIDTH
+    n = len(loop)
+    if not OUTLINE_ROUND:
+        for a, b in zip(loop, loop[1:] + loop[:1]):
+            _seg(board, a, b, w)
+        return
+    cuts = []                                  # per corner: (in point, arc mid, out point)
+    for k, v in enumerate(loop):
+        a, c = loop[k - 1], loop[(k + 1) % n]
+        la, lc = math.dist(v, a), math.dist(v, c)
+        r = min(OUTLINE_ROUND, la / 2, lc / 2)
+        u1 = ((a[0] - v[0]) / la, (a[1] - v[1]) / la)
+        u2 = ((c[0] - v[0]) / lc, (c[1] - v[1]) / lc)
+        p1 = (v[0] + r * u1[0], v[1] + r * u1[1])
+        p2 = (v[0] + r * u2[0], v[1] + r * u2[1])
+        cx, cy = v[0] + r * (u1[0] + u2[0]), v[1] + r * (u1[1] + u2[1])     # 90 degree corners
+        h = math.hypot(u1[0] + u2[0], u1[1] + u2[1]) or 1
+        mid = (cx - r * (u1[0] + u2[0]) / h, cy - r * (u1[1] + u2[1]) / h)
+        cuts.append((p1, mid, p2))
+    for k in range(n):
+        p1, mid, p2 = cuts[k]
+        if math.dist(p1, p2) > 1e-6:
+            _arc(board, p1, mid, p2, w)
+        q = cuts[(k + 1) % n][0]
+        if math.dist(p2, q) > 1e-6:
+            _seg(board, p2, q, w)
+
+
+def chamfer(pts, c):
+    """A polyline with its corners cut at 45 degrees, c mm from each corner (less on short segments)."""
+    if c <= 0 or len(pts) < 3:
+        return pts
+    out = [pts[0]]
+    for k in range(1, len(pts) - 1):
+        a, v, b = pts[k - 1], pts[k], pts[k + 1]
+        la, lb = math.dist(a, v), math.dist(v, b)
+        d = min(c, la / 2.01 if k > 1 else la - 0.2, lb / 2.01 if k < len(pts) - 2 else lb - 0.2)
+        if d <= 0.05:
+            out.append(v)
+            continue
+        out.append((v[0] + d * (a[0] - v[0]) / la, v[1] + d * (a[1] - v[1]) / la))
+        out.append((v[0] + d * (b[0] - v[0]) / lb, v[1] + d * (b[1] - v[1]) / lb))
+    out.append(pts[-1])
+    return out
+
+
 def _seg(board, a, b, width):
     s = pcbnew.PCB_SHAPE(board)
     s.SetShape(pcbnew.SHAPE_T_SEGMENT)
@@ -881,6 +943,7 @@ def connection_lines(board, byref, block_of, masks, obstacles, names):
         k = 2 if kind == 'power' else 1
         for j, i in cells:
             used[max(0, j - k):j + k + 1, max(0, i - k):i + k + 1] += 1
+        pts = chamfer(pts, LINK_CHAMFER)
         segs = list(zip(pts, pts[1:]))
         size = 0.9 if kind == 'power' else 0.8
         tl = 0.75 * size * len(label) + 0.8 if label else 0
@@ -1324,8 +1387,7 @@ def main():
         mk = block_mask(own, avoid)
         masks[gr['title']] = mk
         for loop in trace(mk):
-            for a, b in zip(loop, loop[1:] + loop[:1]):
-                _seg(board, a, b, 0.15)
+            draw_outline(board, loop)
         nb = gr['name_box']
         silk(board, gr['name'], nb[0] + 0.1, (nb[1] + nb[3]) / 2, size=gr['size'], justify=1)
     import numpy as np
@@ -1396,6 +1458,11 @@ def main():
     if pro in keep and '"name": "Power"' not in keep[pro] and '"erc"' not in keep[pro]:
         sys.exit('%s looks reset to defaults (KiCad open?): restore it (git checkout) and run again' % pro)
     pcbnew.SaveBoard(args.out, board)
+    if OUTLINE_DASH:                       # the line style is not in pcbnew's Python API: set it in the file
+        text = open(args.out, encoding='utf-8').read()
+        text, n = re.subn(r'\(width %s\)(\s*)\(type default\)' % re.escape('%g' % DASH_MARK),
+                          r'(width %g)\1(type dash)' % OUTLINE_WIDTH, text)
+        open(args.out, 'w', encoding='utf-8').write(text)
     if pro in keep:
         old, new = json.loads(keep[pro]), json.load(open(pro, encoding='utf-8'))
         old['board'] = new['board']
