@@ -102,10 +102,14 @@ NETCLASSES = {
     'Power': (1.0, 0.2, 0.8, 0.4, ['VBUS_PD', 'VBUS_PROG', 'CHG_VBUS', 'CHG_PMID', 'CHG_SYS', 'CHG_SW1', 'CHG_SW2',
                                     'CHG_IN1_MID', 'CHG_IN2_MID', 'BAT_P', 'BAT_N', 'BQ_SRN', 'BQ_FET_MID', 'VBUS_SW',
                                     'V_BUS', 'V_SERVO', 'SW_SERVO', 'SW_3V3', 'V_DXL', 'MOTA_P', 'MOTA_N', 'MOTB_P',
-                                    'MOTB_N', 'DC_12V']),
-    'Supply': (0.5, 0.15, 0.6, 0.3, ['+3V3', '+5V', 'SW_5V', 'CELL1', 'CELL2', 'CELL3', 'HUB_3V3', 'HX_AVDD', 'MH_VCC',
-                                     'AHT_VDD', 'CHG_REGN', 'BQ_VDD', 'VBUS_EN_SW']),
+                                    'MOTB_N', 'DC_12V',
+                                    'CELL1', 'CELL2', 'CELL3',      # the holders in series: the full pack current
+                                    'SW_5V']),                      # 3 A buck switch node
+    'Supply': (0.5, 0.15, 0.6, 0.3, ['+3V3', '+5V']),
 }
+# low-current supplies stay in the Default class (0.2 mm): CHG_REGN (BQ25792 gate-drive LDO, tens of mA), HUB_3V3
+# (CH334R LDO), AHT_VDD (330 R in series), BQ_VDD (1 k in series), VBUS_EN_SW (1 M pull-downs), HX_AVDD (HX711 and
+# the load cell bridge), MH_VCC (MH sensor module)
 PLANES = {'In1.Cu': 'GND', 'In2.Cu': '+3V3'}   # signals route on F.Cu and B.Cu (GND pours after routing), with only
                                                 # a few short hops through the planes (gen/route.py)
 MIN_TRACK = 0.15               # Freerouting necks down to 0.15 mm at fine-pitch pins; JLCPCB does 0.1 mm

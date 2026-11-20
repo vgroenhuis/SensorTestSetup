@@ -671,48 +671,20 @@
         "pattern": "+5V"
       },
       {
-        "netclass": "Supply",
-        "pattern": "/1 USB-C: PD input, programming port, USB hub/HUB_3V3"
-      },
-      {
-        "netclass": "Supply",
+        "netclass": "Power",
         "pattern": "/2 Battery 3S: charger with power path, protection, balancing/CELL1"
       },
       {
-        "netclass": "Supply",
+        "netclass": "Power",
         "pattern": "/2 Battery 3S: charger with power path, protection, balancing/CELL2"
       },
       {
-        "netclass": "Supply",
+        "netclass": "Power",
         "pattern": "/2 Battery 3S: charger with power path, protection, balancing/CELL3"
       },
       {
-        "netclass": "Supply",
-        "pattern": "/2 Battery 3S: charger with power path, protection, balancing/CHG_REGN"
-      },
-      {
-        "netclass": "Supply",
+        "netclass": "Power",
         "pattern": "/3 Power switch, V_BUS, 3.3 V, 5 V, V_SERVO, V_DXL/SW_5V"
-      },
-      {
-        "netclass": "Supply",
-        "pattern": "/3 Power switch, V_BUS, 3.3 V, 5 V, V_SERVO, V_DXL/VBUS_EN_SW"
-      },
-      {
-        "netclass": "Supply",
-        "pattern": "/7 Sensors: analog inputs, ADCs, IMU, climate, light, angle, load cell, ultrasonic/MH_VCC"
-      },
-      {
-        "netclass": "Supply",
-        "pattern": "AHT_VDD"
-      },
-      {
-        "netclass": "Supply",
-        "pattern": "BQ_VDD"
-      },
-      {
-        "netclass": "Supply",
-        "pattern": "HX_AVDD"
       }
     ]
   },
