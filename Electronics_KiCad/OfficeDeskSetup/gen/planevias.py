@@ -70,14 +70,17 @@ class Copper:
                         seen.add(id(item))
                         yield item
 
-    def free(self, shape, x, y, r, net, layers, clr, edge, holes=True):
+    def free(self, shape, x, y, r, net, layers, clr, edge, holes=True, hole_at=None):
         """`shape` (around x, y, radius r mm) clears all copper of other nets on `layers` by clr mm, and the board
-        edge by `edge` mm (None: no edge test). `holes`: also keep clear of holes of its own net (for a new via)."""
+        edge by `edge` mm (None: no edge test). `holes`: also keep clear of holes of its own net (for a new via).
+        `hole_at`: a through-hole pad position (VECTOR2I) whose hole does not count (a track ending on that pad)."""
         x0, y0, x1, y1 = self.edge
         if edge is not None and not (x0 + edge + r <= x <= x1 - edge - r and y0 + edge + r <= y <= y1 - edge - r):
             return False
         for s, n, ls, extra, hole in self.near(x, y, r + clr + 1):
             if n == net and n >= 0 and not (hole and holes):   # a via keeps hole spacing whatever the net
+                continue
+            if hole and hole_at is not None and s.BBox().Contains(hole_at):
                 continue
             if any(l in layers for l in ls) and s.Collide(shape, mm(clr) + extra):
                 return False
@@ -99,10 +102,31 @@ def add_via(board, cu, x, y, net, d, drill):
     return v
 
 
-def fanout(board, nets, d=0.6, drill=0.3, width=0.3, clr=0.2, edge=1.0):
-    """A via to the plane for every SMD pad on `nets`. Returns (vias, pads that got none)."""
+def _track(board, cu, p, x, y, width, layer):
+    seg = pcbnew.SHAPE_SEGMENT(p.GetPosition(), pcbnew.VECTOR2I(mm(x), mm(y)), mm(width))
+    t = pcbnew.PCB_TRACK(board)
+    t.SetStart(p.GetPosition())
+    t.SetEnd(pcbnew.VECTOR2I(mm(x), mm(y)))
+    t.SetWidth(mm(width))
+    t.SetLayer(layer)
+    t.SetNet(p.GetNet())
+    t.SetLocked(True)
+    board.Add(t)
+    cu.keep.append(seg)
+    cu.add(seg, p.GetNetCode(), (layer,))
+
+
+def fanout(board, nets, d=0.6, drill=0.3, width=0.3, clr=0.2, edge=1.0, reach=2.5):
+    """A via to the plane for every SMD pad on `nets`, or a short track to a through-hole pad of the same net within
+    `reach` mm (a USB-C GND pin to its shield pad). Stacked pads (USB-C A1/B12) share one. Run it after the power
+    nets are routed: a via beside a fine-pitch power pin can leave no room for the power track. Returns (vias and
+    tracks, pads that got none)."""
     cu = Copper(board)
-    vias, missed = 0, []
+    vias, missed, done = 0, [], set()
+    tht = {}
+    for p in board.GetPads():
+        if p.GetNetname() in nets and p.HasHole():
+            tht.setdefault(p.GetNetCode(), []).append(p)
     for fp in board.GetFootprints():
         fc = fp.GetPosition()
         for p in fp.Pads():
@@ -110,6 +134,10 @@ def fanout(board, nets, d=0.6, drill=0.3, width=0.3, clr=0.2, edge=1.0):
                 continue
             net, code = p.GetNet(), p.GetNetCode()
             layer = pcbnew.B_Cu if p.IsOnLayer(pcbnew.B_Cu) and not p.IsOnLayer(pcbnew.F_Cu) else pcbnew.F_Cu
+            spot = (code, layer, p.GetPosition().x, p.GetPosition().y)
+            if spot in done:                                # a stacked pad that already has its connection
+                continue
+            done.add(spot)
             bb = p.GetBoundingBox()
             px, py = pcbnew.ToMM(p.GetPosition().x), pcbnew.ToMM(p.GetPosition().y)
             w, h = pcbnew.ToMM(bb.GetWidth()), pcbnew.ToMM(bb.GetHeight())
@@ -128,6 +156,27 @@ def fanout(board, nets, d=0.6, drill=0.3, width=0.3, clr=0.2, edge=1.0):
                 vias += got
                 if got:
                     continue
+            # a short track to a through-hole pad of the net (it reaches the planes)
+            px, py = pcbnew.ToMM(p.GetPosition().x), pcbnew.ToMM(p.GetPosition().y)
+            near = sorted((math.hypot(pcbnew.ToMM(q.GetPosition().x) - px, pcbnew.ToMM(q.GetPosition().y) - py), i, q)
+                          for i, q in enumerate(tht.get(code, ())) if q.IsOnLayer(layer))
+            linked = False
+            for dist, _, q in near:
+                if dist > reach:
+                    break
+                if q.HitTest(p.GetPosition()):              # on top of it (a mounting hole's SMD ring): connected
+                    linked = True
+                    break
+                x, y = pcbnew.ToMM(q.GetPosition().x), pcbnew.ToMM(q.GetPosition().y)
+                seg = pcbnew.SHAPE_SEGMENT(p.GetPosition(), q.GetPosition(), mm(width))
+                if cu.free(seg, (px + x) / 2, (py + y) / 2, dist / 2 + width, code, (layer,), clr, None, holes=False,
+                           hole_at=q.GetPosition()):
+                    _track(board, cu, p, x, y, width, layer)
+                    vias += 1
+                    linked = True
+                    break
+            if linked:
+                continue
             # beside the pad, outwards from the footprint first
             ox, oy = px - pcbnew.ToMM(fc.x), py - pcbnew.ToMM(fc.y)
             r0 = math.hypot(w, h) / 2 + d / 2 + clr
@@ -145,16 +194,7 @@ def fanout(board, nets, d=0.6, drill=0.3, width=0.3, clr=0.2, edge=1.0):
                 seg = pcbnew.SHAPE_SEGMENT(p.GetPosition(), pcbnew.VECTOR2I(mm(x), mm(y)), mm(width))
                 if not cu.free(seg, (px + x) / 2, (py + y) / 2, math.hypot(x - px, y - py) / 2 + width, code, (layer,), clr, edge):
                     continue
-                t = pcbnew.PCB_TRACK(board)
-                t.SetStart(p.GetPosition())
-                t.SetEnd(pcbnew.VECTOR2I(mm(x), mm(y)))
-                t.SetWidth(mm(width))
-                t.SetLayer(layer)
-                t.SetNet(net)
-                t.SetLocked(True)
-                board.Add(t)
-                cu.keep.append(seg)
-                cu.add(seg, code, (layer,))
+                _track(board, cu, p, x, y, width, layer)
                 add_via(board, cu, x, y, net, d, drill)
                 vias += 1
                 break

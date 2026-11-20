@@ -6,11 +6,14 @@ Run with KiCad's own Python, after gen/pcbgen.py:
     "C:/Program Files/KiCad/10.0/bin/python.exe" gen/route.py --freerouting PATH/freerouting-2.5.0.jar --java PATH/java.exe
 
 Freerouting: https://github.com/freerouting/freerouting (the .jar needs Java 25; the native freerouting-cli 2.5.0 for
-Windows crashes when it starts routing). Freerouting does not connect pads to the planes itself, so every SMD pad on
-GND or +3V3 first gets a via to its plane (gen/planevias.py). Then two stages:
+Windows crashes when it starts routing). Stages:
 
-0. Power first (default; --no-power-first skips it): the power nets (Power and Supply classes, not the plane nets) alone, on F.Cu and B.Cu; their
-   tracks are locked for the next stages.
+0. Power first (default; --no-power-first skips it): the power nets (Power and Supply classes, not the plane nets)
+   alone, on F.Cu and B.Cu, on the bare board; their tracks are locked for the next stages. --stage0-only stops
+   after it (and the plane vias), leaving the board alone.
+   Then plane vias: Freerouting does not connect pads to the planes itself, so every SMD pad on GND or +3V3 gets a
+   via to its plane, or a short track to a through-hole pad of its net (gen/planevias.py). They come after the
+   power tracks: a via beside a fine-pitch power pin can leave no room for a full-width track (USB-C VBUS).
 1. Signals on F.Cu and B.Cu only: the inner layers (GND and +3V3 planes from pcbgen.py) are marked as plane layers in
    the Specctra DSN, so Freerouting connects to them with vias but does not route through them.
 2. The tracks of stage 1 are locked and Freerouting routes what is left with the inner layers open. Its tracks
@@ -233,7 +236,8 @@ def pro(pcb):
     return os.path.splitext(pcb)[0] + '.kicad_pro'
 
 
-def stage1(args, pcb):
+def bare(pcb):
+    """The board without tracks and route.py's pours. Returns (board, removed items: keep them referenced)."""
     board = pcbnew.LoadBoard(pcb)
     refs = list(board.GetTracks())                     # removed items stay referenced (SWIG types, see finish)
     for t in refs:                                     # start from the bare placement
@@ -242,9 +246,15 @@ def stage1(args, pcb):
         if z.GetLayer() in POURS:
             refs.append(z)
             board.Remove(z)
-    planes = sorted({z.GetLayer() for z in zones(board)})
-    vias, missed = planevias.fanout(board, {z.GetNetname() for z in zones(board)})
-    print('plane vias: %d; SMD pads without one: %s' % (vias, ' '.join(missed) or 'none'), flush=True)
+    return board, refs
+
+
+def stage0(args, pcb):
+    """The power nets alone, before anything else (the plane vias come after them: a via beside a fine-pitch power
+    pin can leave no room for a full-width track)."""
+    if not args.power_first:
+        return
+    board, refs = bare(pcb)
     if args.stubs:                                     # power pins too fine for a full-width track
         power = power_nets(board)
         ns = board.GetDesignSettings().m_NetSettings
@@ -252,15 +262,26 @@ def stage1(args, pcb):
                   for code, n in board.GetNetsByNetcode().items() if n.GetNetname().split('/')[-1] in power}
         n, missed = planevias.stubs(board, widths)
         print('narrowing stubs: %d; fine-pitch power pads without one: %s' % (n, ' '.join(missed) or 'none'), flush=True)
-    closed = [board.GetLayerName(l) for l in planes]
-    if args.power_first:                               # stage 0: the power nets alone, then locked
-        power = power_nets(board)
-        route(board, args, PROJECT + '_0', closed, args.passes0, keep=lambda n: n in power)
-        for t in board.GetTracks():
-            t.SetLocked(True)
+    closed = [board.GetLayerName(l) for l in sorted({z.GetLayer() for z in zones(board)})]
+    power = power_nets(board)
+    route(board, args, PROJECT + '_0', closed, args.passes0, keep=lambda n: n in power)
+    for t in board.GetTracks():
+        t.SetLocked(True)
+    save(board, os.path.join(args.work, 'stage0.kicad_pcb'), pro(pcb))
+
+
+def stage1(args, pcb):
+    if args.power_first:                               # stage 0's board: its tracks are locked
+        board, refs = pcbnew.LoadBoard(os.path.join(args.work, 'stage0.kicad_pcb')), []
+    else:
+        board, refs = bare(pcb)
+    planes = sorted({z.GetLayer() for z in zones(board)})
+    vias, missed = planevias.fanout(board, {z.GetNetname() for z in zones(board)})
+    print('plane vias and tracks: %d; SMD pads without one: %s' % (vias, ' '.join(missed) or 'none'), flush=True)
+    if args.stage0_only:                               # stage 0 with its plane vias, for a look
         save(board, os.path.join(args.work, 'stage0.kicad_pcb'), pro(pcb))
-        if args.stage0_only:
-            return
+        return
+    closed = [board.GetLayerName(l) for l in planes]
     route(board, args, PROJECT, closed, args.passes)
     for t in board.GetTracks():
         t.SetLocked(True)
@@ -459,7 +480,7 @@ def finish(args, pcb):
     print('%d tracks (%.0f mm), %d vias -> %s' % (len(tracks), sum(pcbnew.ToMM(t.GetLength()) for t in tracks), len(vias), pcb))
 
 
-STEPS = ('stage1', 'stage2', 'stage3', 'prune', 'stage4', 'finish')
+STEPS = ('stage0', 'stage1', 'stage2', 'stage3', 'prune', 'stage4', 'finish')
 
 
 def main():
@@ -499,7 +520,7 @@ def main():
         globals()[args.step](args, pcb)
         return
     # each step in its own process: after an SES import, pcbnew's SWIG objects come back untyped
-    for step in STEPS[:1] if args.stage0_only else STEPS:
+    for step in STEPS[:2] if args.stage0_only else STEPS:
         subprocess.run([sys.executable, os.path.abspath(__file__)] + sys.argv[1:] + ['--step', step], check=True)
 
 
