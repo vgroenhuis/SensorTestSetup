@@ -244,28 +244,32 @@ pins at exactly the clearance count as violations and their nets are left alone.
 **Keep KiCad closed while it runs**: pcbnew's SaveBoard briefly writes a default project file, and an open KiCad picked
 that up and saved it on exit (all net classes gone). `route.py` stops when the project file has lost its classes.
 
-About 30–50 minutes (200 × 150 mm) to 70 minutes (270 × 200 mm). The work files go to `gen/route/` (ignored by git). Steps:
+About 50–60 minutes (200 × 150 mm) to 70 minutes (270 × 200 mm). The work files go to `gen/route/` (ignored by git). Steps:
 
 1. **Plane vias** (`gen/planevias.py`): Freerouting treats a plane's net as connected by the plane and never adds
    the vias from SMD pads down to it, so every SMD pad on GND or +3V3 first gets one: a 0.6/0.3 mm via beside the
    pad with a 0.3 mm track, outwards from the part, or up to 3 × 3 vias inside an exposed pad. Placed with KiCad's
    own shape collision tests (470 vias). 9 fine-pitch pads get none: U38.3/5/6/8/12, U22.A7/C7, U8.8, U13.8.
-2. **Stage 1**: signals on F.Cu and B.Cu only. The inner layers are marked as plane layers in the Specctra DSN
+2. **Stage 0** (power first, the default; `--no-power-first` skips it): only the power nets (Power and Supply
+   classes, without the plane nets GND and +3V3) on F.Cu and B.Cu, 1 pass; every other net keeps one pin in the
+   DSN, so its pads are obstacles but there is nothing to connect. The tracks are locked for the next stages, so
+   the thin signal tracks can no longer take the narrow spaces that the wide power tracks need.
+3. **Stage 1**: all nets on F.Cu and B.Cu only. The inner layers are marked as plane layers in the Specctra DSN
    (KiCad exports them as signal layers, and Freerouting then routes straight through the planes), and the board
    outline is pulled in so tracks keep the 0.5 mm edge clearance.
-3. **Stage 2**: the stage-1 tracks are locked and Freerouting routes what is left with the planes open. A track
+4. **Stage 2**: the stage-1 tracks are locked and Freerouting routes what is left with the planes open. A track
    through a plane is kept only while the plane stays sound: at most 50 mm of plane track per net; plane tracks
    closer together than 2 mm count as one slot of at most 50 mm; and each plane stays one piece (filled with a
    2 mm minimum width, so a narrow neck counts as a cut). Otherwise the worst net loses its stage-2 tracks, and
    each removed net is then tried back on its own. Options `--max-plane`, `--slot-gap`, `--neck`; `--reuse`
    re-imports the routes of the previous run instead of routing again.
-4. **Stage 3**: the Power class at 0.4 mm (`--power-narrow`): Freerouting has one width per class and cannot neck a
+5. **Stage 3**: the Power class at 0.4 mm (`--power-narrow`): Freerouting has one width per class and cannot neck a
    1 mm track down to a 0.4 mm pitch pin. Afterwards every narrow power track on F.Cu/B.Cu gets the widest of 1.0,
    0.8, 0.6, 0.5 mm that clears its surroundings, except its last 0.8 mm at a pad. `--power-clearance` lowers the
    Power clearance in this stage only (not used now).
-5. **Prune**: the plane rules of stage 2, applied to the tracks of stages 2 and 3.
-6. **Stage 4**: what the plane rules took out, and anything else left, on F.Cu and B.Cu only.
-7. **Finish**: loose vias and track stubs are removed, the GND pours are added on F.Cu and B.Cu and KiCad refills all
+6. **Prune**: the plane rules of stage 2, applied to the tracks of stages 2 and 3.
+7. **Stage 4**: what the plane rules took out, and anything else left, on F.Cu and B.Cu only.
+8. **Finish**: loose vias, track stubs and zero-length tracks are removed, the GND pours are added on F.Cu and B.Cu and KiCad refills all
    zones (kicad-cli; pcbnew's filler from Python left stale fill around a few vias).
 
 **GND stitching vias** (tying the F.Cu and B.Cu pours to In1 on a 5 mm grid, about 500) come last, once everything
@@ -280,18 +284,33 @@ is routed, because a via grid is in the way of routing by hand:
 Each step runs in its own Python process: after a session import, pcbnew's SWIG objects come back untyped. The
 project file is left exactly as it was (SaveBoard rewrites it).
 
-Result for rev 0.2 (200 × 150 mm, 2026-11-20, SNAPSHOT 2026-11-19, 3 passes per stage; 3695 tracks, 14.9 m,
-982 vias):
+Result for rev 0.2 (200 × 150 mm, 2026-11-20, SNAPSHOT 2026-11-19, power first, 3 passes per stage; 3792 tracks,
+15.3 m, 1004 vias):
 
-* **39 unconnected items** (the same design on 270 × 200 mm: 20): mostly power around the charger and the input
-  stage (CHG_VBUS 5, BAT_P 4, VBUS_PROG 3, CHG_SYS 3; V_DXL, V_BUS, VBUS_SW, CHG_PMID, +3V3 2 each; VBUS_PD, DC_12V,
-  CHG_SW1, CHG_SW2, BAT_N, DC_EN, CHG_CE 1 each) and a few signals (USB_UP_DP, PD_DP, SPI_SCLK, SPI_MISO, I2C2_SCL,
-  I2C2_SDA, TOF_RST). These are left for routing by hand.
-* 2 nets keep a track through a plane; 16 lost theirs to the plane rules and went to stage 4.
+* **34 unconnected items** (all at once: 39; the same design on 270 × 200 mm: 20). Power: V_BUS, CHG_VBUS, BAT_P
+  3 each; VBUS_PROG, VBUS_SW 2 each; CHG_ACDRV1, VBUS_PD, V_DXL, CHG_SW1, CHG_SW2, CHG_SYS, DC_12V, +3V3 1 each.
+  Signals: MUX4_SCL 2; USB_UP_DP, PD_DM, I2C_SCL, I2C_SDA, BQ_TS, BQ_PRES, BQ_LD, PCA_OE, DC_OVCSEL, CHG_CE,
+  CHG_PROG 1 each. These are left for routing by hand.
+* Connections routed per stage (`gen/routestats.py`; a net with n pads has n − 1 connections; GND and +3V3 left
+  out, the planes connect them):
+
+  | stage | all at once: power | signal | open | power first: power | signal | open |
+  |---|---|---|---|---|---|---|
+  | 0: power alone | – | – | – | 169 / 199 | 0 / 432 | 462 |
+  | 1: all, outer layers | 165 / 199 | 402 / 432 | 64 | 178 / 199 | 394 / 432 | 59 |
+  | 2: planes open | 173 / 199 | 431 / 432 | 27 | 179 / 199 | 422 / 432 | 30 |
+  | 3: power narrow | 176 / 199 | 431 / 432 | 24 | 183 / 199 | 423 / 432 | 25 |
+  | prune: plane rules | 171 / 199 | 408 / 432 | 52 | 178 / 199 | 410 / 432 | 43 |
+  | 4: leftovers, outer layers | 172 / 199 | 428 / 432 | 31 | 182 / 199 | 423 / 432 | 26 |
+  | finish: cleanup, pours | 171 / 199 | 423 / 432 | 37 | 180 / 199 | 418 / 432 | 33 |
+
+  Power first leaves 9 fewer power connections open and 5 more signal ones. Finish loses a few connections in
+  both runs (its cleanup removes tracks that it takes for loose ends): worth a look.
+* 17 nets keep a track through a plane; 6 lost theirs to the plane rules and went to stage 4.
 * Other DRC errors: 15 clearance errors inside the three TPS25947 footprints (pad pitch below 0.15 mm clearance, as
-  drawn by TI); a track and the pads at the SK6812MINI-E cutout (**move that track**); 3 dangling I2C2/TOF track
-  ends; the WF100DPZ courtyards; the servo courtyards; 6 starved thermals. Silkscreen texts were raised to the
-  0.8 mm minimum height after routing. Schematic parity: no differences.
+  drawn by TI); a track and the pads at the SK6812MINI-E cutout (**move that track**); 2 dangling CHG_VBUS stubs;
+  2 track-width necks on CHG_BTST1; the WF100DPZ courtyards; the servo courtyards; 6 starved thermals. A zero-length
+  I2C2_SCL track on an I2C2_SDA track (a DRC crossing) was removed by hand. Schematic parity: no differences.
 * Earlier attempts: letting Freerouting use all four layers left 136 connections open but put 11 m of signal track
   through the planes; routing +3V3 as tracks (In2 as a signal layer) left 241–276 open.
 

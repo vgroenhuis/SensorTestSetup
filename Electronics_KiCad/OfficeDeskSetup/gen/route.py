@@ -9,6 +9,8 @@ Freerouting: https://github.com/freerouting/freerouting (the .jar needs Java 25;
 Windows crashes when it starts routing). Freerouting does not connect pads to the planes itself, so every SMD pad on
 GND or +3V3 first gets a via to its plane (gen/planevias.py). Then two stages:
 
+0. Power first (default; --no-power-first skips it): the power nets (Power and Supply classes, not the plane nets) alone, on F.Cu and B.Cu; their
+   tracks are locked for the next stages.
 1. Signals on F.Cu and B.Cu only: the inner layers (GND and +3V3 planes from pcbgen.py) are marked as plane layers in
    the Specctra DSN, so Freerouting connects to them with vias but does not route through them.
 2. The tracks of stage 1 are locked and Freerouting routes what is left with the inner layers open. Its tracks
@@ -92,12 +94,47 @@ def pour(board, layer, net):
     board.Add(z)
 
 
-def route(board, args, name, closed, passes):
-    """Export the board, run Freerouting on it and import the result. `closed`: layers it may not route on."""
+def only_nets(dsn, keep):
+    """Leave Freerouting only the nets for which keep(short name) is true: the others keep one pin in the DSN, so their
+    pads are still obstacles but there is nothing to connect."""
+    s = open(dsn, encoding='utf-8').read()
+    n = [0, 0]
+
+    def one(m):
+        name = m.group(1).strip('"').split('/')[-1]
+        pins = m.group(2).split()
+        if keep(name) or len(pins) < 2:
+            n[0] += 1
+            return m.group(0)
+        n[1] += 1
+        return '(net %s\n      (pins %s)' % (m.group(1), pins[0])
+    s = re.sub(r'\(net ("[^"]*"|\S+)\s+\(pins ([^)]*)\)', one, s)
+    open(dsn, 'w', encoding='utf-8').write(s)
+    print('DSN: %d nets to route, %d left out' % tuple(n), flush=True)
+
+
+def power_nets(board):
+    """Short names of the Power and Supply net class nets, without the plane nets."""
+    ns = board.GetDesignSettings().m_NetSettings
+    planes = {z.GetNetname().split('/')[-1] for z in zones(board)}
+    out = set()
+    for net in board.GetNetsByName().keys():
+        name = str(net)
+        cls = ns.GetEffectiveNetClass(name).GetName()
+        if any(c in cls for c in ('Power', 'Supply')) and name.split('/')[-1] not in planes:
+            out.add(name.split('/')[-1])
+    return out
+
+
+def route(board, args, name, closed, passes, keep=None):
+    """Export the board, run Freerouting on it and import the result. `closed`: layers it may not route on. `keep`:
+    route only the nets whose short name it accepts."""
     dsn, ses = (os.path.join(args.work, name + e) for e in ('.dsn', '.ses'))
     if not pcbnew.ExportSpecctraDSN(board, dsn):
         sys.exit('DSN export failed')
     fix_dsn(dsn, board, closed, pcbnew.ToMM(board.GetDesignSettings().m_CopperEdgeClearance) - 0.15)
+    if keep:
+        only_nets(dsn, keep)
     if not (args.reuse and os.path.exists(ses)):
         if os.path.exists(ses):
             os.remove(ses)
@@ -181,7 +218,8 @@ def cleanup(board, plane_nets, keep):
             if t.Type() == pcbnew.PCB_VIA_T:
                 if sum(touches(t.GetPosition(), l, t.GetNetCode(), t) for l in (pcbnew.F_Cu, pcbnew.In1_Cu, pcbnew.In2_Cu, pcbnew.B_Cu)) < 2:
                     gone.append(t)
-            elif not all(touches(e, t.GetLayer(), t.GetNetCode(), t) for e in (t.GetStart(), t.GetEnd())):
+            elif t.GetStart() == t.GetEnd() or not all(touches(e, t.GetLayer(), t.GetNetCode(), t)
+                                                       for e in (t.GetStart(), t.GetEnd())):   # zero length: a DRC crossing
                 gone.append(t)
         if not gone:
             return removed
@@ -207,7 +245,14 @@ def stage1(args, pcb):
     planes = sorted({z.GetLayer() for z in zones(board)})
     vias, missed = planevias.fanout(board, {z.GetNetname() for z in zones(board)})
     print('plane vias: %d; SMD pads without one: %s' % (vias, ' '.join(missed) or 'none'), flush=True)
-    route(board, args, PROJECT, [board.GetLayerName(l) for l in planes], args.passes)
+    closed = [board.GetLayerName(l) for l in planes]
+    if args.power_first:                               # stage 0: the power nets alone, then locked
+        power = power_nets(board)
+        route(board, args, PROJECT + '_0', closed, args.passes0, keep=lambda n: n in power)
+        for t in board.GetTracks():
+            t.SetLocked(True)
+        save(board, os.path.join(args.work, 'stage0.kicad_pcb'), pro(pcb))
+    route(board, args, PROJECT, closed, args.passes)
     for t in board.GetTracks():
         t.SetLocked(True)
     json.dump({'planes': planes, 'tracks': [key(t) for t in board.GetTracks()], 'islands': islands(board, planes, args.neck)},
@@ -415,6 +460,9 @@ def main():
     # Freerouting 2.5.0 with more than one pass reports the best pass but saves a later, worse board (a power-only
     # test: 68 open power connections after 4 passes, 20 after 1, same reported score); use 1 pass with 2.5.0.
     # The 2.5.1 SNAPSHOT of 2026-11-19 saves the best pass and imports pad clearances correctly.
+    ap.add_argument('--power-first', action=argparse.BooleanOptionalAction, default=True,
+                    help='stage 0: route the power nets alone first (default; 33 open against 37 on rev 0.2)')
+    ap.add_argument('--passes0', type=int, default=1, help='stage 0 (power nets alone)')
     ap.add_argument('--passes', type=int, default=3, help='stage 1 (Freerouting 2.5.0: use 1, see above)')
     ap.add_argument('--passes2', type=int, default=3, help='stage 2')
     ap.add_argument('--passes3', type=int, default=3, help='stage 3 (power nets, narrow)')
