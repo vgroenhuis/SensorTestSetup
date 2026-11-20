@@ -44,6 +44,9 @@ FILL = 1.0                   # a block's cluster: width sqrt(FILL x aspect x the
 ASPECTS = (0.2, 0.3, 0.45, 0.6, 0.8, 1.0, 1.25, 1.6, 2.0, 2.6, 3.5, 5.0)
 SLACK = 1.15                 # clusters up to this much larger than the tightest one may be chosen to land nearer
 COLUMN = 6                   # passives per column
+SPREAD = 1.5                 # after packing, a block's parts spread out up to this factor about its centre, into the
+                             # free room around it (the open areas between the tight clusters)
+CLOSE = 1.5                  # block outlines: the union of the parts (0.4 mm around them), closed by this much (mm)
 
 # ---------------------------------------------------------------------------------------------------------------
 # Edge parts, as rows along an edge: (keys, edge, start, gap, rotation[, pitch]). Parts follow each other from
@@ -93,10 +96,9 @@ FIXED = {
     'BT=18650#2': (100, 52.5, 180, 'B'),                     # hole parts and TFT standoffs over them); their pads
     'BT=18650#3': (100, 75, 0, 'B'),                         # have pegs at x 72, 128 and 136
 }
-# corners, two beside the upper TFT standoffs, one at the left edge, one in the middle under
-# the TFT module (the edges are full of connectors)
+# the four corners and two beside the upper TFT standoffs (none under the TFT module)
 HOLES = {'H=M3#1': (4, 4), 'H=M3#2': (W - 4, 4), 'H=M3#3': (4, H - 4), 'H=M3#4': (W - 4, H - 4),
-         'H=M3#5': (60.3, 91), 'H=M3#6': (142, 91), 'H=M3#7': (4, 135.5), 'H=M3#8': (100, 92)}
+         'H=M3#5': (60.3, 91), 'H=M3#6': (142, 91)}
 # net classes: (track width, clearance, via diameter, via drill, nets by their short name)
 NETCLASSES = {
     'Power': (1.0, 0.2, 0.8, 0.4, ['VBUS_PD', 'VBUS_PROG', 'CHG_VBUS', 'CHG_PMID', 'CHG_SYS', 'CHG_SW1', 'CHG_SW2',
@@ -517,6 +519,173 @@ def pack(grid, mods, r):
     return moved
 
 
+# ---------------------------------------------------------------------------------------------------------------
+# spreading the packed blocks into the free room, and outlining each block with a polygon around its parts
+def _sep(B, b):
+    """Separation of box b from each of the boxes B: the largest axis gap (negative: they overlap)."""
+    import numpy as np
+    return np.maximum(np.maximum(B[:, 0] - b[2], b[0] - B[:, 2]), np.maximum(B[:, 1] - b[3], b[1] - B[:, 3]))
+
+
+PART, NAME, HOLE, BACK_SMD, KEEPOUT = range(5)
+
+
+def spread(items, scale=SPREAD, step=0.05):
+    """Move the movable items away from their block's centre, up to `scale` times their distance from it, wherever
+    the room is: in steps, each item as far as it can go (or along x or y alone). Items are dicts: box, block (index;
+    -1: none), kind, gap, move, cut (a part with a cutout: keeps off SMD pads on the back), uncovered (keeps out of
+    KEEPOUT). Gaps: as packed within a block, BLOCK_GAP between blocks; never less than at the start. Returns the
+    (dx, dy) of each item."""
+    import numpy as np
+    n = len(items)
+    B = np.array([it['box'] for it in items], dtype=float)
+    blk = np.array([it['block'] for it in items])
+    kind = np.array([it['kind'] for it in items])
+    g = np.array([it.get('gap', 0.0) for it in items])
+    B0 = B.copy()
+    R = np.empty((n, n))
+    for i, it in enumerate(items):
+        same = (blk == blk[i]) & (blk[i] >= 0)
+        if kind[i] == NAME:
+            r = np.where((kind == PART) | (kind == NAME), np.where(same, 0.9, 1.2), np.where(kind == HOLE, 0.5, -1e9))
+        else:
+            r = np.where(same, (g[i] + g) / 2, BLOCK_GAP)
+            r = np.where(kind == NAME, np.where(same, 0.9, 1.2), r)
+            r = np.where(kind == HOLE, 1.0, r)
+            r = np.where(kind == BACK_SMD, 0.5 if it.get('cut') else -1e9, r)
+            r = np.where(kind == KEEPOUT, 0.0 if it.get('uncovered') else -1e9, r)
+        r = np.minimum(r, _sep(B0, B0[i]) - 1e-6)     # never worse than at the start
+        r[i] = -1e9
+        R[i] = r
+    mov = [i for i, it in enumerate(items) if it.get('move')]
+    cent = {}
+    for b in set(blk[mov].tolist()):
+        bs = B0[[i for i in mov if blk[i] == b and kind[i] == PART]]
+        cent[b] = ((bs[:, 0].min() + bs[:, 2].max()) / 2, (bs[:, 1].min() + bs[:, 3].max()) / 2)
+    c0 = np.column_stack(((B0[:, 0] + B0[:, 2]) / 2, (B0[:, 1] + B0[:, 3]) / 2))
+    order = sorted(mov, key=lambda i: -math.hypot(c0[i, 0] - cent[blk[i]][0], c0[i, 1] - cent[blk[i]][1]))
+
+    def ok(i, b):
+        return (b[0] >= EDGE and b[1] >= EDGE and b[2] <= W - EDGE and b[3] <= H - EDGE
+                and bool((_sep(B, b) >= R[i]).all()))
+    s = 1.0
+    while s < scale - 1e-9:
+        s = min(scale, s + step)
+        for _ in range(2):
+            for i in order:
+                cx, cy = cent[blk[i]]
+                dx = cx + s * (c0[i, 0] - cx) - (B[i, 0] + B[i, 2]) / 2
+                dy = cy + s * (c0[i, 1] - cy) - (B[i, 1] + B[i, 3]) / 2
+                if abs(dx) < 0.01 and abs(dy) < 0.01:
+                    continue
+                for fx, fy in ((1, 1), (0.5, 0.5), (1, 0), (0, 1), (0.25, 0.25)):
+                    b = B[i] + (dx * fx, dy * fy, dx * fx, dy * fy)
+                    if ok(i, b):
+                        B[i] = b
+                        break
+    return [(float(B[i, 0] - B0[i, 0]), float(B[i, 1] - B0[i, 1])) for i in range(n)]
+
+
+def _dilate(a, k):
+    """Square dilation of a boolean array by k cells."""
+    b = a.copy()
+    for d in range(1, k + 1):
+        b[:, d:] |= a[:, :-d]
+        b[:, :-d] |= a[:, d:]
+    c = b.copy()
+    for d in range(1, k + 1):
+        c[d:, :] |= b[:-d, :]
+        c[:-d, :] |= b[d:, :]
+    return c
+
+
+def _fill_holes(m):
+    import numpy as np
+    bg = ~m
+    reach = np.zeros_like(m)
+    reach[0, :], reach[-1, :], reach[:, 0], reach[:, -1] = bg[0, :], bg[-1, :], bg[:, 0], bg[:, -1]
+    while True:
+        nxt = _dilate(reach, 1) & bg
+        if (nxt == reach).all():
+            return ~reach
+        reach = nxt
+
+
+def block_mask(own, avoid):
+    """The cells (LINK_RES) inside a block's outline polygon: its parts' boxes (0.4 mm around), closed by CLOSE,
+    holes filled, without the `avoid` boxes ((box, grow): other blocks' parts, the names). Board-sized bool array."""
+    import numpy as np
+    r = LINK_RES
+    nx, ny = int(W / r), int(H / r)
+    k = int(round(CLOSE / r))
+    pad = 2 * k + 4
+    i0 = max(0, int(min(b[0] for b in own) / r) - pad)
+    j0 = max(0, int(min(b[1] for b in own) / r) - pad)
+    i1 = min(nx, int(max(b[2] for b in own) / r) + pad)
+    j1 = min(ny, int(max(b[3] for b in own) / r) + pad)
+    win = np.zeros((j1 - j0, i1 - i0), dtype=bool)
+
+    def paint(a, b, grow, val):
+        a0, a1 = max(i0, math.floor((b[0] - grow) / r)), min(i1, math.ceil((b[2] + grow) / r))
+        c0, c1 = max(j0, math.floor((b[1] - grow) / r)), min(j1, math.ceil((b[3] + grow) / r))
+        if a1 > a0 and c1 > c0:
+            a[c0 - j0:c1 - j0, a0 - i0:a1 - i0] = val
+    for b in own:
+        paint(win, b, 0.4, True)
+    core = win.copy()
+    m = ~_dilate(~_dilate(win, k), k)
+    m = _fill_holes(m)
+    for b, grow in avoid:
+        paint(m, b, grow, False)
+    m |= core
+    full = np.zeros((ny, nx), dtype=bool)
+    full[j0:j1, i0:i1] = m
+    e = int(math.ceil(0.5 / r))
+    full[:e, :] = False
+    full[-e:, :] = False
+    full[:, :e] = False
+    full[:, -e:] = False
+    return full
+
+
+def trace(mask):
+    """The boundary loops of a cell mask as rectilinear polygons (mm, corners only), interior on the right."""
+    import numpy as np
+    r = LINK_RES
+    p = np.pad(mask, 1)
+    inner = p[1:-1, 1:-1]
+    out = {}
+    for (dj, di), (a, b) in (((-1, 0), ((0, 0), (1, 0))), ((0, 1), ((1, 0), (1, 1))),
+                             ((1, 0), ((1, 1), (0, 1))), ((0, -1), ((0, 1), (0, 0)))):
+        nb = p[1 + dj:p.shape[0] - 1 + dj, 1 + di:p.shape[1] - 1 + di]
+        js, is_ = np.nonzero(inner & ~nb)
+        for j, i in zip(js.tolist(), is_.tolist()):
+            out.setdefault((i + a[0], j + a[1]), []).append((i + b[0], j + b[1]))
+    loops = []
+    while out:
+        start = next(iter(out))
+        v, cur, heading = start, [start], None
+        while True:
+            ends = out[v]
+            if heading is None or len(ends) == 1:
+                w = ends[0]
+            else:                              # prefer a right turn: diagonal neighbours stay apart
+                rank = {(-heading[1], heading[0]): 0, heading: 1, (heading[1], -heading[0]): 2}
+                w = min(ends, key=lambda e: rank.get((e[0] - v[0], e[1] - v[1]), 3))
+            ends.remove(w)
+            if not ends:
+                del out[v]
+            heading = (w[0] - v[0], w[1] - v[1])
+            v = w
+            if v == start:
+                break
+            cur.append(v)
+        n = len(cur)
+        pts = [q for k, q in enumerate(cur) if (cur[k - 1][0] - q[0]) * (cur[(k + 1) % n][1] - q[1])
+               != (cur[k - 1][1] - q[1]) * (cur[(k + 1) % n][0] - q[0])]
+        loops.append([(x * r, y * r) for x, y in pts])
+    return loops
+
 
 # ---------------------------------------------------------------------------------------------------------------
 # silkscreen connection lines between the blocks: a minimum spanning tree per bus or rail (I2C, SPI, UART, USB, each
@@ -582,31 +751,35 @@ def link_edges(groups, outlines):
     return sorted(out, key=lambda e: (order[e[2]], rect_gap(outlines[e[0]], outlines[e[1]])))
 
 
-def _clamp(p, rc):
-    return (min(max(p[0], rc[0]), rc[2]), min(max(p[1], rc[1]), rc[3]))
+def _edge_point(mask, j, i):
+    """The midpoint of the side that cell (j, i), just outside a block, shares with the block."""
+    r = LINK_RES
+    for dj, di in ((0, 1), (1, 0), (0, -1), (-1, 0)):
+        jj, ii = j + dj, i + di
+        if 0 <= jj < mask.shape[0] and 0 <= ii < mask.shape[1] and mask[jj, ii]:
+            return ((i + 0.5 + di * 0.5) * r, (j + 0.5 + dj * 0.5) * r)
+    return ((i + 0.5) * r, (j + 0.5) * r)
 
 
-def route_link(cost, used, ra, rb):
-    """Cheapest 4-connected path (turns and used cells cost extra) from just outside rect ra to just outside rb."""
+def route_link(cost, used, ma, mb):
+    """Cheapest 4-connected path (turns and used cells cost extra) from just outside block mask ma to just outside mb."""
     import heapq
+    import numpy as np
     r, ny, nx = LINK_RES, cost.shape[0], cost.shape[1]
 
-    def ring(rc, d=0.375):
-        x0, y0, x1, y1 = rc
-        i0, i1 = int((x0 - d) / r), int((x1 + d) / r)
-        j0, j1 = int((y0 - d) / r), int((y1 + d) / r)
-        cells = set()
-        for i in range(i0, i1 + 1):
-            cells.add((j0, i))
-            cells.add((j1, i))
-        for j in range(j0, j1 + 1):
-            cells.add((j, i0))
-            cells.add((j, i1))
-        return {c for c in cells if 0 <= c[0] < ny and 0 <= c[1] < nx and cost[c] < 1e6}, (i0, j0, i1, j1)
-    starts, _ = ring(ra)
-    goals, (gx0, gy0, gx1, gy1) = ring(rb)
+    def ring(m):
+        a = m.copy()
+        a[1:, :] |= m[:-1, :]
+        a[:-1, :] |= m[1:, :]
+        a[:, 1:] |= m[:, :-1]
+        a[:, :-1] |= m[:, 1:]
+        js, is_ = np.nonzero(a & ~m & (cost < 1e6))
+        return set(zip(js.tolist(), is_.tolist()))
+    starts, goals = ring(ma), ring(mb)
     if not starts or not goals:
         return None
+    gy0, gy1 = min(j for j, _ in goals), max(j for j, _ in goals)
+    gx0, gx1 = min(i for _, i in goals), max(i for _, i in goals)
 
     def h(j, i):
         return max(0, gx0 - i, i - gx1) + max(0, gy0 - j, j - gy1)
@@ -645,7 +818,7 @@ def route_link(cost, used, ra, rb):
         cells.append(prev[cells[-1]])
     cells.reverse()
     pts = [((i + 0.5) * r, (j + 0.5) * r) for j, i, d in cells]
-    pts = [_clamp(pts[0], ra)] + pts + [_clamp(pts[-1], rb)]
+    pts = [_edge_point(ma, *cells[0][:2])] + pts + [_edge_point(mb, *cells[-1][:2])]
     simple = [pts[0]]                          # keep the corners only
     for k in range(1, len(pts) - 1):
         a, b, c = simple[-1], pts[k], pts[k + 1]
@@ -665,10 +838,15 @@ def _seg(board, a, b, width):
     board.Add(s)
 
 
-def connection_lines(board, byref, block_of, outlines, obstacles, names):
-    """Draw the links on F.SilkS; returns the number of links that found no path."""
+def connection_lines(board, byref, block_of, masks, obstacles, names):
+    """Draw the links on F.SilkS between the block outlines (masks: title -> cells); returns the number of links that
+    found no path."""
     import numpy as np
     r = LINK_RES
+    outlines = {}
+    for t, mk in masks.items():
+        js, is_ = np.nonzero(mk)
+        outlines[t] = (is_.min() * r, js.min() * r, (is_.max() + 1) * r, (js.max() + 1) * r)
     nx, ny = int(W / r), int(H / r)
     cost = np.ones((ny, nx), dtype=np.float32)
 
@@ -681,8 +859,10 @@ def connection_lines(board, byref, block_of, outlines, obstacles, names):
     cost[-e:, :] = 1e9
     cost[:, :e] = 1e9
     cost[:, -e:] = 1e9
-    for rc in outlines.values():
-        fill(rc, BLOCK_COST, 0.15)
+    for mk in masks.values():
+        near = _dilate(mk, 2) & ~mk                # lines keep a little off the outlines (not along them)
+        cost[near] = np.maximum(cost[near], 6)
+        cost[mk] = np.maximum(cost[mk], BLOCK_COST)
     for rc in obstacles:
         fill(rc, BLOCK_COST, 0.2)
     used = np.zeros((ny, nx), dtype=np.float32)
@@ -693,7 +873,7 @@ def connection_lines(board, byref, block_of, outlines, obstacles, names):
         return slice(max(0, int((my - hh) / r)), int((my + hh) / r) + 1), slice(max(0, int((mx - hw) / r)), int((mx + hw) / r) + 1)
     failed = 0
     for a, b, kind, label in link_edges(link_groups(byref, block_of, outlines), outlines):
-        res = route_link(cost, used, outlines[a], outlines[b])
+        res = route_link(cost, used, masks[a], masks[b])
         if not res:
             failed += 1
             continue
@@ -813,8 +993,11 @@ def pin_labels(m, side=None):
     pitch = min(abs(a - b) for a in (ys if vertical else xs) for b in (ys if vertical else xs) if a != b) if len(pts) > 1 else 0
     if pitch < 1.9:
         return
+    # 2-way screw terminals: a large + at pin 1 (the rail, or a motor's +) and - at pin 2 (GND, or a motor's -)
+    signs = {'1': '+', '2': '-'} if len(pts) == 2 and 'TerminalBlock' in m.GetFPID().GetLibItemName().wx_str() else {}
     for x, y, p in pts:
         bb = bbox_mm(p.GetBoundingBox())
+        sign = signs.get(p.GetNumber())
         if len(across) == 2:
             s = -1 if round(x if vertical else y, 2) == across[0] else 1
         elif side is not None:
@@ -822,10 +1005,20 @@ def pin_labels(m, side=None):
         else:
             s = -1
         name = short(p.GetNetname())
+        off = 0.5
+        if sign:                               # beyond the body (silkscreen under it cannot be seen): the sign, then
+            c = bbox_mm(m.GetCourtyard(pcbnew.F_CrtYd).BBox())      # the net name
+            bb = [c[0], c[1], c[2], c[3]] if vertical else [bb[0], c[1], bb[2], c[3]]
+            if vertical:
+                bb[1] = bb[3] = y
+                silk(m, sign, (bb[0] - 1.2) if s < 0 else (bb[2] + 1.2), y, size=1.8)
+            else:
+                silk(m, sign, x, (bb[1] - 1.2) if s < 0 else (bb[3] + 1.2), size=1.8)
+            off = 2.4
         if vertical:
-            silk(m, name, (bb[0] - 0.5) if s < 0 else (bb[2] + 0.5), y, angle=0, justify=-s)
+            silk(m, name, (bb[0] - off) if s < 0 else (bb[2] + off), y, angle=0, justify=-s)
         else:
-            silk(m, name, x, (bb[1] - 0.5) if s < 0 else (bb[3] + 0.5), angle=90, justify=-s)
+            silk(m, name, x, (bb[1] - off) if s < 0 else (bb[3] + off), angle=90, justify=-s)
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -1023,14 +1216,14 @@ def main():
     x0, y0, x1, y1 = TFT_OUTLINE
     tft_area = (tx + x0, ty + y0, tx + x1, ty + y1)
 
-    # blocks: packed in their regions, then fenced off (BLOCK_GAP) and outlined on the silkscreen
+    # blocks: packed in their regions and fenced off (BLOCK_GAP), then spread and outlined (below)
     edge_refs = {resolve(k[0] if isinstance(k, tuple) else k) for spec in EDGE_ROWS for k in spec[0]} | servo_rows
     def area(ms):
         return sum((b[2] - b[0] + 1) * (b[3] - b[1] + 1) for b in (box(m) for m in ms if m.GetReference() not in placed))
     def order(kv):                         # the FIRST blocks in that order (tied to their edge parts), then large first
         hit = [i for i, f in enumerate(FIRST) if kv[0].startswith(f)]
         return (hit[0] if hit else len(FIRST), -area(kv[1]))
-    outlines, names = {}, []
+    groups = []
     for title, ms in sorted(blocks.items(), key=order):
         r, name = region(title)
         free = [m for m in ms if m.GetReference() not in placed and m.GetReference() not in ties]
@@ -1065,30 +1258,86 @@ def main():
                 problems.append('NO ROOM for block "%s"' % title[:40])
             elif d > 12:
                 problems.append('block "%s": %.0f mm from its spot' % (title[:40], d))
-        # outline: the cluster, with the block's fixed parts that are next to it (an ESP32 module, not a far sensor)
         if not free or not name:
             continue
         bs = [box(m) for m in free]
-        bx = [min(b[0] for b in bs), min(b[1] for b in bs), max(b[2] for b in bs), max(b[3] for b in bs)]
-        for m in ms:
-            if m.GetReference() in placed and m.GetReference() not in edge_refs and not m.IsFlipped()                     and not m.GetReference().startswith('H'):
-                b = box(m)
-                if max(b[0] - bx[2], bx[0] - b[2], b[1] - bx[3], bx[1] - b[3]) < 8:
-                    bx = [min(bx[0], b[0]), min(bx[1], b[1]), max(bx[2], b[2]), max(bx[3], b[3])]
-        bx = (bx[0] - OUTLINE, bx[1] - OUTLINE, bx[2] + OUTLINE, bx[3] + OUTLINE)
-        rect(*bx, pcbnew.F_SilkS, 0.15)
-        outlines[title] = bx
-        size = min(1.0, (bx[2] - bx[0] - 0.3) / (0.85 * len(name)))      # names no wider than their block
+        bx = (min(b[0] for b in bs), min(b[1] for b in bs), max(b[2] for b in bs), max(b[3] for b in bs))
+        size = min(1.0, (bx[2] - bx[0] + 2 * OUTLINE - 0.3) / (0.85 * len(name)))   # names no wider than their block
         size = max(size, 0.8)               # the minimum text height
-        silk(board, name, bx[0] + 0.3, bx[1] - 0.9, size=size, justify=1)
-        names.append((bx[0], bx[1] - 0.9 - size / 2 - 0.2, bx[0] + 0.3 + 0.8 * size * len(name), bx[1]))
+        tx, ty = bx[0] - OUTLINE + 0.3, bx[1] - OUTLINE - 0.9
+        groups.append({'title': title, 'name': name, 'free': free, 'ms': ms, 'size': size, 'cut': {m.GetReference() for m in cut},
+                       'name_box': (tx - 0.1, ty - size / 2 - 0.1, tx + 0.8 * size * len(name), ty + size / 2 + 0.1)})
+
+    # spread the parts of each block into the room around it (the packing leaves open areas), then outline each block
+    # with a polygon around its parts (and its fixed parts next to them: an ESP32 module, not a far sensor)
+    items = []
+    gi = {gr['title']: k for k, gr in enumerate(groups)}
+    for k, gr in enumerate(groups):
+        unc = gr['title'].startswith(UNCOVERED)
+        for m in gr['free']:
+            items.append({'box': box(m), 'block': k, 'kind': PART, 'gap': gap(m), 'move': True, 'mod': m,
+                          'cut': m.GetReference() in gr['cut'], 'uncovered': unc})
+        items.append({'box': gr['name_box'], 'block': k, 'kind': NAME, 'move': True, 'group': gr})
+    for ref in placed:
+        m = byref[ref]
+        if m.IsFlipped():
+            for pad in m.Pads():
+                th = pad.GetAttribute() in (pcbnew.PAD_ATTRIB_PTH, pcbnew.PAD_ATTRIB_NPTH)
+                items.append({'box': tuple(bbox_mm(pad.GetBoundingBox())), 'block': -1, 'kind': HOLE if th else BACK_SMD})
+        elif ref.startswith('H'):
+            items.append({'box': box(m), 'block': -1, 'kind': HOLE})
+        else:
+            items.append({'box': box(m), 'block': gi.get(block_of.get(ref), -1), 'kind': PART, 'gap': gap(m)})
+    items.append({'box': tft_area, 'block': -1, 'kind': KEEPOUT})
+    for it, (dx, dy) in zip(items, spread(items)):
+        if it.get('mod') is not None and (dx or dy):
+            it['mod'].Move(V(dx, dy))
+        elif it['kind'] == NAME:
+            b = it['group']['name_box']
+            it['group']['name_box'] = (b[0] + dx, b[1] + dy, b[2] + dx, b[3] + dy)
+    masks, names = {}, [gr['name_box'] for gr in groups]
+    for gr in groups:
+        own = [box(m) for m in gr['free']]
+        fb = (min(b[0] for b in own), min(b[1] for b in own), max(b[2] for b in own), max(b[3] for b in own))
+        mine = {m.GetReference() for m in gr['free']}
+        for m in gr['ms']:
+            ref = m.GetReference()
+            if ref in placed and ref not in edge_refs and not m.IsFlipped() and not ref.startswith('H'):
+                b = box(m)
+                if max(b[0] - fb[2], fb[0] - b[2], b[1] - fb[3], fb[1] - b[3]) < 8:
+                    own.append(b)
+                    mine.add(ref)
+        avoid = [(nb, 0.2) for nb in names]
+        avoid += [(box(m), 0.5) for m in byref.values() if m.GetReference() not in mine and not m.IsFlipped()
+                  and m.GetReference() not in ties]
+        mk = block_mask(own, avoid)
+        masks[gr['title']] = mk
+        for loop in trace(mk):
+            for a, b in zip(loop, loop[1:] + loop[:1]):
+                _seg(board, a, b, 0.15)
+        nb = gr['name_box']
+        silk(board, gr['name'], nb[0] + 0.1, (nb[1] + nb[3]) / 2, size=gr['size'], justify=1)
+    import numpy as np
+    grid = Grid()                          # what is taken now (for the credits)
+    union = np.zeros_like(next(iter(masks.values())))
+    for mk in masks.values():
+        union |= mk
+    coarse = union.reshape(union.shape[0] // 2, 2, union.shape[1] // 2, 2).any(axis=(1, 3))
+    for rr in range(coarse.shape[0]):
+        grid.rows[rr][:coarse.shape[1]] = bytes(coarse[rr].astype(np.uint8))
+    for m in byref.values():
+        if not m.IsFlipped():
+            x0_, y0_, x1_, y1_ = box(m)
+            grid.mark(x0_ - 1, y0_ - 1, x1_ + 1, y1_ + 1)
+    for nb in names:
+        grid.mark(*nb)
 
     for ref, host in sorted(ties.items()):
         err = place_tie(board, byref[ref], host)
         if err:
             problems.append(err)
     obstacles = [box(byref[r]) for r in placed if not byref[r].IsFlipped()]
-    failed = connection_lines(board, byref, block_of, outlines, obstacles, names)
+    failed = connection_lines(board, byref, block_of, masks, obstacles, names)
     if failed:
         problems.append('%d connection lines found no path' % failed)
 

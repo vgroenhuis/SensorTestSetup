@@ -595,9 +595,9 @@ def mcu_main(d, X):
         b.ic('Mechanical:MountingHole_Pad', 'H', 'TFT standoff', {'1': 'GND'}, flow=True, fields=fields(FP['STANDOFF'], 'C2916370'))
 
     b = sh.block('Mounting holes (M3)')
-    for i in range(8):
+    for i in range(6):
         b.ic('Mechanical:MountingHole', 'H', 'M3', {}, flow=True, fields=fields('MountingHole:MountingHole_3.2mm_M3'), in_bom=False)
-        if i == 3:
+        if i == 2:
             b.col()
 
 
