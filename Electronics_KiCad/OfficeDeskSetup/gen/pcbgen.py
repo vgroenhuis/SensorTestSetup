@@ -34,11 +34,16 @@ HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT = 'OfficeDeskSetup'
 IO = pcbnew.PCB_IO_MGR.FindPlugin(pcbnew.PCB_IO_MGR.KICAD_SEXP)
 
-W, H = 270.0, 200.0          # board size, mm; the rear edge is y = 0, the front edge (user side) is y = H
-GAP = 1.0                    # space between courtyards when packing (routing channels)
-GAP_IC = 3.0                 # around parts with 8 or more pads, for their fanout
+W, H = 200.0, 150.0          # board size, mm; the rear edge is y = 0, the front edge (user side) is y = H
+GAP = 0.5                    # space between courtyards when packing (routing channels)
+GAP_IC = 1.2                 # around parts with 8 or more pads, for their fanout
 EDGE = 1.0                   # keep courtyards this far from the board edge
-BLOCK_GAP = 5.0              # between the blocks (their outlines are drawn 1 mm around the parts)
+BLOCK_GAP = 2.0              # between the blocks (their outlines are drawn 0.5 mm around the parts)
+OUTLINE = 0.5
+FILL = 1.0                   # a block's cluster: width sqrt(FILL x aspect x the parts' area)
+ASPECTS = (0.2, 0.3, 0.45, 0.6, 0.8, 1.0, 1.25, 1.6, 2.0, 2.6, 3.5, 5.0)
+SLACK = 1.15                 # clusters up to this much larger than the tightest one may be chosen to land nearer
+COLUMN = 6                   # passives per column
 
 # ---------------------------------------------------------------------------------------------------------------
 # Edge parts, as rows along an edge: (keys, edge, start, gap, rotation[, pitch]). Parts follow each other from
@@ -47,23 +52,24 @@ BLOCK_GAP = 5.0              # between the blocks (their outlines are drawn 1 mm
 SCREW = 180                  # Phoenix MKDS horizontal: wire entries at +y, so 180 on the rear edge
 EDGE_ROWS = [
     # rear edge (y = 0): USB-C PD and PROG, 12 V jack, power switch, GND banana hole, power terminals, motors
-    (['J=USB-C POWER', 'J=USB-C PROG'], 'top', 12, 4, 180),
-    (['J=DC 12V'], 'top', 40, 0, 270),
-    (['SW=POWER'], 'top', 58, 0, 0),
-    (['H=GND banana'], 'top', 77, 0, 0),
-    (['J=V_BUS', 'J=V_SERVO', 'J=5V', 'J=3V3', ('J=POWER', 0)], 'top', 91, 1.0, SCREW),
-    ([('J=MOTOR A@Terminal', SCREW), 'J=MOTOR A@PH', ('J=MOTOR B@Terminal', SCREW), 'J=MOTOR B@PH'], 'top', 157, 1.5, 0),
+    (['J=USB-C POWER', 'J=USB-C PROG'], 'top', 11, 2, 180),
+    (['J=DC 12V'], 'top', None, 1.5, 270),
+    (['SW=POWER'], 'top', None, 1.0, 0),
+    (['H=GND banana'], 'top', None, 1.0, 0),
+    (['J=V_BUS', 'J=V_SERVO', 'J=5V', 'J=3V3', ('J=POWER', 0)], 'top', None, 1.0, SCREW),
+    ([('J=MOTOR A@Terminal', SCREW), 'J=MOTOR A@PH', ('J=MOTOR B@Terminal', SCREW), 'J=MOTOR B@PH'], 'top', None, 1.0, 0),
     # left edge (x = 0): Qwiic (main bus x2, TCA9548 ch 2-7, ToF bus) and the two pressure sensors
-    (['J=Qwiic main 1', 'J=Qwiic main 2'] + ['J=Qwiic ch %d' % i for i in range(2, 8)] + ['J=Qwiic io'], 'left', 12, 1.5, 270),
-    (['U=WF100DPZ 10BG S6 DT#1', 'U=WF100DPZ 10BG S6 DT#2'], 'left', 120, 1.5, 0),
-    # right edge (x = W): servo banks (SERVO_BANKS), PWM 9-15, Dynamixel, analog inputs, load cell
-    (['J=PWM 9-15', 'J=DXL 1', 'J=DXL 2'], 'right', 54, 2.0, 0),
-    (['J=AIN 7 (10 bit)'] + ['J=AIN %d (16 bit)' % i for i in range(4)] + ['J=LOAD CELL'], 'right', 100, 0.6, 90),
-    # front edge (y = H): toggles, buttons (16 mm pitch: room for caps), pots; ultrasonic and MH module at the right
-    (['SW=TOGGLE0', 'SW=TOGGLE1'], 'bottom', 12, 3.0, 0),
-    (['SW=BTN%d' % i for i in range(4)], 'bottom', 38, 0, 0, 16),
-    (['RV=10k@RK09#%d' % i for i in range(1, 5)], 'bottom', 116, 2.0, 0),
-    (['J=HC-SR04', 'J=MH module'], 'bottom', 186, 4.0, 0),
+    (['J=Qwiic main 1', 'J=Qwiic main 2'] + ['J=Qwiic ch %d' % i for i in range(2, 8)] + ['J=Qwiic io'], 'left', 13, 0.8, 270),
+    (['U=WF100DPZ 10BG S6 DT#1', 'U=WF100DPZ 10BG S6 DT#2'], 'left', None, 1.0, 0),
+    # right edge (x = W): servo banks (SERVO_BANKS), PWM 9-15, Dynamixel, 16-bit analog inputs
+    (['J=PWM 9-15', 'J=DXL 1', 'J=DXL 2'], 'right', 44, 1.5, 0),
+    (['J=AIN %d (16 bit)' % i for i in range(4)], 'right', None, 0.6, 90),
+    # front edge (y = H): toggles, buttons (15 mm pitch: room for 12 mm caps), pots; ultrasonic, MH module, 10-bit
+    # analog input and load cell at the right
+    (['SW=TOGGLE0', 'SW=TOGGLE1'], 'bottom', 8, 2.0, 0),
+    (['SW=BTN%d' % i for i in range(4)], 'bottom', None, 0, 0, 15),
+    (['RV=10k@RK09#%d' % i for i in range(1, 5)], 'bottom', None, 1.0, 0),
+    (['J=HC-SR04', 'J=MH module', ('J=AIN 7 (10 bit)', 0), ('J=LOAD CELL', 0)], 'bottom', None, 1.5, 0),
 ]
 # servo outputs: two banks of 4 at the right edge, three 1x4 rows each (GND outside, V+, signal inside); pin 1 of the
 # first bank at y = SERVO_Y, the second bank SERVO_BANK further
@@ -72,18 +78,25 @@ SERVO_BANKS = [('SERVO 0-3', 'J=SERVO 0-3 SIG', 'J=SERVO 0-3 V+', 'J=SERVO 0-3 G
 SERVO_Y, SERVO_BANK = 12.0, 16.0
 # TFT module (ZhongJingYuan 2.4" ST7789): pin 1 of its 8-pin socket, and its holes and outline relative to pin 1
 # (from the module's footprint in mamri/PCBs/Mamri UI V5); the module lies to the left of the socket
-TFT_PIN1 = (152.0, 100.0)
+TFT_PIN1 = (134.0, 99.0)
 TFT_HOLES = [(-64, -8.61), (-64, 26.39), (-1, -8.61), (-1, 26.39)]
 TFT_OUTLINE = (-67.05, -11.66, 2.05, 29.44)
+FIRST = ('Power switch', 'Motor driver', 'USB-C POWER', 'USB-C PROG', 'Input selection', "ESP32-C5 'main'", "ESP32-C5 'io'", 'PCA9685', 'V_SERVO buck',
+         '3.3 V buck', '5 V buck',
+         'Buck-boost charger', '3S pack', 'TCA9548A', 'MCP23017', 'MCP3008', 'USB hub', 'IR reflective', 'VL53L7CX', 'AHT20',
+         'LDR')
+UNCOVERED = ('IR reflective', 'AHT20', 'LDR', 'VL53L7CX')    # blocks with sensors that must not be under the TFT
 # placed inside (not on an edge, but fixed): key -> (x, y, rotation, side)
 FIXED = {
-    'U=AS5600-ASOT': (182, 176, 0, 'F'),                      # under the knob
-    'BT=18650#1': (118, 72, 0, 'B'),                         # 18650 holders on the back, under the TFT
-    'BT=18650#2': (118, 94.5, 0, 'B'),
-    'BT=18650#3': (118, 117, 0, 'B'), 
+    'U=AS5600-ASOT': (172, 126, 0, 'F'),                      # under the knob
+    'BT=18650#1': (100, 30, 0, 'B'),                         # 18650 holders on the back, at the rear (no through-
+    'BT=18650#2': (100, 52.5, 0, 'B'),                       # hole parts and TFT standoffs over them); their pads
+    'BT=18650#3': (100, 75, 0, 'B'),                         # have pegs at x 72, 128 and 136
 }
+# corners, two beside the upper TFT standoffs, one at the left edge, one in the middle under
+# the TFT module (the edges are full of connectors)
 HOLES = {'H=M3#1': (4, 4), 'H=M3#2': (W - 4, 4), 'H=M3#3': (4, H - 4), 'H=M3#4': (W - 4, H - 4),
-         'H=M3#5': (151, 4), 'H=M3#6': (109, H - 4), 'H=M3#7': (4, 112), 'H=M3#8': (W - 4, 46)}
+         'H=M3#5': (60.3, 91), 'H=M3#6': (142, 91), 'H=M3#7': (4, 135.5), 'H=M3#8': (100, 92)}
 # net classes: (track width, clearance, via diameter, via drill, nets by their short name)
 NETCLASSES = {
     'Power': (1.0, 0.2, 0.8, 0.4, ['VBUS_PD', 'VBUS_PROG', 'CHG_VBUS', 'CHG_PMID', 'CHG_SYS', 'CHG_SW1', 'CHG_SW2',
@@ -102,57 +115,57 @@ MODELS = {
     'Potentiometer_Alps_RK09K_Single_Vertical': ('RES-TH_RK09K1130A70.wrl', (4.0, -2.5, 0), (0, 0, 90)),
 }
 
-# block (title prefix) -> (x, y, width, height, silkscreen name). Each block is packed into a cluster of that width,
-# then placed (5 mm from everything else) at the free spot nearest to the rectangle's centre. The sizes are about those
-# of the clusters, so the rectangles form the floor plan: power at the rear, MCUs and buses at the sides, sensors and
-# controls at the front, low parts under the TFT module (x 85-154, y 88-130)
+# block (title prefix) -> (x, y, silkscreen name). Each block is packed into an about square cluster, then placed
+# (BLOCK_GAP from everything else) at the free spot nearest to (x, y): power at the rear, MCUs and buses at the sides,
+# sensors and controls at the front, charger and pack in the middle over the holders (pegs at x 72, 128 and 136, y 22-83),
+# low parts only under the TFT module (x 67-136, y 87-128)
 FLOORPLAN = [
     # rear: USB-C, 12 V input and power switch, bucks, motors, PCA9685 and V_SERVO by the servo banks
-    ('USB-C POWER', 12, 24, 23, 35, 'USB-C PD'),
-    ('USB-C PROG', 40, 28, 17, 24, 'USB-C PROG'),
-    ('Power switch', 62, 26, 60, 33, 'POWER SWITCH, 12 V IN, V_BUS'),
-    ('5 V buck', 127, 22, 20, 23, '5 V'),
-    ('Power-good LEDs', 127, 50, 20, 19, 'RAILS'),
-    ('3.3 V buck', 152, 22, 31, 24, '3.3 V'),
-    ('Motor A', 152, 51, 17, 18, 'ENCODER A'),
-    ('Motor B', 174, 51, 17, 18, 'ENCODER B'),
-    ('Motor driver', 188, 22, 33, 21, 'MOTOR DRIVER'),
-    ('PCA9685', 214, 48, 37, 29, 'SERVO / PWM PCA9685'),
-    ('V_SERVO buck', 214, 82, 34, 31, 'V_SERVO'),
-    # left column (the holders' pads: x 72-94 and 141-162, y 60-135): USB hub, input selection, ESP 'main', buses
-    ('USB hub', 12, 62, 24, 19, 'USB HUB'),
-    ('Input selection', 40, 62, 23, 21, 'INPUT SELECT'),
-    ("ESP32-C5 'main'", 12, 88, 36, 45, 'ESP32 MAIN'),
-    ('Main I2C bus', 52, 88, 20, 17, 'I2C MAIN'),
-    ('UART0 header', 50, 110, 22, 24, 'UART0'),
-    ('TCA9548A', 12, 138, 39, 34, 'I2C MUX, PRESSURE'),
-    ('MCP23017', 56, 150, 59, 28, 'BUTTONS, LEDS MCP23017'),
-    # middle, between the holder pads and under the TFT module: charger and pack
-    ('Buck-boost charger', 96, 66, 40, 34, 'CHARGER BQ25792'),
-    ('3S pack', 96, 104, 40, 30, '3S PACK BQ77915'),
+    ('USB-C POWER', 15, 22, 'USB-C PD'),
+    ('USB-C PROG', 31, 22, 'USB-C PROG'),
+    ('Power switch', 52, 24, 'POWER SWITCH, 12 V IN, V_BUS'),
+    ('5 V buck', 86, 22, '5 V'),
+    ('3.3 V buck', 106, 22, '3.3 V'),
+    ('Power-good LEDs', 126, 22, 'RAILS'),
+    ('Motor driver', 155, 22, 'MOTOR DRIVER'),
+    ('Motor A', 148, 40, 'ENCODER A'),
+    ('Motor B', 165, 40, 'ENCODER B'),
+    ('PCA9685', 174, 50, 'SERVO / PWM PCA9685'),
+    ('V_SERVO buck', 160, 62, 'V_SERVO'),
+    # left column: USB hub, input selection, ESP 'main', buses
+    ('USB hub', 22, 38, 'USB HUB'),
+    ('Input selection', 45, 40, 'INPUT SELECT'),
+    ("ESP32-C5 'main'", 25, 70, 'ESP32 MAIN'),
+    ('Main I2C bus', 50, 62, 'I2C MAIN'),
+    ('UART0 header', 50, 85, 'UART0'),
+    ('TCA9548A', 25, 105, 'I2C MUX, PRESSURE'),
+    ('MCP23017', 42, 125, 'BUTTONS, LEDS MCP23017'),
+    # middle: charger and pack
+    ('Buck-boost charger', 86, 62, 'CHARGER BQ25792'),
+    ('3S pack', 116, 64, '3S PACK BQ77915'),
     # front middle: sensors that must stay uncovered, ADC by the pots
-    ('IMU', 120, 138, 17, 15, 'IMU'),
-    ('AHT20', 140, 138, 31, 17, 'CLIMATE, LIGHT'),
-    ('LDR', 100, 163, 15, 11, 'LDR'),
-    ('MCP3008', 120, 163, 54, 20, 'ADC MCP3008'),
+    ('IMU', 72, 128, 'IMU'),
+    ('AHT20', 92, 128, 'CLIMATE, LIGHT'),
+    ('LDR', 108, 128, 'LDR'),
+    ('MCP3008', 124, 128, 'ADC MCP3008'),
     # right: ESP 'io', ToF, TFT socket parts, Dynamixel, ADS1115, load cell, IR, HC-SR04, MH
-    ("ESP32-C5 'io'", 166, 74, 31, 45, 'ESP32 IO'),
-    ('TFT 2.4', 166, 124, 18, 15, 'TFT'),
-    ('VL53L7CX', 188, 124, 26, 26, 'TOF'),
-    ('V_DXL', 216, 118, 32, 19, 'V_DXL'),
-    ('Dynamixel', 216, 142, 29, 16, 'DYNAMIXEL'),
-    ('ADS1115', 216, 163, 32, 17, 'ADC ADS1115'),
-    ('HX711', 180, 155, 31, 20, 'LOAD CELL'),
-    ('IR reflective', 176, 142, 33, 21, 'IR SENSOR'),
-    ('HC-SR04', 186, 172, 21, 14, 'HC-SR04'),
-    ('MH sensor', 216, 182, 23, 11, 'MH MODULE'),
+    ("ESP32-C5 'io'", 165, 86, 'ESP32 IO'),
+    ('TFT 2.4', 126, 100, 'TFT'),
+    ('VL53L7CX', 152, 110, 'TOF'),
+    ('V_DXL', 176, 72, 'V_DXL'),
+    ('Dynamixel', 178, 86, 'DYNAMIXEL'),
+    ('ADS1115', 176, 110, 'ADC ADS1115'),
+    ('HX711', 182, 128, 'LOAD CELL'),
+    ('IR reflective', 155, 126, 'IR SENSOR'),
+    ('HC-SR04', 148, 134, 'HC-SR04'),
+    ('MH sensor', 163, 134, 'MH MODULE'),
 ]
 
 
 def region(block):
-    for prefix, x, y, w, h, name in FLOORPLAN:
+    for prefix, x, y, name in FLOORPLAN:
         if block.startswith(prefix):
-            return (x, y, x + w, y + h), name
+            return (x, y), name
     return None, ''
 
 
@@ -312,15 +325,17 @@ def gap(m):
 
 
 def occupy(grid, m):
-    """Mark a placed part: its box if on top, only its pads (through-hole ones reach the top) if on the back."""
+    """Mark a placed part: its box if on top, only its holes if on the back."""
     if not m.IsFlipped():
         x0, y0, x1, y1 = box(m)
         g = gap(m) / 2
         grid.mark(x0 - g, y0 - g, x1 + g, y1 + g)
         return
-    for pad in m.Pads():
+    for pad in m.Pads():                   # holes only: SMD pads on the back leave the top free
+        if pad.GetAttribute() not in (pcbnew.PAD_ATTRIB_PTH, pcbnew.PAD_ATTRIB_NPTH):
+            continue
         x0, y0, x1, y1 = bbox_mm(pad.GetBoundingBox())
-        grid.mark(x0 - 1, y0 - 1, x1 + 1, y1 + 1)
+        grid.mark(x0 - 0.5, y0 - 0.5, x1 + 0.5, y1 + 0.5)
 
 
 def dump(grid, path):
@@ -331,38 +346,106 @@ def dump(grid, path):
             f.write(bytes(1 - v for v in row))
 
 
-def cluster(grid, mods, r):
-    """Pack a block's parts into a compact cluster (as wide as region r), then place the cluster with BLOCK_GAP around
-    it in the first free spot of r (growing r when needed). Returns the parts outside r (empty or all)."""
-    width = max(r[2] - r[0], max(max(b[2] - b[0], b[3] - b[1]) + GAP_IC for b in map(box, mods)))
-    local = Grid(width, 400, edge=0)
-    pack(local, mods, (0, 0, width, 400))
-    bs = [box(m) for m in mods]
-    bx = (min(b[0] for b in bs), min(b[1] for b in bs), max(b[2] for b in bs), max(b[3] for b in bs))
-    f = BLOCK_GAP / 2              # fence: half the block gap (parts of two blocks 5 mm apart, outlines 1 mm out)
-    w, h = bx[2] - bx[0] + 2 * f, bx[3] - bx[1] + 2 * f + 1.5     # 1.5: the block name above the outline
-    spot = grid.near(w, h, ((r[0] + r[2]) / 2, (r[1] + r[3]) / 2))
-    if not spot:
+def cluster(grid, mods, r, avoid=None):
+    """Pack a block's parts into a cluster, then place it (BLOCK_GAP / 2 fence around it) at the free spot nearest to
+    r. Clusters of several aspect ratios are tried (about square first); the one that lands nearest wins. Returns how
+    far (mm) the cluster centre ended up from r."""
+    area = sum((b[2] - b[0] + gap(m)) * (b[3] - b[1] + gap(m)) for m, b in ((m, box(m)) for m in mods))
+    least = max(min(b[2] - b[0], b[3] - b[1]) + GAP_IC for b in map(box, mods))
+    f = BLOCK_GAP / 2
+    cands = []
+    for aspect in ASPECTS:                 # pack at several widths, keep the positions of each
+        width = max(math.sqrt(FILL * area * aspect), least)
+        local = Grid(width, 400, edge=0)
+        pack(local, mods, (0, 0, width, 400))
+        bs = [box(m) for m in mods]
+        bx = (min(b[0] for b in bs), min(b[1] for b in bs), max(b[2] for b in bs), max(b[3] for b in bs))
+        w, h = bx[2] - bx[0] + 2 * f, bx[3] - bx[1] + 2 * f + 1.5     # 1.5: the block name above the outline
+        cands.append((w * h, w, h, bx, [(m.GetPosition(), m.GetOrientationDegrees()) for m in mods]))
+    least_area = min(c[0] for c in cands)
+    best = None
+    saved = [bytearray(row) for row in grid.rows]
+    if avoid:                              # kept out of this area (the TFT module, for sensors that must see out)
+        grid.mark(*avoid)
+    for a_, w, h, bx, pos in sorted(cands, key=lambda c: c[0]):
+        if a_ > SLACK * least_area and best:   # only the tight packings, unless none of them fits
+            break
+        spot = grid.near(w, h, r)
+        if spot:
+            d = math.hypot(spot[0] + w / 2 - r[0], spot[1] + h / 2 - r[1])
+            if best is None or d < best[0] - 2:
+                best = (d, pos, spot, w, h, bx)
+    grid.rows = saved
+    if not best:
         dump(grid, os.path.join(tempfile.gettempdir(), 'pcbgen_grid.png'))
-        raise RuntimeError('no room for a %.0f x %.0f block of %s' % (w, h, ' '.join(m.GetReference() for m in mods)))
-    inside = r[0] - 1 <= spot[0] and spot[0] + w <= r[2] + 1 and r[1] - 1 <= spot[1] and spot[1] + h <= r[3] + 1
+        for m in mods:                     # left below the board, for a look at what did not fit
+            m.Move(V(0, H + 30))
+        return None
+    d, pos, spot, w, h, bx = best
     dx, dy = spot[0] + f - bx[0], spot[1] + f + 1.5 - bx[1]
-    for m in mods:
+    for m, (p, rot) in zip(mods, pos):
+        m.SetOrientationDegrees(rot)
+        m.SetPosition(p)
         m.Move(V(dx, dy))
     grid.mark(spot[0], spot[1], spot[0] + w, spot[1] + h)
-    return [] if inside else mods
+    return d
+
+
+def passive(m):
+    """Small two-pad SMD resistors and capacitors without a label: stacked into columns."""
+    if m.GetPadCount() != 2 or not re.match(r'[RC]\d', m.GetReference()) or any(
+            p.GetAttribute() == pcbnew.PAD_ATTRIB_PTH for p in m.Pads()):
+        return False
+    put(m, 0, 0)
+    b = box(m)
+    return (b[2] - b[0]) * (b[3] - b[1]) < 12
+
+
+def units(mods):
+    """Packing units: single parts, and columns of up to COLUMN passives of one size, courtyards touching (like the
+    pins of an IC: a real space saver). Each unit is (parts, place(x, y, vertical) -> None, size(vertical))."""
+    def ref_key(m):
+        r = m.GetReference()
+        return (r[0], int(re.sub(r'\D', '', r) or 0))
+    single, groups = [], {}
+    for m in mods:
+        if passive(m):
+            put(m, 0, 0)
+            b = box(m)
+            groups.setdefault((round(b[2] - b[0], 1), round(b[3] - b[1], 1)), []).append(m)
+        else:
+            single.append([m])
+    cols = []
+    for (bw, bh), ms in groups.items():
+        ms.sort(key=ref_key)
+        n = math.ceil(len(ms) / COLUMN)
+        size = math.ceil(len(ms) / n)
+        cols += [ms[i:i + size] for i in range(0, len(ms), size)]
+    return single + cols
 
 
 def pack(grid, mods, r):
-    """Place footprints (largest first) in the first free spots of region r, growing it until they fit."""
-    mods = sorted(mods, key=lambda m: -(lambda b: (b[2] - b[0]) * (b[3] - b[1]))(box(m)))
+    """Place the units (largest first) in the first free spots of region r, growing it until they fit. A unit of
+    several passives is a column (parts unrotated, stacked in y) or a row (parts at 90 degrees, side by side in x)."""
+    def dims(u, rot):
+        bs = []
+        for m in u:
+            put(m, 0, 0, rot=rot)
+            bs.append(box(m))
+        if len(u) == 1:
+            b = bs[0]
+            return b[2] - b[0], b[3] - b[1]
+        if rot == 0:
+            return max(b[2] - b[0] for b in bs), sum(b[3] - b[1] for b in bs)
+        return sum(b[2] - b[0] for b in bs), max(b[3] - b[1] for b in bs)
+    us = sorted(units(mods), key=lambda u: -(lambda d: d[0] * d[1])(dims(u, 0)))
     moved = []
-    for m in mods:
+    for u in us:
+        g = gap(u[0])
         best = None
         for rot in (0, 90):
-            put(m, 0, 0, rot=rot)
-            b = box(m)
-            w, h = b[2] - b[0] + gap(m), b[3] - b[1] + gap(m)
+            w, h = dims(u, rot)
+            w, h = w + g, h + g
             grow, spot = 0, None
             while grow <= max(W, H):
                 spot = grid.find(w, h, (r[0] - grow, r[1] - grow, r[2] + grow, r[3] + grow))
@@ -374,12 +457,237 @@ def pack(grid, mods, r):
             if best and best[0] == 0:
                 break
         grow, rot, (x, y), w, h = best
-        put(m, x + w / 2, y + h / 2, rot=rot)
-        occupy(grid, m)
+        cx, cy = x + g / 2, y + g / 2
+        for m in u:
+            put(m, 0, 0, rot=rot)
+            b = box(m)
+            if len(u) == 1:
+                put(m, x + w / 2, y + h / 2, rot=rot)
+            elif rot == 0:
+                put(m, x + w / 2, cy + (b[3] - b[1]) / 2, rot=rot)
+                cy += b[3] - b[1]
+            else:
+                put(m, cx + (b[2] - b[0]) / 2, y + h / 2, rot=rot)
+                cx += b[2] - b[0]
+        grid.mark(x, y, x + w, y + h)
         if grow:
-            moved.append(m)
+            moved += u
     return moved
 
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# silkscreen connection lines between the blocks: a minimum spanning tree per bus or rail (I2C, SPI, UART, USB, each
+# power rail but GND and +3V3) and per other signal, drawn along the channels between the blocks (A* on a grid)
+LINK_RES = 0.25
+BLOCK_COST = 150             # per cell across a block or part (lines go round them where they can)
+USED_COST = 12               # per cell along another line or over a label (crossing one costs little)
+LINK_WIDTH = {'power': 0.35, 'bus': 0.12, 'signal': 0.12}
+BUSES = [(r'SCL|SDA', 'I2C'), (r'SPI_|MOSI|MISO|SCLK|_CS$', 'SPI'), (r'LINK_|UART|_TXD?$|_RXD?$', 'UART'),
+         (r'_D[PM]$|^USB', 'USB')]
+
+
+def link_groups(byref, block_of, outlines):
+    """{key: [kind, label, blocks]} for the nets that join two or more outlined blocks."""
+    power = {n for cls in NETCLASSES.values() for n in cls[4]} - {'+3V3'}
+    groups = {}
+    for ref, m in byref.items():
+        t = block_of.get(ref)
+        if t not in outlines:
+            continue
+        for pad in m.Pads():
+            net = pad.GetNetname()
+            name = net.split('/')[-1]
+            if not net or net.startswith('unconnected') or name in ('GND', '+3V3'):
+                continue
+            kind, key, label = 'signal', name, short(name)
+            if name in power:                  # a motor's + and - as one line
+                kind, label = 'power', re.sub(r'_[PN]$', '', name.lstrip('+'))
+                key = label
+            else:
+                for pattern, bus in BUSES:
+                    if re.search(pattern, name):
+                        kind, label = 'bus', bus
+                        key = bus if bus in ('SPI', 'UART') else re.sub(pattern, '', name) + bus
+                        break
+            groups.setdefault(key, [kind, label, set()])[2].add(t)
+    return {k: g for k, g in groups.items() if len(g[2]) > 1}
+
+
+def rect_gap(a, b):
+    return math.hypot(max(0, a[0] - b[2], b[0] - a[2]), max(0, a[1] - b[3], b[1] - a[3]))
+
+
+def link_edges(groups, outlines):
+    """Edges (a, b, kind, label): a minimum spanning tree per group; signals between the same two blocks merged."""
+    edges = {}
+    for kind, label, blocks in groups.values():
+        todo, done = set(blocks), set()
+        done.add(todo.pop())
+        while todo:
+            a, b = min(((a, b) for a in done for b in todo), key=lambda ab: rect_gap(outlines[ab[0]], outlines[ab[1]]))
+            todo.discard(b)
+            done.add(b)
+            pair = tuple(sorted((a, b)))
+            edges.setdefault((pair, kind, label if kind != 'signal' else ''), set()).add(label)
+    out = []
+    for (pair, kind, label), labels in edges.items():
+        if kind == 'signal':                   # merged signals: their common prefix (HX_DOUT, HX_SCK: HX), or none
+            heads = {lb.split('_')[0] for lb in labels}
+            label = labels.pop() if len(labels) == 1 else heads.pop() if len(heads) == 1 else ''
+        out.append((pair[0], pair[1], kind, label))
+    order = {'power': 0, 'bus': 1, 'signal': 2}
+    return sorted(out, key=lambda e: (order[e[2]], rect_gap(outlines[e[0]], outlines[e[1]])))
+
+
+def _clamp(p, rc):
+    return (min(max(p[0], rc[0]), rc[2]), min(max(p[1], rc[1]), rc[3]))
+
+
+def route_link(cost, used, ra, rb):
+    """Cheapest 4-connected path (turns and used cells cost extra) from just outside rect ra to just outside rb."""
+    import heapq
+    r, ny, nx = LINK_RES, cost.shape[0], cost.shape[1]
+
+    def ring(rc, d=0.375):
+        x0, y0, x1, y1 = rc
+        i0, i1 = int((x0 - d) / r), int((x1 + d) / r)
+        j0, j1 = int((y0 - d) / r), int((y1 + d) / r)
+        cells = set()
+        for i in range(i0, i1 + 1):
+            cells.add((j0, i))
+            cells.add((j1, i))
+        for j in range(j0, j1 + 1):
+            cells.add((j, i0))
+            cells.add((j, i1))
+        return {c for c in cells if 0 <= c[0] < ny and 0 <= c[1] < nx and cost[c] < 1e6}, (i0, j0, i1, j1)
+    starts, _ = ring(ra)
+    goals, (gx0, gy0, gx1, gy1) = ring(rb)
+    if not starts or not goals:
+        return None
+
+    def h(j, i):
+        return max(0, gx0 - i, i - gx1) + max(0, gy0 - j, j - gy1)
+    dist, prev, heap = {}, {}, []
+    for (j, i) in starts:
+        for d in range(4):
+            dist[(j, i, d)] = 0.0
+            heapq.heappush(heap, (h(j, i), 0.0, j, i, d))
+    steps = ((0, 1), (1, 0), (0, -1), (-1, 0))
+    end = None
+    while heap:
+        f, g, j, i, d = heapq.heappop(heap)
+        if g > dist.get((j, i, d), 1e18):
+            continue
+        if (j, i) in goals:
+            end = (j, i, d)
+            break
+        for nd, (dj, di) in enumerate(steps):
+            if nd == (d + 2) % 4:
+                continue
+            nj, ni = j + dj, i + di
+            if not (0 <= nj < ny and 0 <= ni < nx):
+                continue
+            c = float(cost[nj, ni])
+            if c >= 1e6:
+                continue
+            ng = g + c + USED_COST * float(used[nj, ni]) + (3.0 if nd != d else 0.0)
+            if ng < dist.get((nj, ni, nd), 1e18):
+                dist[(nj, ni, nd)] = ng
+                prev[(nj, ni, nd)] = (j, i, d)
+                heapq.heappush(heap, (ng + h(nj, ni), ng, nj, ni, nd))
+    if end is None:
+        return None
+    cells = [end]
+    while cells[-1] in prev:
+        cells.append(prev[cells[-1]])
+    cells.reverse()
+    pts = [((i + 0.5) * r, (j + 0.5) * r) for j, i, d in cells]
+    pts = [_clamp(pts[0], ra)] + pts + [_clamp(pts[-1], rb)]
+    simple = [pts[0]]                          # keep the corners only
+    for k in range(1, len(pts) - 1):
+        a, b, c = simple[-1], pts[k], pts[k + 1]
+        if abs((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])) > 1e-6:
+            simple.append(b)
+    simple.append(pts[-1])
+    return simple, [(j, i) for j, i, d in cells]
+
+
+def _seg(board, a, b, width):
+    s = pcbnew.PCB_SHAPE(board)
+    s.SetShape(pcbnew.SHAPE_T_SEGMENT)
+    s.SetLayer(pcbnew.F_SilkS)
+    s.SetWidth(mm(width))
+    s.SetStart(V(*a))
+    s.SetEnd(V(*b))
+    board.Add(s)
+
+
+def connection_lines(board, byref, block_of, outlines, obstacles, names):
+    """Draw the links on F.SilkS; returns the number of links that found no path."""
+    import numpy as np
+    r = LINK_RES
+    nx, ny = int(W / r), int(H / r)
+    cost = np.ones((ny, nx), dtype=np.float32)
+
+    def fill(rc, val, grow):
+        i0, i1 = max(0, math.ceil((rc[0] - grow) / r - 0.5)), min(nx, math.floor((rc[2] + grow) / r - 0.5) + 1)
+        j0, j1 = max(0, math.ceil((rc[1] - grow) / r - 0.5)), min(ny, math.floor((rc[3] + grow) / r - 0.5) + 1)
+        cost[j0:j1, i0:i1] = np.maximum(cost[j0:j1, i0:i1], val)
+    e = int(1.0 / r)
+    cost[:e, :] = 1e9
+    cost[-e:, :] = 1e9
+    cost[:, :e] = 1e9
+    cost[:, -e:] = 1e9
+    for rc in outlines.values():
+        fill(rc, BLOCK_COST, 0.15)
+    for rc in obstacles:
+        fill(rc, BLOCK_COST, 0.2)
+    used = np.zeros((ny, nx), dtype=np.float32)
+    for rc in names:                           # block names: no lines over them
+        fill(rc, BLOCK_COST, 0.1)
+
+    def window(mx, my, hw, hh):
+        return slice(max(0, int((my - hh) / r)), int((my + hh) / r) + 1), slice(max(0, int((mx - hw) / r)), int((mx + hw) / r) + 1)
+    failed = 0
+    for a, b, kind, label in link_edges(link_groups(byref, block_of, outlines), outlines):
+        res = route_link(cost, used, outlines[a], outlines[b])
+        if not res:
+            failed += 1
+            continue
+        pts, cells = res
+        k = 2 if kind == 'power' else 1
+        for j, i in cells:
+            used[max(0, j - k):j + k + 1, max(0, i - k):i + k + 1] += 1
+        segs = list(zip(pts, pts[1:]))
+        size = 0.9 if kind == 'power' else 0.8
+        tl = 0.75 * size * len(label) + 0.8 if label else 0
+        best = None                            # the label: where its box is the least crowded along the line
+        for q, (p0, p1) in enumerate(segs):
+            ln = math.dist(p0, p1)
+            if not label or ln < tl + 1.0:
+                continue
+            ux, uy = (p1[0] - p0[0]) / ln, (p1[1] - p0[1]) / ln
+            vert = abs(uy) > abs(ux)
+            hw, hh = (size / 2 + 0.3, tl / 2) if vert else (tl / 2, size / 2 + 0.3)
+            t = tl / 2 + 0.5
+            while t <= ln - tl / 2 - 0.5 + 1e-6:
+                mx, my = p0[0] + ux * t, p0[1] + uy * t
+                w_ = window(mx, my, hw, hh)
+                score = float(used[w_].sum()) + 20.0 * float((cost[w_] > 1).sum()) + 0.02 * abs(t - ln / 2)
+                if best is None or score < best[0]:
+                    best = (score, q, t, mx, my, ux, uy, vert, hw, hh)
+                t += 0.5
+        for q, (p0, p1) in enumerate(segs):
+            if best and q == best[1]:
+                _, _, t, mx, my, ux, uy, vert, hw, hh = best
+                _seg(board, p0, (mx - ux * tl / 2, my - uy * tl / 2), LINK_WIDTH[kind])
+                _seg(board, (mx + ux * tl / 2, my + uy * tl / 2), p1, LINK_WIDTH[kind])
+                silk(board, label, mx, my, size=size, angle=90 if vert else 0)
+                used[window(mx, my, hw, hh)] += 3
+            elif math.dist(p0, p1) > 0.01:
+                _seg(board, p0, p1, LINK_WIDTH[kind])
+    return failed
 
 # ---------------------------------------------------------------------------------------------------------------
 # silkscreen: no references; parts that matter carry a label (function, type or net), connectors their pin names
@@ -407,6 +715,15 @@ def short(net):
     return n
 
 
+# short IC labels (no package and grade suffixes): (value regex, label); single-gate logic is BUF
+IC_LABELS = [(r'74\w*1G(34|125)', 'BUF'), (r'ADS1115', 'ADS1115'), (r'AP63205', 'AP63205'), (r'AS5600', 'AS5600'),
+             (r'BQ25792', 'BQ25792'), (r'BQ77915', 'BQ77915'), (r'HUSB238', 'HUSB238'), (r'INA226', 'INA226'),
+             (r'ITR20001', 'ITR20001'), (r'LM393', 'LM393'), (r'LSM6DS3', 'LSM6DS3'), (r'MCP23017', 'MCP23017'),
+             (r'MCP3008', 'MCP3008'), (r'PCA9685', 'PCA9685'), (r'TB6612', 'TB6612'), (r'TCA9548', 'TCA9548'),
+             (r'TPS25947', 'TPS25947'), (r'TPS54331', 'TPS54331'), (r'USBLC6', 'USBLC6'), (r'VEML7700', 'VEML7700'),
+             (r'VL53L7CX', 'VL53L7CX'), (r'WF100DP', 'WF100DP')]
+
+
 def part_label(m, value, fpname):
     """The silkscreen label of a part (None: none)."""
     prefix = re.match(r'[A-Z]+', m.GetReference()).group()
@@ -419,7 +736,11 @@ def part_label(m, value, fpname):
     if prefix == 'U':
         if value.startswith('ESP32'):
             return 'ESP32-C5 ' + value.split()[-1]
-        return value.split()[0]
+        v = value.split()[0]
+        for pattern, label in IC_LABELS:
+            if re.match(pattern, v):
+                return label
+        return v
     if prefix in ('J', 'SW', 'JP'):
         return value
     if prefix == 'BZ':
@@ -589,9 +910,16 @@ def main():
 
     servo_rows = {resolve(k) for bank in SERVO_BANKS for k in bank[1:]}
     tft_ref = resolve('J=TFT')
-    for ref, m in byref.items():
+    block_of = {m.GetReference(): title for title, ms in blocks.items() for m in ms}
+    ic_seen = set()                        # identical ICs in one block: only the first one is labelled
+    for ref, m in sorted(byref.items(), key=lambda kv: (re.sub(r'\d', '', kv[0]), int(re.sub(r'\D', '', kv[0]) or 0))):
         fpname = m.GetFPID().GetLibItemName().wx_str()
         text = None if ref in servo_rows or ref == tft_ref else part_label(m, m.GetValue(), fpname)
+        if text and ref.startswith('U') and not text.startswith('ESP32'):
+            key = (block_of.get(ref), m.GetValue())
+            if key in ic_seen:
+                text = None
+            ic_seen.add(key)
         if ref.startswith('H') and 'Banana' in fpname:
             text = 'GND'
         if text:
@@ -650,12 +978,17 @@ def main():
             grid.mark(x0 - BLOCK_GAP / 2, y0 - BLOCK_GAP / 2, x1 + BLOCK_GAP / 2, y1 + BLOCK_GAP / 2)
     tx, ty = TFT_PIN1
     x0, y0, x1, y1 = TFT_OUTLINE
+    tft_area = (tx + x0, ty + y0, tx + x1, ty + y1)
 
     # blocks: packed in their regions, then fenced off (BLOCK_GAP) and outlined on the silkscreen
     edge_refs = {resolve(k[0] if isinstance(k, tuple) else k) for spec in EDGE_ROWS for k in spec[0]} | servo_rows
     def area(ms):
         return sum((b[2] - b[0] + 1) * (b[3] - b[1] + 1) for b in (box(m) for m in ms if m.GetReference() not in placed))
-    for title, ms in sorted(blocks.items(), key=lambda kv: -area(kv[1])):     # large blocks first
+    def order(kv):                         # the FIRST blocks in that order (tied to their edge parts), then large first
+        hit = [i for i, f in enumerate(FIRST) if kv[0].startswith(f)]
+        return (hit[0] if hit else len(FIRST), -area(kv[1]))
+    outlines, names = {}, []
+    for title, ms in sorted(blocks.items(), key=order):
         r, name = region(title)
         free = [m for m in ms if m.GetReference() not in placed]
         if free:
@@ -665,9 +998,11 @@ def main():
             if r is None:
                 problems.append('no region for block "%s": %s' % (title, ' '.join(m.GetReference() for m in free)))
                 continue
-            over = cluster(grid, free, r)
-            if over:
-                problems.append('block "%s": outside its region' % title[:40])
+            d = cluster(grid, free, r, tft_area if title.startswith(UNCOVERED) else None)
+            if d is None:
+                problems.append('NO ROOM for block "%s"' % title[:40])
+            elif d > 12:
+                problems.append('block "%s": %.0f mm from its spot' % (title[:40], d))
         # outline: the cluster, with the block's fixed parts that are next to it (an ESP32 module, not a far sensor)
         if not free or not name:
             continue
@@ -678,9 +1013,18 @@ def main():
                 b = box(m)
                 if max(b[0] - bx[2], bx[0] - b[2], b[1] - bx[3], bx[1] - b[3]) < 8:
                     bx = [min(bx[0], b[0]), min(bx[1], b[1]), max(bx[2], b[2]), max(bx[3], b[3])]
-        bx = (bx[0] - 1, bx[1] - 1, bx[2] + 1, bx[3] + 1)
+        bx = (bx[0] - OUTLINE, bx[1] - OUTLINE, bx[2] + OUTLINE, bx[3] + OUTLINE)
         rect(*bx, pcbnew.F_SilkS, 0.15)
-        silk(board, name, bx[0] + 0.5, bx[1] - 1.1, size=1.2, justify=1)
+        outlines[title] = bx
+        size = min(1.0, (bx[2] - bx[0] - 0.3) / (0.85 * len(name)))      # names no wider than their block
+        size = max(size, 0.8)               # the minimum text height
+        silk(board, name, bx[0] + 0.3, bx[1] - 0.9, size=size, justify=1)
+        names.append((bx[0], bx[1] - 0.9 - size / 2 - 0.2, bx[0] + 0.3 + 0.8 * size * len(name), bx[1]))
+
+    obstacles = [box(byref[r]) for r in placed if not byref[r].IsFlipped()]
+    failed = connection_lines(board, byref, block_of, outlines, obstacles, names)
+    if failed:
+        problems.append('%d connection lines found no path' % failed)
 
     # servo bank labels, TFT module outline (low parts only under it), credits
     for text, x, y, angle in servo_text:
