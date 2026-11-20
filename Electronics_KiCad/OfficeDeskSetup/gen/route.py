@@ -140,7 +140,7 @@ def route(board, args, name, closed, passes, keep=None):
             os.remove(ses)
         t0 = time.time()
         cmd = [args.java, '-jar', args.freerouting] if args.freerouting.endswith('.jar') else [args.freerouting]
-        subprocess.run(cmd + ['-de', dsn, '-do', ses, '-mp', str(passes), '-mt', str(args.threads)], check=True)
+        subprocess.run(cmd + ['-de', dsn, '-do', ses, '-mp', str(passes), '-mt', str(args.threads)] + args.fr, check=True)
         print('%s: routed in %.0f s' % (name, time.time() - t0), flush=True)
     if not os.path.exists(ses) or not pcbnew.ImportSpecctraSES(board, ses):
         sys.exit('SES import failed')
@@ -259,6 +259,8 @@ def stage1(args, pcb):
         for t in board.GetTracks():
             t.SetLocked(True)
         save(board, os.path.join(args.work, 'stage0.kicad_pcb'), pro(pcb))
+        if args.stage0_only:
+            return
     route(board, args, PROJECT, closed, args.passes)
     for t in board.GetTracks():
         t.SetLocked(True)
@@ -472,6 +474,10 @@ def main():
     ap.add_argument('--passes0', type=int, default=1, help='stage 0 (power nets alone)')
     ap.add_argument('--stubs', action=argparse.BooleanOptionalAction, default=True,
                     help='narrowing stubs on power pins too fine for a full-width track (planevias.stubs)')
+    ap.add_argument('--stage0-only', action='store_true',
+                    help='stop after stage 0 (work dir stage0.kicad_pcb; the board itself is left alone)')
+    ap.add_argument('--fr', action='append', default=[], metavar='ARG',
+                    help='extra Freerouting argument, e.g. --fr=--router.automatic_neckdown=true (repeatable)')
     ap.add_argument('--passes', type=int, default=3, help='stage 1 (Freerouting 2.5.0: use 1, see above)')
     ap.add_argument('--passes2', type=int, default=3, help='stage 2')
     ap.add_argument('--passes3', type=int, default=3, help='stage 3 (power nets, narrow)')
@@ -493,7 +499,7 @@ def main():
         globals()[args.step](args, pcb)
         return
     # each step in its own process: after an SES import, pcbnew's SWIG objects come back untyped
-    for step in STEPS:
+    for step in STEPS[:1] if args.stage0_only else STEPS:
         subprocess.run([sys.executable, os.path.abspath(__file__)] + sys.argv[1:] + ['--step', step], check=True)
 
 
