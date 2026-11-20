@@ -245,6 +245,13 @@ def stage1(args, pcb):
     planes = sorted({z.GetLayer() for z in zones(board)})
     vias, missed = planevias.fanout(board, {z.GetNetname() for z in zones(board)})
     print('plane vias: %d; SMD pads without one: %s' % (vias, ' '.join(missed) or 'none'), flush=True)
+    if args.stubs:                                     # power pins too fine for a full-width track
+        power = power_nets(board)
+        ns = board.GetDesignSettings().m_NetSettings
+        widths = {code: pcbnew.ToMM(ns.GetEffectiveNetClass(n.GetNetname()).GetTrackWidth())
+                  for code, n in board.GetNetsByNetcode().items() if n.GetNetname().split('/')[-1] in power}
+        n, missed = planevias.stubs(board, widths)
+        print('narrowing stubs: %d; fine-pitch power pads without one: %s' % (n, ' '.join(missed) or 'none'), flush=True)
     closed = [board.GetLayerName(l) for l in planes]
     if args.power_first:                               # stage 0: the power nets alone, then locked
         power = power_nets(board)
@@ -463,6 +470,8 @@ def main():
     ap.add_argument('--power-first', action=argparse.BooleanOptionalAction, default=True,
                     help='stage 0: route the power nets alone first (default; 33 open against 37 on rev 0.2)')
     ap.add_argument('--passes0', type=int, default=1, help='stage 0 (power nets alone)')
+    ap.add_argument('--stubs', action=argparse.BooleanOptionalAction, default=True,
+                    help='narrowing stubs on power pins too fine for a full-width track (planevias.stubs)')
     ap.add_argument('--passes', type=int, default=3, help='stage 1 (Freerouting 2.5.0: use 1, see above)')
     ap.add_argument('--passes2', type=int, default=3, help='stage 2')
     ap.add_argument('--passes3', type=int, default=3, help='stage 3 (power nets, narrow)')

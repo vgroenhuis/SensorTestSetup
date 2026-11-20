@@ -163,6 +163,75 @@ def fanout(board, nets, d=0.6, drill=0.3, width=0.3, clr=0.2, edge=1.0):
     return vias, missed
 
 
+def stubs(board, widths, clr=0.2, edge=1.0, longest=3.0):
+    """Narrowing stubs: Freerouting has one track width per net class, and a 1 mm power track cannot reach a pin with
+    0.4-0.65 mm pitch neighbours. Every SMD pad on a net of `widths` ({net code: track width mm}) where a track of
+    that width would not fit gets a short track of the pad's own width, straight out of the pin row (or another
+    way when that is blocked), just long enough for a full-width track to end on it. Returns (stubs, pads that got
+    none, as 'U6.22')."""
+    cu = Copper(board)
+    n, missed = 0, []
+    for fp in board.GetFootprints():
+        fc = fp.GetPosition()
+        for p in fp.Pads():
+            code = p.GetNetCode()
+            if code not in widths or p.GetAttribute() not in (pcbnew.PAD_ATTRIB_SMD, pcbnew.PAD_ATTRIB_CONN):
+                continue
+            full = widths[code]
+            layer = pcbnew.B_Cu if p.IsOnLayer(pcbnew.B_Cu) and not p.IsOnLayer(pcbnew.F_Cu) else pcbnew.F_Cu
+            px, py = pcbnew.ToMM(p.GetPosition().x), pcbnew.ToMM(p.GetPosition().y)
+            bb = p.GetBoundingBox()
+            w, h = pcbnew.ToMM(bb.GetWidth()), pcbnew.ToMM(bb.GetHeight())
+            if cu.free(disc(px, py, full), px, py, full / 2, code, (layer,), clr, None, holes=False):
+                continue                                    # a full-width track fits on the pad itself
+            ox, oy = px - pcbnew.ToMM(fc.x), py - pcbnew.ToMM(fc.y)
+            if h > w * 1.2:                                 # a pin row: out along the pad's long side
+                dirs = [(0, 1 if oy >= 0 else -1)]
+            elif w > h * 1.2:
+                dirs = [(1 if ox >= 0 else -1, 0)]
+            else:
+                dirs = [(1 if ox >= 0 else -1, 0) if abs(ox) >= abs(oy) else (0, 1 if oy >= 0 else -1)]
+            dirs += [d for d in ((1, 0), (-1, 0), (0, 1), (0, -1)) if d not in dirs]
+            done = False
+            # no wider than the pad across it, so inside the pin row the pad covers the stub; first the whole stub
+            # must clear, then (strict False) only the part beyond the pad, for footprints that are tighter than the
+            # rules themselves (TPS25947 bars: 0.19 mm)
+            tight = not cu.free(p.GetEffectiveShape(layer), px, py, max(w, h) / 2, code, (layer,), clr, None, holes=False)
+            tries = [(strict, sw, d) for strict in ((True, False) if tight else (True,)) for d in dirs
+                     for sw in sorted({max(0.15, min(full, h if d[0] else w, 0.6)), max(0.15, min(0.25, h if d[0] else w))},
+                                      reverse=True)]
+            for strict, sw, (ux, uy) in tries:
+                half = (w if ux else h) / 2
+                off = 0 if strict else half + sw / 2
+                bx, by = px + ux * off, py + uy * off
+                s = half + 0.3
+                while s <= half + longest and not done:
+                    ex, ey = px + ux * s, py + uy * s
+                    seg = pcbnew.SHAPE_SEGMENT(p.GetPosition(), pcbnew.VECTOR2I(mm(ex), mm(ey)), mm(sw))
+                    out = pcbnew.SHAPE_SEGMENT(pcbnew.VECTOR2I(mm(bx), mm(by)), pcbnew.VECTOR2I(mm(ex), mm(ey)), mm(sw))
+                    if not cu.free(out, (bx + ex) / 2, (by + ey) / 2, s / 2 + sw, code, (layer,), clr, edge, holes=False):
+                        break                               # the stub itself runs into something: next direction
+                    if cu.free(disc(ex, ey, full), ex, ey, full / 2, code, (layer,), clr, edge, holes=False):
+                        t = pcbnew.PCB_TRACK(board)
+                        t.SetStart(p.GetPosition())
+                        t.SetEnd(pcbnew.VECTOR2I(mm(ex), mm(ey)))
+                        t.SetWidth(mm(sw))
+                        t.SetLayer(layer)
+                        t.SetNet(p.GetNet())
+                        t.SetLocked(True)
+                        board.Add(t)
+                        cu.keep.append(seg)
+                        cu.add(seg, code, (layer,))
+                        n += 1
+                        done = True
+                    s += 0.1
+                if done:
+                    break
+            if not done:
+                missed.append('%s.%s' % (fp.GetReference(), p.GetNumber()))
+    return n, missed
+
+
 def stitch(board, net, pitch=5.0, d=0.6, drill=0.3, clr=0.3, edge=1.5):
     """GND vias on a `pitch` mm grid wherever they clear everything else."""
     cu = Copper(board)

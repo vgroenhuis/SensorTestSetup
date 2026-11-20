@@ -249,7 +249,13 @@ About 50–60 minutes (200 × 150 mm) to 70 minutes (270 × 200 mm). The work fi
 1. **Plane vias** (`gen/planevias.py`): Freerouting treats a plane's net as connected by the plane and never adds
    the vias from SMD pads down to it, so every SMD pad on GND or +3V3 first gets one: a 0.6/0.3 mm via beside the
    pad with a 0.3 mm track, outwards from the part, or up to 3 × 3 vias inside an exposed pad. Placed with KiCad's
-   own shape collision tests (470 vias). 9 fine-pitch pads get none: U38.3/5/6/8/12, U22.A7/C7, U8.8, U13.8.
+   own shape collision tests (473 vias). The fine-pitch pads of U39, U23 and the TPS25947 GND pins get none.
+   **Narrowing stubs** (`planevias.stubs`, the default; `--no-stubs` skips them): Freerouting has one track width
+   per class, so a 1 mm power track cannot end on a pin with 0.4–0.65 mm pitch neighbours. Every SMD power pad where
+   a full-width track does not fit gets a locked track no wider than the pad (at most 0.6 mm), straight out of the
+   pin row, just long enough for a full-width track to end on it: 41 stubs. Only footprints that are themselves
+   below the 0.2 mm clearance (TPS25947) may have a stub that clears beyond the pad only. None for U8.6, U9.6,
+   U14.6 (boxed in by pins 7 and 10) and U6.9 (0.175 mm from pin 10).
 2. **Stage 0** (power first, the default; `--no-power-first` skips it): only the power nets (Power and Supply
    classes, without the plane nets GND and +3V3) on F.Cu and B.Cu, 1 pass; every other net keeps one pin in the
    DSN, so its pads are obstacles but there is nothing to connect. The tracks are locked for the next stages, so
@@ -284,33 +290,34 @@ is routed, because a via grid is in the way of routing by hand:
 Each step runs in its own Python process: after a session import, pcbnew's SWIG objects come back untyped. The
 project file is left exactly as it was (SaveBoard rewrites it).
 
-Result for rev 0.2 (200 × 150 mm, 2026-11-20, SNAPSHOT 2026-11-19, power first, 3 passes per stage; 3792 tracks,
-15.3 m, 1004 vias):
+Result for rev 0.2 (200 × 150 mm, 2026-11-20, SNAPSHOT 2026-11-19, power first with stubs, 3 passes per stage;
+3871 tracks, 15.4 m, 997 vias):
 
-* **34 unconnected items** (all at once: 39; the same design on 270 × 200 mm: 20). Power: V_BUS, CHG_VBUS, BAT_P
-  3 each; VBUS_PROG, VBUS_SW 2 each; CHG_ACDRV1, VBUS_PD, V_DXL, CHG_SW1, CHG_SW2, CHG_SYS, DC_12V, +3V3 1 each.
-  Signals: MUX4_SCL 2; USB_UP_DP, PD_DM, I2C_SCL, I2C_SDA, BQ_TS, BQ_PRES, BQ_LD, PCA_OE, DC_OVCSEL, CHG_CE,
-  CHG_PROG 1 each. These are left for routing by hand.
+* **27 unconnected items** (power first without stubs: 34; all at once: 39; the same design on 270 × 200 mm: 20).
+  Power: BAT_P 4; VBUS_PROG, VBUS_SW, CHG_SYS, CHG_VBUS 2 each; +3V3, VBUS_PD, V_DXL, CHG_SW1, CHG_PMID 1 each,
+  nearly all at the BQ25792 (U6) and the eFuses. Signals: BQ_TS 2; MUX7_SDA, I2C2_SDA, MOT_AIN1, MOT_BIN1,
+  CHG_PROG, BQ_CHG, BQ_VC2, BQ_LD 1 each. These are left for routing by hand.
 * Connections routed per stage (`gen/routestats.py`; a net with n pads has n − 1 connections; GND and +3V3 left
   out, the planes connect them):
 
-  | stage | all at once: power | signal | open | power first: power | signal | open |
-  |---|---|---|---|---|---|---|
-  | 0: power alone | – | – | – | 169 / 199 | 0 / 432 | 462 |
-  | 1: all, outer layers | 165 / 199 | 402 / 432 | 64 | 178 / 199 | 394 / 432 | 59 |
-  | 2: planes open | 173 / 199 | 431 / 432 | 27 | 179 / 199 | 422 / 432 | 30 |
-  | 3: power narrow | 176 / 199 | 431 / 432 | 24 | 183 / 199 | 423 / 432 | 25 |
-  | prune: plane rules | 171 / 199 | 408 / 432 | 52 | 178 / 199 | 410 / 432 | 43 |
-  | 4: leftovers, outer layers | 172 / 199 | 428 / 432 | 31 | 182 / 199 | 423 / 432 | 26 |
-  | finish: cleanup, pours | 171 / 199 | 423 / 432 | 37 | 180 / 199 | 418 / 432 | 33 |
+  | stage | all at once: power | signal | open | power first: power | signal | open | + stubs: power | signal | open |
+  |---|---|---|---|---|---|---|---|---|---|
+  | 0: power alone | – | – | – | 169 / 199 | 0 / 432 | 462 | 173 / 199 | 0 / 432 | 458 |
+  | 1: all, outer layers | 165 / 199 | 402 / 432 | 64 | 178 / 199 | 394 / 432 | 59 | 178 / 199 | 400 / 432 | 53 |
+  | 2: planes open | 173 / 199 | 431 / 432 | 27 | 179 / 199 | 422 / 432 | 30 | 178 / 199 | 426 / 432 | 27 |
+  | 3: power narrow | 176 / 199 | 431 / 432 | 24 | 183 / 199 | 423 / 432 | 25 | 186 / 199 | 426 / 432 | 19 |
+  | prune: plane rules | 171 / 199 | 408 / 432 | 52 | 178 / 199 | 410 / 432 | 43 | 182 / 199 | 411 / 432 | 38 |
+  | 4: leftovers, outer layers | 172 / 199 | 428 / 432 | 31 | 182 / 199 | 423 / 432 | 26 | 183 / 199 | 424 / 432 | 24 |
+  | finish: cleanup, pours | 171 / 199 | 423 / 432 | 37 | 180 / 199 | 418 / 432 | 33 | 183 / 199 | 422 / 432 | 26 |
 
-  Power first leaves 9 fewer power connections open and 5 more signal ones. Finish loses a few connections in
-  both runs (its cleanup removes tracks that it takes for loose ends): worth a look.
+  Power first leaves 9 fewer power connections open and 5 more signal ones; the stubs add 3 power and 4 signal
+  connections at the end. In stage 0 the stubs gain only 4: 16 of the 26 still open there are around U6, where the
+  stubs end but 1 mm tracks find no room between them (BAT_P on U6.22/23, CHG_VBUS on U6.2/3). Finish loses a few
+  connections in every run (its cleanup removes tracks that it takes for loose ends): worth a look.
 * 17 nets keep a track through a plane; 6 lost theirs to the plane rules and went to stage 4.
 * Other DRC errors: 15 clearance errors inside the three TPS25947 footprints (pad pitch below 0.15 mm clearance, as
-  drawn by TI); a track and the pads at the SK6812MINI-E cutout (**move that track**); 2 dangling CHG_VBUS stubs;
-  2 track-width necks on CHG_BTST1; the WF100DPZ courtyards; the servo courtyards; 6 starved thermals. A zero-length
-  I2C2_SCL track on an I2C2_SDA track (a DRC crossing) was removed by hand. Schematic parity: no differences.
+  drawn by TI); a DXL_EN track and the pads at the SK6812MINI-E cutout (**move that track**); 2 dangling SPI_MOSI
+  stubs; the WF100DPZ courtyards; the servo courtyards; 7 starved thermals. Schematic parity: no differences.
 * Earlier attempts: letting Freerouting use all four layers left 136 connections open but put 11 m of signal track
   through the planes; routing +3V3 as tracks (In2 as a signal layer) left 241–276 open.
 
