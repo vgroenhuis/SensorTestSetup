@@ -788,13 +788,14 @@ def sensors(d, X):
     R(b, '10k', 'LDR_AO', 'GND')
 
     b = sh.block('MH sensor module socket')
-    conn(b, 'MH module', ['MH_VCC', 'GND', 'MH_DO_CONN', 'MH_AO_CONN'], socket(4))
+    conn(b, 'MH module', ['MH_AO_CONN', 'MH_DO_CONN', 'GND', 'MH_VCC'], socket(4))     # reversed: the module
+                                                                                     # faces out at the right edge
     b.ic('Jumper:SolderJumper_3_Bridged12', 'JP', 'MH VCC', {'1': '+3V3', '2': 'MH_VCC', '3': '+5V'}, fields=fields(FP['JP3']))
     b.col()
     R(b, '10k', 'MH_DO_CONN', 'MH_DO')
     R(b, '10k', 'MH_AO_CONN', 'MH_AO')
     R(b, '20k', 'MH_AO', 'GND', dnp=True)
-    b.note('Pins: VCC GND DO AO. 3.3 V by default.\nWith VCC at 5 V: fit the 20k (AO divided to 3.3 V);\nDO is limited by its 10k.')
+    b.note('Module pins VCC GND DO AO (socket pins 4-1).\n3.3 V by default.\nWith VCC at 5 V: fit the 20k (AO divided to 3.3 V);\nDO is limited by its 10k.')
 
     b = sh.block('IR reflective sensor ITR20001/T + LM393')
     b.ic(X['ITR20001'], 'U', 'ITR20001/T', {'A': 'IR_LED_A', 'K': 'GND', 'C': 'IR_AO', 'E': 'GND'}, fields=fields(FP['ITR20001'], 'C264269'))
@@ -825,8 +826,11 @@ def sensors(d, X):
     for i in range(4):
         C(b, '10nF', 'A16_%d' % i)
     b.col()
-    for i in range(4):
-        conn(b, 'AIN %d (16 bit)' % i, ['GND', '+3V3', 'A16_%d_CONN' % i], header(3))
+    # one 3x4 bank of 1x4 headers at the right edge (like the servo banks): signal, +3V3, GND rows; a 3-pin plug
+    # spans the three rows
+    conn(b, 'AIN 0-3 SIG', ['A16_%d_CONN' % i for i in range(4)], header(4), flow=True)
+    conn(b, 'AIN 0-3 3V3', ['+3V3'] * 4, header(4), flow=True)
+    conn(b, 'AIN 0-3 GND', ['GND'] * 4, header(4), flow=True)
 
     b = sh.block('IMU LSM6DS3TR-C (0x6A)')
     b.ic('Sensor_Motion:LSM6DS3', 'U', 'LSM6DS3TR-C',
@@ -870,7 +874,8 @@ def sensors(d, X):
     b.note('Pins: E+ E- A+ A-. The on-chip regulator is not\nused: excitation = filtered 3.3 V. RATE jumper:\nGND = 10 Hz (default), 3.3 V = 80 Hz.')
 
     b = sh.block('HC-SR04 ultrasonic (5 V, ECHO level-shifted)')
-    conn(b, 'HC-SR04', ['+5V', 'US_TRIG_CONN', 'US_ECHO_5V', 'GND'], socket(4))
+    conn(b, 'HC-SR04', ['GND', 'US_ECHO_5V', 'US_TRIG_CONN', '+5V'], socket(4))      # reversed: the module
+                                                                                     # faces out at the right edge
     b.col()
     b.ic('74xGxx:74LVC1G34', 'U', '74LVC1G34GW', {'1': NC, '2': 'US_ECHO_5V', '4': 'US_ECHO', '5': '+3V3', '3': 'GND'},
          fields=fields(FP['SOT353'], 'C52140426'))
@@ -878,7 +883,7 @@ def sensors(d, X):
     R(b, '100k', 'US_ECHO_5V', 'GND')
     C(b, '100nF', '+3V3')
     C(b, '10uF 16V', '+5V')
-    b.note('Pins: VCC TRIG ECHO GND.')
+    b.note('Module pins VCC TRIG ECHO GND (socket pins 4-1).')
 
 
 ROOT_NOTES = """SensorTestSetup PCB, schematic revision %s: after Electronics_KiCad/PCB_SPEC.md (draft 0.7).

@@ -59,32 +59,39 @@ DASH_MARK = 0.1501           # outline width while building, to find the outline
 # `start` (mm along the edge; None: after the previous row on that edge) with `gap` between courtyards, or at a fixed
 # `pitch`. A key may be (key, rotation) to override the row's rotation. Rotations put mouths and wire entries outwards.
 SCREW = 180                  # Phoenix MKDS horizontal: wire entries at +y, so 180 on the rear edge
+HC_END = 141.8               # the HC-SR04 socket and its name end here, above the corner hole (start ('end', y))
+MODULE_HALF = {'J=MH module': 7.0, 'J=HC-SR04': 22.5}     # half widths of the plugged modules along the edge
 EDGE_ROWS = [
     # rear edge (y = 0): USB-C PD and PROG, 12 V jack, power switch, GND banana hole, power terminals, motors
-    (['J=USB-C POWER', 'J=USB-C PROG'], 'top', 11, 2, 180),
+    (['J=USB-C POWER', 'J=USB-C PROG'], 'top', 8.5, 2, 180),
     (['J=DC 12V'], 'top', None, 1.5, 270),
     (['SW=POWER'], 'top', None, 1.0, 0),
     (['H=GND banana'], 'top', None, 1.0, 0),
-    (['J=V_BUS', 'J=V_SERVO', 'J=5V', 'J=3V3', ('J=POWER', 0)], 'top', None, 1.0, SCREW),
-    ([('J=MOTOR A@Terminal', SCREW), 'J=MOTOR A@PH', ('J=MOTOR B@Terminal', SCREW), 'J=MOTOR B@PH'], 'top', None, 1.0, 0),
+    (['J=V_BUS', 'J=V_SERVO', 'J=5V', 'J=3V3', ('J=POWER', 0)], 'top', None, 0.5, SCREW),
+    ([('J=MOTOR A@Terminal', SCREW), 'J=MOTOR A@PH', ('J=MOTOR B@Terminal', SCREW), 'J=MOTOR B@PH'], 'top', None, 0.5, 0),
     # left edge (x = 0): Qwiic (main bus x2, TCA9548 ch 2-7, ToF bus) and the two pressure sensors
     (['J=Qwiic main 1', 'J=Qwiic main 2'] + ['J=Qwiic ch %d' % i for i in range(2, 8)] + ['J=Qwiic io'], 'left', 13, 0.8, 270),
     (['U=WF100DPZ 10BG S6 DT#1', 'U=WF100DPZ 10BG S6 DT#2'], 'left', None, 1.0, 0),
-    # right edge (x = W): servo banks (SERVO_BANKS), PWM 9-15, Dynamixel, 16-bit analog inputs
-    (['J=PWM 9-15', 'J=DXL 1', 'J=DXL 2'], 'right', 44, 1.5, 0),
-    (['J=AIN %d (16 bit)' % i for i in range(4)], 'right', None, 0.6, 90),
-    # front edge (y = H): toggles, buttons (15 mm pitch: room for 12 mm caps), pots; ultrasonic, MH module, 10-bit
-    # analog input and load cell at the right
+    # right edge (x = W): servo banks and the 16-bit analog inputs (BANKS), PWM 9-15, Dynamixel; the MH and HC-SR04
+    # sockets, their modules facing out (the HC-SR04 board, 45 mm wide, stands over the edge from y 110 to past
+    # the front edge: nothing tall at the edge there; the MH module, about 14 mm wide, lies flat over the edge)
+    (['BANK SERVO 0-3', 'BANK SERVO 4-7', 'J=PWM 9-15', 'J=DXL 1', 'J=DXL 2', 'BANK AIN 0-3', 'J=MH module'],
+     'right', 10.8, 0.5, 0),
+    (['J=HC-SR04'], 'right', ('end', HC_END), 0, 0),
+    # front edge (y = H): toggles, buttons (15 mm pitch: room for 12 mm caps), pots; 10-bit analog input and load
+    # cell at the right
     (['SW=TOGGLE0', 'SW=TOGGLE1'], 'bottom', 8, 2.0, 0),
     (['SW=BTN%d' % i for i in range(4)], 'bottom', None, 0, 0, 15),
     (['RV=10k@RK09#%d' % i for i in range(1, 5)], 'bottom', None, 1.0, 0),
-    (['J=HC-SR04', 'J=MH module', ('J=AIN 7 (10 bit)', 0), ('J=LOAD CELL', 0)], 'bottom', None, 1.5, 0),
+    (['J=AIN 7 (10 bit)', 'J=LOAD CELL'], 'bottom', None, 1.5, 0),
 ]
-# servo outputs: two banks of 4 at the right edge, three 1x4 rows each (GND outside, V+, signal inside); pin 1 of the
-# first bank at y = SERVO_Y, the second bank SERVO_BANK further
-SERVO_BANKS = [('SERVO 0-3', 'J=SERVO 0-3 SIG', 'J=SERVO 0-3 V+', 'J=SERVO 0-3 GND'),
-               ('SERVO 4-7', 'J=SERVO 4-7 SIG', 'J=SERVO 4-7 V+', 'J=SERVO 4-7 GND')]
-SERVO_Y, SERVO_BANK = 12.0, 16.0
+# banks of 3-pin plugs at the right edge ('BANK name' in its edge row): three 1x4 rows each (GND outside, V+, signal
+# inside), as name -> (SIG, V+, GND, first channel number, 'S + G' heading above it): two servo banks, the 16-bit
+# analog inputs (V+ = 3.3 V)
+BANKS = {'SERVO 0-3': ('J=SERVO 0-3 SIG', 'J=SERVO 0-3 V+', 'J=SERVO 0-3 GND', 0, True),
+         'SERVO 4-7': ('J=SERVO 4-7 SIG', 'J=SERVO 4-7 V+', 'J=SERVO 4-7 GND', 4, False),
+         'AIN 0-3': ('J=AIN 0-3 SIG', 'J=AIN 0-3 3V3', 'J=AIN 0-3 GND', 0, True)}
+BANK_GAP = 0.0               # extra space after a bank
 # TFT module (ZhongJingYuan 2.4" ST7789): pin 1 of its 8-pin socket, and its holes and outline relative to pin 1
 # (from the module's footprint in mamri/PCBs/Mamri UI V5); the module lies to the left of the socket
 TFT_PIN1 = (134.0, 99.0)
@@ -119,6 +126,9 @@ NETCLASSES = {
 # low-current supplies stay in the Default class (0.2 mm): CHG_REGN (BQ25792 gate-drive LDO, tens of mA), HUB_3V3
 # (CH334R LDO), AHT_VDD (330 R in series), BQ_VDD (1 k in series), VBUS_EN_SW (1 M pull-downs), HX_AVDD (HX711 and
 # the load cell bridge), MH_VCC (MH sensor module)
+# net class colours in pcbnew: with the Appearance panel's net colours on 'Ratsnest' (KiCad's default), the open
+# connections of these classes stand out
+CLASS_COLORS = {'Pack': 'rgba(255, 40, 40, 1.000)', 'Power': 'rgba(255, 150, 0, 1.000)', 'Supply': 'rgba(255, 230, 0, 1.000)'}
 PLANES = {'In1.Cu': 'GND', 'In2.Cu': '+3V3'}   # signals route on F.Cu and B.Cu (GND pours after routing), with only
                                                 # a few short hops through the planes (gen/route.py)
 MIN_TRACK = 0.15               # Freerouting necks down to 0.15 mm at fine-pitch pins; JLCPCB does 0.1 mm
@@ -167,11 +177,11 @@ FLOORPLAN = [
     ('VL53L7CX', 152, 110, 'TOF'),
     ('V_DXL', 176, 72, 'V_DXL'),
     ('Dynamixel', 178, 86, 'DYNAMIXEL'),
-    ('ADS1115', 176, 110, 'ADC ADS1115'),
-    ('HX711', 182, 128, 'LOAD CELL'),
+    ('ADS1115', 180, 90, 'ADC ADS1115'),
+    ('HX711', 168, 132, 'LOAD CELL'),
     ('IR reflective', 155, 126, 'IR SENSOR'),
-    ('HC-SR04', 148, 134, 'HC-SR04'),
-    ('MH sensor', 163, 134, 'MH MODULE'),
+    ('HC-SR04', 184, 126, 'HC-SR04'),
+    ('MH sensor', 183, 106, 'MH MODULE'),
 ]
 
 
@@ -251,12 +261,20 @@ def put(m, x, y, rot=0, side='F', align=None):
     m.SetPosition(V(dx, dy))
 
 
+LABELLED = set()             # edge parts with their pin labels
+
+
 def place_row(mods, keys, edge, pos, gap, rot, pitch=None):
-    """Place a row of parts along an edge from pos; returns the position after the row."""
+    """Place a row of parts along an edge from pos, connectors with their pin labels (spaced with them); returns the
+    position after the row."""
+    inward = {'top': (0, 1), 'bottom': (0, -1), 'left': (1, 0), 'right': (-1, 0)}[edge]
     for key in keys:
         key, r = key if isinstance(key, tuple) else (key, rot)
         m = mods[key]
         put(m, 0, 0, rot=r)
+        if m.GetReference().startswith('J') and m.GetReference() not in LABELLED:
+            pin_labels(m, inward)
+            LABELLED.add(m.GetReference())
         x0, y0, x1, y1 = box(m)
         size = (x1 - x0) if edge in ('top', 'bottom') else (y1 - y0)
         c = pos + (pitch / 2 if pitch else size / 2)
@@ -1058,8 +1076,11 @@ def pin_labels(m, side=None):
         return
     # 2-way screw terminals: a large + at pin 1 (the rail, or a motor's +) and - at pin 2 (GND, or a motor's -)
     signs = {'1': '+', '2': '-'} if len(pts) == 2 and 'TerminalBlock' in m.GetFPID().GetLibItemName().wx_str() else {}
+    c = bbox_mm(m.GetCourtyard(pcbnew.F_CrtYd).BBox())      # the body: silkscreen under it cannot be seen
+    texts = [t for t in m.GraphicalItems() if isinstance(t, pcbnew.PCB_TEXT) and t.GetLayer() == pcbnew.F_SilkS]
+    new = []
     for x, y, p in pts:
-        bb = bbox_mm(p.GetBoundingBox())
+        bb = [c[0], y, c[2], y] if vertical else [x, c[1], x, c[3]]
         sign = signs.get(p.GetNumber())
         if len(across) == 2:
             s = -1 if round(x if vertical else y, 2) == across[0] else 1
@@ -1067,21 +1088,29 @@ def pin_labels(m, side=None):
             s = side[0] if vertical else side[1]
         else:
             s = -1
+        if s == 0:                             # an edge part with its pad row across the edge: left, or below
+            s = -1 if vertical else 1
         name = short(p.GetNetname())
-        off = 0.5
-        if sign:                               # beyond the body (silkscreen under it cannot be seen): the sign, then
-            c = bbox_mm(m.GetCourtyard(pcbnew.F_CrtYd).BBox())      # the net name
-            bb = [c[0], c[1], c[2], c[3]] if vertical else [bb[0], c[1], bb[2], c[3]]
+        off = 0.3
+        if sign:                               # the sign, then the net name
             if vertical:
-                bb[1] = bb[3] = y
                 silk(m, sign, (bb[0] - 1.2) if s < 0 else (bb[2] + 1.2), y, size=1.8)
             else:
                 silk(m, sign, x, (bb[1] - 1.2) if s < 0 else (bb[3] + 1.2), size=1.8)
             off = 2.4
-        if vertical:
-            silk(m, name, (bb[0] - off) if s < 0 else (bb[2] + off), y, angle=0, justify=-s)
+        if vertical:                           # the text runs away from the body
+            new.append(silk(m, name, (bb[0] - off) if s < 0 else (bb[2] + off), y, angle=0, justify=s))
         else:
-            silk(m, name, x, (bb[1] - off) if s < 0 else (bb[3] + off), angle=90, justify=-s)
+            new.append(silk(m, name, x, (bb[1] - off) if s < 0 else (bb[3] + off), angle=90, justify=-s))
+    if len(across) == 1 and new:              # the part's own label (value), if the pin labels cover it: beyond them
+        u = [bbox_mm(t.GetBoundingBox()) for t in new]
+        u = (min(b[0] for b in u), min(b[1] for b in u), max(b[2] for b in u), max(b[3] for b in u))
+        for t in texts:
+            b = bbox_mm(t.GetBoundingBox())
+            if b[0] < u[2] and u[0] < b[2] and b[1] < u[3] and u[1] < b[3]:
+                k = 0 if vertical else 1
+                d = (u[k + 2] + 0.3 - b[k]) if s > 0 else (u[k] - 0.3 - b[k + 2])
+                t.Move(V(d, 0) if vertical else V(0, d))
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -1207,13 +1236,16 @@ def main():
     mods = Mods()
 
     ties = {ref: comp[ref][0]['Tie'] for ref in byref if ref in comp and comp[ref][0].get('Tie')}
-    servo_rows = {resolve(k) for bank in SERVO_BANKS for k in bank[1:]}
+    servo_rows = {resolve(k) for bank in BANKS.values() for k in bank[:3]}
     tft_ref = resolve('J=TFT')
+    # no name: the TFT socket; the encoder connectors (the motor terminal beside each has it, and their pin labels
+    # would push it into the servo bank)
+    unnamed = {tft_ref, resolve('J=MOTOR A@PH'), resolve('J=MOTOR B@PH')}
     block_of = {m.GetReference(): title for title, ms in blocks.items() for m in ms}
     ic_seen = set()                        # identical ICs in one block: only the first one is labelled
     for ref, m in sorted(byref.items(), key=lambda kv: (re.sub(r'\d', '', kv[0]), int(re.sub(r'\D', '', kv[0]) or 0))):
         fpname = m.GetFPID().GetLibItemName().wx_str()
-        text = None if ref in servo_rows or ref == tft_ref else part_label(m, m.GetValue(), fpname)
+        text = None if ref in servo_rows or ref in unnamed else part_label(m, m.GetValue(), fpname)
         if text and ref.startswith('U') and not text.startswith('ESP32'):
             key = (block_of.get(ref), m.GetValue())
             if key in ic_seen:
@@ -1242,27 +1274,50 @@ def main():
         key = 'H=TFT standoff#%d' % (i + 1)
         mods[key].SetPosition(V(TFT_PIN1[0] + dx, TFT_PIN1[1] + dy))
         placed.add(resolve(key))
-    servo_text = []
-    for b, (name, *keys) in enumerate(SERVO_BANKS):
-        y0 = SERVO_Y + b * SERVO_BANK
+    servo_text, bank_boxes = [], []
+
+    def place_bank(name, top):
+        """A bank at the right edge from y = top (its heading included); returns its bottom."""
+        *keys, ch0, heading = BANKS[name]
+        y0 = top + (2.9 if heading else 1.8)
         for i, key in enumerate(keys):            # SIG inside, then V+, GND at the edge
             m = mods[key]
             m.SetOrientationDegrees(0)
             m.SetPosition(V(W - 3.0 - 2.54 * (2 - i), y0))
             placed.add(resolve(key))
         xs = W - 3.0 - 5.08
-        servo_text.append((name, xs - 2.0, y0 + 3 * 2.54 / 2, 90))
+        servo_text.append((name, xs - 3.4, y0 + 3 * 2.54 / 2, 90))
         for j in range(4):
-            servo_text.append(('%d' % (4 * b + j), xs - 1.6, y0 + 2.54 * j, 0))
+            servo_text.append(('%d' % (ch0 + j), xs - 1.6, y0 + 2.54 * j, 0))
+        if heading:
+            for i, ch in enumerate('S+G'):
+                servo_text.append((ch, W - 3.0 - 2.54 * (2 - i), y0 - 2.4, None))
+        bottom = y0 + 3 * 2.54 + 1.8
+        bank_boxes.append((xs - 4.0, top, W, bottom))
+        return bottom
+
     cursor = {}
-    for keys, edge, start, *rest in EDGE_ROWS:
-        cursor[edge] = place_row(mods, keys, edge, cursor[edge] if start is None else start, *rest)
-        inward = {'top': (0, 1), 'bottom': (0, -1), 'left': (1, 0), 'right': (-1, 0)}[edge]
+    for keys, edge, start, gap_, rot, *more in EDGE_ROWS:
+        if isinstance(start, tuple):               # ('end', y): the row ends at y
+            size = place_row(mods, keys, edge, 0, gap_, rot, *more) - gap_
+            start = start[1] - size
+        pos = cursor[edge] if start is None else start
         for key in keys:
-            key = key[0] if isinstance(key, tuple) else key
-            if resolve(key).startswith('J'):
-                pin_labels(mods[key], inward)
-            placed.add(resolve(key))
+            if isinstance(key, str) and key.startswith('BANK '):
+                pos = place_bank(key[5:], pos) + gap_ + BANK_GAP
+                continue
+            pos = place_row(mods, [key], edge, pos, gap_, rot, *more)
+            placed.add(resolve(key[0] if isinstance(key, tuple) else key))
+        cursor[edge] = pos
+    spans, mod_problems = [], []                   # plugged modules along the right edge must not touch
+    for key, half in MODULE_HALF.items():
+        c = pcbnew.ToMM(mods[key].GetPosition().y) + 1.5 * 2.54       # socket centre (pin 1 + 1.5 pitch)
+        spans.append((c - half, c + half, key))
+    spans.sort()
+    for a, b in zip(spans, spans[1:]):
+        print('modules: %s y %.1f-%.1f, %s y %.1f-%.1f' % (a[2], a[0], a[1], b[2], b[0], b[1]))
+        if b[0] < a[1] + 1.0:
+            mod_problems.append('modules %s and %s overlap along the right edge' % (a[2], b[2]))
     qwiic = sorted((m for m in byref.values() if m.GetValue().startswith('Qwiic ')), key=lambda m: m.GetPosition().y)
     if qwiic:                              # the heading, along the row before its first connector
         first = qwiic[0]
@@ -1271,9 +1326,11 @@ def main():
         tb = bbox_mm(lab.GetBoundingBox())
         heading = silk(board, 'QWIIC', (tb[0] + tb[2]) / 2, tb[1] - 0.6 - 2.6, size=1.0, angle=90)
     grid = Grid()
+    for bb in bank_boxes:                          # bank names, channel numbers and headings
+        grid.mark(*bb)
     if qwiic:
         grid.mark(*bbox_mm(heading.GetBoundingBox()))
-    problems = []
+    problems = mod_problems
     tops = [r for r in sorted(placed) if not byref[r].IsFlipped()]
     for i, a in enumerate(tops):                   # fixed parts must not collide with each other
         for b in tops[i + 1:]:
@@ -1291,7 +1348,8 @@ def main():
     tft_area = (tx + x0, ty + y0, tx + x1, ty + y1)
 
     # blocks: packed in their regions and fenced off (BLOCK_GAP), then spread and outlined (below)
-    edge_refs = {resolve(k[0] if isinstance(k, tuple) else k) for spec in EDGE_ROWS for k in spec[0]} | servo_rows
+    edge_refs = {resolve(k[0] if isinstance(k, tuple) else k) for spec in EDGE_ROWS for k in spec[0]
+                 if not str(k).startswith('BANK ')} | servo_rows
     def area(ms):
         return sum((b[2] - b[0] + 1) * (b[3] - b[1] + 1) for b in (box(m) for m in ms if m.GetReference() not in placed))
     def order(kv):                         # the FIRST blocks in that order (tied to their edge parts), then large first
@@ -1416,9 +1474,7 @@ def main():
 
     # servo bank labels, TFT module outline (low parts only under it), credits
     for text, x, y, angle in servo_text:
-        silk(board, text, x, y, size=1.0, angle=angle, justify=-1 if angle == 0 else 0)
-    for i, ch in enumerate('S+G'):
-        silk(board, ch, W - 3.0 - 2.54 * (2 - i), SERVO_Y - 2.4, size=1.0)
+        silk(board, text, x, y, size=1.0, angle=angle or 0, justify=-1 if angle == 0 else 0)
     rect(tx + x0, ty + y0, tx + x1, ty + y1, pcbnew.Dwgs_User, 0.15)
     t = pcbnew.PCB_TEXT(board)
     t.SetText('TFT module 2.4" (over this area, on 10 mm standoffs)')
@@ -1472,7 +1528,8 @@ def main():
         ns['classes'] = [default]
         ns['netclass_patterns'] = []
         for i, (cls, (w, clr, vd, vdr, members)) in enumerate(NETCLASSES.items()):
-            c = dict(default, name=cls, track_width=w, clearance=clr, via_diameter=vd, via_drill=vdr, priority=i)
+            c = dict(default, name=cls, track_width=w, clearance=clr, via_diameter=vd, via_drill=vdr, priority=i,
+                     pcb_color=CLASS_COLORS.get(cls, default['pcb_color']))
             ns['classes'].append(c)
             ns['netclass_patterns'] += [{'netclass': cls, 'pattern': n} for n in sorted(nets) if n.split('/')[-1] in members]
         with open(pro, 'w', encoding='utf-8') as f:
