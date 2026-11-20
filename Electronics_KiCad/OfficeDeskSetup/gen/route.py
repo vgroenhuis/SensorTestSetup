@@ -143,6 +143,8 @@ def save(board, path, pro):
     settings, so the project file is put back as it was."""
     base = os.path.splitext(path)[0]
     keep = {f: open(f, encoding='utf-8').read() for f in (pro, base + '.kicad_prl') if os.path.exists(f)}
+    if '"name": "Power"' not in keep[pro]:     # a project file reset to KiCad's defaults (it happened once)
+        sys.exit('%s has lost its net classes: restore it (git checkout) and run again' % pro)
     open(base + '.kicad_pro', 'w', encoding='utf-8').write(keep[pro])
     pcbnew.SaveBoard(path, board)
     open(base + '.kicad_pro', 'w', encoding='utf-8').write(keep[pro])
@@ -153,7 +155,7 @@ def save(board, path, pro):
 def cleanup(board, plane_nets, keep):
     """Remove vias that reach their net on one layer only, and tracks with an end that touches nothing, until none
     are left (as KiCad's Cleanup Tracks & Vias). Plane nets are left alone: the planes connect them. Removed items
-    go into `keep` (freeing them upsets pcbnew's SWIG types)."""
+    go into the list `keep` (freeing them upsets pcbnew's SWIG types)."""
     removed = 0
     while True:
         items = [t for t in board.GetTracks() if t.GetNetname() not in plane_nets]
@@ -185,7 +187,7 @@ def cleanup(board, plane_nets, keep):
             return removed
         for t in gone:
             board.Remove(t)
-        keep.setdefault('cleanup', []).extend(gone)
+        keep.extend(gone)
         removed += len(gone)
 
 
@@ -195,10 +197,12 @@ def pro(pcb):
 
 def stage1(args, pcb):
     board = pcbnew.LoadBoard(pcb)
-    for t in list(board.GetTracks()):                  # start from the bare placement
+    refs = list(board.GetTracks())                     # removed items stay referenced (SWIG types, see finish)
+    for t in refs:                                     # start from the bare placement
         board.Remove(t)
     for z in zones(board):                             # earlier pours from route.py
         if z.GetLayer() in POURS:
+            refs.append(z)
             board.Remove(z)
     planes = sorted({z.GetLayer() for z in zones(board)})
     vias, missed = planevias.fanout(board, {z.GetNetname() for z in zones(board)})
@@ -217,9 +221,78 @@ def stage2(args, pcb):
     save(board, os.path.join(args.work, 'stage2.kicad_pcb'), pro(pcb))
 
 
-def finish(args, pcb):
-    """Keep stage 2 as long as the planes stay in one piece, pour, fill and save."""
+def stage3(args, pcb):
+    """The power nets that are left, at a narrow width: Freerouting has one width per net class and cannot neck a
+    1 mm track down to a 0.4 mm pitch pin. finish() widens them again where there is room."""
     board = pcbnew.LoadBoard(os.path.join(args.work, 'stage2.kicad_pcb'))
+    for t in board.GetTracks():
+        t.SetLocked(True)
+    ns = board.GetDesignSettings().m_NetSettings
+    power = ns.GetNetClassByName('Power')
+    power.SetTrackWidth(mm(args.power_narrow))
+    if args.power_clearance:
+        power.SetClearance(mm(args.power_clearance))
+    ns.RecomputeEffectiveNetclasses()
+    route(board, args, PROJECT + '_3', [], args.passes3)
+    save(board, os.path.join(args.work, 'stage3.kicad_pcb'), pro(pcb))
+
+
+def widen(board, keep, clr=0.2):
+    """Power tracks narrower than their class width get as wide as their surroundings allow (in steps), except the
+    last 0.8 mm at a pad, which keeps the width that fits the pin. Outer layers only (plane tracks stay narrow).
+    Returns (tracks widened, tracks still narrow)."""
+    ns = board.GetDesignSettings().m_NetSettings
+    pads = collections.defaultdict(list)
+    for p in board.GetPads():
+        pads[p.GetNetCode()].append(p)
+    narrow = []
+    for t in list(board.GetTracks()):
+        if t.Type() != pcbnew.PCB_TRACE_T or t.GetLayer() not in planevias.OUTER:
+            continue
+        full = ns.GetEffectiveNetClass(t.GetNetname()).GetTrackWidth()
+        if 'Power' not in ns.GetEffectiveNetClass(t.GetNetname()).GetName() or t.GetWidth() >= full:
+            continue
+        for end, other in ((t.GetStart(), t.GetEnd()), (t.GetEnd(), t.GetStart())):
+            length = (other - end).EuclideanNorm()
+            if length > mm(1.6) and any(p.IsOnLayer(t.GetLayer()) and p.HitTest(end) for p in pads[t.GetNetCode()]):
+                cut = end + (other - end).Resize(mm(0.8))
+                stub = pcbnew.PCB_TRACK(board)
+                stub.SetStart(end)
+                stub.SetEnd(cut)
+                stub.SetWidth(t.GetWidth())
+                stub.SetLayer(t.GetLayer())
+                stub.SetNet(t.GetNet())
+                board.Add(stub)
+                keep.append(stub)
+                if end == t.GetStart():
+                    t.SetStart(cut)
+                else:
+                    t.SetEnd(cut)
+        narrow.append((t, full))
+    cu = planevias.Copper(board)
+    done = 0
+    for t, full in narrow:
+        a, b = t.GetStart(), t.GetEnd()
+        x, y = pcbnew.ToMM((a.x + b.x) // 2), pcbnew.ToMM((a.y + b.y) // 2)
+        r = pcbnew.ToMM((b - a).EuclideanNorm()) / 2
+        for w in (pcbnew.ToMM(full), 0.8, 0.6, 0.5):
+            if mm(w) <= t.GetWidth():
+                break
+            shape = pcbnew.SHAPE_SEGMENT(a, b, mm(w))
+            if cu.free(shape, x, y, r + w, t.GetNetCode(), (t.GetLayer(),), clr, None, holes=False):
+                t.SetWidth(mm(w))
+                cu.keep.append(shape)
+                cu.add(shape, t.GetNetCode(), (t.GetLayer(),))
+                done += 1
+                break
+    return done, len(narrow) - done
+
+
+def prune(args, pcb):
+    """Widen the power tracks and keep stage 2/3 tracks in the planes only while the planes stay sound."""
+    board = pcbnew.LoadBoard(os.path.join(args.work, 'stage3.kicad_pcb'))
+    refs = []                       # removed tracks stay referenced: freeing them upsets pcbnew's SWIG types
+    print('power tracks widened: %d, still narrow: %d' % widen(board, refs))
     s1 = json.load(open(os.path.join(args.work, 'stage1.json')))
     planes, base = s1['planes'], {int(k): v for k, v in s1['islands'].items()}
     old = {tuple(k) for k in s1['tracks']}
@@ -269,7 +342,7 @@ def finish(args, pcb):
                 print('plane %s is cut, but not by stage 2 tracks' % board.GetLayerName(l))
         return None
 
-    out, why = {}, {}               # taken-out tracks stay referenced: freeing them upsets pcbnew's SWIG types
+    out, why = {}, {}
     while new:                      # take out the worst net until the planes are fine
         p = problem()
         if not p:
@@ -288,15 +361,32 @@ def finish(args, pcb):
             out[net] = new.pop(net)
     dropped = ['%s (%.0f mm, %s)' % (n.split('/')[-1], sum(pcbnew.ToMM(t.GetLength()) for t in ts if t.GetLayer() in planes), why[n])
                for n, ts in sorted(out.items())]
-    for t in board.GetTracks():
-        t.SetLocked(False)
     kept = ['%s (%.0f mm)' % (n.split('/')[-1], sum(in_plane(n, l) for l in planes))
             for n in sorted(new) if any(in_plane(n, l) for l in planes)]
     print('plane pieces (over 25 mm2, %.1f mm neck) after stage 1: %s' % (args.neck, {board.GetLayerName(l): v for l, v in base.items()}))
     print('stage 2: %d nets with tracks in the planes: %s' % (len(kept), ', '.join(kept)))
     print('stage 2: %d nets taken out again: %s' % (len(dropped), ', '.join(dropped)))
+    print('loose vias and track stubs removed: %d' % cleanup(board, {z.GetNetname() for z in zones(board)}, refs))
+    for t in board.GetTracks():
+        t.SetLocked(True)
+    save(board, os.path.join(args.work, 'stage3p.kicad_pcb'), pro(pcb))
 
-    print('loose vias and track stubs removed: %d' % cleanup(board, {z.GetNetname() for z in zones(board)}, out))
+
+def stage4(args, pcb):
+    """What the plane rules took out, and whatever else is left, on the outer layers only (planes closed)."""
+    board = pcbnew.LoadBoard(os.path.join(args.work, 'stage3p.kicad_pcb'))
+    planes = json.load(open(os.path.join(args.work, 'stage1.json')))['planes']
+    route(board, args, PROJECT + '_4', [board.GetLayerName(l) for l in planes], args.passes4)
+    save(board, os.path.join(args.work, 'stage4.kicad_pcb'), pro(pcb))
+
+
+def finish(args, pcb):
+    """Pour, fill and save."""
+    board = pcbnew.LoadBoard(os.path.join(args.work, 'stage4.kicad_pcb'))
+    refs = []
+    print('loose vias and track stubs removed: %d' % cleanup(board, {z.GetNetname() for z in zones(board)}, refs))
+    for t in board.GetTracks():
+        t.SetLocked(False)
     if args.stitch:
         print('GND stitching vias: %d' % planevias.stitch(board, 'GND'))
     for layer, net in POURS.items():
@@ -315,12 +405,22 @@ def finish(args, pcb):
     print('%d tracks (%.0f mm), %d vias -> %s' % (len(tracks), sum(pcbnew.ToMM(t.GetLength()) for t in tracks), len(vias), pcb))
 
 
+STEPS = ('stage1', 'stage2', 'stage3', 'prune', 'stage4', 'finish')
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--freerouting', required=True, help='freerouting .jar (or a native freerouting-cli)')
     ap.add_argument('--java', default='java', help='java executable for the .jar')
-    ap.add_argument('--passes', type=int, default=6, help='stage 1; its first pass was always its best')
-    ap.add_argument('--passes2', type=int, default=4, help='stage 2')
+    # Freerouting 2.5.0 with more than one pass reports the best pass but saves a later, worse board (a power-only
+    # test: 68 open power connections after 4 passes, 20 after 1, same reported score); use 1 pass with 2.5.0.
+    # The 2.5.1 SNAPSHOT of 2026-11-19 saves the best pass and imports pad clearances correctly.
+    ap.add_argument('--passes', type=int, default=3, help='stage 1 (Freerouting 2.5.0: use 1, see above)')
+    ap.add_argument('--passes2', type=int, default=3, help='stage 2')
+    ap.add_argument('--passes3', type=int, default=3, help='stage 3 (power nets, narrow)')
+    ap.add_argument('--passes4', type=int, default=3, help='stage 4 (leftovers, outer layers)')
+    ap.add_argument('--power-narrow', type=float, default=0.4, help='mm: Power class width in stage 3')
+    ap.add_argument('--power-clearance', type=float, default=0.0, help='mm: Power class clearance in stage 3 (0: keep)')
     ap.add_argument('--neck', type=float, default=2.0, help='mm: a plane narrower than this counts as cut')
     ap.add_argument('--max-plane', type=float, default=50.0, help='mm of plane track per net, and per slot')
     ap.add_argument('--slot-gap', type=float, default=2.0, help='mm: plane tracks closer than this form one slot')
@@ -328,15 +428,15 @@ def main():
     ap.add_argument('--reuse', action='store_true', help='import the .ses files of an earlier run, do not route')
     ap.add_argument('--threads', type=int, default=max(1, (os.cpu_count() or 2) - 2))
     ap.add_argument('--work', default=os.path.join(HERE, 'gen', 'route'))
-    ap.add_argument('--step', choices=('stage1', 'stage2', 'finish'), help=argparse.SUPPRESS)
+    ap.add_argument('--step', choices=STEPS, help=argparse.SUPPRESS)
     args = ap.parse_args()
     os.makedirs(args.work, exist_ok=True)
     pcb = os.path.join(HERE, PROJECT + '.kicad_pcb')
     if args.step:
-        {'stage1': stage1, 'stage2': stage2, 'finish': finish}[args.step](args, pcb)
+        globals()[args.step](args, pcb)
         return
     # each step in its own process: after an SES import, pcbnew's SWIG objects come back untyped
-    for step in ('stage1', 'stage2', 'finish'):
+    for step in STEPS:
         subprocess.run([sys.executable, os.path.abspath(__file__)] + sys.argv[1:] + ['--step', step], check=True)
 
 

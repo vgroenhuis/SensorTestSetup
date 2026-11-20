@@ -70,13 +70,14 @@ class Copper:
                         seen.add(id(item))
                         yield item
 
-    def free(self, shape, x, y, r, net, layers, clr, edge):
-        """`shape` (around x, y, radius r mm) clears all copper of other nets on `layers` by clr mm."""
+    def free(self, shape, x, y, r, net, layers, clr, edge, holes=True):
+        """`shape` (around x, y, radius r mm) clears all copper of other nets on `layers` by clr mm, and the board
+        edge by `edge` mm (None: no edge test). `holes`: also keep clear of holes of its own net (for a new via)."""
         x0, y0, x1, y1 = self.edge
-        if not (x0 + edge + r <= x <= x1 - edge - r and y0 + edge + r <= y <= y1 - edge - r):
+        if edge is not None and not (x0 + edge + r <= x <= x1 - edge - r and y0 + edge + r <= y <= y1 - edge - r):
             return False
         for s, n, ls, extra, hole in self.near(x, y, r + clr + 1):
-            if n == net and n >= 0 and not hole:       # holes keep their spacing whatever the net
+            if n == net and n >= 0 and not (hole and holes):   # a via keeps hole spacing whatever the net
                 continue
             if any(l in layers for l in ls) and s.Collide(shape, mm(clr) + extra):
                 return False

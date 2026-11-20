@@ -185,14 +185,24 @@ design, run with KiCad's own Python:
 
 ## PCB: autorouting (partial)
 
-The board is autorouted with [Freerouting](https://github.com/freerouting/freerouting) 2.5.0 by `gen/route.py`
-(KiCad's Python again; the .jar needs Java 25, the native freerouting-cli for Windows crashes):
+The board is autorouted with [Freerouting](https://github.com/freerouting/freerouting) by `gen/route.py` (KiCad's
+Python again; the .jar needs Java 25, the native freerouting-cli for Windows crashes):
 
 ```
-"C:/Program Files/KiCad/10.0/bin/python.exe" gen/route.py --freerouting <freerouting-2.5.0.jar> --java <java.exe>
+"C:/Program Files/KiCad/10.0/bin/python.exe" gen/route.py --freerouting <freerouting .jar> --java <java.exe>
 ```
 
-About 70 minutes. The work files go to `gen/route/` (ignored by git). Steps:
+Use the **2.5.1 SNAPSHOT** (nightly of 2026-11-19 or later) or a later release, not 2.5.0. Release 2.5.0 has two
+bugs that cost most of the power nets: with more than one pass it reports the best pass but saves a later, worse
+board (a power-only test: 68 open power connections after 4 passes, 20 after 1, same reported score), and it imports
+pad clearances wrongly when the DSN has an `smd_smd` rule and the `kicad_default` class (as KiCad's export does), so
+pins at exactly the clearance count as violations and their nets are left alone. With 2.5.0, pass `--passes 1
+--passes2 1 --passes3 1 --passes4 1`.
+
+**Keep KiCad closed while it runs**: pcbnew's SaveBoard briefly writes a default project file, and an open KiCad picked
+that up and saved it on exit (all net classes gone). `route.py` stops when the project file has lost its classes.
+
+About 50 minutes. The work files go to `gen/route/` (ignored by git). Steps:
 
 1. **Plane vias** (`gen/planevias.py`): Freerouting treats a plane's net as connected by the plane and never adds
    the vias from SMD pads down to it, so every SMD pad on GND or +3V3 first gets one: a 0.6/0.3 mm via beside the
@@ -207,7 +217,13 @@ About 70 minutes. The work files go to `gen/route/` (ignored by git). Steps:
    2 mm minimum width, so a narrow neck counts as a cut). Otherwise the worst net loses its stage-2 tracks, and
    each removed net is then tried back on its own. Options `--max-plane`, `--slot-gap`, `--neck`; `--reuse`
    re-imports the routes of the previous run instead of routing again.
-4. **Finish**: loose vias and track stubs are removed, the GND pours are added on F.Cu and B.Cu and KiCad refills all
+4. **Stage 3**: the Power class at 0.4 mm (`--power-narrow`): Freerouting has one width per class and cannot neck a
+   1 mm track down to a 0.4 mm pitch pin. Afterwards every narrow power track on F.Cu/B.Cu gets the widest of 1.0,
+   0.8, 0.6, 0.5 mm that clears its surroundings, except its last 0.8 mm at a pad. `--power-clearance` lowers the
+   Power clearance in this stage only (not used now).
+5. **Prune**: the plane rules of stage 2, applied to the tracks of stages 2 and 3.
+6. **Stage 4**: what the plane rules took out, and anything else left, on F.Cu and B.Cu only.
+7. **Finish**: loose vias and track stubs are removed, the GND pours are added on F.Cu and B.Cu and KiCad refills all
    zones (kicad-cli; pcbnew's filler from Python left stale fill around a few vias).
 
 **GND stitching vias** (tying the F.Cu and B.Cu pours to In1 on a 5 mm grid, about 500) come last, once everything
@@ -222,20 +238,18 @@ is routed, because a via grid is in the way of routing by hand:
 Each step runs in its own Python process: after a session import, pcbnew's SWIG objects come back untyped. The
 project file is left exactly as it was (SaveBoard rewrites it).
 
-Result:
+Result (SNAPSHOT 2026-11-19, 3 passes per stage):
 
-* **Signals: routed**, except one I2C_SCL connection (its 85 mm stage-2 route through the GND plane was taken out).
-  6 nets keep a short track through a plane (6–31 mm): BQ_AVDD, BSV_BOOT, VBUS_SW, BAT_N, DXL_EN, V_BUS.
-* **GND and +3V3: connected**, except U8.8 and U13.8 (GND pins of the TPS25947 without a via).
-* **Power nets: not finished.** DRC finds 80 unconnected items, nearly all on the 1 mm Power nets: V_BUS 20,
-  VBUS_PROG 10, BAT_P 8, BAT_N 8, VBUS_PD 8, CHG_SYS 8, CHG_VBUS 5, V_DXL 3, CHG_SW1/2, BQ_SRN. Freerouting
-  does not fit the wide tracks; these are best done by hand anyway, as short wide tracks or pours, together with
-  the converter loops (keep the switch nodes small) and a look at the USB pairs.
+* **31 unconnected items** (80 with 2.5.0): 17 on power nets (BAT_P, VBUS_PD, VBUS_PROG 3 each; CHG_VBUS, V_BUS 2;
+  VBUS_SW, V_DXL, CHG_SW1, CHG_SW2 1) and 13 single signal connections (I2C, UART, TFT_BLK, ...), +3V3 1.
+  These are left for routing by hand.
+* 25 nets keep a track through a plane (5–42 mm each); 19 lost theirs to the plane rules (mostly slots over 50 mm)
+  and were routed again on the outer layers in stage 4 where possible.
+* Power tracks: widened where there is room (36 of 48 narrow ones), the rest stay 0.4 mm: check the current paths.
 * Other DRC errors: 10 clearance errors inside the TPS25947 footprints (pad pitch below 0.15 mm clearance, as drawn
-  by TI) and one 0.1475 mm track at JP6; 10 short 0.12 mm neck-downs at fine-pitch pins; tracks and pads at the
-  SK6812MINI-E cutout; 17 starved thermals on THT pads.
+  by TI); tracks and pads at the SK6812MINI-E cutout; the WF100DPZ courtyards; servo courtyards; 14 starved
+  thermals on THT pads.
 * Earlier attempts: letting Freerouting use all four layers left 136 connections open but put 11 m of signal track
-  through the planes; routing +3V3 as tracks (In2 as a signal layer) left 241–276 open. Freerouting's first pass
-  is always its best: later passes rip up and do worse.
+  through the planes; routing +3V3 as tracks (In2 as a signal layer) left 241–276 open.
 
 Running `route.py` again **overwrites all tracks**: once routing is finished by hand, stop using it.
