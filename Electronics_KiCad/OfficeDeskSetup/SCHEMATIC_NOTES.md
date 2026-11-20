@@ -233,7 +233,7 @@ pins at exactly the clearance count as violations and their nets are left alone.
 **Keep KiCad closed while it runs**: pcbnew's SaveBoard briefly writes a default project file, and an open KiCad picked
 that up and saved it on exit (all net classes gone). `route.py` stops when the project file has lost its classes.
 
-About 50 minutes. The work files go to `gen/route/` (ignored by git). Steps:
+About 50 minutes (200 × 150 mm) to 70 minutes (270 × 200 mm). The work files go to `gen/route/` (ignored by git). Steps:
 
 1. **Plane vias** (`gen/planevias.py`): Freerouting treats a plane's net as connected by the plane and never adds
    the vias from SMD pads down to it, so every SMD pad on GND or +3V3 first gets one: a 0.6/0.3 mm via beside the
@@ -269,17 +269,18 @@ is routed, because a via grid is in the way of routing by hand:
 Each step runs in its own Python process: after a session import, pcbnew's SWIG objects come back untyped. The
 project file is left exactly as it was (SaveBoard rewrites it).
 
-Result (SNAPSHOT 2026-11-19, 3 passes per stage):
+Result for rev 0.2 (270 × 200 mm, SNAPSHOT 2026-11-19, 3 passes per stage; 3411 tracks, 19.8 m, 1002 vias):
 
-* **31 unconnected items** (80 with 2.5.0): 17 on power nets (BAT_P, VBUS_PD, VBUS_PROG 3 each; CHG_VBUS, V_BUS 2;
-  VBUS_SW, V_DXL, CHG_SW1, CHG_SW2 1) and 13 single signal connections (I2C, UART, TFT_BLK, ...), +3V3 1.
-  These are left for routing by hand.
-* 25 nets keep a track through a plane (5–42 mm each); 19 lost theirs to the plane rules (mostly slots over 50 mm)
-  and were routed again on the outer layers in stage 4 where possible.
-* Power tracks: widened where there is room (36 of 48 narrow ones), the rest stay 0.4 mm: check the current paths.
-* Other DRC errors: 10 clearance errors inside the TPS25947 footprints (pad pitch below 0.15 mm clearance, as drawn
-  by TI); tracks and pads at the SK6812MINI-E cutout; the WF100DPZ courtyards; servo courtyards; 14 starved
-  thermals on THT pads.
+* **20 unconnected items** (rev 0.1 on 200 × 150 mm: 31): 18 on power nets (BAT_P 3; CHG_VBUS, VBUS_PROG,
+  CHG_SYS, VBUS_SW, CHG_SW1 2 each; V_DXL, DC_12V, VBUS_PD, CHG_SW2 1 each), plus VBUS_OVCSEL, DXL_OVCSEL (jumper
+  pads) and one I2C_SCL connection. These are left for routing by hand; the power ones are mostly around the
+  charger, the input FETs and the eFuses.
+* 14 nets keep a track through a plane (5–44 mm each); 8 lost theirs to the plane rules and went to stage 4.
+* Power tracks: widened where there is room (46 of 61 narrow ones), the rest stay 0.4 mm: check the current paths.
+* Other DRC errors: 15 clearance errors inside the three TPS25947 footprints (pad pitch below 0.15 mm clearance, as
+  drawn by TI); a LINK_M2I track on B.Cu and the pads at the SK6812MINI-E cutout (**move that track**); an SPI_SCLK
+  track too close to a TFT standoff's hole (H5); 2 track-width necks on the main I2C bus; the WF100DPZ courtyards;
+  the servo courtyards; 4 starved thermals. Schematic parity: no differences.
 * Earlier attempts: letting Freerouting use all four layers left 136 connections open but put 11 m of signal track
   through the planes; routing +3V3 as tracks (In2 as a signal layer) left 241–276 open.
 
