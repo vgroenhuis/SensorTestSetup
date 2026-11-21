@@ -63,10 +63,11 @@ HC_END = 141.8               # the HC-SR04 socket and its name end here, above t
 MODULE_HALF = {'J=MH module': 7.0, 'J=HC-SR04': 22.5}     # half widths of the plugged modules along the edge
 EDGE_ROWS = [
     # rear edge (y = 0): USB-C PD and PROG, 12 V jack, power switch, GND banana hole, power terminals, motors
-    (['J=USB-C POWER', 'J=USB-C PROG'], 'top', 8.5, 2, 180),
-    (['J=DC 12V'], 'top', None, 1.5, 270),
-    (['SW=POWER'], 'top', None, 1.0, 0),
-    (['H=GND banana'], 'top', None, 1.0, 0),
+    (['J=USB-C POWER'], 'top', 8.5, 4.5, 180),     # 4.5 mm to PROG: room for VBUS_PROG beside the USB-C PD block
+    (['J=USB-C PROG'], 'top', None, 2, 180),
+    (['J=DC 12V'], 'top', None, 1.0, 270),
+    (['SW=POWER'], 'top', None, 0.5, 0),
+    (['H=GND banana'], 'top', None, 0.5, 0),
     (['J=V_BUS', 'J=V_SERVO', 'J=5V', 'J=3V3', ('J=POWER', 0)], 'top', None, 0.5, SCREW),
     ([('J=MOTOR A@Terminal', SCREW), 'J=MOTOR A@PH', ('J=MOTOR B@Terminal', SCREW), 'J=MOTOR B@PH'], 'top', None, 0.5, 0),
     # left edge (x = 0): Qwiic (main bus x2, TCA9548 ch 2-7, ToF bus) and the two pressure sensors
@@ -101,7 +102,8 @@ FIRST = ('Power switch', 'Motor driver', 'USB-C POWER', 'USB-C PROG', 'Input sel
          '3.3 V buck', '5 V buck',
          'Buck-boost charger', '3S pack', 'TCA9548A', 'MCP23017', 'MCP3008', 'USB hub', 'IR reflective', 'VL53L7CX', 'AHT20',
          'LDR')
-UNCOVERED = ('IR reflective', 'AHT20', 'LDR', 'VL53L7CX')    # blocks with sensors that must not be under the TFT
+UNCOVERED = ('IR reflective', 'AHT20', 'LDR', 'VL53L7CX', 'UART0 header')   # blocks not under the TFT: sensors, and
+                             # the UART0 header (reachable with the module on)
 # placed inside (not on an edge, but fixed): key -> (x, y, rotation, side)
 FIXED = {
     'U=AS5600-ASOT': (172, 126, 0, 'F'),                      # under the knob
@@ -135,7 +137,7 @@ MIN_TRACK = 0.15               # Freerouting necks down to 0.15 mm at fine-pitch
 # 3D models from LCSC (OfficeDeskSetup.3dshapes) for KiCad footprints: (file, offset, rotation), KiCad axes (y up)
 MODELS = {
     'USB_C_Receptacle_HRO_TYPE-C-31-M-12': ('USB-C_SMD-TYPE-C-31-M-12_1.wrl', (0, -1.4, 0), (0, 0, 180)),
-    'Potentiometer_Alps_RK09K_Single_Vertical': ('RES-TH_RK09K1130A70.wrl', (4.0, -2.5, 0), (0, 0, 90)),
+    'Potentiometer_Alps_RK09K_Single_Vertical': ('RES-TH_RK09K1130A6S.wrl', (4.0, -2.5, 0), (0, 0, 90)),
 }
 
 # block (title prefix) -> (x, y, silkscreen name). Each block is packed into an about square cluster, then placed
@@ -169,7 +171,7 @@ FLOORPLAN = [
     # front middle: sensors that must stay uncovered, ADC by the pots
     ('IMU', 72, 128, 'IMU'),
     ('AHT20', 92, 128, 'CLIMATE, LIGHT'),
-    ('LDR', 108, 128, 'LDR'),
+    ('LDR', 24, 130, 'LDR'),                 # far from the TFT (its shadow), by the VEML7700
     ('MCP3008', 124, 128, 'ADC MCP3008'),
     # right: ESP 'io', ToF, TFT socket parts, Dynamixel, ADS1115, load cell, IR, HC-SR04, MH
     ("ESP32-C5 'io'", 165, 86, 'ESP32 IO'),
@@ -1079,7 +1081,21 @@ def pin_labels(m, side=None):
     c = bbox_mm(m.GetCourtyard(pcbnew.F_CrtYd).BBox())      # the body: silkscreen under it cannot be seen
     texts = [t for t in m.GraphicalItems() if isinstance(t, pcbnew.PCB_TEXT) and t.GetLayer() == pcbnew.F_SilkS]
     new = []
+    one = set()                            # a column of 3 or more pads on one net (2-row headers): one label along it
+    for a in across if len(across) == 2 else ():
+        col = [(x, y, p) for x, y, p in pts if round(x if vertical else y, 2) == a]
+        if len(col) >= 3 and len({p.GetNetname() for _, _, p in col}) == 1:
+            one.add(a)
+            s = -1 if a == across[0] else 1
+            mid = sum((y if vertical else x) for x, y, _ in col) / len(col)
+            name = short(col[0][2].GetNetname())
+            if vertical:
+                new.append(silk(m, name, (c[0] - 0.8) if s < 0 else (c[2] + 0.8), mid, angle=90))
+            else:
+                new.append(silk(m, name, mid, (c[1] - 0.8) if s < 0 else (c[3] + 0.8)))
     for x, y, p in pts:
+        if round(x if vertical else y, 2) in one:
+            continue
         bb = [c[0], y, c[2], y] if vertical else [x, c[1], x, c[3]]
         sign = signs.get(p.GetNumber())
         if len(across) == 2:
@@ -1475,10 +1491,10 @@ def main():
     # servo bank labels, TFT module outline (low parts only under it), credits
     for text, x, y, angle in servo_text:
         silk(board, text, x, y, size=1.0, angle=angle or 0, justify=-1 if angle == 0 else 0)
-    rect(tx + x0, ty + y0, tx + x1, ty + y1, pcbnew.Dwgs_User, 0.15)
+    rect(*tft_area, pcbnew.Dwgs_User, 0.15)          # (x0 ... y1 are reused above: take the area from before)
     t = pcbnew.PCB_TEXT(board)
     t.SetText('TFT module 2.4" (over this area, on 10 mm standoffs)')
-    t.SetPosition(V(tx + (x0 + x1) / 2, ty + y0 + 2))
+    t.SetPosition(V((tft_area[0] + tft_area[2]) / 2, tft_area[1] + 2))
     t.SetLayer(pcbnew.Dwgs_User)
     board.Add(t)
     credits = ['SensorTestSetup PCB rev %s, %s' % (design.REV, design.DATE), 'Vincent Groenhuis, RaM, University of Twente',

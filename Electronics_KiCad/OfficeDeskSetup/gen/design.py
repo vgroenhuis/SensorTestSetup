@@ -61,7 +61,7 @@ FP_LCSC = {
     FP['PH4']: 'C131334', FP['PH6']: 'C131342',              # JST B4B/B6B-PH-K-S
     FP['SCREW2']: 'C8465',                                     # WJ500V-5.08-2P screw terminal
     FP['BTN']: 'C318884',                                      # XKB TS-1187A-B-A-B, 5.1 x 5.1 mm tact switch
-    FP['POT']: 'C351173',                                      # Alps RK09K1130A70, 10 k linear
+    FP['POT']: 'C209770',                                      # Alps RK09K1130A6S, 10 k linear, 15 mm flatted shaft
 }
 
 
