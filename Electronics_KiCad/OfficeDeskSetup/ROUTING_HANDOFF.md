@@ -68,6 +68,14 @@ and of fixed vias.
 * Attempt 4 (`--bare`, no round limit, ranking from attempt 3: 70 vias placed in advance): 17 open after round 0;
   every open pad but U6.26 already had a via, so it stopped. An exact position match had first made it loop
   (U13.2's recorded position 1 nm off, a new via every round); pads now match within 1 um. Board kept: attempt 3.
+* Attempts 5-8 (all `--bare`, `inspect/run5` ... `run8`): 18, 18 (3 Freerouting passes), 15, **4** open.
+  - The cleanup removed escape vias the router had used when its track ended on the middle of the escape track
+    (J2.A4 VBUS_PROG left 0.7 mm short); fixed, and stacked pads get one escape via.
+  - The far-side keep-out of U13 covered battery holder pad BT2.2 (CELL1 unreachable); now none where it would
+    cover a pad being routed there.
+  - The keep-outs covered the whole courtyard, blocking short hops beside the pins (SW_3V3 at U11, V_BUS at U18);
+    now only the body between the pins. Run 8: 4 open (VBUS_SW at U8.6 and U9.6, CHG_SW1 U6.28, CHG_SW2 U6.26),
+    no track or via clearance violations. The board on main is run 8.
 * Still dropping at the last round: `--escape-rounds` now defaults to 0 (no limit), the rounds go on until no open pad gets a new via.
 
 ## Next steps

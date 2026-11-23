@@ -289,13 +289,16 @@ About 50–60 minutes (200 × 150 mm) to 70 minutes (270 × 200 mm). The work fi
    DSN, so its pads are obstacles but there is nothing to connect. The tracks are locked for the next stages, so
    the thin signal tracks can no longer take the narrow spaces that the wide power tracks need.
    `--stage power --bare` starts it again from the bare placement (all tracks and vias removed).
-   * **Chip keep-outs** (stage 0 only, as rule areas in its DSN, never on the board; `--no-keepout` skips them): a
-     power track under a chip takes the room its signal pins need. Every `U` part with only SMD pads and a courtyard
-     of at most 20 mm a side (`--keepout-refs`, `--keepout-max`; so not the ESP32 modules) gets a keep-out for
-     tracks and vias over its courtyard on the other side of the board, where its signals fan out, and one for
-     tracks over the area its pins enclose on its own side (shrunk until no pin on a power net is in it). 41 chips. The keep-outs only keep power tracks off a chip where
-     they can go around it: a pin with no room for its escape via outside the keep-out gets one under the chip, and
-     that chip loses both keep-outs for the rest of the attempt (logged as "under the chip, its keep-outs dropped").
+   * **Chip keep-outs** (stage 0 only, as rule areas in its DSN, never on the board; `--no-keepout` skips them):
+     only against power tracks that cross a chip where they could go around it. Every `U` part with only SMD pads
+     and a courtyard of at most 20 mm a side (`--keepout-refs`, `--keepout-max`; so not the ESP32 modules) gets a
+     keep-out over its body, the area between the inner ends of its pins (`pin_body`; exposed pads do not count):
+     on the other side of the board for tracks and vias, on its own side for tracks (shrunk until no pin on a power
+     net is in it). Near and along the pin rows tracks and escape vias are free. No keep-out on the other side where
+     it would cover a pad being routed there (U13 over battery holder contact BT2.2). The first version covered the
+     whole courtyard: 15-18 open power connections, with trivial ones blocked (CELL1, SW_3V3 at U11); over the body
+     only: 4. A pin with no room for its escape via outside the keep-out gets one under the chip, and that chip
+     loses both keep-outs for the rest of the attempt (logged as "under the chip, its keep-outs dropped").
    * **Escape rounds** (`--escape-rounds`, default 0 = no limit): the power pads that a round leaves open each get an
      *escape via*: a via of the net class size beside the pad (outwards from the part first, off the chip
      keep-outs; under the chip only when there is no room outside) with a short locked track at the class width where it fits, else down to 0.2 mm. They go on the

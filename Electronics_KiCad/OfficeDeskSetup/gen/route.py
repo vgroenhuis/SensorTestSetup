@@ -327,22 +327,89 @@ def chips(board, args):
     return out
 
 
+def pin_body(fp, clr=0.2):
+    """The area a chip's pins enclose, its body between the pin rows: a box clr mm inside the inner ends of the pins
+    on each side, a pin counting for the side its long axis points to. Exposed pads (over 1 mm both ways) and pads
+    that do not reach the outline of the pin field do not count. None if
+    there is no such area at least 0.5 mm across."""
+    pb = None
+    for p in fp.Pads():
+        b = p.GetBoundingBox()
+        if pb is None:
+            pb = pcbnew.BOX2I(b.GetPosition(), b.GetSize())
+        else:
+            pb.Merge(b)
+    x0, y0, x1, y1 = pb.GetLeft(), pb.GetTop(), pb.GetRight(), pb.GetBottom()
+    e = mm(0.05)
+    for p in fp.Pads():
+        b = p.GetBoundingBox()
+        w, h = b.GetWidth(), b.GetHeight()
+        if min(w, h) > mm(1.0):
+            continue                                    # an exposed pad, not a pin
+        if w >= h:                                      # a pin pointing sideways: a left or right row
+            if b.GetLeft() <= pb.GetLeft() + e:
+                x0 = max(x0, b.GetRight() + mm(clr))
+            if b.GetRight() >= pb.GetRight() - e:
+                x1 = min(x1, b.GetLeft() - mm(clr))
+        if h >= w:                                      # pointing up or down: a top or bottom row
+            if b.GetTop() <= pb.GetTop() + e:
+                y0 = max(y0, b.GetBottom() + mm(clr))
+            if b.GetBottom() >= pb.GetBottom() - e:
+                y1 = min(y1, b.GetTop() - mm(clr))
+    if min(x1 - x0, y1 - y0) < mm(0.5):
+        return None
+    return pcbnew.BOX2I(pcbnew.VECTOR2I(x0, y0), pcbnew.VECTOR2L(x1 - x0, y1 - y0))
+
+
 def keepouts(board, args, codes, clr=0.2, relaxed=()):
-    """Chip keep-outs for stage 0, so the power tracks leave the space under and between a chip's pins to its own
-    signals: on the other side of the board no tracks and no vias over the courtyard (the chip's signals fan out
-    there), on its own side no tracks in the area its pins enclose, as far as no pin on a net of `codes` (the nets
-    being routed) is in it. `relaxed`: chips without keep-outs (one of their pins had room for an escape via only
-    under the chip, with its track between the pins). Returns (rule areas, {reference: courtyard box})."""
+    """Chip keep-outs for stage 0, only against power tracks that cross a chip where they could go around it: no
+    tracks in the area a chip's pins enclose (pin_body), on both sides of the board, and on the other side no vias
+    there either (the chip's signals fan out there). On the chip's own side the area shrinks until no pin on a net of
+    `codes` (the nets being routed) is in it; on the other side there is none where it would cover a pad being routed
+    there (a battery holder contact under U13). Near and along the pin rows tracks and escape vias are free.
+    `relaxed`: chips without keep-outs (one of their pins had room for an escape via only under the chip, with its
+    track between the pins). Returns (rule areas, {reference: box of the other side's keep-out})."""
     zs, boxes = [], {}
     if not args.keepout:
         return zs, boxes
+    pads = list(board.GetPads())
+    for fp, _ in chips(board, args):
+        if fp.GetReference() in relaxed:
+            continue
+        body = pin_body(fp, clr)
+        if body is None:
+            continue
+        side = fp.GetLayer()
+        other = pcbnew.B_Cu if side == pcbnew.F_Cu else pcbnew.F_Cu
+        if not any(p.GetNetCode() in codes and p.IsOnLayer(other) and
+                   p.GetParentFootprint().GetReference() != fp.GetReference() and
+                   body.Intersects(p.GetBoundingBox()) for p in pads):
+            zs.append(rule_area(board, other, body, vias=True))
+            boxes[fp.GetReference()] = body
+        routed = [p for p in fp.Pads() if p.GetNetCode() in codes]
+        k = 0
+        while True:
+            x0, y0, x1, y1 = body.GetLeft() + k, body.GetTop() + k, body.GetRight() - k, body.GetBottom() - k
+            if min(x1 - x0, y1 - y0) < mm(0.5):
+                break
+            rect = pcbnew.SHAPE_RECT(x0, y0, x1 - x0, y1 - y0)
+            if not any(p.GetEffectiveShape(side).Collide(rect, mm(clr)) for p in routed):
+                inner = pcbnew.BOX2I(pcbnew.VECTOR2I(x0, y0), pcbnew.VECTOR2L(x1 - x0, y1 - y0))
+                zs.append(rule_area(board, side, inner, vias=False))
+                break
+            k += mm(0.05)
+    return zs, boxes
     for fp, bb in chips(board, args):
         if fp.GetReference() in relaxed:
             continue
         side = fp.GetLayer()
         other = pcbnew.B_Cu if side == pcbnew.F_Cu else pcbnew.F_Cu
-        zs.append(rule_area(board, other, bb, vias=True))
-        boxes[fp.GetReference()] = bb
+        # no keep-out on the other side where it would cover a pad being routed there (a battery holder contact
+        # under U13): the router could not reach that pad at all
+        if not any(p.GetNetCode() in codes and p.IsOnLayer(other) and p.GetParentFootprint().GetReference() != fp.GetReference() and
+                   bb.Intersects(p.GetBoundingBox()) for p in board.GetPads()):
+            zs.append(rule_area(board, other, bb, vias=True))
+            boxes[fp.GetReference()] = bb
         pb = None
         for p in fp.Pads():
             b = p.GetBoundingBox()
