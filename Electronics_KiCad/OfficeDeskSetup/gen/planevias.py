@@ -119,13 +119,16 @@ def _track(board, cu, p, x, y, width, layer):
     cu.add(seg, p.GetNetCode(), (layer,))
 
 
-def fanout(board, nets, d=0.6, drill=0.3, width=0.3, clr=0.2, edge=1.0, reach=2.5):
+def fanout(board, nets, d=0.6, drill=0.3, width=0.3, clr=0.2, edge=1.0, reach=2.5, only=None):
     """A via to the plane for every SMD pad on `nets`, or a short track to a through-hole pad of the same net within
     `reach` mm (a USB-C GND pin to its shield pad). Stacked pads (USB-C A1/B12) share one. Run it after the power
     nets are routed: a via beside a fine-pitch power pin can leave no room for the power track. Returns (vias and
-    tracks, pads that got none)."""
+    tracks, pads that got none). `only`: just these pads (by pad_name). Pads where a locked track of their net
+    starts already have one (placed before the power stage) and are skipped."""
     cu = Copper(board)
     vias, missed, done = 0, [], set()
+    starts = {(t.GetNetCode(), t.GetStart().x, t.GetStart().y) for t in board.GetTracks()
+              if t.Type() == pcbnew.PCB_TRACE_T and t.IsLocked()}
     tht = {}
     for p in board.GetPads():
         if p.GetNetname() in nets and p.HasHole():
@@ -135,7 +138,11 @@ def fanout(board, nets, d=0.6, drill=0.3, width=0.3, clr=0.2, edge=1.0, reach=2.
         for p in fp.Pads():
             if p.GetNetname() not in nets or p.GetAttribute() not in (pcbnew.PAD_ATTRIB_SMD, pcbnew.PAD_ATTRIB_CONN):
                 continue
+            if only is not None and pad_name(p) not in only:
+                continue
             net, code = p.GetNet(), p.GetNetCode()
+            if (code, mm(pcbnew.ToMM(p.GetPosition().x)), mm(pcbnew.ToMM(p.GetPosition().y))) in starts:
+                continue
             layer = pcbnew.B_Cu if p.IsOnLayer(pcbnew.B_Cu) and not p.IsOnLayer(pcbnew.F_Cu) else pcbnew.F_Cu
             spot = (code, layer, p.GetPosition().x, p.GetPosition().y)
             if spot in done:                                # a stacked pad that already has its connection
@@ -322,14 +329,15 @@ def open_pads(board, codes):
 LAND_MARGIN = 0.1
 
 
-def escape(board, pads, sizes, avoid=(), clr=0.2, edge=1.0, reach=3.0):
+def escape(board, pads, sizes, avoid=(), clr=0.2, edge=1.0, reach=3.0, inward=False):
     """Escape vias: a locked via beside each SMD pad in `pads` (in that order: the first get the best spots), with a
     short locked track to it, so the router can reach the pin from the other outer layer (or, by hand, from an
     inner layer) when the space around it on its own layer is taken. `sizes`: {net code: (track width, via diameter,
     via drill) mm}; the track is as wide as that where it fits, else narrower (down to 0.2 mm, no wider than the pad
     across). It runs straight from the pad to the via, or else first straight out along the pin, past the pad's
     end, then to the via (a pin boxed in by its neighbours, like the middle pins of a TPS25947). `avoid`: BOX2I
-    areas (chip keep-outs) where a via is no use. Returns ([(pad name, via, [tracks])], pads that got none)."""
+    areas (chip keep-outs) where a via is no use. `inward`: towards the part's centre first (a plane pin of a dense
+    chip: its via goes under the body, to the plane). Returns ([(pad name, via, [tracks])], pads that got none)."""
     cu = Copper(board)
     done, missed = [], []
     # stacked pads (USB-C A4/B9) share one spot: one escape via for it, so skip a pad where a locked track of its
@@ -377,7 +385,7 @@ def escape(board, pads, sizes, avoid=(), clr=0.2, edge=1.0, reach=3.0):
                 outw = (ux * ox + uy * oy) / (math.hypot(ox, oy) or 1)
                 s = 0
                 while 0.25 * s <= reach:
-                    out.append((s, -outw, cx + ux * (r0 + 0.25 * s), cy + uy * (r0 + 0.25 * s)))
+                    out.append((s, outw if inward else -outw, cx + ux * (r0 + 0.25 * s), cy + uy * (r0 + 0.25 * s)))
                     s += 1
             return out
 

@@ -89,6 +89,12 @@ and of fixed vias.
   connections (10.5, 22.5, 18 min); round 2 kept. 3731 tracks, 15.6 m, 1017 vias. DRC: 2 hole clearance
   violations (tracks too close to mounting holes H3, H4), otherwise only TPS25947 pad-to-pad. Escape vias found
   no room at several U6 pins (5, 10, 14, 19, 20, 21). Saved in inspect/run10_vias and inspect/run10_signals.
+* Fan-out of dense chips (U2 U6 U8 U9 U10 U14 U38 U39, pitch <= 0.5 mm) before stage 0, and plane pads without
+  room in the pin ranking. Attempt 11: 1 open power connection (U6.29 had no room); with power pins under the
+  chip first, attempt 12: 3 open (CHG_VBUS at U6.2, BAT_P at U6.22). Worse than attempt 10 (0) so far; boards in
+  inspect/run11 and run12. Main keeps attempt 10 with plane vias and signals (c5598ca). Not yet run through the
+  signal stage, where the fan-out should help most. Fan-out vias are not escape-round vias, so the rounds stop
+  when the only open pads have fan-out vias (U6.22, U6.23 in attempt 12).
 * Still dropping at the last round: `--escape-rounds` now defaults to 0 (no limit), the rounds go on until no open pad gets a new via.
 
 ## Next steps

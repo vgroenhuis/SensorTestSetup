@@ -299,6 +299,13 @@ About 50–60 minutes (200 × 150 mm) to 70 minutes (270 × 200 mm). The work fi
      whole courtyard: 15-18 open power connections, with trivial ones blocked (CELL1, SW_3V3 at U11); over the body
      only: 4. A pin with no room for its escape via outside the keep-out gets one under the chip, and that chip
      loses both keep-outs for the rest of the attempt (logged as "under the chip, its keep-outs dropped").
+   * **Fan-out of dense chips** (new attempts only; `--fanout-pitch` 0.5 mm, 0 = off; `--fanout-refs`): before
+     stage 0 every pin of a chip with that pitch or finer gets an escape track and via: other nets outwards (power
+     first, with landing room), a power pin without room outside under the chip (the chip then has no keep-outs),
+     GND and +3V3 inwards to the plane. Plane pads the vias step found no room for score in the pin ranking and get
+     their plane via here first. First tries: 1 and 3 open power connections (U6.29; U6.2, U6.22) against 0 without
+     it (attempt 10): the signal pins' vias around U6 take room the wide power tracks need. Not yet tried through
+     the signal stage.
    * **Escape rounds** (`--escape-rounds`, default 0 = no limit): the power pads that a round leaves open each get an
      *escape via*: a via of the net class size beside the pad, where a class-width track can end on it (that
      landing room, plus 0.1 mm a side for Freerouting's octagonal track ends, is kept free for later escape vias;

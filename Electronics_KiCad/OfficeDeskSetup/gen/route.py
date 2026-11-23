@@ -59,6 +59,7 @@ The project file is left as it was.
 import argparse
 import collections
 import json
+import math
 import os
 import re
 import shutil
@@ -520,10 +521,10 @@ def record(state, done):
                                  'tracks': [[t.GetStart().x, t.GetStart().y, t.GetEnd().x, t.GetEnd().y] for t in tracks]})
 
 
-def pre_escape(args, board, s):
+def pre_escape(args, board, s, relaxed=()):
     """A new attempt starts with escape vias at the pins that failed before (score at least --pre-escape), highest
     score first, so they get their spot before anything else. Writes the stage's rounds file."""
-    state = {'rounds': [], 'escapes': [], 'stop': False}
+    state = {'rounds': [], 'escapes': [], 'stop': False, 'relaxed': list(relaxed)}
     if args.pre_escape > 0:
         codes, _, _, ko = nets_of(board, args, s)
         scores = load_scores(args)
@@ -537,6 +538,63 @@ def pre_escape(args, board, s):
                   'keep-outs dropped: %s' % (len(done), ' '.join(d[0] for d in done) or '-', ' '.join(missed) or 'none',
                                             ' '.join(now) or 'none'), flush=True)
     json.dump(state, open(wpath(args, 'stage%s_rounds.json' % s), 'w'), indent=1)
+
+
+def pitch(fp):
+    """mm between the closest pin centres of a footprint (exposed pads, over 1 mm both ways, left out)."""
+    pts = [(pcbnew.ToMM(p.GetPosition().x), pcbnew.ToMM(p.GetPosition().y)) for p in fp.Pads()
+           if min(pcbnew.ToMM(p.GetBoundingBox().GetWidth()), pcbnew.ToMM(p.GetBoundingBox().GetHeight())) <= 1.0]
+    return min((math.hypot(a[0] - b[0], a[1] - b[1]) for i, a in enumerate(pts) for b in pts[i + 1:]
+                if math.hypot(a[0] - b[0], a[1] - b[1]) > 1e-3), default=99.0)
+
+
+def dense_fanout(args, board):
+    """Before stage 0, on a new attempt: every pin of a dense chip (pitch at most --fanout-pitch mm, or listed in
+    --fanout-refs) gets a short escape track and via. Pins on other nets go outwards, with landing room for their
+    class width and off the chip keep-outs (power pins first); GND and +3V3 pins go inwards, the via under the body
+    to the plane. Then the plane pads that found no room for a plane via before (pin ranking) get theirs first. These
+    vias stay (they are not escape vias of a round). Returns the chips that lost their keep-outs."""
+    planes = {z.GetNetname() for z in zones(board)}
+    extra = {x for x in args.fanout_refs.split(',') if x}
+    dense = [fp for fp, _ in chips(board, args)
+             if fp.GetReference() in extra or (args.fanout_pitch > 0 and pitch(fp) <= args.fanout_pitch + 1e-3)]
+    power = power_nets(board)
+    out, inner, done, missed, relaxed = [], [], [], [], []
+    for fp in dense:
+        for p in fp.Pads():
+            n = p.GetNetname()
+            if p.GetNetCode() <= 0 or n.startswith('unconnected-') or                     p.GetAttribute() not in (pcbnew.PAD_ATTRIB_SMD, pcbnew.PAD_ATTRIB_CONN):
+                continue
+            if min(pcbnew.ToMM(p.GetBoundingBox().GetWidth()), pcbnew.ToMM(p.GetBoundingBox().GetHeight())) > 1.0:
+                continue                                # an exposed pad: the plane vias step puts vias in it
+            (inner if n in planes else out).append(p)
+    if dense:
+        codes = {p.GetNetCode() for p in out + inner}
+        sz = sizes(board, codes)
+        pcodes = {c for c, n in board.GetNetsByNetcode().items() if n.GetNetname().split('/')[-1] in power}
+        boxes = list(keepouts(board, args, pcodes)[1].values())
+        out = ranked(args, sorted(out, key=lambda p: p.GetNetname().split('/')[-1] not in power))
+        d1, m1 = planevias.escape(board, out, sz, boxes)
+        # a power pin with no room outside gets its via under the chip, before the plane pins take that space; the
+        # chip then has no keep-outs in stage 0 (as in the escape rounds)
+        under = [p for p in out if planevias.pad_name(p) in m1 and p.GetNetname().split('/')[-1] in power]
+        du, mu = planevias.escape(board, under, sz, (), inward=True)
+        relaxed = sorted({name.rsplit('.', 1)[0] for name, _, _ in du})
+        m1 = [m for m in m1 if m not in {name for name, _, _ in du}]
+        d2, m2 = planevias.escape(board, inner, sz, (), inward=True)
+        done, missed = d1 + du + d2, m1 + m2
+        print('fan-out of the dense chips (%s): %d escape tracks and vias (%d outwards, %d power pins under the chip, '
+              '%d inwards to the planes); keep-outs dropped: %s; no room: %s' % (
+                  ' '.join(fp.GetReference() for fp in dense), len(done), len(d1), len(du), len(d2),
+                  ' '.join(relaxed) or 'none', ' '.join(missed) or 'none'), flush=True)
+    if args.pre_escape > 0:
+        scores = load_scores(args)
+        want = {n for n, e in scores.items() if e['score'] >= args.pre_escape}
+        n, still = planevias.fanout(board, planes, only=want)
+        if n or still:
+            print('plane vias first, at the plane pads that had no room before: %d; still no room: %s' % (
+                n, ' '.join(still) or 'none'), flush=True)
+    return relaxed
 
 
 def prep0(args, pcb):
@@ -559,7 +617,8 @@ def prep0(args, pcb):
     if args.keepout:
         print('chip keep-outs: %s' % ' '.join(sorted((fp.GetReference() for fp, _ in chips(board, args)),
                                                      key=lambda r: (re.sub(r'\d', '', r), int(re.sub(r'\D', '', r) or 0)))))
-    pre_escape(args, board, '0')
+    relaxed = dense_fanout(args, board) if args.bare or not args.stage else []
+    pre_escape(args, board, '0', relaxed)
     save(board, wpath(args, 'stage0_in.kicad_pcb'), pro(pcb))
 
 
@@ -664,6 +723,7 @@ def vias(args, pcb):
         board, refs = bare(pcb)
     n, missed = planevias.fanout(board, {z.GetNetname() for z in zones(board)})
     print('plane vias and tracks: %d; SMD pads without one: %s' % (n, ' '.join(missed) or 'none'), flush=True)
+    add_scores(args, board, [], missed)                # a new attempt gives them their plane via before stage 0
     for t in board.GetTracks():
         t.SetLocked(True)
     store(args, pcb, board, 'vias')
@@ -913,6 +973,10 @@ def main():
     ap.add_argument('--keepout-refs', default='U', help='reference prefixes of the chips that get a keep-out (comma list)')
     ap.add_argument('--keepout-max', type=float, default=20.0,
                     help='mm: no keep-out for parts with a larger courtyard side (modules)')
+    ap.add_argument('--fanout-pitch', type=float, default=0.5,
+                    help='mm: on a new attempt, chips with this pin pitch or finer get an escape track and via on every '
+                         'pin before stage 0, outwards, GND and +3V3 inwards (0: off)')
+    ap.add_argument('--fanout-refs', default='', help='more chips for that fan-out (comma list of references)')
     ap.add_argument('--stage', choices=STAGES,
                     help='run this one stage on the board itself (keeps the tracks on it), then stop')
     ap.add_argument('--fr', action='append', default=[], metavar='ARG',
