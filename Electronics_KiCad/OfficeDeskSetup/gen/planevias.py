@@ -371,8 +371,14 @@ def escape(board, pads, sizes, avoid=(), clr=0.2, edge=1.0, reach=3.0):
             return True
 
         def via_ok(x, y):
-            at = pcbnew.VECTOR2I(mm(x), mm(y))
-            return not any(b.Contains(at) for b in avoid) and cu.free(disc(x, y, d), x, y, d / 2, code, OUTER, clr, edge)
+            # the whole via plus clearance off the keep-outs, not only its centre: the router sees a via that
+            # touches a keep-out as a violation it cannot fix and never connects to it
+            for b in avoid:
+                dx = max(pcbnew.ToMM(b.GetLeft()) - x, 0, x - pcbnew.ToMM(b.GetRight()))
+                dy = max(pcbnew.ToMM(b.GetTop()) - y, 0, y - pcbnew.ToMM(b.GetBottom()))
+                if math.hypot(dx, dy) < d / 2 + clr:
+                    return False
+            return cu.free(disc(x, y, d), x, y, d / 2, code, OUTER, clr, edge)
 
         got = None
         # first straight to a via around the pad, then bent through an exit to a via around that exit

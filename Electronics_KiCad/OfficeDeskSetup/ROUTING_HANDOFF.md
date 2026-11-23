@@ -53,6 +53,17 @@ So the first real run may still find bugs in the parts that depend on real route
 whether the router used a via), the open-count improvement per round, and Freerouting's handling of the keepouts
 and of fixed vias.
 
+## First real runs (local, 2026-11-23, Freerouting SNAPSHOT-20261119)
+
+* Attempts 1 and 2 (`--bare`): 22 open power connections, worse than the old 18. Freerouting reported every escape
+  via near a chip as an unfixable clearance violation against an `ObstacleArea` (the chip keep-outs): `via_ok`
+  only kept the via's centre out of the keep-out box, so the via itself overlapped it and the router never used it.
+* Fix: `planevias.escape` keeps the whole via plus clearance off the keep-outs. Pin ranking reset.
+* Attempt 3 (`--bare`, fresh ranking): rounds 25 → 20 → 17 → 16 open; round 3 kept. 16 open power connections in
+  10 nets (V_BUS 7). KiCad DRC: 15 clearance violations, all pad-to-pad inside the TPS25947 footprints (U8, U9,
+  U14); no track or via clearance violations (a529ab5 had 45). U6.28 (CHG_SW1) never gets room for a via.
+* Still dropping at the last round: more `--escape-rounds` may help.
+
 ## Next steps
 
 1. Run stage 0 from scratch (KiCad closed):
