@@ -23,9 +23,9 @@ and only finish writes the board. Stages:
    Chip keep-outs (in the DSN of this stage only, --no-keepout skips them): no power tracks or vias on the far side
    of a chip's courtyard, where its signals fan out, and no power tracks in the area its pins enclose (U parts with
    SMD pads only, no larger than --keepout-max mm: not the modules).
-   Escape rounds (--escape-rounds, 3): the power pads left open get an escape via (a via beside the pad with a
-   short track, at the class width where it fits) on the stage's starting board, and the stage is routed again;
-   until nothing is open, no pad gets a new via, or the rounds are used up. The round with the fewest open
+   Escape rounds (--escape-rounds, 0 = no limit): the power pads left open get an escape via (a via beside the pad
+   with a short track, at the class width where it fits) on the stage's starting board, and the stage is routed
+   again; until nothing is open, no pad gets a new via, or the rounds (if limited) are used up. The round with the fewest open
    connections is kept, without the escape vias it did not use (those at pads still open stay, to finish by hand:
    from the via a short track on any layer, the planes have room for it). Work files: stage0_in.kicad_pcb (the
    starting board with the escape vias), stage0_rN.kicad_pcb (each round), stage0_rounds.json.
@@ -500,13 +500,21 @@ def escape_round(args, pcb, s):
     print('stage %s round %d: %d open connections; open pads: %s' % (s, args.round, n, ' '.join(names) or 'none'), flush=True)
     add_scores(args, board, names, [])
     limit = args.escape_rounds if s == '0' else args.escape_rounds_signals
-    if n == 0 or args.round >= limit:
+    if n == 0 or 0 < limit <= args.round:             # limit 0: until no pad gets a new via
         state['stop'] = True
     else:
         start = pcbnew.LoadBoard(wpath(args, 'stage%s_in.kicad_pcb' % s))
-        want = {(planevias.pad_name(p), p.GetPosition().x, p.GetPosition().y) for p in pads}
-        had = {tuple(e['pad']) for e in state['escapes']}
-        todo = ranked(args, [p for p in start.GetPads() if (planevias.pad_name(p), p.GetPosition().x, p.GetPosition().y) in want - had])
+        # a pad by name and position, within 1 um: the recorded position comes back through mm and can be 1 nm off;
+        # an exact match missed it and gave the same pad a new via every round, without end
+        recorded = [tuple(e['pad']) for e in state['escapes']]
+
+        def key(p):
+            name, x, y = planevias.pad_name(p), p.GetPosition().x, p.GetPosition().y
+            return next(((n, a, b) for n, a, b in recorded if n == name and abs(a - x) <= 1000 and abs(b - y) <= 1000),
+                        (name, x, y))
+        want = {key(p) for p in pads}
+        had = set(recorded)
+        todo = ranked(args, [p for p in start.GetPads() if key(p) in want - had])
         boxes = keepouts(start, args, codes)[1] if nets_of(start, args, s)[3] else []
         done, missed = planevias.escape(start, todo, sizes(start, codes), boxes)
         print('escape vias: %d (%s); no room for one: %s; already had one: %s' % (
@@ -796,9 +804,10 @@ def main():
                     help='narrowing stubs on power pins too fine for a full-width track (planevias.stubs)')
     ap.add_argument('--bare', action='store_true',
                     help='with --stage power: start from the bare placement (all tracks and vias on the board removed)')
-    ap.add_argument('--escape-rounds', type=int, default=3,
-                    help='stage 0: route again up to this many times, each time with escape vias at the pads left open')
-    ap.add_argument('--escape-rounds-signals', type=int, default=2, help='the same for stage 1')
+    ap.add_argument('--escape-rounds', type=int, default=0,
+                    help='stage 0: route again up to this many times, each time with escape vias at the pads left open '
+                         '(0: no limit, until no pad gets a new via)')
+    ap.add_argument('--escape-rounds-signals', type=int, default=2, help='the same for stage 1 (0: no limit)')
     ap.add_argument('--scores', help='pin ranking kept over all runs (default: pin_scores.json in the work directory)')
     ap.add_argument('--pre-escape', type=int, default=1,
                     help='a new attempt gives pins with at least this score an escape via before routing (0: off)')

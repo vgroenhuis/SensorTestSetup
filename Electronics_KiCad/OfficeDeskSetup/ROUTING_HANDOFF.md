@@ -24,7 +24,7 @@ Changed files: `gen/route.py`, `gen/planevias.py`, `SCHEMATIC_NOTES.md`. The boa
    connectivity: pads outside their net's largest connected group) gets an escape via (`planevias.escape`): a
    via of the net class size beside the pad with a short locked track at the class width where it fits (down to
    0.2 mm). Straight from the pad, or else out along the pin past its end, then to the via. The stage is routed
-   again from its starting board (`gen/route/stage0_in.kicad_pcb`) plus the vias, up to `--escape-rounds` (3) for
+   again from its starting board (`gen/route/stage0_in.kicad_pcb`) plus the vias, up to `--escape-rounds` (now 0 = until no pad gets a new via) for
    power, `--escape-rounds-signals` (2) for stage 1. The best round is kept; unused escape vias are removed
    except at pads still open (to connect by hand later).
 2. **Pin ranking** (`gen/route/pin_scores.json`, persists across runs): +1 per round a pin stays open, +1 each
@@ -62,7 +62,10 @@ and of fixed vias.
 * Attempt 3 (`--bare`, fresh ranking): rounds 25 → 20 → 17 → 16 open; round 3 kept. 16 open power connections in
   10 nets (V_BUS 7). KiCad DRC: 15 clearance violations, all pad-to-pad inside the TPS25947 footprints (U8, U9,
   U14); no track or via clearance violations (a529ab5 had 45). U6.28 (CHG_SW1) never gets room for a via.
-* Still dropping at the last round: more `--escape-rounds` may help.
+* Attempt 4 (`--bare`, no round limit, ranking from attempt 3: 70 vias placed in advance): 17 open after round 0;
+  every open pad but U6.26 already had a via, so it stopped. An exact position match had first made it loop
+  (U13.2's recorded position 1 nm off, a new via every round); pads now match within 1 um. Board kept: attempt 3.
+* Still dropping at the last round: `--escape-rounds` now defaults to 0 (no limit), the rounds go on until no open pad gets a new via.
 
 ## Next steps
 

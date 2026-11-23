@@ -294,7 +294,7 @@ About 50–60 minutes (200 × 150 mm) to 70 minutes (270 × 200 mm). The work fi
      of at most 20 mm a side (`--keepout-refs`, `--keepout-max`; so not the ESP32 modules) gets a keep-out for
      tracks and vias over its courtyard on the other side of the board, where its signals fan out, and one for
      tracks over the area its pins enclose on its own side (shrunk until no pin on a power net is in it). 41 chips.
-   * **Escape rounds** (`--escape-rounds`, default 3): the power pads that a round leaves open each get an
+   * **Escape rounds** (`--escape-rounds`, default 0 = no limit): the power pads that a round leaves open each get an
      *escape via*: a via of the net class size beside the pad (outwards from the part first, not under a chip
      keep-out) with a short locked track at the class width where it fits, else down to 0.2 mm. They go on the
      stage's starting board and the stage is routed again, until nothing is open, no open pad gets a new via, or
@@ -313,7 +313,7 @@ About 50–60 minutes (200 × 150 mm) to 70 minutes (270 × 200 mm). The work fi
 3. **Stage 1**: all nets on F.Cu and B.Cu only. The inner layers are marked as plane layers in the Specctra DSN
    (KiCad exports them as signal layers, and Freerouting then routes straight through the planes), and the board
    outline is pulled in so tracks keep the 0.5 mm edge clearance. Escape rounds as in stage 0, for all nets but the
-   plane nets (`--escape-rounds-signals`, default 2; each round is a full stage-1 run).
+   plane nets (`--escape-rounds-signals`, default 2, 0 = no limit; each round is a full stage-1 run).
 4. **Stage 2**: the stage-1 tracks are locked and Freerouting routes what is left with the planes open. A track
    through a plane is kept only while the plane stays sound: at most 50 mm of plane track per net; plane tracks
    closer together than 2 mm count as one slot of at most 50 mm; and each plane stays one piece (filled with a
