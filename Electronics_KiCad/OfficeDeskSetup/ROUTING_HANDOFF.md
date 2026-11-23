@@ -95,6 +95,12 @@ and of fixed vias.
   inspect/run11 and run12. Main keeps attempt 10 with plane vias and signals (c5598ca). Not yet run through the
   signal stage, where the fan-out should help most. Fan-out vias are not escape-round vias, so the rounds stop
   when the only open pads have fan-out vias (U6.22, U6.23 in attempt 12).
+* Attempt 12 with the three open power connections drawn by hand (CHG_VBUS at 0.95 mm between L1.2 and a CHG_SW1
+  track, where 1.0 mm does not fit; BAT_P at 0.2 mm from U6.22), then plane vias (439; 11 pads without room) and
+  signals: rounds 26 -> 22 -> 29, round 1 kept: **22 open signal connections** (attempt 10 without fan-out: 25).
+  3871 tracks, 16.5 m, 1073 vias. DRC outside the TPS25947 footprints: track-to-hole at mounting holes H2 and H3
+  (as in attempt 10: the mounting holes need a keep-out for Freerouting) and one clearance at JP8 pad 2.
+  Saved in inspect/run12_vias and inspect/run12_signals; on main.
 * Still dropping at the last round: `--escape-rounds` now defaults to 0 (no limit), the rounds go on until no open pad gets a new via.
 
 ## Next steps
