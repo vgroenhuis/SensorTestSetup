@@ -318,12 +318,19 @@ About 50–60 minutes (200 × 150 mm) to 70 minutes (270 × 200 mm). The work fi
      The track to the via runs straight from the pad, or else first straight out along the pin past its end, then to
      the via (a pin boxed in by its neighbours, like the middle pins of the TPS25947).
    * **Pin ranking** (`gen/route/pin_scores.json`, kept over all runs; `--scores` for another file): a pin scores a
-     point every round it is left open and every time there is no room for its escape via. Escape vias go in
+     point every round it is left open and every time there is no room for its via (escape via, fan-out via, or
+     plane via). Escape vias go in
      ranking order (the first get the best spots), and a new attempt starts by giving every pin that scored
      (`--pre-escape`, default 1 point; 0: off) its escape via before the first round, highest first. Delete the file
      to start the ranking over (after a new placement, say). Example on rev 0.2: the first attempt from the routed
      board has no room for U8.6, U6.2, U6.8 and U6.28 (U8.5's via took U8.6's only way out); the next attempt from
      the bare placement gives all 25 failed pins a via first, those four included.
+   * **Mounting holes** (all stages): Freerouting keeps its clearance from the copper only, and the SCREW-SMD
+     standoffs H2-H4 have a 0.05 mm ring (4.3 mm pad on a 4.2 mm hole), so tracks came 0.20-0.24 mm from the hole
+     where KiCad wants 0.25 (hole clearance). Every through-hole pad with a ring thinner than the hole clearance that
+     has no net or a hole of 2 mm or more gets a keep-out in the DSN (all copper layers, tracks and vias): a 16-gon
+     around the hole radius + hole clearance + 0.05 mm. Not for pads with a net and a small hole: the keep-out would
+     keep their own tracks off.
 3. **Stage 1**: all nets on F.Cu and B.Cu only. The inner layers are marked as plane layers in the Specctra DSN
    (KiCad exports them as signal layers, and Freerouting then routes straight through the planes), and the board
    outline is pulled in so tracks keep the 0.5 mm edge clearance. Escape rounds as in stage 0, for all nets but the

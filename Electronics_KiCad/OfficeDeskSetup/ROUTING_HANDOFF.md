@@ -101,6 +101,8 @@ and of fixed vias.
   3871 tracks, 16.5 m, 1073 vias. DRC outside the TPS25947 footprints: track-to-hole at mounting holes H2 and H3
   (as in attempt 10: the mounting holes need a keep-out for Freerouting) and one clearance at JP8 pad 2.
   Saved in inspect/run12_vias and inspect/run12_signals; on main.
+* Mounting holes H2-H4 now get a keep-out ring in the DSN at every stage (hole clearance 0.25 mm + 0.05 mm), and
+  pads without room for a via score a point in the fan-out and the pre-placed plane vias too. Not yet run.
 * Still dropping at the last round: `--escape-rounds` now defaults to 0 (no limit), the rounds go on until no open pad gets a new via.
 
 ## Next steps

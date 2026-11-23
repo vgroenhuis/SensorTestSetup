@@ -160,6 +160,7 @@ def route(board, args, name, closed, passes, keep=None, areas=()):
     route only the nets whose short name it accepts. `areas`: rule areas that are in the DSN only (taken off the board
     again right after the export)."""
     dsn, ses = (os.path.join(args.work, name + e) for e in ('.dsn', '.ses'))
+    areas = list(areas) + hole_areas(board)
     for z in areas:
         board.Add(z)
     ok = pcbnew.ExportSpecctraDSN(board, dsn)
@@ -288,6 +289,41 @@ def load(args, pcb, prev):
 
 def store(args, pcb, board, name):
     save(board, pcb if args.stage else os.path.join(args.work, name + '.kicad_pcb'), pro(pcb))
+
+
+def hole_areas(board, margin=0.05):
+    """Keep-outs (DSN only) around the holes of through-hole pads whose copper ring is thinner than the board's hole
+    clearance and that are mounting holes (no net, or a hole of 2 mm or more: the SCREW-SMD standoffs H2-H4, a
+    4.3 mm pad on a 4.2 mm hole). Freerouting only keeps its clearance from
+    the copper, and approximates the round pad by a polygon inside the circle, so tracks came 0.20-0.24 mm from the
+    hole where KiCad wants 0.25. Each keep-out is a 16-gon around the circle of hole radius + hole clearance +
+    `margin`, on every copper layer, for tracks and vias."""
+    hc = pcbnew.ToMM(board.GetDesignSettings().m_HoleClearance)
+    out = []
+    for p in board.GetPads():
+        if p.GetAttribute() != pcbnew.PAD_ATTRIB_PTH:
+            continue
+        drill = min(pcbnew.ToMM(v) for v in (p.GetDrillSize().x, p.GetDrillSize().y))
+        size = min(pcbnew.ToMM(v) for v in (p.GetSize(pcbnew.F_Cu).x, p.GetSize(pcbnew.F_Cu).y))
+        if drill <= 0 or (size - drill) / 2 >= hc or (p.GetNetCode() > 0 and drill < 2):
+            continue                       # a keep-out would also keep the pad's own tracks off: mounting holes only
+        r = (drill / 2 + hc + margin) / math.cos(math.pi / 16)
+        cx, cy = pcbnew.ToMM(p.GetPosition().x), pcbnew.ToMM(p.GetPosition().y)
+        z = pcbnew.ZONE(board)
+        z.SetIsRuleArea(True)
+        z.SetLayerSet(pcbnew.LSET.AllCuMask(board.GetCopperLayerCount()))
+        z.SetDoNotAllowTracks(True)
+        z.SetDoNotAllowVias(True)
+        z.SetDoNotAllowPads(False)
+        z.SetDoNotAllowZoneFills(False)
+        z.SetDoNotAllowFootprints(False)
+        ol = z.Outline()
+        ol.NewOutline()
+        for k in range(16):
+            a = (k + 0.5) * math.pi / 8
+            ol.Append(mm(cx + r * math.cos(a)), mm(cy + r * math.sin(a)))
+        out.append(z)
+    return out
 
 
 def rule_area(board, layer, box, vias):
@@ -587,6 +623,7 @@ def dense_fanout(args, board):
               '%d inwards to the planes); keep-outs dropped: %s; no room: %s' % (
                   ' '.join(fp.GetReference() for fp in dense), len(done), len(d1), len(du), len(d2),
                   ' '.join(relaxed) or 'none', ' '.join(missed) or 'none'), flush=True)
+        add_scores(args, board, [], missed)            # no room: +1, so they come earlier next attempt
     if args.pre_escape > 0:
         scores = load_scores(args)
         want = {n for n, e in scores.items() if e['score'] >= args.pre_escape}
@@ -594,6 +631,7 @@ def dense_fanout(args, board):
         if n or still:
             print('plane vias first, at the plane pads that had no room before: %d; still no room: %s' % (
                 n, ' '.join(still) or 'none'), flush=True)
+        add_scores(args, board, [], still)
     return relaxed
 
 
