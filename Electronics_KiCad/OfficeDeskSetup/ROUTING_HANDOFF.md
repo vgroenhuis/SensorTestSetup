@@ -84,6 +84,11 @@ and of fixed vias.
   track or via clearance violations. 2440 mm power track, 102 vias; 74 mm (62 pieces, at most 3.2 mm long)
   narrower than the class width, mostly 0.2 mm escape tracks from fine-pitch pins (CHG_SW2 3.2 mm at 0.2 mm:
   check the current). The board on main is run 10.
+* After attempt 10: `--stage vias` (451 plane vias/tracks; no room at C117.1, C117.2, U8.8, R31.2, C17.2,
+  U23.A7, U23.C7, U39.3/5/6/8/12, U14.8, U6.27, U9.8), then `--stage signals`: rounds 35 -> 26 -> 25 open signal
+  connections (10.5, 22.5, 18 min); round 2 kept. 3731 tracks, 15.6 m, 1017 vias. DRC: 2 hole clearance
+  violations (tracks too close to mounting holes H3, H4), otherwise only TPS25947 pad-to-pad. Escape vias found
+  no room at several U6 pins (5, 10, 14, 19, 20, 21). Saved in inspect/run10_vias and inspect/run10_signals.
 * Still dropping at the last round: `--escape-rounds` now defaults to 0 (no limit), the rounds go on until no open pad gets a new via.
 
 ## Next steps
