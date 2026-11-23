@@ -330,6 +330,13 @@ def escape(board, pads, sizes, avoid=(), clr=0.2, edge=1.0, reach=3.0):
     # net already starts
     starts = {(t.GetNetCode(), t.GetStart().x, t.GetStart().y) for t in board.GetTracks()
               if t.Type() == pcbnew.PCB_TRACE_T and t.IsLocked()}
+    # the landing room of the escape vias already there (earlier rounds, pins placed in advance)
+    for v in board.GetTracks():
+        if v.Type() == pcbnew.PCB_VIA_T and v.IsLocked() and v.GetNetCode() in sizes:
+            w = max(pcbnew.ToMM(v.GetWidth(pcbnew.F_Cu)), sizes[v.GetNetCode()][0])
+            ring = disc(pcbnew.ToMM(v.GetPosition().x), pcbnew.ToMM(v.GetPosition().y), w)
+            cu.keep.append(ring)
+            cu.add(ring, v.GetNetCode(), OUTER)
     for p in pads:
         if p.GetAttribute() not in (pcbnew.PAD_ATTRIB_SMD, pcbnew.PAD_ATTRIB_CONN):
             continue                                    # a through-hole pad is on every layer already
@@ -384,8 +391,11 @@ def escape(board, pads, sizes, avoid=(), clr=0.2, edge=1.0, reach=3.0):
                 dy = max(pcbnew.ToMM(b.GetTop()) - y, 0, y - pcbnew.ToMM(b.GetBottom()))
                 if math.hypot(dx, dy) < d / 2 + clr:
                     return False
-            return cu.free(disc(x, y, d), x, y, d / 2, code, OUTER, clr, edge)
+            # room for a class-width track to end on the via, not only for the via: two vias 1.03 mm apart at U6
+            # left no legal way for a 1 mm track to reach either (0.5 + 0.4 + 0.2 = 1.1 mm needed)
+            return cu.free(disc(x, y, land), x, y, land / 2, code, OUTER, clr, edge)
 
+        land = max(d, full)
         got = None
         # first straight to a via around the pad, then bent through an exit to a via around that exit
         for x, y in [(x, y) for _, _, x, y in sorted(ring(px, py, math.hypot(w, h) / 2 + d / 2 + clr))]:
@@ -425,6 +435,10 @@ def escape(board, pads, sizes, avoid=(), clr=0.2, edge=1.0, reach=3.0):
         x, y = path[-1]
         starts.add((code, tracks[0].GetStart().x, tracks[0].GetStart().y))
         done.append((pad_name(p), add_via(board, cu, x, y, net, d, drill), tracks))
+        if land > d:                                    # keep the landing free for later escape vias too
+            ring = disc(x, y, land)
+            cu.keep.append(ring)
+            cu.add(ring, code, OUTER)
     return done, missed
 
 

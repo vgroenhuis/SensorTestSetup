@@ -76,6 +76,9 @@ and of fixed vias.
   - The keep-outs covered the whole courtyard, blocking short hops beside the pins (SW_3V3 at U11, V_BUS at U18);
     now only the body between the pins. Run 8: 4 open (VBUS_SW at U8.6 and U9.6, CHG_SW1 U6.28, CHG_SW2 U6.26),
     no track or via clearance violations. The board on main is run 8.
+* Attempt 9: escape vias need room for a class-width track to end on them (the U6.26/U6.28 vias were 1.03 mm
+  apart, a 1 mm track needs 1.1 mm to the other via). **2 open**: CHG_SW1 (U6 to L1.1), CHG_SYS (near U8.5).
+  VBUS_SW at U8.6/U9.6 routed. No track or via clearance violations. The board on main is run 9.
 * Still dropping at the last round: `--escape-rounds` now defaults to 0 (no limit), the rounds go on until no open pad gets a new via.
 
 ## Next steps

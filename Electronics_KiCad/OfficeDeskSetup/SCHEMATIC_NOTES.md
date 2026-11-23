@@ -300,7 +300,8 @@ About 50–60 minutes (200 × 150 mm) to 70 minutes (270 × 200 mm). The work fi
      only: 4. A pin with no room for its escape via outside the keep-out gets one under the chip, and that chip
      loses both keep-outs for the rest of the attempt (logged as "under the chip, its keep-outs dropped").
    * **Escape rounds** (`--escape-rounds`, default 0 = no limit): the power pads that a round leaves open each get an
-     *escape via*: a via of the net class size beside the pad (outwards from the part first, off the chip
+     *escape via*: a via of the net class size beside the pad, where a class-width track can end on it (that
+     landing room is kept free for later escape vias; two vias 1.03 mm apart at U6 left a 1 mm track no way in) (outwards from the part first, off the chip
      keep-outs; under the chip only when there is no room outside) with a short locked track at the class width where it fits, else down to 0.2 mm. They go on the
      stage's starting board and the stage is routed again, until nothing is open, no open pad gets a new via, or
      the rounds are used up. The round with the fewest open connections is kept, without the escape vias the router
