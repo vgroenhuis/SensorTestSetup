@@ -326,10 +326,16 @@ def escape(board, pads, sizes, avoid=(), clr=0.2, edge=1.0, reach=3.0):
     areas (chip keep-outs) where a via is no use. Returns ([(pad name, via, [tracks])], pads that got none)."""
     cu = Copper(board)
     done, missed = [], []
+    # stacked pads (USB-C A4/B9) share one spot: one escape via for it, so skip a pad where a locked track of its
+    # net already starts
+    starts = {(t.GetNetCode(), t.GetStart().x, t.GetStart().y) for t in board.GetTracks()
+              if t.Type() == pcbnew.PCB_TRACE_T and t.IsLocked()}
     for p in pads:
         if p.GetAttribute() not in (pcbnew.PAD_ATTRIB_SMD, pcbnew.PAD_ATTRIB_CONN):
             continue                                    # a through-hole pad is on every layer already
         code, net = p.GetNetCode(), p.GetNet()
+        if (code, mm(pcbnew.ToMM(p.GetPosition().x)), mm(pcbnew.ToMM(p.GetPosition().y))) in starts:
+            continue
         full, d, drill = sizes[code]
         fp = p.GetParentFootprint()
         layer = pcbnew.B_Cu if p.IsOnLayer(pcbnew.B_Cu) and not p.IsOnLayer(pcbnew.F_Cu) else pcbnew.F_Cu
@@ -417,35 +423,50 @@ def escape(board, pads, sizes, avoid=(), clr=0.2, edge=1.0, reach=3.0):
             cu.add(seg, code, (layer,))
             tracks.append(t)
         x, y = path[-1]
+        starts.add((code, tracks[0].GetStart().x, tracks[0].GetStart().y))
         done.append((pad_name(p), add_via(board, cu, x, y, net, d, drill), tracks))
     return done, missed
 
 
 def unused_escapes(board, marks, keep):
-    """Remove the escape vias (and their tracks) that the router did not use: nothing but their own tracks touch
-    the via. `marks`: [(net name, via x, via y, [(x0, y0, x1, y1) of its tracks])] in nm; leave out the pads that are
+    """Remove the escape vias (and their tracks) that the router did not use: nothing of the net touches the via,
+    and nothing touches its tracks other than at the pad. `marks`: [(net name, via x, via y, [(x0, y0, x1, y1) of its tracks])] in nm; leave out the pads that are
     still open (their via stays, for finishing by hand or in a later stage). Removed items go into `keep`. Returns
     the number removed."""
-    by_net = {}
+    by_net, pads = {}, {}
     for t in board.GetTracks():
         by_net.setdefault(t.GetNetname(), []).append(t)
+    for p in board.GetPads():
+        pads.setdefault(p.GetNetname(), []).append(p)
     n = 0
     for net, vx, vy, segs in marks:
         items = by_net.get(net, [])
         via = next((t for t in items if t.Type() == pcbnew.PCB_VIA_T and t.GetPosition().x == vx and t.GetPosition().y == vy), None)
         if via is None:
             continue
-        r = via.GetWidth(pcbnew.F_Cu) / 2
-        at = via.GetPosition()
         mine = {frozenset({(a, b), (c, e)}) for a, b, c, e in segs}
         own = [t for t in items if t.Type() == pcbnew.PCB_TRACE_T and
                frozenset({(t.GetStart().x, t.GetStart().y), (t.GetEnd().x, t.GetEnd().y)}) in mine]
-        ends = {pt for a, b, c, e in segs for pt in ((a, b), (c, e))}
-        others = [t for t in items if t.Type() == pcbnew.PCB_TRACE_T and t not in own and
-                  (min((t.GetStart() - at).EuclideanNorm(), (t.GetEnd() - at).EuclideanNorm()) <= r or
-                   any(abs(t.GetStart().x - x) + abs(t.GetStart().y - y) < 1000 or abs(t.GetEnd().x - x) + abs(t.GetEnd().y - y) < 1000
-                       for x, y in ends - {(segs[0][0], segs[0][1])}))]
-        if others:
+        start = pcbnew.VECTOR2I(segs[0][0], segs[0][1])
+        pad = next((p for p in pads.get(net, []) if p.HitTest(start)), None)
+        # used: another track or via of the net touches the via, or touches one of the escape's tracks anywhere
+        # (the router often ends a track on the middle of it) without touching the pad itself, which would make the
+        # escape redundant
+        used = False
+        for t in items:
+            if t is via or t in own:
+                continue
+            layers = (pcbnew.F_Cu, pcbnew.B_Cu) if t.Type() == pcbnew.PCB_VIA_T else (t.GetLayer(),)
+            for layer in layers:
+                sh = t.GetEffectiveShape(layer)
+                if via.GetEffectiveShape(layer).Collide(sh, 0):
+                    used = True
+                elif any(o.GetLayer() == layer and o.GetEffectiveShape(layer).Collide(sh, 0) for o in own) and not (
+                        pad is not None and pad.IsOnLayer(layer) and pad.GetEffectiveShape(layer).Collide(sh, 0)):
+                    used = True
+            if used:
+                break
+        if used:
             continue
         for t in [via] + own:
             board.Remove(t)
