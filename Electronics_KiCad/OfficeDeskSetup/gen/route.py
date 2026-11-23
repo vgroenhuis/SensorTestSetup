@@ -29,6 +29,9 @@ and only finish writes the board. Stages:
    connections is kept, without the escape vias it did not use (those at pads still open stay, to finish by hand:
    from the via a short track on any layer, the planes have room for it). Work files: stage0_in.kicad_pcb (the
    starting board with the escape vias), stage0_rN.kicad_pcb (each round), stage0_rounds.json.
+   Pin ranking (--scores, pin_scores.json in the work directory, kept over all runs): a pin scores a point every
+   round it is left open and every time there is no room for its escape via. Escape vias go in ranking order, and
+   a new attempt first gives every pin with at least --pre-escape points (1) its via, highest first.
    vias: Freerouting does not connect pads to the planes itself, so every SMD pad on GND or +3V3 gets a
    via to its plane, or a short track to a through-hole pad of its net (gen/planevias.py). They come after the
    power tracks: a via beside a fine-pitch power pin can leave no room for a full-width track (USB-C VBUS).
@@ -385,6 +388,60 @@ def wpath(args, *parts):
     return os.path.join(args.work, ''.join(str(p) for p in parts))
 
 
+def load_scores(args):
+    """The pin ranking kept over all runs (--scores): {pad name: {'net', 'open', 'no_via', 'score'}}. A pin scores a
+    point every round it is left open and every time there is no room for its escape via."""
+    try:
+        return json.load(open(args.scores, encoding='utf-8'))
+    except (OSError, ValueError):
+        return {}
+
+
+def add_scores(args, board, open_names, no_via):
+    scores = load_scores(args)
+    nets = {planevias.pad_name(p): p.GetNetname().split('/')[-1] for p in board.GetPads()}
+    for names, what in ((open_names, 'open'), (no_via, 'no_via')):
+        for n in set(names):
+            e = scores.setdefault(n, {'net': nets.get(n, '?'), 'open': 0, 'no_via': 0, 'score': 0})
+            e[what] += 1
+            e['score'] += 1
+    os.makedirs(os.path.dirname(os.path.abspath(args.scores)), exist_ok=True)
+    json.dump(dict(sorted(scores.items(), key=lambda kv: (-kv[1]['score'], kv[0]))), open(args.scores, 'w', encoding='utf-8'), indent=1)
+
+
+def ranked(args, pads):
+    """`pads` with the highest scoring pins first (the escape vias go in this order: the first get the best spots)."""
+    scores = load_scores(args)
+    return sorted(pads, key=lambda p: (-scores.get(planevias.pad_name(p), {}).get('score', 0), planevias.pad_name(p)))
+
+
+def record(state, done):
+    for name, via, tracks in done:
+        pad = tracks[0].GetStart()
+        state['escapes'].append({'pad': [name, pad.x, pad.y], 'net': via.GetNetname(),
+                                 'via': [via.GetPosition().x, via.GetPosition().y],
+                                 'tracks': [[t.GetStart().x, t.GetStart().y, t.GetEnd().x, t.GetEnd().y] for t in tracks]})
+
+
+def pre_escape(args, board, s):
+    """A new attempt starts with escape vias at the pins that failed before (score at least --pre-escape), highest
+    score first, so they get their spot before anything else. Writes the stage's rounds file."""
+    state = {'rounds': [], 'escapes': [], 'stop': False}
+    if args.pre_escape > 0:
+        codes, _, _, ko = nets_of(board, args, s)
+        scores = load_scores(args)
+        pads = ranked(args, [p for p in board.GetPads() if p.GetNetCode() in codes and
+                             scores.get(planevias.pad_name(p), {}).get('score', 0) >= args.pre_escape])
+        if pads:
+            boxes = keepouts(board, args, codes)[1] if ko else []
+            done, missed = planevias.escape(board, pads, sizes(board, codes), boxes)
+            record(state, done)
+            add_scores(args, board, [], missed)
+            print('escape vias first, at the pins that failed before: %d (%s); no room for one: %s' % (
+                len(done), ' '.join(d[0] for d in done) or '-', ' '.join(missed) or 'none'), flush=True)
+    json.dump(state, open(wpath(args, 'stage%s_rounds.json' % s), 'w'), indent=1)
+
+
 def prep0(args, pcb):
     """Stage 0's starting board: the board as it is (--stage; tracks drawn by hand stay, locked) or the bare placement,
     with narrowing stubs on the power pins too fine for a full-width track. The plane vias come after stage 0: a via
@@ -405,6 +462,7 @@ def prep0(args, pcb):
     if args.keepout:
         print('chip keep-outs: %s' % ' '.join(sorted((fp.GetReference() for fp, _ in chips(board, args)),
                                                      key=lambda r: (re.sub(r'\d', '', r), int(re.sub(r'\D', '', r) or 0)))))
+    pre_escape(args, board, '0')
     save(board, wpath(args, 'stage0_in.kicad_pcb'), pro(pcb))
 
 
@@ -413,6 +471,7 @@ def prep1(args, pcb):
     board = load(args, pcb, 'vias')
     for t in board.GetTracks():
         t.SetLocked(True)
+    pre_escape(args, board, '1')
     save(board, wpath(args, 'stage1_in.kicad_pcb'), pro(pcb))
 
 
@@ -432,13 +491,14 @@ def escape_round(args, pcb, s):
     """Count what round r of stage s left open; unless that is nothing (or this was the last round), give the open
     pads escape vias on the starting board for the next round. Writes stage<s>_rounds.json."""
     log = wpath(args, 'stage%s_rounds.json' % s)
-    state = json.load(open(log)) if args.round else {'rounds': [], 'escapes': [], 'stop': False}
+    state = json.load(open(log))
     board = pcbnew.LoadBoard(wpath(args, 'stage%s_r%d.kicad_pcb' % (s, args.round)))
     codes = nets_of(board, args, s)[0]
     n, pads = planevias.open_pads(board, codes)
     names = sorted({planevias.pad_name(p) for p in pads})
     state['rounds'].append({'round': args.round, 'open': n, 'pads': names})
     print('stage %s round %d: %d open connections; open pads: %s' % (s, args.round, n, ' '.join(names) or 'none'), flush=True)
+    add_scores(args, board, names, [])
     limit = args.escape_rounds if s == '0' else args.escape_rounds_signals
     if n == 0 or args.round >= limit:
         state['stop'] = True
@@ -446,16 +506,14 @@ def escape_round(args, pcb, s):
         start = pcbnew.LoadBoard(wpath(args, 'stage%s_in.kicad_pcb' % s))
         want = {(planevias.pad_name(p), p.GetPosition().x, p.GetPosition().y) for p in pads}
         had = {tuple(e['pad']) for e in state['escapes']}
-        todo = [p for p in start.GetPads() if (planevias.pad_name(p), p.GetPosition().x, p.GetPosition().y) in want - had]
+        todo = ranked(args, [p for p in start.GetPads() if (planevias.pad_name(p), p.GetPosition().x, p.GetPosition().y) in want - had])
         boxes = keepouts(start, args, codes)[1] if nets_of(start, args, s)[3] else []
         done, missed = planevias.escape(start, todo, sizes(start, codes), boxes)
         print('escape vias: %d (%s); no room for one: %s; already had one: %s' % (
             len(done), ' '.join(d[0] for d in done) or '-', ' '.join(missed) or 'none',
             ' '.join(sorted(name for name, _, _ in want & had)) or 'none'), flush=True)
-        for name, via, t in done:
-            pad = next(p for p in todo if planevias.pad_name(p) == name)
-            state['escapes'].append({'pad': [name, pad.GetPosition().x, pad.GetPosition().y], 'net': via.GetNetname(),
-                                     'via': [via.GetPosition().x, via.GetPosition().y]})
+        record(state, done)
+        add_scores(args, start, [], missed)
         if done:
             save(start, wpath(args, 'stage%s_in.kicad_pcb' % s), pro(pcb))
         else:
@@ -473,9 +531,11 @@ def pick_round(args, pcb, s, name):
     board = pcbnew.LoadBoard(wpath(args, 'stage%s_r%d.kicad_pcb' % (s, best['round'])))
     refs = []
     still = set(best['pads'])                          # pads still open keep their via
-    marks = [(e['net'], e['via'][0], e['via'][1], e['pad'][1], e['pad'][2]) for e in state['escapes'] if e['pad'][0] not in still]
+    marks = [(e['net'], e['via'][0], e['via'][1], e['tracks']) for e in state['escapes'] if e['pad'][0] not in still]
     print('escape vias the router did not use, removed: %d (kept at the pads still open)' %
           planevias.unused_escapes(board, marks, refs), flush=True)
+    top = list(load_scores(args).items())[:15]
+    print('pin ranking (%s): %s' % (args.scores, ', '.join('%s %s %d' % (n, e['net'], e['score']) for n, e in top) or 'empty'), flush=True)
     store(args, pcb, board, name)
 
 
@@ -739,6 +799,9 @@ def main():
     ap.add_argument('--escape-rounds', type=int, default=3,
                     help='stage 0: route again up to this many times, each time with escape vias at the pads left open')
     ap.add_argument('--escape-rounds-signals', type=int, default=2, help='the same for stage 1')
+    ap.add_argument('--scores', help='pin ranking kept over all runs (default: pin_scores.json in the work directory)')
+    ap.add_argument('--pre-escape', type=int, default=1,
+                    help='a new attempt gives pins with at least this score an escape via before routing (0: off)')
     ap.add_argument('--keepout', action=argparse.BooleanOptionalAction, default=True,
                     help='stage 0: no power tracks under the chips (rule areas in the DSN only)')
     ap.add_argument('--keepout-refs', default='U', help='reference prefixes of the chips that get a keep-out (comma list)')
@@ -765,6 +828,7 @@ def main():
     ap.add_argument('--round', type=int, default=0, help=argparse.SUPPRESS)
     args = ap.parse_args()
     os.makedirs(args.work, exist_ok=True)
+    args.scores = args.scores or os.path.join(args.work, 'pin_scores.json')
     pcb = os.path.join(HERE, PROJECT + '.kicad_pcb')
     if args.step:
         globals()[args.step](args, pcb)

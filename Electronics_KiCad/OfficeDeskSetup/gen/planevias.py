@@ -317,11 +317,13 @@ def open_pads(board, codes):
 
 
 def escape(board, pads, sizes, avoid=(), clr=0.2, edge=1.0, reach=3.0):
-    """Escape vias: a locked via beside each SMD pad in `pads`, with a short locked track to it, so the router can
-    reach the pin from the other outer layer (or, by hand, from an inner layer) when the space around it on its own
-    layer is taken. `sizes`: {net code: (track width, via diameter, via drill) mm}; the track is as wide as that
-    where it fits, else narrower (down to 0.2 mm, no wider than the pad across). `avoid`: BOX2I areas (chip
-    keep-outs) where a via is no use. Returns ([(pad name, via, track)], pads that got none)."""
+    """Escape vias: a locked via beside each SMD pad in `pads` (in that order: the first get the best spots), with a
+    short locked track to it, so the router can reach the pin from the other outer layer (or, by hand, from an
+    inner layer) when the space around it on its own layer is taken. `sizes`: {net code: (track width, via diameter,
+    via drill) mm}; the track is as wide as that where it fits, else narrower (down to 0.2 mm, no wider than the pad
+    across). It runs straight from the pad to the via, or else first straight out along the pin, past the pad's
+    end, then to the via (a pin boxed in by its neighbours, like the middle pins of a TPS25947). `avoid`: BOX2I
+    areas (chip keep-outs) where a via is no use. Returns ([(pad name, via, [tracks])], pads that got none)."""
     cu = Copper(board)
     done, missed = [], []
     for p in pads:
@@ -338,68 +340,105 @@ def escape(board, pads, sizes, avoid=(), clr=0.2, edge=1.0, reach=3.0):
         widths = sorted({min(full, max(w, h)), min(full, across), min(full, across, 0.6), min(full, across, 0.4), 0.2},
                         reverse=True)
         ox, oy = px - pcbnew.ToMM(fp.GetPosition().x), py - pcbnew.ToMM(fp.GetPosition().y)
-        r0 = math.hypot(w, h) / 2 + d / 2 + clr
-        cands = []
-        for k in range(16):
-            a = k * math.pi / 8
-            ux, uy = math.cos(a), math.sin(a)
-            out = (ux * ox + uy * oy) / (math.hypot(ox, oy) or 1)
-            s = 0
-            while r0 + 0.25 * s <= r0 + reach:
-                cands.append((s, -out, px + ux * (r0 + 0.25 * s), py + uy * (r0 + 0.25 * s)))
-                s += 1
-        got = None
-        for _, _, x, y in sorted(cands):
+        # exits for a bent track: straight out of both ends of a long pad
+        if h > w * 1.2:
+            axis = [(0, 1), (0, -1)]
+        elif w > h * 1.2:
+            axis = [(1, 0), (-1, 0)]
+        else:
+            axis = []
+        exits = [(px + ux * ((w if ux else h) / 2 + k), py + uy * ((w if ux else h) / 2 + k))
+                 for ux, uy in axis for k in (0.1, 0.25, 0.4, 0.6)]
+
+        def ring(cx, cy, r0):
+            out = []
+            for k in range(16):
+                a = k * math.pi / 8
+                ux, uy = math.cos(a), math.sin(a)
+                outw = (ux * ox + uy * oy) / (math.hypot(ox, oy) or 1)
+                s = 0
+                while 0.25 * s <= reach:
+                    out.append((s, -outw, cx + ux * (r0 + 0.25 * s), cy + uy * (r0 + 0.25 * s)))
+                    s += 1
+            return out
+
+        def fits(path, tw):
+            for (x0, y0), (x1, y1) in zip(path, path[1:]):
+                seg = pcbnew.SHAPE_SEGMENT(pcbnew.VECTOR2I(mm(x0), mm(y0)), pcbnew.VECTOR2I(mm(x1), mm(y1)), mm(tw))
+                if not cu.free(seg, (x0 + x1) / 2, (y0 + y1) / 2, math.hypot(x1 - x0, y1 - y0) / 2 + tw, code, (layer,),
+                               clr, edge, holes=False):
+                    return False
+            return True
+
+        def via_ok(x, y):
             at = pcbnew.VECTOR2I(mm(x), mm(y))
-            if any(b.Contains(at) for b in avoid):
-                continue
-            if not cu.free(disc(x, y, d), x, y, d / 2, code, OUTER, clr, edge):
-                continue
-            for tw in widths:
-                seg = pcbnew.SHAPE_SEGMENT(p.GetPosition(), at, mm(tw))
-                if cu.free(seg, (px + x) / 2, (py + y) / 2, math.hypot(x - px, y - py) / 2 + tw, code, (layer,), clr, edge,
-                           holes=False):
-                    got = x, y, tw
+            return not any(b.Contains(at) for b in avoid) and cu.free(disc(x, y, d), x, y, d / 2, code, OUTER, clr, edge)
+
+        got = None
+        # first straight to a via around the pad, then bent through an exit to a via around that exit
+        for x, y in [(x, y) for _, _, x, y in sorted(ring(px, py, math.hypot(w, h) / 2 + d / 2 + clr))]:
+            if via_ok(x, y):
+                tw = next((tw for tw in widths if fits([(px, py), (x, y)], tw)), None)
+                if tw:
+                    got = [(px, py), (x, y)], tw
                     break
-            if got:
-                break
+        if not got:
+            for ex, ey in exits:
+                for x, y in [(x, y) for _, _, x, y in sorted(ring(ex, ey, d / 2 + 0.05))]:
+                    if via_ok(x, y):
+                        tw = next((tw for tw in widths if fits([(px, py), (ex, ey), (x, y)], tw)), None)
+                        if tw:
+                            got = [(px, py), (ex, ey), (x, y)], tw
+                            break
+                if got:
+                    break
         if not got:
             missed.append(pad_name(p))
             continue
-        x, y, tw = got
-        t = pcbnew.PCB_TRACK(board)
-        t.SetStart(p.GetPosition())
-        t.SetEnd(pcbnew.VECTOR2I(mm(x), mm(y)))
-        t.SetWidth(mm(tw))
-        t.SetLayer(layer)
-        t.SetNet(net)
-        t.SetLocked(True)
-        board.Add(t)
-        seg = pcbnew.SHAPE_SEGMENT(t.GetStart(), t.GetEnd(), mm(tw))
-        cu.keep.append(seg)
-        cu.add(seg, code, (layer,))
-        done.append((pad_name(p), add_via(board, cu, x, y, net, d, drill), t))
+        path, tw = got
+        tracks = []
+        for (x0, y0), (x1, y1) in zip(path, path[1:]):
+            t = pcbnew.PCB_TRACK(board)
+            t.SetStart(pcbnew.VECTOR2I(mm(x0), mm(y0)))
+            t.SetEnd(pcbnew.VECTOR2I(mm(x1), mm(y1)))
+            t.SetWidth(mm(tw))
+            t.SetLayer(layer)
+            t.SetNet(net)
+            t.SetLocked(True)
+            board.Add(t)
+            seg = pcbnew.SHAPE_SEGMENT(t.GetStart(), t.GetEnd(), mm(tw))
+            cu.keep.append(seg)
+            cu.add(seg, code, (layer,))
+            tracks.append(t)
+        x, y = path[-1]
+        done.append((pad_name(p), add_via(board, cu, x, y, net, d, drill), tracks))
     return done, missed
 
 
 def unused_escapes(board, marks, keep):
-    """Remove the escape vias (and their tracks) that the router did not use: nothing but their own track touches
-    the via. `marks`: [(net name, via x, via y, pad x, pad y)] in nm; leave out the pads that are still open (their via
-    stays, for finishing by hand or in a later stage). Removed items go into `keep`. Returns the number removed."""
+    """Remove the escape vias (and their tracks) that the router did not use: nothing but their own tracks touch
+    the via. `marks`: [(net name, via x, via y, [(x0, y0, x1, y1) of its tracks])] in nm; leave out the pads that are
+    still open (their via stays, for finishing by hand or in a later stage). Removed items go into `keep`. Returns
+    the number removed."""
     by_net = {}
     for t in board.GetTracks():
         by_net.setdefault(t.GetNetname(), []).append(t)
     n = 0
-    for net, vx, vy, px, py in marks:
+    for net, vx, vy, segs in marks:
         items = by_net.get(net, [])
         via = next((t for t in items if t.Type() == pcbnew.PCB_VIA_T and t.GetPosition().x == vx and t.GetPosition().y == vy), None)
         if via is None:
             continue
         r = via.GetWidth(pcbnew.F_Cu) / 2
         at = via.GetPosition()
-        own = [t for t in items if t.Type() == pcbnew.PCB_TRACE_T and {(t.GetStart().x, t.GetStart().y), (t.GetEnd().x, t.GetEnd().y)} == {(vx, vy), (px, py)}]
+        mine = {frozenset({(a, b), (c, e)}) for a, b, c, e in segs}
+        own = [t for t in items if t.Type() == pcbnew.PCB_TRACE_T and
+               frozenset({(t.GetStart().x, t.GetStart().y), (t.GetEnd().x, t.GetEnd().y)}) in mine]
+        ends = {pt for a, b, c, e in segs for pt in ((a, b), (c, e))}
         others = [t for t in items if t.Type() == pcbnew.PCB_TRACE_T and t not in own and
-                  min((t.GetStart() - at).EuclideanNorm(), (t.GetEnd() - at).EuclideanNorm()) <= r]
+                  (min((t.GetStart() - at).EuclideanNorm(), (t.GetEnd() - at).EuclideanNorm()) <= r or
+                   any(abs(t.GetStart().x - x) + abs(t.GetStart().y - y) < 1000 or abs(t.GetEnd().x - x) + abs(t.GetEnd().y - y) < 1000
+                       for x, y in ends - {(segs[0][0], segs[0][1])}))]
         if others:
             continue
         for t in [via] + own:
