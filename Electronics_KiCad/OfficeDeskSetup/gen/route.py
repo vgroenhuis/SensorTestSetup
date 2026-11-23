@@ -327,19 +327,22 @@ def chips(board, args):
     return out
 
 
-def keepouts(board, args, codes, clr=0.2):
+def keepouts(board, args, codes, clr=0.2, relaxed=()):
     """Chip keep-outs for stage 0, so the power tracks leave the space under and between a chip's pins to its own
     signals: on the other side of the board no tracks and no vias over the courtyard (the chip's signals fan out
     there), on its own side no tracks in the area its pins enclose, as far as no pin on a net of `codes` (the nets
-    being routed) is in it. Returns (rule areas, the courtyard boxes)."""
-    zs, boxes = [], []
+    being routed) is in it. `relaxed`: chips without keep-outs (one of their pins had room for an escape via only
+    under the chip, with its track between the pins). Returns (rule areas, {reference: courtyard box})."""
+    zs, boxes = [], {}
     if not args.keepout:
         return zs, boxes
     for fp, bb in chips(board, args):
+        if fp.GetReference() in relaxed:
+            continue
         side = fp.GetLayer()
         other = pcbnew.B_Cu if side == pcbnew.F_Cu else pcbnew.F_Cu
         zs.append(rule_area(board, other, bb, vias=True))
-        boxes.append(bb)
+        boxes[fp.GetReference()] = bb
         pb = None
         for p in fp.Pads():
             b = p.GetBoundingBox()
@@ -415,6 +418,33 @@ def ranked(args, pads):
     return sorted(pads, key=lambda p: (-scores.get(planevias.pad_name(p), {}).get('score', 0), planevias.pad_name(p)))
 
 
+def escape_vias(args, board, codes, pads, state, ko):
+    """Escape vias at `pads` (planevias.escape), off the chip keep-outs. A pad that has no room outside its chip's
+    keep-out tries again with that keep-out gone: the via may then go under the chip, and the chip loses its keep-outs
+    for the rounds after (state['relaxed']), so the tracks to and from the via are allowed there. The keep-out only
+    keeps power tracks off a chip where they can go around it. Returns (done, missed, chips relaxed now)."""
+    relaxed = state.setdefault('relaxed', [])
+    boxes = keepouts(board, args, codes, relaxed=relaxed)[1] if ko else {}
+    sz = sizes(board, codes)
+    done, missed = planevias.escape(board, pads, sz, list(boxes.values()))
+    still, now = [], []
+    for name in missed:
+        ref = name.rsplit('.', 1)[0]
+        p = next((q for q in pads if planevias.pad_name(q) == name), None)
+        if p is None or ref not in boxes:
+            still.append(name)
+            continue
+        d2, _ = planevias.escape(board, [p], sz, [b for r, b in boxes.items() if r != ref])
+        if d2:
+            done += d2
+            del boxes[ref]
+            relaxed.append(ref)
+            now.append(ref)
+        else:
+            still.append(name)
+    return done, still, now
+
+
 def record(state, done):
     for name, via, tracks in done:
         pad = tracks[0].GetStart()
@@ -433,12 +463,12 @@ def pre_escape(args, board, s):
         pads = ranked(args, [p for p in board.GetPads() if p.GetNetCode() in codes and
                              scores.get(planevias.pad_name(p), {}).get('score', 0) >= args.pre_escape])
         if pads:
-            boxes = keepouts(board, args, codes)[1] if ko else []
-            done, missed = planevias.escape(board, pads, sizes(board, codes), boxes)
+            done, missed, now = escape_vias(args, board, codes, pads, state, ko)
             record(state, done)
             add_scores(args, board, [], missed)
-            print('escape vias first, at the pins that failed before: %d (%s); no room for one: %s' % (
-                len(done), ' '.join(d[0] for d in done) or '-', ' '.join(missed) or 'none'), flush=True)
+            print('escape vias first, at the pins that failed before: %d (%s); no room for one: %s; under the chip, its '
+                  'keep-outs dropped: %s' % (len(done), ' '.join(d[0] for d in done) or '-', ' '.join(missed) or 'none',
+                                            ' '.join(now) or 'none'), flush=True)
     json.dump(state, open(wpath(args, 'stage%s_rounds.json' % s), 'w'), indent=1)
 
 
@@ -479,7 +509,8 @@ def run_round(args, pcb, s):
     """One routing round of stage s on its starting board (with the escape vias of the rounds before)."""
     board = pcbnew.LoadBoard(wpath(args, 'stage%s_in.kicad_pcb' % s))
     codes, keep, passes, ko = nets_of(board, args, s)
-    areas = keepouts(board, args, codes)[0] if ko else []
+    relaxed = json.load(open(wpath(args, 'stage%s_rounds.json' % s))).get('relaxed', [])
+    areas = keepouts(board, args, codes, relaxed=relaxed)[0] if ko else []
     closed = [board.GetLayerName(l) for l in sorted({z.GetLayer() for z in zones(board)})]
     route(board, args, '%s_%s_r%d' % (PROJECT, s, args.round), closed, passes, keep=keep, areas=areas)
     for t in board.GetTracks():
@@ -515,10 +546,9 @@ def escape_round(args, pcb, s):
         want = {key(p) for p in pads}
         had = set(recorded)
         todo = ranked(args, [p for p in start.GetPads() if key(p) in want - had])
-        boxes = keepouts(start, args, codes)[1] if nets_of(start, args, s)[3] else []
-        done, missed = planevias.escape(start, todo, sizes(start, codes), boxes)
-        print('escape vias: %d (%s); no room for one: %s; already had one: %s' % (
-            len(done), ' '.join(d[0] for d in done) or '-', ' '.join(missed) or 'none',
+        done, missed, now = escape_vias(args, start, codes, todo, state, nets_of(start, args, s)[3])
+        print('escape vias: %d (%s); no room for one: %s; under the chip, its keep-outs dropped: %s; already had one: %s' % (
+            len(done), ' '.join(d[0] for d in done) or '-', ' '.join(missed) or 'none', ' '.join(now) or 'none',
             ' '.join(sorted(name for name, _, _ in want & had)) or 'none'), flush=True)
         record(state, done)
         add_scores(args, start, [], missed)

@@ -33,6 +33,9 @@ Changed files: `gen/route.py`, `gen/planevias.py`, `SCHEMATIC_NOTES.md`. The boa
 3. **Chip keep-outs** (stage 0 only, written into the DSN, never saved on the board): for all-SMD `U` parts with
    courtyard ≤ 20 mm a side (41 chips; not the ESP32 modules or U37): no tracks/vias over the courtyard on the
    other side, no tracks inside the area the pins enclose on the chip's own side. `--no-keepout` to disable.
+   They are only meant to keep power tracks off a chip where they can go around it: a pin with no room for its
+   escape via outside the keep-out gets one under the chip, and that chip loses both keep-outs for the rest of the
+   attempt (`state['relaxed']` in stage0_rounds.json).
 4. `--stage power --bare` restarts stage 0 from the bare placement.
 
 ## Testing status: IMPORTANT

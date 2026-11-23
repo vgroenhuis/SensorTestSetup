@@ -293,10 +293,12 @@ About 50–60 minutes (200 × 150 mm) to 70 minutes (270 × 200 mm). The work fi
      power track under a chip takes the room its signal pins need. Every `U` part with only SMD pads and a courtyard
      of at most 20 mm a side (`--keepout-refs`, `--keepout-max`; so not the ESP32 modules) gets a keep-out for
      tracks and vias over its courtyard on the other side of the board, where its signals fan out, and one for
-     tracks over the area its pins enclose on its own side (shrunk until no pin on a power net is in it). 41 chips.
+     tracks over the area its pins enclose on its own side (shrunk until no pin on a power net is in it). 41 chips. The keep-outs only keep power tracks off a chip where
+     they can go around it: a pin with no room for its escape via outside the keep-out gets one under the chip, and
+     that chip loses both keep-outs for the rest of the attempt (logged as "under the chip, its keep-outs dropped").
    * **Escape rounds** (`--escape-rounds`, default 0 = no limit): the power pads that a round leaves open each get an
-     *escape via*: a via of the net class size beside the pad (outwards from the part first, not under a chip
-     keep-out) with a short locked track at the class width where it fits, else down to 0.2 mm. They go on the
+     *escape via*: a via of the net class size beside the pad (outwards from the part first, off the chip
+     keep-outs; under the chip only when there is no room outside) with a short locked track at the class width where it fits, else down to 0.2 mm. They go on the
      stage's starting board and the stage is routed again, until nothing is open, no open pad gets a new via, or
      the rounds are used up. The round with the fewest open connections is kept, without the escape vias the router
      did not use; those at pads still open stay, so a short track on any layer finishes them by hand (the GND and
