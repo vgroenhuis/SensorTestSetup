@@ -316,6 +316,12 @@ def open_pads(board, codes):
     return n, out
 
 
+# mm beyond the class track width around an escape via: Freerouting models round track ends and vias as octagons,
+# a little larger than the circle along the diagonals, so a landing with 0.05 mm to spare (the CHG_SW1 via between
+# U6 pins 27 and 29) was too tight for it
+LAND_MARGIN = 0.1
+
+
 def escape(board, pads, sizes, avoid=(), clr=0.2, edge=1.0, reach=3.0):
     """Escape vias: a locked via beside each SMD pad in `pads` (in that order: the first get the best spots), with a
     short locked track to it, so the router can reach the pin from the other outer layer (or, by hand, from an
@@ -333,7 +339,7 @@ def escape(board, pads, sizes, avoid=(), clr=0.2, edge=1.0, reach=3.0):
     # the landing room of the escape vias already there (earlier rounds, pins placed in advance)
     for v in board.GetTracks():
         if v.Type() == pcbnew.PCB_VIA_T and v.IsLocked() and v.GetNetCode() in sizes:
-            w = max(pcbnew.ToMM(v.GetWidth(pcbnew.F_Cu)), sizes[v.GetNetCode()][0])
+            w = max(pcbnew.ToMM(v.GetWidth(pcbnew.F_Cu)), sizes[v.GetNetCode()][0]) + 2 * LAND_MARGIN
             ring = disc(pcbnew.ToMM(v.GetPosition().x), pcbnew.ToMM(v.GetPosition().y), w)
             cu.keep.append(ring)
             cu.add(ring, v.GetNetCode(), OUTER)
@@ -395,7 +401,7 @@ def escape(board, pads, sizes, avoid=(), clr=0.2, edge=1.0, reach=3.0):
             # left no legal way for a 1 mm track to reach either (0.5 + 0.4 + 0.2 = 1.1 mm needed)
             return cu.free(disc(x, y, land), x, y, land / 2, code, OUTER, clr, edge)
 
-        land = max(d, full)
+        land = max(d, full) + 2 * LAND_MARGIN
         got = None
         # first straight to a via around the pad, then bent through an exit to a via around that exit
         for x, y in [(x, y) for _, _, x, y in sorted(ring(px, py, math.hypot(w, h) / 2 + d / 2 + clr))]:

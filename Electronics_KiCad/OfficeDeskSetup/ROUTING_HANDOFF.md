@@ -79,6 +79,11 @@ and of fixed vias.
 * Attempt 9: escape vias need room for a class-width track to end on them (the U6.26/U6.28 vias were 1.03 mm
   apart, a 1 mm track needs 1.1 mm to the other via). **2 open**: CHG_SW1 (U6 to L1.1), CHG_SYS (near U8.5).
   VBUS_SW at U8.6/U9.6 routed. No track or via clearance violations. The board on main is run 9.
+* Attempt 10: 0.1 mm extra landing margin a side (the CHG_SW1 via had 0.05 mm to spare between U6 pins 27
+  and 29, too tight for Freerouting's octagonal track ends). **0 open power connections**, in round 0. DRC: no
+  track or via clearance violations. 2440 mm power track, 102 vias; 74 mm (62 pieces, at most 3.2 mm long)
+  narrower than the class width, mostly 0.2 mm escape tracks from fine-pitch pins (CHG_SW2 3.2 mm at 0.2 mm:
+  check the current). The board on main is run 10.
 * Still dropping at the last round: `--escape-rounds` now defaults to 0 (no limit), the rounds go on until no open pad gets a new via.
 
 ## Next steps
