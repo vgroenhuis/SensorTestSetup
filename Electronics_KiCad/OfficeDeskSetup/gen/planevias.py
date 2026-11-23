@@ -4,6 +4,9 @@ fanout(): Freerouting 2.5 treats the nets of a plane as connected by the plane a
 down to it, so every SMD pad on a plane net gets one here, before routing: a via beside the pad with a short track,
 or a few vias inside a large (exposed) pad.
 
+escape(): escape vias for pads the router left unconnected (gen/route.py's rounds): a via beside the pad with a
+short track, so the next round can reach the pin from the other outer layer.
+
 stitch(): GND vias on a grid wherever there is room, so the GND pours on F.Cu and B.Cu are tied to the In1 GND plane
 everywhere instead of hanging on single pads. Only once everything is routed (a via grid is in the way of routing by
 hand), as a command:
@@ -270,6 +273,140 @@ def stubs(board, widths, clr=0.2, edge=1.0, longest=3.0):
             if not done:
                 missed.append('%s.%s' % (fp.GetReference(), p.GetNumber()))
     return n, missed
+
+
+def clusters(board, codes):
+    """The pads of each net in `codes`, grouped by what connects them now (tracks, vias, zones): {net code: [[pad]]}."""
+    board.BuildConnectivity()
+    conn = board.GetConnectivity()
+    pads = {}
+    for p in board.GetPads():
+        if p.GetNetCode() in codes:
+            pads.setdefault(p.GetNetCode(), []).append(p)
+    out = {}
+    for code, ps in pads.items():
+        groups, seen = [], set()
+        uid = {p.m_Uuid.AsString(): p for p in ps}         # SWIG hands out a new wrapper per call: match on UUIDs
+        for p in ps:
+            if p.m_Uuid.AsString() in seen:
+                continue
+            g = {p.m_Uuid.AsString()} | {q.m_Uuid.AsString() for q in conn.GetConnectedItems(p)
+                                         if q.GetClass() == 'PAD' and q.GetNetCode() == code}
+            seen |= g
+            groups.append([uid[u] for u in g if u in uid])
+        out[code] = groups
+    return out
+
+
+def pad_name(p):
+    return '%s.%s' % (p.GetParentFootprint().GetReference(), p.GetNumber())
+
+
+def open_pads(board, codes):
+    """Pads of the nets in `codes` that are not connected to the rest of their net: every pad outside the net's
+    largest connected group (both pads of a 2-pad net). Returns (open connections, [pad])."""
+    n, out = 0, []
+    for code, groups in clusters(board, codes).items():
+        if len(groups) < 2:
+            continue
+        n += len(groups) - 1
+        groups.sort(key=len, reverse=True)
+        rest = groups if len(groups[0]) == len(groups[1]) else groups[1:]
+        out += [p for g in rest for p in g]
+    return n, out
+
+
+def escape(board, pads, sizes, avoid=(), clr=0.2, edge=1.0, reach=3.0):
+    """Escape vias: a locked via beside each SMD pad in `pads`, with a short locked track to it, so the router can
+    reach the pin from the other outer layer (or, by hand, from an inner layer) when the space around it on its own
+    layer is taken. `sizes`: {net code: (track width, via diameter, via drill) mm}; the track is as wide as that
+    where it fits, else narrower (down to 0.2 mm, no wider than the pad across). `avoid`: BOX2I areas (chip
+    keep-outs) where a via is no use. Returns ([(pad name, via, track)], pads that got none)."""
+    cu = Copper(board)
+    done, missed = [], []
+    for p in pads:
+        if p.GetAttribute() not in (pcbnew.PAD_ATTRIB_SMD, pcbnew.PAD_ATTRIB_CONN):
+            continue                                    # a through-hole pad is on every layer already
+        code, net = p.GetNetCode(), p.GetNet()
+        full, d, drill = sizes[code]
+        fp = p.GetParentFootprint()
+        layer = pcbnew.B_Cu if p.IsOnLayer(pcbnew.B_Cu) and not p.IsOnLayer(pcbnew.F_Cu) else pcbnew.F_Cu
+        bb = p.GetBoundingBox()
+        px, py = pcbnew.ToMM(p.GetPosition().x), pcbnew.ToMM(p.GetPosition().y)
+        w, h = pcbnew.ToMM(bb.GetWidth()), pcbnew.ToMM(bb.GetHeight())
+        across = max(0.2, min(w, h))
+        widths = sorted({min(full, max(w, h)), min(full, across), min(full, across, 0.6), min(full, across, 0.4), 0.2},
+                        reverse=True)
+        ox, oy = px - pcbnew.ToMM(fp.GetPosition().x), py - pcbnew.ToMM(fp.GetPosition().y)
+        r0 = math.hypot(w, h) / 2 + d / 2 + clr
+        cands = []
+        for k in range(16):
+            a = k * math.pi / 8
+            ux, uy = math.cos(a), math.sin(a)
+            out = (ux * ox + uy * oy) / (math.hypot(ox, oy) or 1)
+            s = 0
+            while r0 + 0.25 * s <= r0 + reach:
+                cands.append((s, -out, px + ux * (r0 + 0.25 * s), py + uy * (r0 + 0.25 * s)))
+                s += 1
+        got = None
+        for _, _, x, y in sorted(cands):
+            at = pcbnew.VECTOR2I(mm(x), mm(y))
+            if any(b.Contains(at) for b in avoid):
+                continue
+            if not cu.free(disc(x, y, d), x, y, d / 2, code, OUTER, clr, edge):
+                continue
+            for tw in widths:
+                seg = pcbnew.SHAPE_SEGMENT(p.GetPosition(), at, mm(tw))
+                if cu.free(seg, (px + x) / 2, (py + y) / 2, math.hypot(x - px, y - py) / 2 + tw, code, (layer,), clr, edge,
+                           holes=False):
+                    got = x, y, tw
+                    break
+            if got:
+                break
+        if not got:
+            missed.append(pad_name(p))
+            continue
+        x, y, tw = got
+        t = pcbnew.PCB_TRACK(board)
+        t.SetStart(p.GetPosition())
+        t.SetEnd(pcbnew.VECTOR2I(mm(x), mm(y)))
+        t.SetWidth(mm(tw))
+        t.SetLayer(layer)
+        t.SetNet(net)
+        t.SetLocked(True)
+        board.Add(t)
+        seg = pcbnew.SHAPE_SEGMENT(t.GetStart(), t.GetEnd(), mm(tw))
+        cu.keep.append(seg)
+        cu.add(seg, code, (layer,))
+        done.append((pad_name(p), add_via(board, cu, x, y, net, d, drill), t))
+    return done, missed
+
+
+def unused_escapes(board, marks, keep):
+    """Remove the escape vias (and their tracks) that the router did not use: nothing but their own track touches
+    the via. `marks`: [(net name, via x, via y, pad x, pad y)] in nm; leave out the pads that are still open (their via
+    stays, for finishing by hand or in a later stage). Removed items go into `keep`. Returns the number removed."""
+    by_net = {}
+    for t in board.GetTracks():
+        by_net.setdefault(t.GetNetname(), []).append(t)
+    n = 0
+    for net, vx, vy, px, py in marks:
+        items = by_net.get(net, [])
+        via = next((t for t in items if t.Type() == pcbnew.PCB_VIA_T and t.GetPosition().x == vx and t.GetPosition().y == vy), None)
+        if via is None:
+            continue
+        r = via.GetWidth(pcbnew.F_Cu) / 2
+        at = via.GetPosition()
+        own = [t for t in items if t.Type() == pcbnew.PCB_TRACE_T and {(t.GetStart().x, t.GetStart().y), (t.GetEnd().x, t.GetEnd().y)} == {(vx, vy), (px, py)}]
+        others = [t for t in items if t.Type() == pcbnew.PCB_TRACE_T and t not in own and
+                  min((t.GetStart() - at).EuclideanNorm(), (t.GetEnd() - at).EuclideanNorm()) <= r]
+        if others:
+            continue
+        for t in [via] + own:
+            board.Remove(t)
+            keep.append(t)
+        n += 1
+    return n
 
 
 def stitch(board, net, pitch=5.0, d=0.6, drill=0.3, clr=0.3, edge=1.5):

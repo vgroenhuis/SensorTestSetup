@@ -19,12 +19,22 @@ Without --stage, all stages run in a row in the work directory from the bare pla
 and only finish writes the board. Stages:
 
 0. power: the power nets (Power, Pack and Supply classes, not the plane nets) alone, on F.Cu and B.Cu; their tracks
-   are locked for the next stages (--no-power-first skips it in a full run).
+   are locked for the next stages (--no-power-first skips it in a full run). --bare: from the bare placement.
+   Chip keep-outs (in the DSN of this stage only, --no-keepout skips them): no power tracks or vias on the far side
+   of a chip's courtyard, where its signals fan out, and no power tracks in the area its pins enclose (U parts with
+   SMD pads only, no larger than --keepout-max mm: not the modules).
+   Escape rounds (--escape-rounds, 3): the power pads left open get an escape via (a via beside the pad with a
+   short track, at the class width where it fits) on the stage's starting board, and the stage is routed again;
+   until nothing is open, no pad gets a new via, or the rounds are used up. The round with the fewest open
+   connections is kept, without the escape vias it did not use (those at pads still open stay, to finish by hand:
+   from the via a short track on any layer, the planes have room for it). Work files: stage0_in.kicad_pcb (the
+   starting board with the escape vias), stage0_rN.kicad_pcb (each round), stage0_rounds.json.
    vias: Freerouting does not connect pads to the planes itself, so every SMD pad on GND or +3V3 gets a
    via to its plane, or a short track to a through-hole pad of its net (gen/planevias.py). They come after the
    power tracks: a via beside a fine-pitch power pin can leave no room for a full-width track (USB-C VBUS).
 1. signals: on F.Cu and B.Cu only: the inner layers (GND and +3V3 planes from pcbgen.py) are marked as plane layers in
-   the Specctra DSN, so Freerouting connects to them with vias but does not route through them.
+   the Specctra DSN, so Freerouting connects to them with vias but does not route through them. Escape rounds as in
+   stage 0, for every net that is not a plane net (--escape-rounds-signals, 2).
 2. planes: the tracks so far are locked and Freerouting routes what is left with the inner layers open. Its tracks
    through the planes are kept only while the planes stay sound:
    - at most --max-plane mm (50) of plane track per net;
@@ -141,11 +151,17 @@ def power_nets(board):
     return out
 
 
-def route(board, args, name, closed, passes, keep=None):
+def route(board, args, name, closed, passes, keep=None, areas=()):
     """Export the board, run Freerouting on it and import the result. `closed`: layers it may not route on. `keep`:
-    route only the nets whose short name it accepts."""
+    route only the nets whose short name it accepts. `areas`: rule areas that are in the DSN only (taken off the board
+    again right after the export)."""
     dsn, ses = (os.path.join(args.work, name + e) for e in ('.dsn', '.ses'))
-    if not pcbnew.ExportSpecctraDSN(board, dsn):
+    for z in areas:
+        board.Add(z)
+    ok = pcbnew.ExportSpecctraDSN(board, dsn)
+    for z in areas:
+        board.Remove(z)
+    if not ok:
         sys.exit('DSN export failed')
     fix_dsn(dsn, board, closed, pcbnew.ToMM(board.GetDesignSettings().m_CopperEdgeClearance) - 0.15)
     if keep:
@@ -270,30 +286,209 @@ def store(args, pcb, board, name):
     save(board, pcb if args.stage else os.path.join(args.work, name + '.kicad_pcb'), pro(pcb))
 
 
-def stage0(args, pcb):
-    """The power nets alone, before anything else (the plane vias come after them: a via beside a fine-pitch power
-    pin can leave no room for a full-width track)."""
-    if not args.power_first and not args.stage:
-        return
-    if args.stage:                                     # the board as it is: tracks drawn by hand stay (locked)
+def rule_area(board, layer, box, vias):
+    """A keep-out for tracks (and vias) of every net over `box` on `layer`."""
+    z = pcbnew.ZONE(board)
+    z.SetIsRuleArea(True)
+    ls = pcbnew.LSET()
+    ls.AddLayer(layer)
+    z.SetLayerSet(ls)
+    z.SetDoNotAllowTracks(True)
+    z.SetDoNotAllowVias(vias)
+    z.SetDoNotAllowPads(False)
+    z.SetDoNotAllowZoneFills(False)
+    z.SetDoNotAllowFootprints(False)
+    ol = z.Outline()
+    ol.NewOutline()
+    for x, y in ((box.GetLeft(), box.GetTop()), (box.GetRight(), box.GetTop()), (box.GetRight(), box.GetBottom()),
+                 (box.GetLeft(), box.GetBottom())):
+        ol.Append(x, y)
+    return z
+
+
+def chips(board, args):
+    """The footprints that get a keep-out in stage 0: references with a prefix of --keepout-refs, SMD pads only,
+    courtyard no larger than --keepout-max mm a side (not the modules)."""
+    out = []
+    prefixes = [x for x in args.keepout_refs.split(',') if x]
+    for fp in board.GetFootprints():
+        ref = fp.GetReference()
+        if not any(ref.startswith(x) and ref[len(x):].isdigit() for x in prefixes) or not len(fp.Pads()):
+            continue
+        if any(p.GetAttribute() not in (pcbnew.PAD_ATTRIB_SMD, pcbnew.PAD_ATTRIB_CONN) for p in fp.Pads()):
+            continue
+        cy = fp.GetCourtyard(pcbnew.F_CrtYd if fp.GetLayer() == pcbnew.F_Cu else pcbnew.B_CrtYd)
+        bb = cy.BBox() if cy.OutlineCount() else fp.GetBoundingBox(False)
+        if max(pcbnew.ToMM(bb.GetWidth()), pcbnew.ToMM(bb.GetHeight())) <= args.keepout_max:
+            out.append((fp, bb))
+    return out
+
+
+def keepouts(board, args, codes, clr=0.2):
+    """Chip keep-outs for stage 0, so the power tracks leave the space under and between a chip's pins to its own
+    signals: on the other side of the board no tracks and no vias over the courtyard (the chip's signals fan out
+    there), on its own side no tracks in the area its pins enclose, as far as no pin on a net of `codes` (the nets
+    being routed) is in it. Returns (rule areas, the courtyard boxes)."""
+    zs, boxes = [], []
+    if not args.keepout:
+        return zs, boxes
+    for fp, bb in chips(board, args):
+        side = fp.GetLayer()
+        other = pcbnew.B_Cu if side == pcbnew.F_Cu else pcbnew.F_Cu
+        zs.append(rule_area(board, other, bb, vias=True))
+        boxes.append(bb)
+        pb = None
+        for p in fp.Pads():
+            b = p.GetBoundingBox()
+            if pb is None:
+                pb = pcbnew.BOX2I(b.GetPosition(), b.GetSize())
+            else:
+                pb.Merge(b)
+        routed = [p for p in fp.Pads() if p.GetNetCode() in codes]
+        k = 0
+        while True:
+            x0, y0, x1, y1 = pb.GetLeft() + k, pb.GetTop() + k, pb.GetRight() - k, pb.GetBottom() - k
+            if min(x1 - x0, y1 - y0) < mm(0.5):
+                break
+            rect = pcbnew.SHAPE_RECT(x0, y0, x1 - x0, y1 - y0)
+            if not any(p.GetEffectiveShape(side).Collide(rect, mm(clr)) for p in routed):
+                inner = pcbnew.BOX2I(pcbnew.VECTOR2I(x0, y0), pcbnew.VECTOR2L(x1 - x0, y1 - y0))
+                zs.append(rule_area(board, side, inner, vias=False))
+                break
+            k += mm(0.05)
+    return zs, boxes
+
+
+def nets_of(board, args, s):
+    """Stage s ('0' or '1'): (net codes it routes, filter on short names for only_nets or None, passes, keep-outs)."""
+    planes = {z.GetNetname() for z in zones(board)}
+    if s == '0':
+        power = power_nets(board)
+        codes = {c for c, n in board.GetNetsByNetcode().items() if n.GetNetname().split('/')[-1] in power}
+        return codes, (lambda n: n in power), args.passes0, True
+    codes = {c for c, n in board.GetNetsByNetcode().items() if c > 0 and n.GetNetname() not in planes}
+    return codes, None, args.passes, False
+
+
+def sizes(board, codes):
+    """{net code: (track width, via diameter, via drill) mm} from the net classes."""
+    ns = board.GetDesignSettings().m_NetSettings
+    out = {}
+    for c, n in board.GetNetsByNetcode().items():
+        if c in codes:
+            nc = ns.GetEffectiveNetClass(n.GetNetname())
+            out[c] = tuple(pcbnew.ToMM(v) for v in (nc.GetTrackWidth(), nc.GetViaDiameter(), nc.GetViaDrill()))
+    return out
+
+
+def wpath(args, *parts):
+    return os.path.join(args.work, ''.join(str(p) for p in parts))
+
+
+def prep0(args, pcb):
+    """Stage 0's starting board: the board as it is (--stage; tracks drawn by hand stay, locked) or the bare placement,
+    with narrowing stubs on the power pins too fine for a full-width track. The plane vias come after stage 0: a via
+    beside a fine-pitch power pin can leave no room for a full-width track."""
+    if args.stage and not args.bare:
         board, refs = pcbnew.LoadBoard(pcb), []
         for t in board.GetTracks():
             t.SetLocked(True)
     else:
         board, refs = bare(pcb)
-    if args.stubs:                                     # power pins too fine for a full-width track
+    if args.stubs:
         power = power_nets(board)
         ns = board.GetDesignSettings().m_NetSettings
         widths = {code: pcbnew.ToMM(ns.GetEffectiveNetClass(n.GetNetname()).GetTrackWidth())
                   for code, n in board.GetNetsByNetcode().items() if n.GetNetname().split('/')[-1] in power}
         n, missed = planevias.stubs(board, widths)
         print('narrowing stubs: %d; fine-pitch power pads without one: %s' % (n, ' '.join(missed) or 'none'), flush=True)
-    closed = [board.GetLayerName(l) for l in sorted({z.GetLayer() for z in zones(board)})]
-    power = power_nets(board)
-    route(board, args, PROJECT + '_0', closed, args.passes0, keep=lambda n: n in power)
+    if args.keepout:
+        print('chip keep-outs: %s' % ' '.join(sorted((fp.GetReference() for fp, _ in chips(board, args)),
+                                                     key=lambda r: (re.sub(r'\d', '', r), int(re.sub(r'\D', '', r) or 0)))))
+    save(board, wpath(args, 'stage0_in.kicad_pcb'), pro(pcb))
+
+
+def prep1(args, pcb):
+    """Stage 1's starting board: the plane vias step's board, all tracks locked."""
+    board = load(args, pcb, 'vias')
     for t in board.GetTracks():
         t.SetLocked(True)
-    store(args, pcb, board, 'stage0')
+    save(board, wpath(args, 'stage1_in.kicad_pcb'), pro(pcb))
+
+
+def run_round(args, pcb, s):
+    """One routing round of stage s on its starting board (with the escape vias of the rounds before)."""
+    board = pcbnew.LoadBoard(wpath(args, 'stage%s_in.kicad_pcb' % s))
+    codes, keep, passes, ko = nets_of(board, args, s)
+    areas = keepouts(board, args, codes)[0] if ko else []
+    closed = [board.GetLayerName(l) for l in sorted({z.GetLayer() for z in zones(board)})]
+    route(board, args, '%s_%s_r%d' % (PROJECT, s, args.round), closed, passes, keep=keep, areas=areas)
+    for t in board.GetTracks():
+        t.SetLocked(True)
+    save(board, wpath(args, 'stage%s_r%d.kicad_pcb' % (s, args.round)), pro(pcb))
+
+
+def escape_round(args, pcb, s):
+    """Count what round r of stage s left open; unless that is nothing (or this was the last round), give the open
+    pads escape vias on the starting board for the next round. Writes stage<s>_rounds.json."""
+    log = wpath(args, 'stage%s_rounds.json' % s)
+    state = json.load(open(log)) if args.round else {'rounds': [], 'escapes': [], 'stop': False}
+    board = pcbnew.LoadBoard(wpath(args, 'stage%s_r%d.kicad_pcb' % (s, args.round)))
+    codes = nets_of(board, args, s)[0]
+    n, pads = planevias.open_pads(board, codes)
+    names = sorted({planevias.pad_name(p) for p in pads})
+    state['rounds'].append({'round': args.round, 'open': n, 'pads': names})
+    print('stage %s round %d: %d open connections; open pads: %s' % (s, args.round, n, ' '.join(names) or 'none'), flush=True)
+    limit = args.escape_rounds if s == '0' else args.escape_rounds_signals
+    if n == 0 or args.round >= limit:
+        state['stop'] = True
+    else:
+        start = pcbnew.LoadBoard(wpath(args, 'stage%s_in.kicad_pcb' % s))
+        want = {(planevias.pad_name(p), p.GetPosition().x, p.GetPosition().y) for p in pads}
+        had = {tuple(e['pad']) for e in state['escapes']}
+        todo = [p for p in start.GetPads() if (planevias.pad_name(p), p.GetPosition().x, p.GetPosition().y) in want - had]
+        boxes = keepouts(start, args, codes)[1] if nets_of(start, args, s)[3] else []
+        done, missed = planevias.escape(start, todo, sizes(start, codes), boxes)
+        print('escape vias: %d (%s); no room for one: %s; already had one: %s' % (
+            len(done), ' '.join(d[0] for d in done) or '-', ' '.join(missed) or 'none',
+            ' '.join(sorted(name for name, _, _ in want & had)) or 'none'), flush=True)
+        for name, via, t in done:
+            pad = next(p for p in todo if planevias.pad_name(p) == name)
+            state['escapes'].append({'pad': [name, pad.GetPosition().x, pad.GetPosition().y], 'net': via.GetNetname(),
+                                     'via': [via.GetPosition().x, via.GetPosition().y]})
+        if done:
+            save(start, wpath(args, 'stage%s_in.kicad_pcb' % s), pro(pcb))
+        else:
+            state['stop'] = True
+    json.dump(state, open(log, 'w'), indent=1)
+
+
+def pick_round(args, pcb, s, name):
+    """Keep the round of stage s with the fewest open connections (the earliest of equals), without the escape vias it
+    did not use."""
+    state = json.load(open(wpath(args, 'stage%s_rounds.json' % s)))
+    best = min(state['rounds'], key=lambda r: (r['open'], r['round']))
+    print('stage %s rounds (open connections): %s; keeping round %d' % (
+        s, ', '.join('%d: %d' % (r['round'], r['open']) for r in state['rounds']), best['round']), flush=True)
+    board = pcbnew.LoadBoard(wpath(args, 'stage%s_r%d.kicad_pcb' % (s, best['round'])))
+    refs = []
+    still = set(best['pads'])                          # pads still open keep their via
+    marks = [(e['net'], e['via'][0], e['via'][1], e['pad'][1], e['pad'][2]) for e in state['escapes'] if e['pad'][0] not in still]
+    print('escape vias the router did not use, removed: %d (kept at the pads still open)' %
+          planevias.unused_escapes(board, marks, refs), flush=True)
+    store(args, pcb, board, name)
+
+
+def stage0(args, pcb):
+    run_round(args, pcb, '0')
+
+
+def escape0(args, pcb):
+    escape_round(args, pcb, '0')
+
+
+def pick0(args, pcb):
+    pick_round(args, pcb, '0', 'stage0')
 
 
 def vias(args, pcb):
@@ -310,15 +505,16 @@ def vias(args, pcb):
 
 
 def stage1(args, pcb):
-    """Signals on the outer layers (planes closed)."""
-    board = load(args, pcb, 'vias')
-    for t in board.GetTracks():
-        t.SetLocked(True)
-    planes = sorted({z.GetLayer() for z in zones(board)})
-    route(board, args, PROJECT, [board.GetLayerName(l) for l in planes], args.passes)
-    for t in board.GetTracks():
-        t.SetLocked(True)
-    store(args, pcb, board, 'stage1')
+    """Signals on the outer layers (planes closed), one round."""
+    run_round(args, pcb, '1')
+
+
+def escape1(args, pcb):
+    escape_round(args, pcb, '1')
+
+
+def pick1(args, pcb):
+    pick_round(args, pcb, '1', 'stage1')
 
 
 def stage2(args, pcb):
@@ -522,6 +718,8 @@ def finish(args, pcb):
 STEPS = ('stage0', 'vias', 'stage1', 'stage2', 'stage3', 'prune', 'stage4', 'finish')
 STAGES = {'power': ('stage0',), 'vias': ('vias',), 'signals': ('stage1',), 'planes': ('stage2',),
           'narrow': ('stage3', 'prune'), 'rest': ('stage4',), 'finish': ('finish',)}
+ROUNDS = {'stage0': '0', 'stage1': '1'}       # steps that route in rounds, with escape vias in between
+HELPERS = ('prep0', 'escape0', 'pick0', 'prep1', 'escape1', 'pick1')
 
 
 def main():
@@ -536,6 +734,16 @@ def main():
     ap.add_argument('--passes0', type=int, default=1, help='stage 0 (power nets alone)')
     ap.add_argument('--stubs', action=argparse.BooleanOptionalAction, default=True,
                     help='narrowing stubs on power pins too fine for a full-width track (planevias.stubs)')
+    ap.add_argument('--bare', action='store_true',
+                    help='with --stage power: start from the bare placement (all tracks and vias on the board removed)')
+    ap.add_argument('--escape-rounds', type=int, default=3,
+                    help='stage 0: route again up to this many times, each time with escape vias at the pads left open')
+    ap.add_argument('--escape-rounds-signals', type=int, default=2, help='the same for stage 1')
+    ap.add_argument('--keepout', action=argparse.BooleanOptionalAction, default=True,
+                    help='stage 0: no power tracks under the chips (rule areas in the DSN only)')
+    ap.add_argument('--keepout-refs', default='U', help='reference prefixes of the chips that get a keep-out (comma list)')
+    ap.add_argument('--keepout-max', type=float, default=20.0,
+                    help='mm: no keep-out for parts with a larger courtyard side (modules)')
     ap.add_argument('--stage', choices=STAGES,
                     help='run this one stage on the board itself (keeps the tracks on it), then stop')
     ap.add_argument('--fr', action='append', default=[], metavar='ARG',
@@ -553,7 +761,8 @@ def main():
     ap.add_argument('--reuse', action='store_true', help='import the .ses files of an earlier run, do not route')
     ap.add_argument('--threads', type=int, default=max(1, (os.cpu_count() or 2) - 2))
     ap.add_argument('--work', default=os.path.join(HERE, 'gen', 'route'))
-    ap.add_argument('--step', choices=STEPS, help=argparse.SUPPRESS)
+    ap.add_argument('--step', choices=STEPS + HELPERS, help=argparse.SUPPRESS)
+    ap.add_argument('--round', type=int, default=0, help=argparse.SUPPRESS)
     args = ap.parse_args()
     os.makedirs(args.work, exist_ok=True)
     pcb = os.path.join(HERE, PROJECT + '.kicad_pcb')
@@ -566,8 +775,24 @@ def main():
             sys.exit('the board is open in KiCad (%s): save it, close KiCad and run again' % lock)
         shutil.copy(pcb, os.path.join(args.work, 'before_%s.kicad_pcb' % args.stage))
     # each step in its own process: after an SES import, pcbnew's SWIG objects come back untyped
+    def run(step, *extra):
+        subprocess.run([sys.executable, os.path.abspath(__file__)] + sys.argv[1:] + ['--step', step] + list(extra), check=True)
+
     for step in STAGES[args.stage] if args.stage else STEPS:
-        subprocess.run([sys.executable, os.path.abspath(__file__)] + sys.argv[1:] + ['--step', step], check=True)
+        if step not in ROUNDS:
+            run(step)
+            continue
+        s = ROUNDS[step]
+        if s == '0' and not args.power_first and not args.stage:
+            continue
+        run('prep' + s)
+        log = os.path.join(args.work, 'stage%s_rounds.json' % s)
+        for r in range(1000):
+            run(step, '--round', str(r))
+            run('escape' + s, '--round', str(r))
+            if json.load(open(log))['stop']:
+                break
+        run('pick' + s)
 
 
 if __name__ == '__main__':

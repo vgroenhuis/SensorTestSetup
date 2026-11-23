@@ -288,9 +288,25 @@ About 50–60 minutes (200 × 150 mm) to 70 minutes (270 × 200 mm). The work fi
    classes, without the plane nets GND and +3V3) on F.Cu and B.Cu, 1 pass; every other net keeps one pin in the
    DSN, so its pads are obstacles but there is nothing to connect. The tracks are locked for the next stages, so
    the thin signal tracks can no longer take the narrow spaces that the wide power tracks need.
+   `--stage power --bare` starts it again from the bare placement (all tracks and vias removed).
+   * **Chip keep-outs** (stage 0 only, as rule areas in its DSN, never on the board; `--no-keepout` skips them): a
+     power track under a chip takes the room its signal pins need. Every `U` part with only SMD pads and a courtyard
+     of at most 20 mm a side (`--keepout-refs`, `--keepout-max`; so not the ESP32 modules) gets a keep-out for
+     tracks and vias over its courtyard on the other side of the board, where its signals fan out, and one for
+     tracks over the area its pins enclose on its own side (shrunk until no pin on a power net is in it). 41 chips.
+   * **Escape rounds** (`--escape-rounds`, default 3): the power pads that a round leaves open each get an
+     *escape via*: a via of the net class size beside the pad (outwards from the part first, not under a chip
+     keep-out) with a short locked track at the class width where it fits, else down to 0.2 mm. They go on the
+     stage's starting board and the stage is routed again, until nothing is open, no open pad gets a new via, or
+     the rounds are used up. The round with the fewest open connections is kept, without the escape vias the router
+     did not use; those at pads still open stay, so a short track on any layer finishes them by hand (the GND and
+     +3V3 planes have room for one). Work files: `stage0_in.kicad_pcb`, `stage0_rN.kicad_pcb`, `stage0_rounds.json`.
+     On rev 0.2's stage-0 result (18 open), 24 of the 26 open pads get one; U8.6 (boxed in by pins 7 and 10) has no
+     room, J4.1 is through-hole.
 3. **Stage 1**: all nets on F.Cu and B.Cu only. The inner layers are marked as plane layers in the Specctra DSN
    (KiCad exports them as signal layers, and Freerouting then routes straight through the planes), and the board
-   outline is pulled in so tracks keep the 0.5 mm edge clearance.
+   outline is pulled in so tracks keep the 0.5 mm edge clearance. Escape rounds as in stage 0, for all nets but the
+   plane nets (`--escape-rounds-signals`, default 2; each round is a full stage-1 run).
 4. **Stage 2**: the stage-1 tracks are locked and Freerouting routes what is left with the planes open. A track
    through a plane is kept only while the plane stays sound: at most 50 mm of plane track per net; plane tracks
    closer together than 2 mm count as one slot of at most 50 mm; and each plane stays one piece (filled with a
