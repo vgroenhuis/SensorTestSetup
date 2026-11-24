@@ -331,7 +331,8 @@ About 50–60 minutes (200 × 150 mm) to 70 minutes (270 × 200 mm). The work fi
      has no net or a hole of 2 mm or more gets a keep-out in the DSN (all copper layers, tracks and vias): a 16-gon
      around the hole radius + hole clearance + 0.05 mm. Not for pads with a net and a small hole: the keep-out would
      keep their own tracks off. Cut-outs in a footprint (Edge.Cuts inside it: reverse-mount LED D14) get a keep-out
-     box too: the cut-out plus the copper-to-edge clearance + 0.05 mm.
+     box too: the cut-out plus the copper-to-edge clearance + 0.05 mm, and every non-plated hole (BT3's pegs) a
+     16-gon of hole radius + hole clearance + 0.05 mm.
 3. **Stage 1**: all nets on F.Cu and B.Cu only. The inner layers are marked as plane layers in the Specctra DSN
    (KiCad exports them as signal layers, and Freerouting then routes straight through the planes), and the board
    outline is pulled in so tracks keep the 0.5 mm edge clearance. Escape rounds as in stage 0, for all nets but the

@@ -108,6 +108,13 @@ and of fixed vias.
   DRC: the TPS25947 pad-to-pad items, D14's cut-out (now a keep-out too) and one locked I2C_SDA track on B.Cu
   (x = 67.56, y 33-117, already on the plane-vias board) 0.239 mm from the H2 hole. inspect/run13_signals.
   Stage 2 now keeps plane tracks short (`--plane-cost`, `--max-plane-run`).
+* Attempt 13, planes -> narrow -> rest -> finish: stage 2 leaves 6 unconnected (after a zone refill); only BSV_RC
+  (8 mm) and SERVO1 (4 mm) use a plane. The first finish ended with 17: `cleanup()` took a track end on the middle
+  of another track as loose and removed 259 items in prune (hand-drawn power links at U6 among them). Fixed (an
+  end may touch any part of a track; locked items stay). Again from the planes board (13b): **6 unconnected**
+  (U6: GND pad 27, CHG_BTST1, CHG_CE, CHG_PROG; USB_UP_DP J2.A6-B6; PD_VSET at U2), 4528 tracks, 17.4 m, 1142 vias.
+  DRC besides TPS25947 and placement items: the locked I2C_SDA track at H2, CHG_VBUS 0.225 mm from BT3's
+  non-plated hole (keep-outs for those now too), 8 starved thermals of the B.Cu GND pour. inspect/run13b_finish.
 * Still dropping at the last round: `--escape-rounds` now defaults to 0 (no limit), the rounds go on until no open pad gets a new via.
 
 ## Next steps

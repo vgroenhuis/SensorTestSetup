@@ -243,8 +243,10 @@ def save(board, path, pro):
 
 def cleanup(board, plane_nets, keep):
     """Remove vias that reach their net on one layer only, and tracks with an end that touches nothing, until none
-    are left (as KiCad's Cleanup Tracks & Vias). Plane nets are left alone: the planes connect them. Removed items
-    go into the list `keep` (freeing them upsets pcbnew's SWIG types)."""
+    are left (as KiCad's Cleanup Tracks & Vias). Plane nets are left alone: the planes connect them. A track end
+    counts as connected anywhere on a track of its net (hand-drawn and escape tracks often end mid-track), and locked
+    items (earlier stages, hand edits, escape vias kept at open pads) stay, unless of zero length. Removed items go
+    into the list `keep` (freeing them upsets pcbnew's SWIG types)."""
     removed = 0
     while True:
         items = [t for t in board.GetTracks() if t.GetNetname() not in plane_nets]
@@ -261,12 +263,14 @@ def cleanup(board, plane_nets, keep):
                 if t.Type() == pcbnew.PCB_VIA_T:
                     if (t.GetPosition() - pos).EuclideanNorm() <= t.GetWidth(layer) / 2:
                         return True
-                elif min((t.GetStart() - pos).EuclideanNorm(), (t.GetEnd() - pos).EuclideanNorm()) <= t.GetWidth() / 2:
+                elif pcbnew.SEG(t.GetStart(), t.GetEnd()).Distance(pos) <= t.GetWidth() / 2:
                     return True
             return any(p.IsOnLayer(layer) and p.HitTest(pos) for p in pads[net])
 
         gone = []
         for t in items:
+            if t.IsLocked() and not (t.Type() != pcbnew.PCB_VIA_T and t.GetStart() == t.GetEnd()):
+                continue
             if t.Type() == pcbnew.PCB_VIA_T:
                 if sum(touches(t.GetPosition(), l, t.GetNetCode(), t) for l in (pcbnew.F_Cu, pcbnew.In1_Cu, pcbnew.In2_Cu, pcbnew.B_Cu)) < 2:
                     gone.append(t)
@@ -340,6 +344,14 @@ def hole_areas(board, margin=0.05):
             x1, y1 = (max(pcbnew.ToMM(getattr(c, f)()) for c in cut) + ec + margin for f in ('GetRight', 'GetBottom'))
             area(((x0, y0), (x1, y0), (x1, y1), (x0, y1)))
     for p in board.GetPads():
+        if p.GetAttribute() == pcbnew.PAD_ATTRIB_NPTH:      # no copper: Freerouting keeps only its clearance off
+            drill = min(pcbnew.ToMM(v) for v in (p.GetDrillSize().x, p.GetDrillSize().y))   # the hole (0.2, not 0.25)
+            if drill > 0:
+                r = (drill / 2 + hc + margin) / math.cos(math.pi / 16)
+                cx, cy = pcbnew.ToMM(p.GetPosition().x), pcbnew.ToMM(p.GetPosition().y)
+                area([(cx + r * math.cos((k + 0.5) * math.pi / 8), cy + r * math.sin((k + 0.5) * math.pi / 8))
+                      for k in range(16)])
+            continue
         if p.GetAttribute() != pcbnew.PAD_ATTRIB_PTH:
             continue
         drill = min(pcbnew.ToMM(v) for v in (p.GetDrillSize().x, p.GetDrillSize().y))
