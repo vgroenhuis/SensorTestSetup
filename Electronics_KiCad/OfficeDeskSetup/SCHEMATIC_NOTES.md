@@ -316,7 +316,10 @@ About 50–60 minutes (200 × 150 mm) to 70 minutes (270 × 200 mm). The work fi
      did not use; those at pads still open stay, so a short track on any layer finishes them by hand (the GND and
      +3V3 planes have room for one). Work files: `stage0_in.kicad_pcb`, `stage0_rN.kicad_pcb`, `stage0_rounds.json`.
      The track to the via runs straight from the pad, or else first straight out along the pin past its end, then to
-     the via (a pin boxed in by its neighbours, like the middle pins of the TPS25947).
+     the via (a pin boxed in by its neighbours, like the middle pins of the TPS25947). An escape track never crosses
+     a track of its own net (two pins of one net side by side, U6.22/23 BAT_P and U6.2/3 CHG_VBUS, each took the via
+     in front of the other: crossing leads, narrower together than two separate ones); a pin with no spot of its own
+     then runs straight to a nearby escape via of its net instead.
    * **Pin ranking** (`gen/route/pin_scores.json`, kept over all runs; `--scores` for another file): a pin scores a
      point every round it is left open and every time there is no room for its via (escape via, fan-out via, or
      plane via). Escape vias go in

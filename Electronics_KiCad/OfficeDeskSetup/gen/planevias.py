@@ -329,6 +329,14 @@ def open_pads(board, codes):
 LAND_MARGIN = 0.1
 
 
+def crosses(a, b, c, d):
+    """Whether segments a-b and c-d (mm tuples) cross: they intersect other than where an end touches."""
+    def side(p, q, r):
+        v = (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0])
+        return 0 if abs(v) < 1e-9 else (1 if v > 0 else -1)
+    return side(a, b, c) * side(a, b, d) < 0 and side(c, d, a) * side(c, d, b) < 0
+
+
 def escape(board, pads, sizes, avoid=(), clr=0.2, edge=1.0, reach=3.0, inward=False):
     """Escape vias: a locked via beside each SMD pad in `pads` (in that order: the first get the best spots), with a
     short locked track to it, so the router can reach the pin from the other outer layer (or, by hand, from an
@@ -351,6 +359,19 @@ def escape(board, pads, sizes, avoid=(), clr=0.2, edge=1.0, reach=3.0, inward=Fa
             ring = disc(pcbnew.ToMM(v.GetPosition().x), pcbnew.ToMM(v.GetPosition().y), w)
             cu.keep.append(ring)
             cu.add(ring, v.GetNetCode(), OUTER)
+    # tracks per net and layer (mm centrelines): an escape track may not cross one of its own net. Two pins of one
+    # net side by side (U6.22/23, U6.2/3) otherwise each took the via in front of the other, the tracks crossing,
+    # and together they were narrower than two separate tracks
+    own = {}
+    for t in board.GetTracks():
+        if t.Type() == pcbnew.PCB_TRACE_T:
+            own.setdefault((t.GetNetCode(), t.GetLayer()), []).append(
+                ((pcbnew.ToMM(t.GetStart().x), pcbnew.ToMM(t.GetStart().y)),
+                 (pcbnew.ToMM(t.GetEnd().x), pcbnew.ToMM(t.GetEnd().y))))
+    vias = {}                                           # escape vias per net: (x, y, via) mm
+    for v in board.GetTracks():
+        if v.Type() == pcbnew.PCB_VIA_T and v.IsLocked():
+            vias.setdefault(v.GetNetCode(), []).append((pcbnew.ToMM(v.GetPosition().x), pcbnew.ToMM(v.GetPosition().y), v))
     for p in pads:
         if p.GetAttribute() not in (pcbnew.PAD_ATTRIB_SMD, pcbnew.PAD_ATTRIB_CONN):
             continue                                    # a through-hole pad is on every layer already
@@ -390,6 +411,9 @@ def escape(board, pads, sizes, avoid=(), clr=0.2, edge=1.0, reach=3.0, inward=Fa
             return out
 
         def fits(path, tw):
+            for a, b in zip(path, path[1:]):
+                if any(crosses(a, b, c, e) for c, e in own.get((code, layer), ())):
+                    return False
             for (x0, y0), (x1, y1) in zip(path, path[1:]):
                 seg = pcbnew.SHAPE_SEGMENT(pcbnew.VECTOR2I(mm(x0), mm(y0)), pcbnew.VECTOR2I(mm(x1), mm(y1)), mm(tw))
                 if not cu.free(seg, (x0 + x1) / 2, (y0 + y1) / 2, math.hypot(x1 - x0, y1 - y0) / 2 + tw, code, (layer,),
@@ -428,6 +452,14 @@ def escape(board, pads, sizes, avoid=(), clr=0.2, edge=1.0, reach=3.0, inward=Fa
                             break
                 if got:
                     break
+        shared = None
+        if not got:     # no spot of its own: straight to an escape via of its net nearby (two pins of one net)
+            for v in sorted(vias.get(code, ()), key=lambda v: math.hypot(v[0] - px, v[1] - py)):
+                if math.hypot(v[0] - px, v[1] - py) <= reach + math.hypot(w, h) / 2:
+                    tw = next((tw for tw in widths if fits([(px, py), (v[0], v[1])], tw)), None)
+                    if tw:
+                        got, shared = ([(px, py), (v[0], v[1])], tw), v[2]
+                        break
         if not got:
             missed.append(pad_name(p))
             continue
@@ -445,10 +477,16 @@ def escape(board, pads, sizes, avoid=(), clr=0.2, edge=1.0, reach=3.0, inward=Fa
             seg = pcbnew.SHAPE_SEGMENT(t.GetStart(), t.GetEnd(), mm(tw))
             cu.keep.append(seg)
             cu.add(seg, code, (layer,))
+            own.setdefault((code, layer), []).append(((x0, y0), (x1, y1)))
             tracks.append(t)
         x, y = path[-1]
         starts.add((code, tracks[0].GetStart().x, tracks[0].GetStart().y))
-        done.append((pad_name(p), add_via(board, cu, x, y, net, d, drill), tracks))
+        if shared is not None:
+            done.append((pad_name(p), shared, tracks))
+            continue
+        via = add_via(board, cu, x, y, net, d, drill)
+        vias.setdefault(code, []).append((x, y, via))
+        done.append((pad_name(p), via, tracks))
         if land > d:                                    # keep the landing free for later escape vias too
             ring = disc(x, y, land)
             cu.keep.append(ring)
