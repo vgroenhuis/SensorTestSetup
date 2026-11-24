@@ -126,6 +126,10 @@ and of fixed vias.
   - Attempt 17 (run 12's plane vias, `--pre-escape 3`, **`--passes 8`**): signals 7, 6 (round 1 kept, then no new
     escape vias); stage 2 needs no plane tracks; finish **6 unconnected**, 4609 tracks, 17.3 m, 1104 vias. More
     Freerouting passes per round help far more than more escape rounds (3 passes: 22-37 open per round; 8: 6-7).
+  - Attempt 18 (`--bare --fanout-pitch 0`, 8 passes, fully automatic): power 11 -> **0** open; signals 20; finish
+    **14 unconnected**, 11 of them at U6. Attempt 19 (attempt 18's plane vias, 16 passes): 21, 21, 22; finish 14:
+    more than 8 passes gains nothing. Freerouting narrows a few tracks at small pads to 0.10-0.12 mm (I2C_SDA,
+    PD_CC1, TFT, earlier USB_UP_DP and DXL_TX), below the 0.15 mm minimum: fix in the final DRC.
   - The same six stay open in every attempt: U6 GND pad 27 (no room for a plane via), CHG_BTST1 (U6.4-C10.1),
     CHG_CE (U6.13-R12.1), CHG_PROG (U6.20-R7.1), USB_UP_DP (J2.A6-B6) and PD_VSET (U2.8). Local congestion around
     U6 and at J2/U2: placement, or by hand.
