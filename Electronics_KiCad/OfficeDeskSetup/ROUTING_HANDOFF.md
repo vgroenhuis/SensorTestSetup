@@ -106,7 +106,7 @@ and of fixed vias.
 * Attempt 13: run 12's plane-vias board again, with the hole keep-outs, signal rounds without a limit
   (`--escape-rounds-signals 0`): 25, 23, 21, 25, 17, 19 open; round 4 kept: **17 open signal connections**. Left over
   DRC: the TPS25947 pad-to-pad items, D14's cut-out (now a keep-out too) and one locked I2C_SDA track on B.Cu
-  (x = 67.56, y 33-117, already on the plane-vias board) 0.239 mm from the H2 hole. inspect/run13_signals.
+  (x = 67.56, y 33-117, already on the plane-vias board) 0.239 mm from the H2 hole. inspect/run13/stage2_signals.
   Stage 2 now keeps plane tracks short (`--plane-cost`, `--max-plane-run`).
 * Attempt 13, planes -> narrow -> rest -> finish: stage 2 leaves 6 unconnected (after a zone refill); only BSV_RC
   (8 mm) and SERVO1 (4 mm) use a plane. The first finish ended with 17: `cleanup()` took a track end on the middle
@@ -114,8 +114,8 @@ and of fixed vias.
   end may touch any part of a track; locked items stay). Again from the planes board (13b): **6 unconnected**
   (U6: GND pad 27, CHG_BTST1, CHG_CE, CHG_PROG; USB_UP_DP J2.A6-B6; PD_VSET at U2), 4528 tracks, 17.4 m, 1142 vias.
   DRC besides TPS25947 and placement items: the locked I2C_SDA track at H2, CHG_VBUS 0.225 mm from BT3's
-  non-plated hole (keep-outs for those now too), 8 starved thermals of the B.Cu GND pour. inspect/run13b_finish.
-* Overnight 2026-11-24 (boards in inspect/runN_<stage>, each with a DRC after a zone refill):
+  non-plated hole (keep-outs for those now too), 8 starved thermals of the B.Cu GND pour. inspect/run13b/stage6_finish.
+* Overnight 2026-11-24 (boards in inspect/runN/stageK_<stage>/, each with a DRC after a zone refill):
   - Attempt 14 (`--bare`, fan-out): power 3 open (rounds stop: the open pads have fan-out vias); signals 22, 30,
     26, 29, 33 ... stopped by hand. Worse than without the fan-out.
   - Attempt 15 (`--bare --fanout-pitch 0`): power 2 open (U6.25 CHG_SYS, U8.5); signals 27, 33, 29, 29, 33 (stopped);
@@ -132,6 +132,21 @@ and of fixed vias.
   - DRC left besides TPS25947 and placement items: locked tracks from run 12's hand edits (I2C_SDA at H2, CHG_VBUS at
     BT3's peg hole, a Battery track at D14's cut-out) and 0.1475 mm at IR_DO (rounding).
 * Still dropping at the last round: `--escape-rounds` now defaults to 0 (no limit), the rounds go on until no open pad gets a new via.
+
+## Routing workflow (agreed 2026-11-24)
+
+1. route.py routes the board (power, plane vias, signal rounds with `--passes 8`, planes, narrow, rest, finish) and
+   hands over: a KiCad board with all escape tracks and vias but no routes, a description of the problem areas
+   (rev 0.2: U6 BQ25792 with CHG_BTST1, CHG_CE, CHG_PROG and GND pin 27; J2 USB_UP_DP; U2 PD_VSET), and an example
+   routing with few unconnected items (run 17: 6).
+2. The user adds and moves vias around the problem areas on that board.
+3. route.py restarts from the user's board (`--stage power` without `--bare`: hand-drawn items stay, locked). Stage 0's
+   chip keep-outs must not forbid vias the user put under a chip (Freerouting ignores fixed vias in a keep-out).
+4. The user completes the last connections by hand.
+5. Finish: pours, voids connected to GND filled with via arrays (stitching), then a full DRC.
+
+Saved boards: `inspect/runN/stageK_<stage>/` (stage0_power, stage1_vias, stage2_signals, stage3_planes,
+stage4_narrow, stage5_rest, stage6_finish).
 
 ## Next steps
 
