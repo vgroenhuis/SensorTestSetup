@@ -127,8 +127,9 @@ def fanout(board, nets, d=0.6, drill=0.3, width=0.3, clr=0.2, edge=1.0, reach=2.
     starts already have one (placed before the power stage) and are skipped."""
     cu = Copper(board)
     vias, missed, done = 0, [], set()
-    starts = {(t.GetNetCode(), t.GetStart().x, t.GetStart().y) for t in board.GetTracks()
-              if t.Type() == pcbnew.PCB_TRACE_T and t.IsLocked()}
+    starts = {(t.GetNetCode(), e.x, e.y) for t in board.GetTracks()     # either end: a track drawn by hand may
+              if t.Type() == pcbnew.PCB_TRACE_T and t.IsLocked()          # start at its via
+              for e in (t.GetStart(), t.GetEnd())}
     tht = {}
     for p in board.GetPads():
         if p.GetNetname() in nets and p.HasHole():
@@ -350,8 +351,9 @@ def escape(board, pads, sizes, avoid=(), clr=0.2, edge=1.0, reach=3.0, inward=Fa
     done, missed = [], []
     # stacked pads (USB-C A4/B9) share one spot: one escape via for it, so skip a pad where a locked track of its
     # net already starts
-    starts = {(t.GetNetCode(), t.GetStart().x, t.GetStart().y) for t in board.GetTracks()
-              if t.Type() == pcbnew.PCB_TRACE_T and t.IsLocked()}
+    starts = {(t.GetNetCode(), e.x, e.y) for t in board.GetTracks()     # either end: a track drawn by hand may
+              if t.Type() == pcbnew.PCB_TRACE_T and t.IsLocked()          # start at its via
+              for e in (t.GetStart(), t.GetEnd())}
     # the landing room of the escape vias already there (earlier rounds, pins placed in advance)
     for v in board.GetTracks():
         if v.Type() == pcbnew.PCB_VIA_T and v.IsLocked() and v.GetNetCode() in sizes:

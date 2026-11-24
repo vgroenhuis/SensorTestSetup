@@ -448,11 +448,24 @@ def keepouts(board, args, codes, clr=0.2, relaxed=()):
     if not args.keepout:
         return zs, boxes
     pads = list(board.GetPads())
+    # a via on a net being routed within a chip's pin field (vias placed by hand under a chip, a hand-off board):
+    # no keep-outs for that chip. Freerouting ignores a fixed via inside a keep-out, and the tracks on the other
+    # side need to reach it
+    vias = [v.GetPosition() for v in board.GetTracks() if v.Type() == pcbnew.PCB_VIA_T and v.GetNetCode() in codes]
     for fp, _ in chips(board, args):
         if fp.GetReference() in relaxed:
             continue
         body = pin_body(fp, clr)
         if body is None:
+            continue
+        field = None
+        for p in fp.Pads():
+            b = p.GetBoundingBox()
+            if field is None:
+                field = pcbnew.BOX2I(b.GetPosition(), b.GetSize())
+            else:
+                field.Merge(b)
+        if any(field.Contains(v) for v in vias):
             continue
         side = fp.GetLayer()
         other = pcbnew.B_Cu if side == pcbnew.F_Cu else pcbnew.F_Cu
