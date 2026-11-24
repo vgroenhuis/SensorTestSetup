@@ -119,6 +119,16 @@ def _track(board, cu, p, x, y, width, layer):
     cu.add(seg, p.GetNetCode(), (layer,))
 
 
+def track_ends(board):
+    """{net code: [ends of its locked tracks]}: a pad with one of these on it already has its track (an escape or
+    plane via track, or one drawn by hand: that may end on the pad rather than start there, a few um off centre)."""
+    out = {}
+    for t in board.GetTracks():
+        if t.Type() == pcbnew.PCB_TRACE_T and t.IsLocked():
+            out.setdefault(t.GetNetCode(), []).extend((t.GetStart(), t.GetEnd()))
+    return out
+
+
 def fanout(board, nets, d=0.6, drill=0.3, width=0.3, clr=0.2, edge=1.0, reach=2.5, only=None):
     """A via to the plane for every SMD pad on `nets`, or a short track to a through-hole pad of the same net within
     `reach` mm (a USB-C GND pin to its shield pad). Stacked pads (USB-C A1/B12) share one. Run it after the power
@@ -127,9 +137,7 @@ def fanout(board, nets, d=0.6, drill=0.3, width=0.3, clr=0.2, edge=1.0, reach=2.
     starts already have one (placed before the power stage) and are skipped."""
     cu = Copper(board)
     vias, missed, done = 0, [], set()
-    starts = {(t.GetNetCode(), e.x, e.y) for t in board.GetTracks()     # either end: a track drawn by hand may
-              if t.Type() == pcbnew.PCB_TRACE_T and t.IsLocked()          # start at its via
-              for e in (t.GetStart(), t.GetEnd())}
+    starts = track_ends(board)
     tht = {}
     for p in board.GetPads():
         if p.GetNetname() in nets and p.HasHole():
@@ -142,7 +150,7 @@ def fanout(board, nets, d=0.6, drill=0.3, width=0.3, clr=0.2, edge=1.0, reach=2.
             if only is not None and pad_name(p) not in only:
                 continue
             net, code = p.GetNet(), p.GetNetCode()
-            if (code, mm(pcbnew.ToMM(p.GetPosition().x)), mm(pcbnew.ToMM(p.GetPosition().y))) in starts:
+            if any(p.HitTest(e) for e in starts.get(code, ())):
                 continue
             layer = pcbnew.B_Cu if p.IsOnLayer(pcbnew.B_Cu) and not p.IsOnLayer(pcbnew.F_Cu) else pcbnew.F_Cu
             spot = (code, layer, p.GetPosition().x, p.GetPosition().y)
@@ -351,9 +359,7 @@ def escape(board, pads, sizes, avoid=(), clr=0.2, edge=1.0, reach=3.0, inward=Fa
     done, missed = [], []
     # stacked pads (USB-C A4/B9) share one spot: one escape via for it, so skip a pad where a locked track of its
     # net already starts
-    starts = {(t.GetNetCode(), e.x, e.y) for t in board.GetTracks()     # either end: a track drawn by hand may
-              if t.Type() == pcbnew.PCB_TRACE_T and t.IsLocked()          # start at its via
-              for e in (t.GetStart(), t.GetEnd())}
+    starts = track_ends(board)
     # the landing room of the escape vias already there (earlier rounds, pins placed in advance)
     for v in board.GetTracks():
         if v.Type() == pcbnew.PCB_VIA_T and v.IsLocked() and v.GetNetCode() in sizes:
@@ -378,7 +384,7 @@ def escape(board, pads, sizes, avoid=(), clr=0.2, edge=1.0, reach=3.0, inward=Fa
         if p.GetAttribute() not in (pcbnew.PAD_ATTRIB_SMD, pcbnew.PAD_ATTRIB_CONN):
             continue                                    # a through-hole pad is on every layer already
         code, net = p.GetNetCode(), p.GetNet()
-        if (code, mm(pcbnew.ToMM(p.GetPosition().x)), mm(pcbnew.ToMM(p.GetPosition().y))) in starts:
+        if any(p.HitTest(e) for e in starts.get(code, ())):
             continue
         full, d, drill = sizes[code]
         fp = p.GetParentFootprint()
@@ -482,7 +488,7 @@ def escape(board, pads, sizes, avoid=(), clr=0.2, edge=1.0, reach=3.0, inward=Fa
             own.setdefault((code, layer), []).append(((x0, y0), (x1, y1)))
             tracks.append(t)
         x, y = path[-1]
-        starts.add((code, tracks[0].GetStart().x, tracks[0].GetStart().y))
+        starts.setdefault(code, []).append(tracks[0].GetStart())
         if shared is not None:
             done.append((pad_name(p), shared, tracks))
             continue
