@@ -115,13 +115,14 @@ FIXED = {
 HOLES = {'H=M3#1': (4, 4), 'H=M3#2': (W - 4, 4), 'H=M3#3': (4, H - 4), 'H=M3#4': (W - 4, H - 4),
          'H=M3#5': (60.3, 91), 'H=M3#6': (142, 91)}
 # net classes: (track width, clearance, via diameter, via drill, nets by their short name)
+# clearance 0.15 mm everywhere: at most 20 V (USB PD), and 0.2 mm left no room beside U6's 0.4 mm pitch pins
 NETCLASSES = {
-    'Power': (1.0, 0.2, 0.8, 0.4, ['VBUS_PD', 'VBUS_PROG', 'CHG_VBUS', 'CHG_PMID', 'CHG_SYS', 'CHG_SW1', 'CHG_SW2',
+    'Power': (1.0, 0.15, 0.8, 0.4, ['VBUS_PD', 'VBUS_PROG', 'CHG_VBUS', 'CHG_PMID', 'CHG_SYS', 'CHG_SW1', 'CHG_SW2',
                                     'CHG_IN1_MID', 'CHG_IN2_MID', 'BAT_P', 'VBUS_SW',
                                     'V_BUS', 'V_SERVO', 'SW_SERVO', 'SW_3V3', 'V_DXL', 'MOTA_P', 'MOTA_N', 'MOTB_P',
                                     'MOTB_N', 'DC_12V',
                                     'SW_5V']),                      # 3 A buck switch node
-    'Pack': (2.0, 0.2, 0.8, 0.4, ['CELL1', 'CELL2', 'CELL3', 'BAT_N', 'BQ_SRN', 'BQ_FET_MID']),   # the cells in series
+    'Pack': (2.0, 0.15, 0.8, 0.4, ['CELL1', 'CELL2', 'CELL3', 'BAT_N', 'BQ_SRN', 'BQ_FET_MID']),   # the cells in series
                                                                     # and the protection FETs: the full pack current
     'Supply': (0.5, 0.15, 0.6, 0.3, ['+3V3', '+5V']),
 }
