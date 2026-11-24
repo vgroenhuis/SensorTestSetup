@@ -115,6 +115,22 @@ and of fixed vias.
   (U6: GND pad 27, CHG_BTST1, CHG_CE, CHG_PROG; USB_UP_DP J2.A6-B6; PD_VSET at U2), 4528 tracks, 17.4 m, 1142 vias.
   DRC besides TPS25947 and placement items: the locked I2C_SDA track at H2, CHG_VBUS 0.225 mm from BT3's
   non-plated hole (keep-outs for those now too), 8 starved thermals of the B.Cu GND pour. inspect/run13b_finish.
+* Overnight 2026-11-24 (boards in inspect/runN_<stage>, each with a DRC after a zone refill):
+  - Attempt 14 (`--bare`, fan-out): power 3 open (rounds stop: the open pads have fan-out vias); signals 22, 30,
+    26, 29, 33 ... stopped by hand. Worse than without the fan-out.
+  - Attempt 15 (`--bare --fanout-pitch 0`): power 2 open (U6.25 CHG_SYS, U8.5); signals 27, 33, 29, 29, 33 (stopped);
+    planes 13; finish **11 unconnected**. In stage 2 the plane cost did not stop runs of 94-193 mm (TFT_RES, DXL_EN,
+    US_TRIG): prune's 20 mm limit took them out and stage 4 routed most of them outside.
+  - Attempt 16 (run 12's plane vias, `--pre-escape 3`, 6 rounds): signals 24, 23, 26, 37, 22, 26, 24; planes 10;
+    finish **8 unconnected**.
+  - Attempt 17 (run 12's plane vias, `--pre-escape 3`, **`--passes 8`**): signals 7, 6 (round 1 kept, then no new
+    escape vias); stage 2 needs no plane tracks; finish **6 unconnected**, 4609 tracks, 17.3 m, 1104 vias. More
+    Freerouting passes per round help far more than more escape rounds (3 passes: 22-37 open per round; 8: 6-7).
+  - The same six stay open in every attempt: U6 GND pad 27 (no room for a plane via), CHG_BTST1 (U6.4-C10.1),
+    CHG_CE (U6.13-R12.1), CHG_PROG (U6.20-R7.1), USB_UP_DP (J2.A6-B6) and PD_VSET (U2.8). Local congestion around
+    U6 and at J2/U2: placement, or by hand.
+  - DRC left besides TPS25947 and placement items: locked tracks from run 12's hand edits (I2C_SDA at H2, CHG_VBUS at
+    BT3's peg hole, a Battery track at D14's cut-out) and 0.1475 mm at IR_DO (rounding).
 * Still dropping at the last round: `--escape-rounds` now defaults to 0 (no limit), the rounds go on until no open pad gets a new via.
 
 ## Next steps
