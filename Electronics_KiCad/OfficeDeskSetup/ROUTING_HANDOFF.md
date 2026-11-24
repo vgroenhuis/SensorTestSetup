@@ -103,6 +103,11 @@ and of fixed vias.
   Saved in inspect/run12_vias and inspect/run12_signals; on main.
 * Mounting holes H2-H4 now get a keep-out ring in the DSN at every stage (hole clearance 0.25 mm + 0.05 mm), and
   pads without room for a via score a point in the fan-out and the pre-placed plane vias too. Not yet run.
+* Attempt 13: run 12's plane-vias board again, with the hole keep-outs, signal rounds without a limit
+  (`--escape-rounds-signals 0`): 25, 23, 21, 25, 17, 19 open; round 4 kept: **17 open signal connections**. Left over
+  DRC: the TPS25947 pad-to-pad items, D14's cut-out (now a keep-out too) and one locked I2C_SDA track on B.Cu
+  (x = 67.56, y 33-117, already on the plane-vias board) 0.239 mm from the H2 hole. inspect/run13_signals.
+  Stage 2 now keeps plane tracks short (`--plane-cost`, `--max-plane-run`).
 * Still dropping at the last round: `--escape-rounds` now defaults to 0 (no limit), the rounds go on until no open pad gets a new via.
 
 ## Next steps

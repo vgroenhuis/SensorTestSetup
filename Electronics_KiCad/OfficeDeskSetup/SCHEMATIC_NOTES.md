@@ -330,17 +330,23 @@ About 50–60 minutes (200 × 150 mm) to 70 minutes (270 × 200 mm). The work fi
      where KiCad wants 0.25 (hole clearance). Every through-hole pad with a ring thinner than the hole clearance that
      has no net or a hole of 2 mm or more gets a keep-out in the DSN (all copper layers, tracks and vias): a 16-gon
      around the hole radius + hole clearance + 0.05 mm. Not for pads with a net and a small hole: the keep-out would
-     keep their own tracks off.
+     keep their own tracks off. Cut-outs in a footprint (Edge.Cuts inside it: reverse-mount LED D14) get a keep-out
+     box too: the cut-out plus the copper-to-edge clearance + 0.05 mm.
 3. **Stage 1**: all nets on F.Cu and B.Cu only. The inner layers are marked as plane layers in the Specctra DSN
    (KiCad exports them as signal layers, and Freerouting then routes straight through the planes), and the board
    outline is pulled in so tracks keep the 0.5 mm edge clearance. Escape rounds as in stage 0, for all nets but the
    plane nets (`--escape-rounds-signals`, default 2, 0 = no limit; each round is a full stage-1 run).
+   Attempt 13 (run 12's plane vias, hole keep-outs, no round limit): 25, 23, 21, 25, 17, 19 open; round 4 kept.
 4. **Stage 2**: the stage-1 tracks are locked and Freerouting routes what is left with the planes open. A track
    through a plane is kept only while the plane stays sound: at most 50 mm of plane track per net; plane tracks
    closer together than 2 mm count as one slot of at most 50 mm; and each plane stays one piece (filled with a
    2 mm minimum width, so a narrow neck counts as a cut). Otherwise the worst net loses its stage-2 tracks, and
    each removed net is then tried back on its own. Options `--max-plane`, `--slot-gap`, `--neck`; `--reuse`
-   re-imports the routes of the previous run instead of routing again.
+   re-imports the routes of the previous run instead of routing again. To keep plane tracks short, the plane
+   layers get a higher trace cost in the DSN (`--plane-cost`, default 5; the outer layers about 1: an
+   `autoroute_settings` scope with a `layer_rule` per layer, after the layers in the structure), so Freerouting
+   only dips into a plane for short hops and uses another via where the way is long; and prune takes out a net
+   whose plane track has a piece (tracks joined end to end) longer than `--max-plane-run` mm (20).
 5. **Stage 3**: the Power class at 0.4 mm (`--power-narrow`): Freerouting has one width per class and cannot neck a
    1 mm track down to a 0.4 mm pitch pin. Afterwards every narrow power track on F.Cu/B.Cu gets the widest of 1.0,
    0.8, 0.6, 0.5 mm that clears its surroundings, except its last 0.8 mm at a pad. `--power-clearance` lowers the

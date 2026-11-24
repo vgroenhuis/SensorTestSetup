@@ -155,7 +155,22 @@ def power_nets(board):
     return out
 
 
-def route(board, args, name, closed, passes, keep=None, areas=()):
+def layer_costs(dsn, costs):
+    """Trace costs per layer for Freerouting ({layer name: cost}; the outer layers keep theirs, about 1): an
+    autoroute_settings scope with a layer_rule per layer, in the DSN's structure after the layers (Freerouting needs
+    the layers first). A plane layer at a high cost is only used for short hops, and a via more where the way is
+    long."""
+    s = open(dsn, encoding='utf-8').read()
+    rules = ''.join('\n      (layer_rule %s (active on) (preferred_direction_trace_costs %g) '
+                    '(against_preferred_direction_trace_costs %g))' % (l, c, c) for l, c in costs.items())
+    at = s.find('\n    (boundary')
+    if at < 0:
+        sys.exit('no boundary in the DSN structure')
+    s = s[:at] + '\n    (autoroute_settings' + rules + ')' + s[at:]
+    open(dsn, 'w', encoding='utf-8').write(s)
+
+
+def route(board, args, name, closed, passes, keep=None, areas=(), costs=None):
     """Export the board, run Freerouting on it and import the result. `closed`: layers it may not route on. `keep`:
     route only the nets whose short name it accepts. `areas`: rule areas that are in the DSN only (taken off the board
     again right after the export)."""
@@ -171,6 +186,7 @@ def route(board, args, name, closed, passes, keep=None, areas=()):
     fix_dsn(dsn, board, closed, pcbnew.ToMM(board.GetDesignSettings().m_CopperEdgeClearance) - 0.15)
     if keep:
         only_nets(dsn, keep)
+    if costs: layer_costs(dsn, costs)
     if not (args.reuse and os.path.exists(ses)):
         if os.path.exists(ses):
             os.remove(ses)
@@ -297,18 +313,13 @@ def hole_areas(board, margin=0.05):
     4.3 mm pad on a 4.2 mm hole). Freerouting only keeps its clearance from
     the copper, and approximates the round pad by a polygon inside the circle, so tracks came 0.20-0.24 mm from the
     hole where KiCad wants 0.25. Each keep-out is a 16-gon around the circle of hole radius + hole clearance +
-    `margin`, on every copper layer, for tracks and vias."""
+    `margin`, on every copper layer, for tracks and vias. Likewise a cut-out in a footprint (Edge.Cuts inside it, the
+    reverse-mount LED D14): its bounding box plus the copper-to-edge clearance + `margin`."""
     hc = pcbnew.ToMM(board.GetDesignSettings().m_HoleClearance)
+    ec = pcbnew.ToMM(board.GetDesignSettings().m_CopperEdgeClearance)
     out = []
-    for p in board.GetPads():
-        if p.GetAttribute() != pcbnew.PAD_ATTRIB_PTH:
-            continue
-        drill = min(pcbnew.ToMM(v) for v in (p.GetDrillSize().x, p.GetDrillSize().y))
-        size = min(pcbnew.ToMM(v) for v in (p.GetSize(pcbnew.F_Cu).x, p.GetSize(pcbnew.F_Cu).y))
-        if drill <= 0 or (size - drill) / 2 >= hc or (p.GetNetCode() > 0 and drill < 2):
-            continue                       # a keep-out would also keep the pad's own tracks off: mounting holes only
-        r = (drill / 2 + hc + margin) / math.cos(math.pi / 16)
-        cx, cy = pcbnew.ToMM(p.GetPosition().x), pcbnew.ToMM(p.GetPosition().y)
+
+    def area(pts):
         z = pcbnew.ZONE(board)
         z.SetIsRuleArea(True)
         z.SetLayerSet(pcbnew.LSET.AllCuMask(board.GetCopperLayerCount()))
@@ -319,10 +330,25 @@ def hole_areas(board, margin=0.05):
         z.SetDoNotAllowFootprints(False)
         ol = z.Outline()
         ol.NewOutline()
-        for k in range(16):
-            a = (k + 0.5) * math.pi / 8
-            ol.Append(mm(cx + r * math.cos(a)), mm(cy + r * math.sin(a)))
+        for x, y in pts:
+            ol.Append(mm(x), mm(y))
         out.append(z)
+    for fp in board.GetFootprints():
+        cut = [g.GetBoundingBox() for g in fp.GraphicalItems() if g.GetLayer() == pcbnew.Edge_Cuts]
+        if cut:
+            x0, y0 = (min(pcbnew.ToMM(getattr(c, f)()) for c in cut) - ec - margin for f in ('GetLeft', 'GetTop'))
+            x1, y1 = (max(pcbnew.ToMM(getattr(c, f)()) for c in cut) + ec + margin for f in ('GetRight', 'GetBottom'))
+            area(((x0, y0), (x1, y0), (x1, y1), (x0, y1)))
+    for p in board.GetPads():
+        if p.GetAttribute() != pcbnew.PAD_ATTRIB_PTH:
+            continue
+        drill = min(pcbnew.ToMM(v) for v in (p.GetDrillSize().x, p.GetDrillSize().y))
+        size = min(pcbnew.ToMM(v) for v in (p.GetSize(pcbnew.F_Cu).x, p.GetSize(pcbnew.F_Cu).y))
+        if drill <= 0 or (size - drill) / 2 >= hc or (p.GetNetCode() > 0 and drill < 2):
+            continue                       # a keep-out would also keep the pad's own tracks off: mounting holes only
+        r = (drill / 2 + hc + margin) / math.cos(math.pi / 16)
+        cx, cy = pcbnew.ToMM(p.GetPosition().x), pcbnew.ToMM(p.GetPosition().y)
+        area([(cx + r * math.cos((k + 0.5) * math.pi / 8), cy + r * math.sin((k + 0.5) * math.pi / 8)) for k in range(16)])
     return out
 
 
@@ -788,7 +814,8 @@ def stage2(args, pcb):
     planes = sorted({z.GetLayer() for z in zones(board)})
     json.dump({'planes': planes, 'tracks': [key(t) for t in board.GetTracks()], 'islands': islands(board, planes, args.neck)},
               open(os.path.join(args.work, 'stage1.json'), 'w'))
-    route(board, args, PROJECT + '_2', [], args.passes2)
+    route(board, args, PROJECT + '_2', [], args.passes2,
+          costs={board.GetLayerName(l): args.plane_cost for l in planes} if args.plane_cost > 0 else None)
     store(args, pcb, board, 'stage2')
 
 
@@ -895,8 +922,36 @@ def prune(args, pcb):
             found[root(i)][n] += pcbnew.ToMM(t.GetLength())
         return [(sum(c.values()), c) for c in found.values()]
 
+    def runs(net, layer):
+        """Lengths (mm) of the pieces of a net's plane track on a layer: tracks joined end to end (or by a via)."""
+        ts = [t for t in new[net] if t.Type() == pcbnew.PCB_TRACE_T and t.GetLayer() == layer]
+        group = list(range(len(ts)))
+
+        def root(i):
+            while group[i] != i:
+                group[i] = group[group[i]]
+                i = group[i]
+            return i
+        ends = collections.defaultdict(list)
+        for i, t in enumerate(ts):
+            for e in (t.GetStart(), t.GetEnd()):
+                ends[(e.x // 1000, e.y // 1000)].append(i)
+        for ids in ends.values():
+            for j in ids[1:]:
+                group[root(j)] = root(ids[0])
+        out = collections.Counter()
+        for i, t in enumerate(ts):
+            out[root(i)] += pcbnew.ToMM(t.GetLength())
+        return list(out.values())
+
     def problem():
         """The net to take out next (and why), or None when the planes are fine."""
+        if args.max_plane_run > 0:
+            for n in new:
+                for l in planes:
+                    r = max(runs(n, l), default=0)
+                    if r > args.max_plane_run:
+                        return n, 'a %.0f mm run in %s' % (r, board.GetLayerName(l))
         for n in new:
             if sum(in_plane(n, l) for l in planes) > args.max_plane:
                 return n, 'over %g mm' % args.max_plane
@@ -1026,6 +1081,10 @@ def main():
     ap.add_argument('--power-narrow', type=float, default=0.4, help='mm: Power class width in stage 3')
     ap.add_argument('--power-clearance', type=float, default=0.0, help='mm: Power class clearance in stage 3 (0: keep)')
     ap.add_argument('--neck', type=float, default=2.0, help='mm: a plane narrower than this counts as cut')
+    ap.add_argument('--plane-cost', type=float, default=5.0,
+                    help='stage 2: Freerouting trace cost on the plane layers (outer layers about 1; 0: the default)')
+    ap.add_argument('--max-plane-run', type=float, default=20.0,
+                    help='mm: longest piece of one plane track (stage 2/3); longer and the net is taken out (0: no limit)')
     ap.add_argument('--max-plane', type=float, default=50.0, help='mm of plane track per net, and per slot')
     ap.add_argument('--slot-gap', type=float, default=2.0, help='mm: plane tracks closer than this form one slot')
     ap.add_argument('--stitch', action='store_true', help='add GND stitching vias (only when everything is routed)')
