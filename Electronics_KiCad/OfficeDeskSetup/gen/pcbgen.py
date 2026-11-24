@@ -130,6 +130,10 @@ NETCLASSES = {
 # the load cell bridge), MH_VCC (MH sensor module)
 # net class colours in pcbnew: with the Appearance panel's net colours on 'Ratsnest' (KiCad's default), the open
 # connections of these classes stand out
+# predefined sizes in the board's Track and Via size menus (the first entry, 0, is KiCad's "use net class" item):
+# the net class widths alone are not always there (a pin of another class) or the right one (a narrow escape)
+TRACK_WIDTHS = [0.15, 0.2, 0.25, 0.3, 0.4, 0.5, 0.75, 1.0, 1.5, 2.0]
+VIA_SIZES = [(0.5, 0.3), (0.6, 0.3), (0.8, 0.4), (1.0, 0.5)]           # (diameter, drill) mm
 CLASS_COLORS = {'Pack': 'rgba(255, 40, 40, 1.000)', 'Power': 'rgba(255, 150, 0, 1.000)', 'Supply': 'rgba(255, 230, 0, 1.000)'}
 PLANES = {'In1.Cu': 'GND', 'In2.Cu': '+3V3'}   # signals route on F.Cu and B.Cu (GND pours after routing), with only
                                                 # a few short hops through the planes (gen/route.py)
@@ -1538,6 +1542,9 @@ def main():
     if pro in keep:
         old, new = json.loads(keep[pro]), json.load(open(pro, encoding='utf-8'))
         old['board'] = new['board']
+        bds = old['board'].setdefault('design_settings', {})
+        bds['track_widths'] = [0.0] + TRACK_WIDTHS
+        bds['via_dimensions'] = [{'diameter': 0.0, 'drill': 0.0}] + [{'diameter': d, 'drill': r} for d, r in VIA_SIZES]
         ns = old.setdefault('net_settings', {})
         default = next(c for c in ns['classes'] if c.get('name') == 'Default')
         default['clearance'] = 0.15
