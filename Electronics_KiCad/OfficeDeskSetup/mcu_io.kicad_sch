@@ -3662,8 +3662,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "834894b7-d36e-5f4b-84bb-272220898690")
-		(property "Reference" "#PWR184"
+		(uuid "15759c5e-1d35-54a2-99f2-5b0908631bac")
+		(property "Reference" "#PWR181"
 			(at 58.42 85.09 0)
 			(hide yes)
 			(show_name no)
@@ -3708,12 +3708,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "dd1b8d4f-8bbf-5ed8-8d0b-d836b775db8e")
+			(uuid "5e31e9f5-a331-51d0-a80c-406d6e851672")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR184")
+					(reference "#PWR181")
 					(unit 1)
 				)
 			)
@@ -3734,8 +3734,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "ee148714-b9a2-5732-95e8-1fcc965a7024")
-		(property "Reference" "#PWR185"
+		(uuid "6e0a7f87-d3b8-5421-8404-bccc3935d55a")
+		(property "Reference" "#PWR182"
 			(at 58.42 31.75 0)
 			(hide yes)
 			(show_name no)
@@ -3780,12 +3780,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "074a874e-5f49-5961-afa0-fb776733efe1")
+			(uuid "9ae2d2c9-62e4-574a-84b0-c29bdd490d20")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR185")
+					(reference "#PWR182")
 					(unit 1)
 				)
 			)
@@ -4218,8 +4218,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "78b1b452-8f15-58d5-af30-aae3c977aa3c")
-		(property "Reference" "#PWR186"
+		(uuid "1b16c1f8-5abf-5c0a-9140-8716309e4bba")
+		(property "Reference" "#PWR183"
 			(at 128.27 27.94 0)
 			(hide yes)
 			(show_name no)
@@ -4264,12 +4264,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "343cf009-8111-5b22-aa0b-0892f2c0b4e9")
+			(uuid "eeffcaa3-093f-5041-9c18-398a99ea9023")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR186")
+					(reference "#PWR183")
 					(unit 1)
 				)
 			)
@@ -4394,8 +4394,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "31a34975-fd99-568a-9389-0b0661420cc0")
-		(property "Reference" "#PWR187"
+		(uuid "834894b7-d36e-5f4b-84bb-272220898690")
+		(property "Reference" "#PWR184"
 			(at 140.97 35.56 0)
 			(hide yes)
 			(show_name no)
@@ -4441,12 +4441,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "7a5105b4-d379-5a1d-9d40-d488ecb30c3d")
+			(uuid "dd1b8d4f-8bbf-5ed8-8d0b-d836b775db8e")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR187")
+					(reference "#PWR184")
 					(unit 1)
 				)
 			)
@@ -4558,8 +4558,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "849bb3ff-0923-5496-a37d-212be433ee82")
-		(property "Reference" "#PWR188"
+		(uuid "ee148714-b9a2-5732-95e8-1fcc965a7024")
+		(property "Reference" "#PWR185"
 			(at 142.24 43.18 0)
 			(hide yes)
 			(show_name no)
@@ -4605,12 +4605,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "d51308e6-7293-5470-8a30-a423ed3f5418")
+			(uuid "074a874e-5f49-5961-afa0-fb776733efe1")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR188")
+					(reference "#PWR185")
 					(unit 1)
 				)
 			)
@@ -4826,8 +4826,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "39967bdf-6eb3-56f2-9e6f-cac7c6395b8a")
-		(property "Reference" "#PWR189"
+		(uuid "78b1b452-8f15-58d5-af30-aae3c977aa3c")
+		(property "Reference" "#PWR186"
 			(at 142.24 58.42 0)
 			(hide yes)
 			(show_name no)
@@ -4873,12 +4873,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "e801b602-4769-5019-b8be-5ac5ec3ed684")
+			(uuid "343cf009-8111-5b22-aa0b-0892f2c0b4e9")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR189")
+					(reference "#PWR186")
 					(unit 1)
 				)
 			)
@@ -4979,8 +4979,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "08ccab3b-d44c-554e-a6b5-d2a72ad3b875")
-		(property "Reference" "#PWR190"
+		(uuid "31a34975-fd99-568a-9389-0b0661420cc0")
+		(property "Reference" "#PWR187"
 			(at 119.38 72.39 0)
 			(hide yes)
 			(show_name no)
@@ -5025,12 +5025,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "77b764f0-6290-5272-8251-1322c5da866c")
+			(uuid "7a5105b4-d379-5a1d-9d40-d488ecb30c3d")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR190")
+					(reference "#PWR187")
 					(unit 1)
 				)
 			)
@@ -5051,8 +5051,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "490f0d79-2020-56c8-bfbd-d52db98eaa9f")
-		(property "Reference" "#PWR191"
+		(uuid "849bb3ff-0923-5496-a37d-212be433ee82")
+		(property "Reference" "#PWR188"
 			(at 119.38 85.09 0)
 			(hide yes)
 			(show_name no)
@@ -5097,12 +5097,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "6ce7a605-9b46-557a-931c-24514c181eca")
+			(uuid "d51308e6-7293-5470-8a30-a423ed3f5418")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR191")
+					(reference "#PWR188")
 					(unit 1)
 				)
 			)
@@ -5203,8 +5203,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "d2b71770-1f2d-5d01-a976-1b8968f3ea3e")
-		(property "Reference" "#PWR192"
+		(uuid "39967bdf-6eb3-56f2-9e6f-cac7c6395b8a")
+		(property "Reference" "#PWR189"
 			(at 134.62 72.39 0)
 			(hide yes)
 			(show_name no)
@@ -5249,12 +5249,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "f0426ef6-b286-5642-9cfc-272f46206416")
+			(uuid "e801b602-4769-5019-b8be-5ac5ec3ed684")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR192")
+					(reference "#PWR189")
 					(unit 1)
 				)
 			)
@@ -5275,8 +5275,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "c0e7d6a1-97f4-5918-8074-003a741f987f")
-		(property "Reference" "#PWR193"
+		(uuid "08ccab3b-d44c-554e-a6b5-d2a72ad3b875")
+		(property "Reference" "#PWR190"
 			(at 134.62 85.09 0)
 			(hide yes)
 			(show_name no)
@@ -5321,12 +5321,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "2fbc5703-f009-5e62-bd8e-9b1edabdb2f5")
+			(uuid "77b764f0-6290-5272-8251-1322c5da866c")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR193")
+					(reference "#PWR190")
 					(unit 1)
 				)
 			)
@@ -5531,8 +5531,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "ffce7429-0733-5af0-ae8d-c3e671173bea")
-		(property "Reference" "#PWR194"
+		(uuid "490f0d79-2020-56c8-bfbd-d52db98eaa9f")
+		(property "Reference" "#PWR191"
 			(at 213.36 90.17 0)
 			(hide yes)
 			(show_name no)
@@ -5577,12 +5577,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "c7336604-2b74-5766-b2f2-997e1bab3707")
+			(uuid "6ce7a605-9b46-557a-931c-24514c181eca")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR194")
+					(reference "#PWR191")
 					(unit 1)
 				)
 			)
@@ -5629,8 +5629,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "cd02acfe-a662-503c-960c-15d1d29d322f")
-		(property "Reference" "#PWR195"
+		(uuid "d2b71770-1f2d-5d01-a976-1b8968f3ea3e")
+		(property "Reference" "#PWR192"
 			(at 218.44 90.17 0)
 			(hide yes)
 			(show_name no)
@@ -5675,12 +5675,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "9c7d3dfe-81a3-5a79-be15-7fe3a7c568b4")
+			(uuid "f0426ef6-b286-5642-9cfc-272f46206416")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR195")
+					(reference "#PWR192")
 					(unit 1)
 				)
 			)
@@ -5801,8 +5801,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "f1c05d4a-d087-58c8-95e7-042b7b1dfbc7")
-		(property "Reference" "#PWR196"
+		(uuid "c0e7d6a1-97f4-5918-8074-003a741f987f")
+		(property "Reference" "#PWR193"
 			(at 203.2 90.17 0)
 			(hide yes)
 			(show_name no)
@@ -5847,12 +5847,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "4106cbd8-3272-537f-a322-0db9e41cd2e1")
+			(uuid "2fbc5703-f009-5e62-bd8e-9b1edabdb2f5")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR196")
+					(reference "#PWR193")
 					(unit 1)
 				)
 			)
@@ -5886,8 +5886,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "9ceef8d5-b8f6-51c8-91eb-f2878a4942e6")
-		(property "Reference" "#PWR197"
+		(uuid "ffce7429-0733-5af0-ae8d-c3e671173bea")
+		(property "Reference" "#PWR194"
 			(at 203.2 34.29 0)
 			(hide yes)
 			(show_name no)
@@ -5932,12 +5932,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "339b1368-0f49-5e42-b980-73589b3b06c8")
+			(uuid "c7336604-2b74-5766-b2f2-997e1bab3707")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR197")
+					(reference "#PWR194")
 					(unit 1)
 				)
 			)
@@ -6112,8 +6112,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "de8c8a52-81e7-5e81-a0b0-7ac9cc1fe3ae")
-		(property "Reference" "#PWR198"
+		(uuid "cd02acfe-a662-503c-960c-15d1d29d322f")
+		(property "Reference" "#PWR195"
 			(at 265.43 27.94 0)
 			(hide yes)
 			(show_name no)
@@ -6159,12 +6159,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "11eaac92-5eb5-5c46-8637-3be1e330c09a")
+			(uuid "9c7d3dfe-81a3-5a79-be15-7fe3a7c568b4")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR198")
+					(reference "#PWR195")
 					(unit 1)
 				)
 			)
@@ -6276,8 +6276,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "f7a9e28b-32a4-580c-87c9-d2514d14df5d")
-		(property "Reference" "#PWR199"
+		(uuid "f1c05d4a-d087-58c8-95e7-042b7b1dfbc7")
+		(property "Reference" "#PWR196"
 			(at 265.43 35.56 0)
 			(hide yes)
 			(show_name no)
@@ -6323,12 +6323,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "41087e21-dde0-5219-8603-125703c14fa3")
+			(uuid "4106cbd8-3272-537f-a322-0db9e41cd2e1")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR199")
+					(reference "#PWR196")
 					(unit 1)
 				)
 			)
@@ -6440,8 +6440,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "6675dc65-49a7-5a50-8a2c-504a26b2ad2a")
-		(property "Reference" "#PWR200"
+		(uuid "9ceef8d5-b8f6-51c8-91eb-f2878a4942e6")
+		(property "Reference" "#PWR197"
 			(at 265.43 43.18 0)
 			(hide yes)
 			(show_name no)
@@ -6487,12 +6487,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "c761ea44-98d6-5f8e-8944-252ed0df1e0a")
+			(uuid "339b1368-0f49-5e42-b980-73589b3b06c8")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR200")
+					(reference "#PWR197")
 					(unit 1)
 				)
 			)
@@ -6604,8 +6604,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "6bfe2806-4b6f-5678-bf48-bede8fff70d2")
-		(property "Reference" "#PWR201"
+		(uuid "de8c8a52-81e7-5e81-a0b0-7ac9cc1fe3ae")
+		(property "Reference" "#PWR198"
 			(at 265.43 50.8 0)
 			(hide yes)
 			(show_name no)
@@ -6651,12 +6651,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "1b28c5cc-4cc5-58d7-b647-2768d49205b3")
+			(uuid "11eaac92-5eb5-5c46-8637-3be1e330c09a")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR201")
+					(reference "#PWR198")
 					(unit 1)
 				)
 			)
@@ -6768,8 +6768,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "92841052-3d64-581a-b104-2a3f848f8a53")
-		(property "Reference" "#PWR202"
+		(uuid "f7a9e28b-32a4-580c-87c9-d2514d14df5d")
+		(property "Reference" "#PWR199"
 			(at 265.43 58.42 0)
 			(hide yes)
 			(show_name no)
@@ -6815,12 +6815,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "314d63de-827e-51ce-a5e9-14288ad2de3e")
+			(uuid "41087e21-dde0-5219-8603-125703c14fa3")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR202")
+					(reference "#PWR199")
 					(unit 1)
 				)
 			)
@@ -6932,8 +6932,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "73a21648-a6cc-5d42-9e6d-6733852eb3c6")
-		(property "Reference" "#PWR203"
+		(uuid "6675dc65-49a7-5a50-8a2c-504a26b2ad2a")
+		(property "Reference" "#PWR200"
 			(at 265.43 66.04 0)
 			(hide yes)
 			(show_name no)
@@ -6979,12 +6979,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "2bff7875-c891-554c-ba7d-9bdab23565ab")
+			(uuid "c761ea44-98d6-5f8e-8944-252ed0df1e0a")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR203")
+					(reference "#PWR200")
 					(unit 1)
 				)
 			)
@@ -7109,8 +7109,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "67a5cad0-5d60-58be-800a-79e71e36de03")
-		(property "Reference" "#PWR204"
+		(uuid "6bfe2806-4b6f-5678-bf48-bede8fff70d2")
+		(property "Reference" "#PWR201"
 			(at 281.94 44.45 0)
 			(hide yes)
 			(show_name no)
@@ -7155,12 +7155,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "5aa823aa-c8dd-56a4-9568-6263dc5dfce2")
+			(uuid "1b28c5cc-4cc5-58d7-b647-2768d49205b3")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR204")
+					(reference "#PWR201")
 					(unit 1)
 				)
 			)
@@ -7285,8 +7285,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "998bcdf5-85ce-53d8-8cae-0f729d0b151b")
-		(property "Reference" "#PWR205"
+		(uuid "92841052-3d64-581a-b104-2a3f848f8a53")
+		(property "Reference" "#PWR202"
 			(at 297.18 44.45 0)
 			(hide yes)
 			(show_name no)
@@ -7331,12 +7331,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "39afc7ea-e3c6-54b6-8761-176018642b39")
+			(uuid "314d63de-827e-51ce-a5e9-14288ad2de3e")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR205")
+					(reference "#PWR202")
 					(unit 1)
 				)
 			)
@@ -7461,8 +7461,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "848f08f3-dae5-57c2-aab6-4578c6eecfe2")
-		(property "Reference" "#PWR206"
+		(uuid "73a21648-a6cc-5d42-9e6d-6733852eb3c6")
+		(property "Reference" "#PWR203"
 			(at 312.42 44.45 0)
 			(hide yes)
 			(show_name no)
@@ -7507,12 +7507,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "65884799-fdfb-5eb4-815a-52a6b8a2fc74")
+			(uuid "2bff7875-c891-554c-ba7d-9bdab23565ab")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR206")
+					(reference "#PWR203")
 					(unit 1)
 				)
 			)
@@ -7613,8 +7613,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "b9fd8aa2-e3d5-5ca9-97e7-98c41c1423d5")
-		(property "Reference" "#PWR207"
+		(uuid "67a5cad0-5d60-58be-800a-79e71e36de03")
+		(property "Reference" "#PWR204"
 			(at 327.66 31.75 0)
 			(hide yes)
 			(show_name no)
@@ -7659,12 +7659,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "0bf50d6f-5c49-5fa2-9faf-8fc7ed00da90")
+			(uuid "5aa823aa-c8dd-56a4-9568-6263dc5dfce2")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR207")
+					(reference "#PWR204")
 					(unit 1)
 				)
 			)
@@ -7685,8 +7685,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "742b0f0c-f9d5-52d1-959e-64595891e0b6")
-		(property "Reference" "#PWR208"
+		(uuid "998bcdf5-85ce-53d8-8cae-0f729d0b151b")
+		(property "Reference" "#PWR205"
 			(at 327.66 44.45 0)
 			(hide yes)
 			(show_name no)
@@ -7731,12 +7731,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "561f8fa2-49af-5f2e-85ff-2447a0e75bd6")
+			(uuid "39afc7ea-e3c6-54b6-8761-176018642b39")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR208")
+					(reference "#PWR205")
 					(unit 1)
 				)
 			)
@@ -7777,8 +7777,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "e51322f3-a587-5921-96dc-094a6a599b3a")
-		(property "Reference" "J13"
+		(uuid "f75cc5c6-d304-59b8-ab34-da0f49e66d0f")
+		(property "Reference" "J12"
 			(at 373.38 26.67 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7831,27 +7831,27 @@
 			)
 		)
 		(pin "1"
-			(uuid "1223fea6-de3f-5acb-9a7d-93cc0bbd5603")
+			(uuid "d427b00f-5dbe-5bfd-9229-94b406d8e816")
 		)
 		(pin "2"
-			(uuid "4f3d2e77-20e4-503a-b3cc-d4f33e067380")
+			(uuid "9fee4adc-52d3-5d6e-8a88-d4276d967d72")
 		)
 		(pin "3"
-			(uuid "499c4de5-5e29-58e9-81a5-a47c94271eb8")
+			(uuid "66641fdb-df73-51e8-9c84-2e4cf052fc0e")
 		)
 		(pin "4"
-			(uuid "46d49881-e3aa-5c6a-9674-854831cae9bd")
+			(uuid "1d009e35-c5c0-5cff-ae7c-5aba92c14896")
 		)
 		(pin "5"
-			(uuid "96d7758c-a42a-53ce-b6b5-94782404fd43")
+			(uuid "556d353f-de5b-5fb4-adeb-e97f2c5d793f")
 		)
 		(pin "6"
-			(uuid "f456bb09-afb8-5241-b4b3-402cacbe7e42")
+			(uuid "74b0387a-625b-5fc2-af92-c84b008b427f")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "J13")
+					(reference "J12")
 					(unit 1)
 				)
 			)
@@ -7898,8 +7898,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "a81c25e4-4feb-5e7a-96bf-495032ffca71")
-		(property "Reference" "#PWR209"
+		(uuid "848f08f3-dae5-57c2-aab6-4578c6eecfe2")
+		(property "Reference" "#PWR206"
 			(at 365.76 34.29 0)
 			(hide yes)
 			(show_name no)
@@ -7944,12 +7944,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "1ecd51f2-268e-55fe-b31b-9965781bf9e7")
+			(uuid "65884799-fdfb-5eb4-815a-52a6b8a2fc74")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR209")
+					(reference "#PWR206")
 					(unit 1)
 				)
 			)
@@ -7970,8 +7970,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "a12f033b-e0de-5c8d-8400-26c32c17bee7")
-		(property "Reference" "#PWR210"
+		(uuid "b9fd8aa2-e3d5-5ca9-97e7-98c41c1423d5")
+		(property "Reference" "#PWR207"
 			(at 365.76 36.83 0)
 			(hide yes)
 			(show_name no)
@@ -8017,12 +8017,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "85ef6617-e8b4-5365-b42d-3bf4c891642e")
+			(uuid "0bf50d6f-5c49-5fa2-9faf-8fc7ed00da90")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR210")
+					(reference "#PWR207")
 					(unit 1)
 				)
 			)
@@ -8064,8 +8064,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "81ae3802-a71e-5939-bd1f-882a7d2bb5d3")
-		(property "Reference" "J14"
+		(uuid "e51322f3-a587-5921-96dc-094a6a599b3a")
+		(property "Reference" "J13"
 			(at 368.3 52.07 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8118,15 +8118,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "729d8d82-884f-576f-a7eb-194dcbbeeff3")
+			(uuid "1223fea6-de3f-5acb-9a7d-93cc0bbd5603")
 		)
 		(pin "2"
-			(uuid "e22c68dd-ee1f-56ee-8816-f119d517c2ab")
+			(uuid "4f3d2e77-20e4-503a-b3cc-d4f33e067380")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "J14")
+					(reference "J13")
 					(unit 1)
 				)
 			)
@@ -8486,8 +8486,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "2e6d81e1-f4e4-5305-9bbe-abc88069bb6e")
-		(property "Reference" "#PWR211"
+		(uuid "742b0f0c-f9d5-52d1-959e-64595891e0b6")
+		(property "Reference" "#PWR208"
 			(at 403.86 69.85 0)
 			(hide yes)
 			(show_name no)
@@ -8532,12 +8532,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "11a09a7f-47e8-5790-b780-3e300196ba58")
+			(uuid "561f8fa2-49af-5f2e-85ff-2447a0e75bd6")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR211")
+					(reference "#PWR208")
 					(unit 1)
 				)
 			)
@@ -8584,8 +8584,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "fa8e601b-6242-52b4-94e4-30060676db8f")
-		(property "Reference" "#PWR212"
+		(uuid "a81c25e4-4feb-5e7a-96bf-495032ffca71")
+		(property "Reference" "#PWR209"
 			(at 403.86 52.07 0)
 			(hide yes)
 			(show_name no)
@@ -8630,12 +8630,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "fc3ba234-aec6-554d-9cdf-4b410055dd47")
+			(uuid "1ecd51f2-268e-55fe-b31b-9965781bf9e7")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR212")
+					(reference "#PWR209")
 					(unit 1)
 				)
 			)
@@ -8762,8 +8762,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "4cfd5536-0a73-5332-bb06-1e3dd6ab1a61")
-		(property "Reference" "#PWR213"
+		(uuid "a12f033b-e0de-5c8d-8400-26c32c17bee7")
+		(property "Reference" "#PWR210"
 			(at 386.08 102.87 0)
 			(hide yes)
 			(show_name no)
@@ -8808,12 +8808,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "6e23f8d3-0753-5698-a322-9e0ae27d2694")
+			(uuid "85ef6617-e8b4-5365-b42d-3bf4c891642e")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR213")
+					(reference "#PWR210")
 					(unit 1)
 				)
 			)
@@ -8927,8 +8927,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "1aa374e9-2355-52dd-8321-e9e15f2b0878")
-		(property "Reference" "#PWR214"
+		(uuid "2e6d81e1-f4e4-5305-9bbe-abc88069bb6e")
+		(property "Reference" "#PWR211"
 			(at 401.32 102.87 0)
 			(hide yes)
 			(show_name no)
@@ -8973,12 +8973,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "f428c486-63e0-5341-9ef6-a29137db38f0")
+			(uuid "11a09a7f-47e8-5790-b780-3e300196ba58")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR214")
+					(reference "#PWR211")
 					(unit 1)
 				)
 			)
@@ -9010,8 +9010,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "3e22309a-8551-567c-8eaa-d6a111098ba2")
-		(property "Reference" "J15"
+		(uuid "81ae3802-a71e-5939-bd1f-882a7d2bb5d3")
+		(property "Reference" "J14"
 			(at 459.74 26.67 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9064,27 +9064,27 @@
 			)
 		)
 		(pin "1"
-			(uuid "b1ab5fa0-a314-56ef-8ba6-015f5cc3d3ca")
+			(uuid "729d8d82-884f-576f-a7eb-194dcbbeeff3")
 		)
 		(pin "2"
-			(uuid "d9a9edf9-c6c3-5eb1-8d71-8457db51eb2a")
+			(uuid "e22c68dd-ee1f-56ee-8816-f119d517c2ab")
 		)
 		(pin "3"
-			(uuid "626c87fa-959a-5fb0-973f-4a184def9715")
+			(uuid "96b454e2-0290-53fb-915b-56d8e75d351b")
 		)
 		(pin "4"
-			(uuid "22fb8afc-5752-58e9-bd60-3cd1cf2304fc")
+			(uuid "cef4720f-374b-565d-843b-8c4b67f390c6")
 		)
 		(pin "5"
-			(uuid "4a68828a-b669-5f25-a462-983f1bba3554")
+			(uuid "53d18c6a-600a-5e0c-9069-20378f89af98")
 		)
 		(pin "6"
-			(uuid "f283cb0b-c4bb-59ab-afa6-92e22a0b859d")
+			(uuid "674a01bb-b654-5071-a8cc-45abb76083d6")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "J15")
+					(reference "J14")
 					(unit 1)
 				)
 			)
@@ -9131,8 +9131,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "daa00896-4f34-51dd-ab01-bd579a90bbfd")
-		(property "Reference" "#PWR215"
+		(uuid "fa8e601b-6242-52b4-94e4-30060676db8f")
+		(property "Reference" "#PWR212"
 			(at 452.12 34.29 0)
 			(hide yes)
 			(show_name no)
@@ -9177,12 +9177,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "8da0e27e-fb9e-54d3-b82d-f7b487452a39")
+			(uuid "fc3ba234-aec6-554d-9cdf-4b410055dd47")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR215")
+					(reference "#PWR212")
 					(unit 1)
 				)
 			)
@@ -9203,8 +9203,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "1ca725fa-2fce-5d19-aa46-80fc779a9c79")
-		(property "Reference" "#PWR216"
+		(uuid "4cfd5536-0a73-5332-bb06-1e3dd6ab1a61")
+		(property "Reference" "#PWR213"
 			(at 452.12 36.83 0)
 			(hide yes)
 			(show_name no)
@@ -9250,12 +9250,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "4557619a-c869-554d-a88d-bd7be057165a")
+			(uuid "6e23f8d3-0753-5698-a322-9e0ae27d2694")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR216")
+					(reference "#PWR213")
 					(unit 1)
 				)
 			)
@@ -9297,8 +9297,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "c4fe7c05-04cc-54c1-be48-5865fbc8790b")
-		(property "Reference" "J16"
+		(uuid "3e22309a-8551-567c-8eaa-d6a111098ba2")
+		(property "Reference" "J15"
 			(at 454.66 52.07 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -9351,15 +9351,15 @@
 			)
 		)
 		(pin "1"
-			(uuid "3c4655e0-d455-5bd1-aa6f-4cc32224d8d6")
+			(uuid "b1ab5fa0-a314-56ef-8ba6-015f5cc3d3ca")
 		)
 		(pin "2"
-			(uuid "09c8f015-619c-5a6a-a39a-469bb3f4cb19")
+			(uuid "d9a9edf9-c6c3-5eb1-8d71-8457db51eb2a")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "J16")
+					(reference "J15")
 					(unit 1)
 				)
 			)
@@ -9719,8 +9719,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "6b633493-08cf-528d-a10b-a4da469dcb36")
-		(property "Reference" "#PWR217"
+		(uuid "1aa374e9-2355-52dd-8321-e9e15f2b0878")
+		(property "Reference" "#PWR214"
 			(at 490.22 69.85 0)
 			(hide yes)
 			(show_name no)
@@ -9765,12 +9765,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "778d46b4-7d0b-5839-8804-7f1a2dcbd04a")
+			(uuid "f428c486-63e0-5341-9ef6-a29137db38f0")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR217")
+					(reference "#PWR214")
 					(unit 1)
 				)
 			)
@@ -9817,8 +9817,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "4a096ffd-f2b6-57fd-a44a-3198f95e91b6")
-		(property "Reference" "#PWR218"
+		(uuid "daa00896-4f34-51dd-ab01-bd579a90bbfd")
+		(property "Reference" "#PWR215"
 			(at 490.22 52.07 0)
 			(hide yes)
 			(show_name no)
@@ -9863,12 +9863,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "e5ce207d-2607-5a78-9f39-e9fd09ed8ad7")
+			(uuid "8da0e27e-fb9e-54d3-b82d-f7b487452a39")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR218")
+					(reference "#PWR215")
 					(unit 1)
 				)
 			)
@@ -9995,8 +9995,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "2644a125-b453-5d76-9ca4-ce53d1b2ecdb")
-		(property "Reference" "#PWR219"
+		(uuid "1ca725fa-2fce-5d19-aa46-80fc779a9c79")
+		(property "Reference" "#PWR216"
 			(at 472.44 102.87 0)
 			(hide yes)
 			(show_name no)
@@ -10041,12 +10041,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "4efd2522-feab-58c6-b786-8a13fcffabe3")
+			(uuid "4557619a-c869-554d-a88d-bd7be057165a")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR219")
+					(reference "#PWR216")
 					(unit 1)
 				)
 			)
@@ -10160,8 +10160,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "7a624a02-bceb-54cc-b162-feaf5511805e")
-		(property "Reference" "#PWR220"
+		(uuid "6b633493-08cf-528d-a10b-a4da469dcb36")
+		(property "Reference" "#PWR217"
 			(at 487.68 102.87 0)
 			(hide yes)
 			(show_name no)
@@ -10206,12 +10206,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "ce7ff899-35b2-5a4a-aecd-72c471ee7157")
+			(uuid "778d46b4-7d0b-5839-8804-7f1a2dcbd04a")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR220")
+					(reference "#PWR217")
 					(unit 1)
 				)
 			)
@@ -10361,8 +10361,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "5160219b-3b34-5306-88aa-e0cf4256fb7e")
-		(property "Reference" "#PWR221"
+		(uuid "4a096ffd-f2b6-57fd-a44a-3198f95e91b6")
+		(property "Reference" "#PWR218"
 			(at 35.56 166.37 0)
 			(hide yes)
 			(show_name no)
@@ -10407,12 +10407,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "5c44421d-ef34-5278-b8db-06d3d8275c0e")
+			(uuid "e5ce207d-2607-5a78-9f39-e9fd09ed8ad7")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR221")
+					(reference "#PWR218")
 					(unit 1)
 				)
 			)
@@ -10446,8 +10446,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "458f3695-a2b5-5d37-b21e-e51b6e6e6f3d")
-		(property "Reference" "#PWR222"
+		(uuid "2644a125-b453-5d76-9ca4-ce53d1b2ecdb")
+		(property "Reference" "#PWR219"
 			(at 35.56 140.97 0)
 			(hide yes)
 			(show_name no)
@@ -10492,12 +10492,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "7427940b-bd0a-5de9-82b9-c2d17facd2d8")
+			(uuid "4efd2522-feab-58c6-b786-8a13fcffabe3")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR222")
+					(reference "#PWR219")
 					(unit 1)
 				)
 			)
@@ -10622,8 +10622,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "e15df07a-8baf-5b85-99a7-70d84aa9f099")
-		(property "Reference" "#PWR223"
+		(uuid "7a624a02-bceb-54cc-b162-feaf5511805e")
+		(property "Reference" "#PWR220"
 			(at 38.1 212.09 0)
 			(hide yes)
 			(show_name no)
@@ -10668,12 +10668,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "723b5328-f18b-506f-9fff-fa7782f82c39")
+			(uuid "ce7ff899-35b2-5a4a-aecd-72c471ee7157")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR223")
+					(reference "#PWR220")
 					(unit 1)
 				)
 			)
@@ -10707,8 +10707,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "70859f8c-4d44-5175-8c15-30042abed330")
-		(property "Reference" "#PWR224"
+		(uuid "5160219b-3b34-5306-88aa-e0cf4256fb7e")
+		(property "Reference" "#PWR221"
 			(at 38.1 186.69 0)
 			(hide yes)
 			(show_name no)
@@ -10753,12 +10753,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "66184344-b213-58df-814b-a89b06bddd4b")
+			(uuid "5c44421d-ef34-5278-b8db-06d3d8275c0e")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR224")
+					(reference "#PWR221")
 					(unit 1)
 				)
 			)
@@ -10857,8 +10857,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "04e586a1-248a-5485-81e3-56fc1797d131")
-		(property "Reference" "#PWR225"
+		(uuid "458f3695-a2b5-5d37-b21e-e51b6e6e6f3d")
+		(property "Reference" "#PWR222"
 			(at 80.01 134.62 0)
 			(hide yes)
 			(show_name no)
@@ -10903,12 +10903,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "adb5e49e-8d96-553e-b578-e3eed2205590")
+			(uuid "7427940b-bd0a-5de9-82b9-c2d17facd2d8")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR225")
+					(reference "#PWR222")
 					(unit 1)
 				)
 			)
@@ -11020,8 +11020,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "7c429abe-0d7d-5581-a387-82e439658699")
-		(property "Reference" "#PWR226"
+		(uuid "e15df07a-8baf-5b85-99a7-70d84aa9f099")
+		(property "Reference" "#PWR223"
 			(at 80.01 142.24 0)
 			(hide yes)
 			(show_name no)
@@ -11066,12 +11066,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "8d52b469-317c-5127-9e61-4bf76fff713a")
+			(uuid "723b5328-f18b-506f-9fff-fa7782f82c39")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR226")
+					(reference "#PWR223")
 					(unit 1)
 				)
 			)
@@ -11185,8 +11185,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "334a3941-8116-5af4-a823-39d5ea6ec820")
-		(property "Reference" "#PWR227"
+		(uuid "70859f8c-4d44-5175-8c15-30042abed330")
+		(property "Reference" "#PWR224"
 			(at 73.66 156.21 0)
 			(hide yes)
 			(show_name no)
@@ -11231,12 +11231,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "172ee804-9997-5f5f-86f6-75cbb8f241c8")
+			(uuid "66184344-b213-58df-814b-a89b06bddd4b")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR227")
+					(reference "#PWR224")
 					(unit 1)
 				)
 			)
@@ -11257,8 +11257,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "91703224-12be-58db-8e06-e82a26c2162f")
-		(property "Reference" "#PWR228"
+		(uuid "04e586a1-248a-5485-81e3-56fc1797d131")
+		(property "Reference" "#PWR225"
 			(at 73.66 168.91 0)
 			(hide yes)
 			(show_name no)
@@ -11303,12 +11303,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "195e9356-cc04-563c-b15a-b0db1633e1d8")
+			(uuid "adb5e49e-8d96-553e-b578-e3eed2205590")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR228")
+					(reference "#PWR225")
 					(unit 1)
 				)
 			)
@@ -11409,8 +11409,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "21a3ca4a-d263-5319-bc25-b4c1b618d239")
-		(property "Reference" "#PWR229"
+		(uuid "7c429abe-0d7d-5581-a387-82e439658699")
+		(property "Reference" "#PWR226"
 			(at 88.9 156.21 0)
 			(hide yes)
 			(show_name no)
@@ -11455,12 +11455,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "df08e18e-ab4d-5691-be09-4e963fb7cba2")
+			(uuid "8d52b469-317c-5127-9e61-4bf76fff713a")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR229")
+					(reference "#PWR226")
 					(unit 1)
 				)
 			)
@@ -11481,8 +11481,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "e0f26254-7c7d-5443-98e9-2008dcfa2c34")
-		(property "Reference" "#PWR230"
+		(uuid "334a3941-8116-5af4-a823-39d5ea6ec820")
+		(property "Reference" "#PWR227"
 			(at 88.9 168.91 0)
 			(hide yes)
 			(show_name no)
@@ -11527,12 +11527,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "09da52c2-bf79-5d2f-a12a-de0450b7776c")
+			(uuid "172ee804-9997-5f5f-86f6-75cbb8f241c8")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR230")
+					(reference "#PWR227")
 					(unit 1)
 				)
 			)
@@ -11557,8 +11557,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "c89da5af-5517-534e-b7a9-7093d4b30188")
-		(property "Reference" "J17"
+		(uuid "c4fe7c05-04cc-54c1-be48-5865fbc8790b")
+		(property "Reference" "J16"
 			(at 154.94 133.35 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11611,18 +11611,18 @@
 			)
 		)
 		(pin "1"
-			(uuid "964a21fe-e12c-5101-8410-04f7106b7bd1")
+			(uuid "3c4655e0-d455-5bd1-aa6f-4cc32224d8d6")
 		)
 		(pin "2"
-			(uuid "03635794-99f4-509d-ab8d-588b6c234312")
+			(uuid "09c8f015-619c-5a6a-a39a-469bb3f4cb19")
 		)
 		(pin "3"
-			(uuid "ac9f5af0-4606-5477-aa24-8b3790316787")
+			(uuid "c2b4877b-7983-5ca7-a82c-60444a43411f")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "J17")
+					(reference "J16")
 					(unit 1)
 				)
 			)
@@ -11643,8 +11643,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "7097a235-7314-5fa1-9481-de0fc128cee6")
-		(property "Reference" "#PWR231"
+		(uuid "91703224-12be-58db-8e06-e82a26c2162f")
+		(property "Reference" "#PWR228"
 			(at 147.32 135.89 0)
 			(hide yes)
 			(show_name no)
@@ -11690,12 +11690,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "61659d55-1f83-52b8-ab05-7c7dcee5bb89")
+			(uuid "195e9356-cc04-563c-b15a-b0db1633e1d8")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR231")
+					(reference "#PWR228")
 					(unit 1)
 				)
 			)
@@ -11748,8 +11748,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "497404c6-d0f7-5085-b536-536497d8d1d7")
-		(property "Reference" "J18"
+		(uuid "c89da5af-5517-534e-b7a9-7093d4b30188")
+		(property "Reference" "J17"
 			(at 154.94 151.13 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -11802,18 +11802,18 @@
 			)
 		)
 		(pin "1"
-			(uuid "10b395f3-a6ab-59fd-8fdb-06fac0deb449")
+			(uuid "964a21fe-e12c-5101-8410-04f7106b7bd1")
 		)
 		(pin "2"
-			(uuid "d343db56-2f8b-5d1d-85f9-a0c4c829abf8")
+			(uuid "03635794-99f4-509d-ab8d-588b6c234312")
 		)
 		(pin "3"
-			(uuid "305fd3d2-10a3-52e3-bb4b-affbfe4a1494")
+			(uuid "ac9f5af0-4606-5477-aa24-8b3790316787")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "J18")
+					(reference "J17")
 					(unit 1)
 				)
 			)
@@ -11834,8 +11834,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "facbb34c-b3c3-59c1-a5d3-f8e2290a04c1")
-		(property "Reference" "#PWR232"
+		(uuid "21a3ca4a-d263-5319-bc25-b4c1b618d239")
+		(property "Reference" "#PWR229"
 			(at 147.32 153.67 0)
 			(hide yes)
 			(show_name no)
@@ -11881,12 +11881,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "35a3558a-ee33-59e5-92f8-5040df7f089b")
+			(uuid "df08e18e-ab4d-5691-be09-4e963fb7cba2")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR232")
+					(reference "#PWR229")
 					(unit 1)
 				)
 			)
@@ -12164,8 +12164,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "a7a42e8f-ec61-52b2-8f3a-70ec88e426b5")
-		(property "Reference" "#PWR233"
+		(uuid "e0f26254-7c7d-5443-98e9-2008dcfa2c34")
+		(property "Reference" "#PWR230"
 			(at 182.88 138.43 0)
 			(hide yes)
 			(show_name no)
@@ -12210,12 +12210,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "cbda7704-fbad-5dbf-9f1c-e7e080903e7f")
+			(uuid "09da52c2-bf79-5d2f-a12a-de0450b7776c")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR233")
+					(reference "#PWR230")
 					(unit 1)
 				)
 			)
@@ -12236,8 +12236,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "56d9b298-d296-578e-96fb-e4bf93058cd8")
-		(property "Reference" "#PWR234"
+		(uuid "7097a235-7314-5fa1-9481-de0fc128cee6")
+		(property "Reference" "#PWR231"
 			(at 182.88 140.97 0)
 			(hide yes)
 			(show_name no)
@@ -12282,12 +12282,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "4d64b865-baa1-5d36-aa8a-301cdde70aea")
+			(uuid "61659d55-1f83-52b8-ab05-7c7dcee5bb89")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR234")
+					(reference "#PWR231")
 					(unit 1)
 				)
 			)
@@ -12308,8 +12308,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "21e08dcb-0a0d-53a0-b82d-2fdb6ada2dae")
-		(property "Reference" "#PWR235"
+		(uuid "facbb34c-b3c3-59c1-a5d3-f8e2290a04c1")
+		(property "Reference" "#PWR232"
 			(at 182.88 143.51 0)
 			(hide yes)
 			(show_name no)
@@ -12354,12 +12354,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "7917aff8-3ea4-5f81-9b75-754e7804f0fa")
+			(uuid "35a3558a-ee33-59e5-92f8-5040df7f089b")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR235")
+					(reference "#PWR232")
 					(unit 1)
 				)
 			)
@@ -12406,8 +12406,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "ec4f40ae-fe0e-531a-81dd-62679806add8")
-		(property "Reference" "#PWR236"
+		(uuid "a7a42e8f-ec61-52b2-8f3a-70ec88e426b5")
+		(property "Reference" "#PWR233"
 			(at 182.88 151.13 0)
 			(hide yes)
 			(show_name no)
@@ -12453,12 +12453,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "cb5d3286-f417-5de9-8666-455603c6eab8")
+			(uuid "cbda7704-fbad-5dbf-9f1c-e7e080903e7f")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR236")
+					(reference "#PWR233")
 					(unit 1)
 				)
 			)
@@ -12479,8 +12479,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "5a7ffaac-d879-5cc6-a520-978393885161")
-		(property "Reference" "#PWR237"
+		(uuid "56d9b298-d296-578e-96fb-e4bf93058cd8")
+		(property "Reference" "#PWR234"
 			(at 182.88 153.67 0)
 			(hide yes)
 			(show_name no)
@@ -12526,12 +12526,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "c2ee2ec4-2bee-545b-a022-80d02c1c5f15")
+			(uuid "4d64b865-baa1-5d36-aa8a-301cdde70aea")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR237")
+					(reference "#PWR234")
 					(unit 1)
 				)
 			)
@@ -12552,8 +12552,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "803598cf-d2bc-593e-a0f0-419ec671797f")
-		(property "Reference" "#PWR238"
+		(uuid "21e08dcb-0a0d-53a0-b82d-2fdb6ada2dae")
+		(property "Reference" "#PWR235"
 			(at 182.88 156.21 0)
 			(hide yes)
 			(show_name no)
@@ -12599,12 +12599,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "f740c0aa-e736-57a6-a884-0bcc64390705")
+			(uuid "7917aff8-3ea4-5f81-9b75-754e7804f0fa")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR238")
+					(reference "#PWR235")
 					(unit 1)
 				)
 			)
@@ -12677,8 +12677,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "05aa4c84-d508-56cd-8b2b-88772a37d032")
-		(property "Reference" "#PWR239"
+		(uuid "ec4f40ae-fe0e-531a-81dd-62679806add8")
+		(property "Reference" "#PWR236"
 			(at 213.36 148.59 0)
 			(hide yes)
 			(show_name no)
@@ -12724,12 +12724,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "3090b692-9fa3-559b-87d6-a4db9c0aa8c7")
+			(uuid "cb5d3286-f417-5de9-8666-455603c6eab8")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR239")
+					(reference "#PWR236")
 					(unit 1)
 				)
 			)
@@ -12750,8 +12750,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "ea2c8fa8-4888-5a62-bba7-2aea12f7dc95")
-		(property "Reference" "#PWR240"
+		(uuid "5a7ffaac-d879-5cc6-a520-978393885161")
+		(property "Reference" "#PWR237"
 			(at 213.36 151.13 0)
 			(hide yes)
 			(show_name no)
@@ -12797,12 +12797,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "f1bb67f5-b041-5623-b166-7603b622a76c")
+			(uuid "c2ee2ec4-2bee-545b-a022-80d02c1c5f15")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR240")
+					(reference "#PWR237")
 					(unit 1)
 				)
 			)
@@ -12823,8 +12823,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "90ee50dd-e29d-5d08-b9eb-8803211c2fad")
-		(property "Reference" "#PWR241"
+		(uuid "803598cf-d2bc-593e-a0f0-419ec671797f")
+		(property "Reference" "#PWR238"
 			(at 213.36 153.67 0)
 			(hide yes)
 			(show_name no)
@@ -12870,12 +12870,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "8829b53d-e360-526d-afb9-b1f8502f3d91")
+			(uuid "f740c0aa-e736-57a6-a884-0bcc64390705")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR241")
+					(reference "#PWR238")
 					(unit 1)
 				)
 			)
@@ -12896,8 +12896,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "3866279e-6a7a-5b69-94ce-9be0058e7f78")
-		(property "Reference" "#PWR242"
+		(uuid "05aa4c84-d508-56cd-8b2b-88772a37d032")
+		(property "Reference" "#PWR239"
 			(at 213.36 156.21 0)
 			(hide yes)
 			(show_name no)
@@ -12943,12 +12943,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "2a014d47-e8d1-5f1c-b0c8-34d39c8b6e4e")
+			(uuid "3090b692-9fa3-559b-87d6-a4db9c0aa8c7")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR242")
+					(reference "#PWR239")
 					(unit 1)
 				)
 			)
@@ -13051,8 +13051,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "110e7851-6c61-596e-b364-f04a15608ce5")
-		(property "Reference" "#PWR243"
+		(uuid "ea2c8fa8-4888-5a62-bba7-2aea12f7dc95")
+		(property "Reference" "#PWR240"
 			(at 237.49 134.62 0)
 			(hide yes)
 			(show_name no)
@@ -13097,12 +13097,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "a5b849dc-4b4f-5fad-95aa-ec9a17e34076")
+			(uuid "f1bb67f5-b041-5623-b166-7603b622a76c")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR243")
+					(reference "#PWR240")
 					(unit 1)
 				)
 			)
@@ -13214,8 +13214,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "8edeb805-9052-55f7-8f63-82c3457289dc")
-		(property "Reference" "#PWR244"
+		(uuid "90ee50dd-e29d-5d08-b9eb-8803211c2fad")
+		(property "Reference" "#PWR241"
 			(at 237.49 142.24 0)
 			(hide yes)
 			(show_name no)
@@ -13260,12 +13260,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "307db1ac-c184-5f30-89ce-1c50c712e627")
+			(uuid "8829b53d-e360-526d-afb9-b1f8502f3d91")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR244")
+					(reference "#PWR241")
 					(unit 1)
 				)
 			)
@@ -13377,8 +13377,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "9525422f-47cf-557b-b68b-2ed6d1c65692")
-		(property "Reference" "#PWR245"
+		(uuid "3866279e-6a7a-5b69-94ce-9be0058e7f78")
+		(property "Reference" "#PWR242"
 			(at 237.49 149.86 0)
 			(hide yes)
 			(show_name no)
@@ -13423,12 +13423,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "72c46618-0a6a-5b1f-82e6-89d2b674fc06")
+			(uuid "2a014d47-e8d1-5f1c-b0c8-34d39c8b6e4e")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR245")
+					(reference "#PWR242")
 					(unit 1)
 				)
 			)
@@ -13540,8 +13540,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "d7652ef3-dc28-52ed-89ec-8bf64014c4ec")
-		(property "Reference" "#PWR246"
+		(uuid "110e7851-6c61-596e-b364-f04a15608ce5")
+		(property "Reference" "#PWR243"
 			(at 237.49 157.48 0)
 			(hide yes)
 			(show_name no)
@@ -13586,12 +13586,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "828e62c8-6454-558a-9218-434ee632c2bd")
+			(uuid "a5b849dc-4b4f-5fad-95aa-ec9a17e34076")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR246")
+					(reference "#PWR243")
 					(unit 1)
 				)
 			)
@@ -13716,8 +13716,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "24e873c2-52d8-5d11-8e35-a3e6eff19297")
-		(property "Reference" "#PWR247"
+		(uuid "8edeb805-9052-55f7-8f63-82c3457289dc")
+		(property "Reference" "#PWR244"
 			(at 250.19 165.1 0)
 			(hide yes)
 			(show_name no)
@@ -13763,12 +13763,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "8c96daa8-82ba-5ed0-b994-61a41e634aa9")
+			(uuid "307db1ac-c184-5f30-89ce-1c50c712e627")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR247")
+					(reference "#PWR244")
 					(unit 1)
 				)
 			)
@@ -13867,8 +13867,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "f527cc91-8e6b-5fb7-860a-b2d5e4e7a564")
-		(property "Reference" "#PWR248"
+		(uuid "9525422f-47cf-557b-b68b-2ed6d1c65692")
+		(property "Reference" "#PWR245"
 			(at 237.49 172.72 0)
 			(hide yes)
 			(show_name no)
@@ -13913,12 +13913,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "e1712aa1-149f-5f9e-aac5-7e21b73b28c5")
+			(uuid "72c46618-0a6a-5b1f-82e6-89d2b674fc06")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR248")
+					(reference "#PWR245")
 					(unit 1)
 				)
 			)
@@ -14032,8 +14032,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "a468fad0-0dc9-54d1-b59b-9e3011300dca")
-		(property "Reference" "#PWR249"
+		(uuid "d7652ef3-dc28-52ed-89ec-8bf64014c4ec")
+		(property "Reference" "#PWR246"
 			(at 231.14 186.69 0)
 			(hide yes)
 			(show_name no)
@@ -14078,12 +14078,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "e5d7a9e3-a754-5191-b116-b5af24c066c7")
+			(uuid "828e62c8-6454-558a-9218-434ee632c2bd")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR249")
+					(reference "#PWR246")
 					(unit 1)
 				)
 			)
@@ -14104,8 +14104,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "c02f2334-270f-571e-95b9-073ec5edf57e")
-		(property "Reference" "#PWR250"
+		(uuid "24e873c2-52d8-5d11-8e35-a3e6eff19297")
+		(property "Reference" "#PWR247"
 			(at 231.14 199.39 0)
 			(hide yes)
 			(show_name no)
@@ -14150,12 +14150,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "975bb143-2d36-59e1-8620-d86bc72db365")
+			(uuid "8c96daa8-82ba-5ed0-b994-61a41e634aa9")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR250")
+					(reference "#PWR247")
 					(unit 1)
 				)
 			)
@@ -14256,8 +14256,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "3c091b21-7757-50c5-8a8f-81481b4174b4")
-		(property "Reference" "#PWR251"
+		(uuid "f527cc91-8e6b-5fb7-860a-b2d5e4e7a564")
+		(property "Reference" "#PWR248"
 			(at 246.38 186.69 0)
 			(hide yes)
 			(show_name no)
@@ -14302,12 +14302,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "223a44bf-d84d-5ef9-b89b-d2ed6bcb58c1")
+			(uuid "e1712aa1-149f-5f9e-aac5-7e21b73b28c5")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR251")
+					(reference "#PWR248")
 					(unit 1)
 				)
 			)
@@ -14328,8 +14328,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "42fb6d62-3280-5a14-a0ea-09d4d3186de9")
-		(property "Reference" "#PWR252"
+		(uuid "a468fad0-0dc9-54d1-b59b-9e3011300dca")
+		(property "Reference" "#PWR249"
 			(at 246.38 199.39 0)
 			(hide yes)
 			(show_name no)
@@ -14374,12 +14374,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "fcd2a6d2-d17b-5999-84df-ec5a0a70eff3")
+			(uuid "e5d7a9e3-a754-5191-b116-b5af24c066c7")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR252")
+					(reference "#PWR249")
 					(unit 1)
 				)
 			)
@@ -14480,8 +14480,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "3d0ce2af-d82d-5589-983d-67b335f1fed1")
-		(property "Reference" "#PWR253"
+		(uuid "c02f2334-270f-571e-95b9-073ec5edf57e")
+		(property "Reference" "#PWR250"
 			(at 261.62 186.69 0)
 			(hide yes)
 			(show_name no)
@@ -14526,12 +14526,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "cb7d9a44-aca1-5dcc-897a-585cc90c8a93")
+			(uuid "975bb143-2d36-59e1-8620-d86bc72db365")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR253")
+					(reference "#PWR250")
 					(unit 1)
 				)
 			)
@@ -14552,8 +14552,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "6461daa2-cb46-52d2-86b4-5ba1dbdbd055")
-		(property "Reference" "#PWR254"
+		(uuid "3c091b21-7757-50c5-8a8f-81481b4174b4")
+		(property "Reference" "#PWR251"
 			(at 261.62 199.39 0)
 			(hide yes)
 			(show_name no)
@@ -14598,12 +14598,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "fcb3a708-bcb4-5d34-b006-29f74073af9c")
+			(uuid "223a44bf-d84d-5ef9-b89b-d2ed6bcb58c1")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR254")
+					(reference "#PWR251")
 					(unit 1)
 				)
 			)
@@ -14704,8 +14704,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "321715a1-80e5-5da1-943a-afb0539c4eac")
-		(property "Reference" "#PWR255"
+		(uuid "42fb6d62-3280-5a14-a0ea-09d4d3186de9")
+		(property "Reference" "#PWR252"
 			(at 276.86 186.69 0)
 			(hide yes)
 			(show_name no)
@@ -14750,12 +14750,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "a3606344-3827-55cb-ae74-d7cb754c322b")
+			(uuid "fcd2a6d2-d17b-5999-84df-ec5a0a70eff3")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR255")
+					(reference "#PWR252")
 					(unit 1)
 				)
 			)
@@ -14776,8 +14776,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "471512ab-feb4-5d9c-b832-7f94f6334cc2")
-		(property "Reference" "#PWR256"
+		(uuid "3d0ce2af-d82d-5589-983d-67b335f1fed1")
+		(property "Reference" "#PWR253"
 			(at 276.86 199.39 0)
 			(hide yes)
 			(show_name no)
@@ -14822,12 +14822,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "7b815c4b-e306-50ad-9cd3-83097cbaa447")
+			(uuid "cb7d9a44-aca1-5dcc-897a-585cc90c8a93")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR256")
+					(reference "#PWR253")
 					(unit 1)
 				)
 			)
@@ -14843,8 +14843,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "b3ce95ea-0544-5614-b06c-89e6120cc3e6")
-		(property "Reference" "J19"
+		(uuid "497404c6-d0f7-5085-b536-536497d8d1d7")
+		(property "Reference" "J18"
 			(at 312.42 133.35 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -14898,24 +14898,24 @@
 			)
 		)
 		(pin "1"
-			(uuid "da1b6cb4-a258-57dd-9517-549e62bb10b9")
+			(uuid "10b395f3-a6ab-59fd-8fdb-06fac0deb449")
 		)
 		(pin "2"
-			(uuid "4948c141-66ee-5291-88f6-c128e2a11501")
+			(uuid "d343db56-2f8b-5d1d-85f9-a0c4c829abf8")
 		)
 		(pin "3"
-			(uuid "496cc772-73f5-59fa-8525-f01df913f513")
+			(uuid "305fd3d2-10a3-52e3-bb4b-affbfe4a1494")
 		)
 		(pin "4"
-			(uuid "58900815-c950-573b-9435-c196f13d8fc7")
+			(uuid "5b24436b-bbf8-5c06-bf0a-3f4c42c24b61")
 		)
 		(pin "MP"
-			(uuid "76d9a2bc-892b-51f8-b41a-d61811239dbb")
+			(uuid "d8ba0e94-df82-5323-9b00-a2221d407ca2")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "J19")
+					(reference "J18")
 					(unit 1)
 				)
 			)
@@ -14936,8 +14936,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "99fb7d3e-0676-50b1-b771-4fbf8aa9bb78")
-		(property "Reference" "#PWR257"
+		(uuid "6461daa2-cb46-52d2-86b4-5ba1dbdbd055")
+		(property "Reference" "#PWR254"
 			(at 304.8 135.89 0)
 			(hide yes)
 			(show_name no)
@@ -14983,12 +14983,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "2b85b53b-61bd-52a6-babf-aff6a2e32041")
+			(uuid "fcb3a708-bcb4-5d34-b006-29f74073af9c")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR257")
+					(reference "#PWR254")
 					(unit 1)
 				)
 			)
@@ -15009,8 +15009,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "ddb29741-430f-55bc-ba55-b88074f12ad9")
-		(property "Reference" "#PWR258"
+		(uuid "321715a1-80e5-5da1-943a-afb0539c4eac")
+		(property "Reference" "#PWR255"
 			(at 304.8 138.43 0)
 			(hide yes)
 			(show_name no)
@@ -15055,12 +15055,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "ff9e7f41-64f3-56e1-a7d3-c5e5d635a4ea")
+			(uuid "a3606344-3827-55cb-ae74-d7cb754c322b")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR258")
+					(reference "#PWR255")
 					(unit 1)
 				)
 			)
@@ -15107,8 +15107,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "0bf73605-4d4c-5817-bb1f-c000fc8c915b")
-		(property "Reference" "#PWR259"
+		(uuid "471512ab-feb4-5d9c-b832-7f94f6334cc2")
+		(property "Reference" "#PWR256"
 			(at 312.42 151.13 0)
 			(hide yes)
 			(show_name no)
@@ -15153,12 +15153,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "6243b3cb-9b52-5c22-8933-c9216fc55a1f")
+			(uuid "7b815c4b-e306-50ad-9cd3-83097cbaa447")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR259")
+					(reference "#PWR256")
 					(unit 1)
 				)
 			)
@@ -15284,8 +15284,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "509e7c64-5c71-5d2f-89c5-ab77c031172e")
-		(property "Reference" "#PWR260"
+		(uuid "99fb7d3e-0676-50b1-b771-4fbf8aa9bb78")
+		(property "Reference" "#PWR257"
 			(at 345.44 156.21 0)
 			(hide yes)
 			(show_name no)
@@ -15330,12 +15330,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "3d76a60f-7ef7-5446-b5c6-091df014157b")
+			(uuid "2b85b53b-61bd-52a6-babf-aff6a2e32041")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR260")
+					(reference "#PWR257")
 					(unit 1)
 				)
 			)
@@ -15382,8 +15382,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "fbeeded9-1b92-5555-82a9-9785d4d2986f")
-		(property "Reference" "#PWR261"
+		(uuid "ddb29741-430f-55bc-ba55-b88074f12ad9")
+		(property "Reference" "#PWR258"
 			(at 345.44 138.43 0)
 			(hide yes)
 			(show_name no)
@@ -15428,12 +15428,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "5dcbb7d6-b0b1-57d9-b72c-8be9326202ae")
+			(uuid "ff9e7f41-64f3-56e1-a7d3-c5e5d635a4ea")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/6d8d2dc9-8b0f-5602-b733-534218842a25"
-					(reference "#PWR261")
+					(reference "#PWR258")
 					(unit 1)
 				)
 			)

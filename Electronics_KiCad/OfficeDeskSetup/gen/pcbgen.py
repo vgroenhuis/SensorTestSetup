@@ -47,7 +47,7 @@ COLUMN = 6                   # passives per column
 SPREAD = 1.5                 # after packing, a block's parts spread out up to this factor about its centre, into the
                              # free room around it (the open areas between the tight clusters)
 CLOSE = 2.5                  # block outlines: the union of the parts (0.4 mm around them), closed by this much (mm)
-OUTLINE_WIDTH = 0.25         # block outline line width (mm): wider than the connection lines
+OUTLINE_WIDTH = 0.18         # block outline line width (mm): wider than the connection lines (0.12)
 OUTLINE_DASH = False         # block outlines dashed (KiCad line style, set in the saved file)
 OUTLINE_ROUND = 1.5          # block outline corners rounded with this radius (mm; 0: square)
 LINK_CHAMFER = 1.0           # connection line corners cut at 45 degrees, this far (mm; 0: square), so lines
@@ -70,9 +70,10 @@ EDGE_ROWS = [
     (['H=GND banana'], 'top', None, 0.5, 0),
     (['J=V_BUS', 'J=V_SERVO', 'J=5V', 'J=3V3', ('J=POWER', 0)], 'top', None, 0.5, SCREW),
     ([('J=MOTOR A@Terminal', SCREW), 'J=MOTOR A@PH', ('J=MOTOR B@Terminal', SCREW), 'J=MOTOR B@PH'], 'top', None, 0.5, 0),
-    # left edge (x = 0): Qwiic (main bus x2, TCA9548 ch 2-7, ToF bus) and the two pressure sensors
-    (['J=Qwiic main 1', 'J=Qwiic main 2'] + ['J=Qwiic ch %d' % i for i in range(2, 8)] + ['J=Qwiic io'], 'left', 13, 0.8, 270),
-    (['U=WF100DPZ 10BG S6 DT#1', 'U=WF100DPZ 10BG S6 DT#2'], 'left', None, 1.0, 0),
+    # left edge (x = 0): Qwiic (main bus, TCA9548 ch 4-5, ToF bus) and the four pressure sensors
+    (['J=Qwiic main', 'J=Qwiic ch 4', 'J=Qwiic ch 5', 'J=Qwiic io'], 'left', 13, 0.8, 270),
+    (['U=WF100DPZ 10BG S6 DT#%d' % i for i in range(1, 5)], 'left', None, 1.0, 0),
+    (['J=TTP223 module'], 'left', None, 2.0, 0),
     # right edge (x = W): servo banks and the 16-bit analog inputs (BANKS), PWM 9-15, Dynamixel; the MH and HC-SR04
     # sockets, their modules facing out (the HC-SR04 board, 45 mm wide, stands over the edge from y 110 to past
     # the front edge: nothing tall at the edge there; the MH module, about 14 mm wide, lies flat over the edge)
@@ -82,9 +83,9 @@ EDGE_ROWS = [
     # front edge (y = H): toggles, buttons (15 mm pitch: room for 12 mm caps), pots; 10-bit analog input and load
     # cell at the right
     (['SW=TOGGLE0', 'SW=TOGGLE1'], 'bottom', 8, 2.0, 0),
-    (['SW=BTN%d' % i for i in range(4)], 'bottom', None, 0, 0, 15),
+    (['SW=BTN0', 'SW=BTN1', 'E=TOUCH0', 'E=TOUCH1'], 'bottom', None, 0, 0, 15),   # touch pads in place of BTN2/3
     (['RV=10k@RK09#%d' % i for i in range(1, 5)], 'bottom', None, 1.0, 0),
-    (['J=AIN 7 (10 bit)', 'J=LOAD CELL'], 'bottom', None, 1.5, 0),
+    (['J=AIN 7 (10 bit)', 'J=FSR', 'J=LOAD CELL'], 'bottom', None, 1.5, 0),
 ]
 # banks of 3-pin plugs at the right edge ('BANK name' in its edge row): three 1x4 rows each (GND outside, V+, signal
 # inside), as name -> (SIG, V+, GND, first channel number, 'S + G' heading above it): two servo banks, the 16-bit
@@ -102,7 +103,7 @@ FIRST = ('Power switch', 'Motor driver', 'USB-C POWER', 'USB-C PROG', 'Input sel
          '3.3 V buck', '5 V buck',
          'Buck-boost charger', '3S pack', 'TCA9548A', 'MCP23017', 'MCP3008', 'USB hub', 'IR reflective', 'VL53L7CX', 'AHT20',
          'LDR')
-UNCOVERED = ('IR reflective', 'AHT20', 'LDR', 'VL53L7CX', 'UART0 header')   # blocks not under the TFT: sensors, and
+UNCOVERED = ('IR reflective', 'AHT20', 'LDR', 'VL53L7CX', 'UART0 header', 'Film pressure')   # blocks not under the TFT: sensors, and
                              # the UART0 header (reachable with the module on)
 # placed inside (not on an edge, but fixed): key -> (x, y, rotation, side)
 FIXED = {
@@ -143,6 +144,14 @@ MIN_TRACK = 0.15               # Freerouting necks down to 0.15 mm at fine-pitch
 MODELS = {
     'USB_C_Receptacle_HRO_TYPE-C-31-M-12': ('USB-C_SMD-TYPE-C-31-M-12_1.wrl', (0, -1.4, 0), (0, 0, 180)),
     'Potentiometer_Alps_RK09K_Single_Vertical': ('RES-TH_RK09K1130A6S.wrl', (4.0, -2.5, 0), (0, 0, 90)),
+    # KiCad's library names a model it does not ship: a close stand-in (same body size and pitch)
+    'Texas_RQM0029A_VQFN-29_4x4mm_P0.4mm': ('${KICAD10_3DMODEL_DIR}/Package_DFN_QFN.3dshapes/QFN-28-1EP_4x4mm_P0.4mm_EP2.4x2.4mm.step',
+                                            (0, 0, 0), (0, 0, 0)),
+    'WDFN-10-1EP_3x3mm_P0.5mm_EP1.8x2.5mm': ('${KICAD10_3DMODEL_DIR}/Package_DFN_QFN.3dshapes/DFN-10-1EP_3x3mm_P0.5mm_EP1.65x2.38mm.step',
+                                             (0, 0, 0), (0, 0, 0)),
+    'Fuse_Littelfuse-NANO2-451_453': ('${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_2512_6332Metric.step', (0, 0, 0), (0, 0, 0)),
+    'LED_SK6812MINI_PLCC4_3.5x3.5mm_P1.75mm': ('${KICAD10_3DMODEL_DIR}/LED_SMD.3dshapes/LED_WS2812B-Mini_PLCC4_3.5x3.5mm.step',
+                                               (0, 0, 0), (0, 0, 0)),
 }
 
 # block (title prefix) -> (x, y, silkscreen name). Each block is packed into an about square cluster, then placed
@@ -178,6 +187,8 @@ FLOORPLAN = [
     ('AHT20', 92, 128, 'CLIMATE, LIGHT'),
     ('LDR', 24, 130, 'LDR'),                 # far from the TFT (its shadow), by the VEML7700
     ('MCP3008', 124, 128, 'ADC MCP3008'),
+    ('Touch', 78, 124, 'TOUCH TTP223'),     # low parts, under the TFT, by their pads
+    ('Film pressure', 150, 134, 'FSR'),
     # right: ESP 'io', ToF, TFT socket parts, Dynamixel, ADS1115, load cell, IR, HC-SR04, MH
     ("ESP32-C5 'io'", 165, 86, 'ESP32 IO'),
     ('TFT 2.4', 126, 100, 'TFT'),
@@ -220,11 +231,17 @@ def load(fp, espressif_fp):
     if m is None:
         raise KeyError('footprint not found: ' + fp)
     m.SetFPID(pcbnew.LIB_ID(nick, name))
+    models = list(m.Models())                  # the Espressif library still names KiCad 9's 3rd-party folder
+    if any('${KICAD9_3RD_PARTY}' in m3.m_Filename for m3 in models):
+        m.Models().clear()
+        for m3 in models:
+            m3.m_Filename = m3.m_Filename.replace('${KICAD9_3RD_PARTY}', '${KICAD10_3RD_PARTY}')
+            m.Models().push_back(m3)
     if name in MODELS:
         f, off, rot = MODELS[name]
         m.Models().clear()
         m3 = pcbnew.FP_3DMODEL()
-        m3.m_Filename = '${KIPRJMOD}/%s.3dshapes/%s' % (PROJECT, f)
+        m3.m_Filename = f if f.startswith('${') else '${KIPRJMOD}/%s.3dshapes/%s' % (PROJECT, f)
         m3.m_Offset = pcbnew.VECTOR3D(*off)
         m3.m_Rotation = pcbnew.VECTOR3D(*rot)
         m.Models().push_back(m3)
@@ -868,13 +885,16 @@ def _arc(board, a, m, b, width):
 
 
 def draw_outline(board, loop):
-    """A block outline (corner points of a closed rectilinear polygon), with rounded corners if OUTLINE_ROUND."""
+    """A block outline (corner points of a closed rectilinear polygon), with rounded corners if OUTLINE_ROUND.
+    Returns the drawn outline as segments (arcs as short chords), for the connection lines to end on."""
     w = DASH_MARK if OUTLINE_DASH else OUTLINE_WIDTH
     n = len(loop)
+    geo = []
     if not OUTLINE_ROUND:
         for a, b in zip(loop, loop[1:] + loop[:1]):
             _seg(board, a, b, w)
-        return
+            geo.append((a, b))
+        return geo
     cuts = []                                  # per corner: (in point, arc mid, out point)
     for k, v in enumerate(loop):
         a, c = loop[k - 1], loop[(k + 1) % n]
@@ -892,9 +912,51 @@ def draw_outline(board, loop):
         p1, mid, p2 = cuts[k]
         if math.dist(p1, p2) > 1e-6:
             _arc(board, p1, mid, p2, w)
+            geo += _arc_chords(p1, mid, p2)
         q = cuts[(k + 1) % n][0]
         if math.dist(p2, q) > 1e-6:
             _seg(board, p2, q, w)
+            geo.append((p2, q))
+    return geo
+
+
+def _arc_chords(a, m, b, n=24):
+    """An arc through a, m, b as n chords."""
+    ax, ay, bx, by, cx, cy = a[0], a[1], m[0], m[1], b[0], b[1]
+    d = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by))
+    if abs(d) < 1e-12:
+        return [(a, b)]
+    ux = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d
+    uy = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d
+    r = math.dist((ux, uy), a)
+    t0, tm, t1 = (math.atan2(p[1] - uy, p[0] - ux) for p in (a, m, b))
+    span = (t1 - t0) % (2 * math.pi)
+    if (tm - t0) % (2 * math.pi) > span:       # the arc runs the other way round
+        span -= 2 * math.pi
+    pts = [(ux + r * math.cos(t0 + span * k / n), uy + r * math.sin(t0 + span * k / n)) for k in range(n + 1)]
+    return list(zip(pts, pts[1:]))
+
+
+def _to_outline(p, q, geo, reach=3.0):
+    """End point p of a line coming from q, moved along the line onto the drawn outline (geo segments): the first
+    crossing beyond q, at most `reach` mm past p. The lines are routed to the rectilinear block masks, which the
+    rounded corners cut into, so a line there stopped short of the outline."""
+    dx, dy = p[0] - q[0], p[1] - q[1]
+    ln = math.hypot(dx, dy)
+    if ln < 1e-9:
+        return p
+    ux, uy = dx / ln, dy / ln
+    best = None
+    for (ax, ay), (bx, by) in geo:
+        ex, ey = bx - ax, by - ay
+        den = ux * ey - uy * ex
+        if abs(den) < 1e-12:
+            continue
+        t = ((ax - q[0]) * ey - (ay - q[1]) * ex) / den        # along the line from q
+        s_ = ((ax - q[0]) * uy - (ay - q[1]) * ux) / den       # along the outline segment
+        if -1e-9 <= s_ <= 1 + 1e-9 and 1e-6 < t <= ln + reach and (best is None or t < best):
+            best = t
+    return (q[0] + ux * best, q[1] + uy * best) if best is not None else p
 
 
 def chamfer(pts, c):
@@ -925,7 +987,7 @@ def _seg(board, a, b, width):
     board.Add(s)
 
 
-def connection_lines(board, byref, block_of, masks, obstacles, names):
+def connection_lines(board, byref, block_of, masks, obstacles, names, geos=None):
     """Draw the links on F.SilkS between the block outlines (masks: title -> cells); returns the number of links that
     found no path."""
     import numpy as np
@@ -969,6 +1031,9 @@ def connection_lines(board, byref, block_of, masks, obstacles, names):
         for j, i in cells:
             used[max(0, j - k):j + k + 1, max(0, i - k):i + k + 1] += 1
         pts = chamfer(pts, LINK_CHAMFER)
+        if geos:                               # both ends exactly on the drawn (rounded) outlines
+            pts[0] = _to_outline(pts[0], pts[1], geos.get(a, ()))
+            pts[-1] = _to_outline(pts[-1], pts[-2], geos.get(b, ()))
         segs = list(zip(pts, pts[1:]))
         size = 0.9 if kind == 'power' else 0.8
         tl = 0.75 * size * len(label) + 0.8 if label else 0
@@ -1448,7 +1513,7 @@ def main():
         elif it['kind'] == NAME:
             b = it['group']['name_box']
             it['group']['name_box'] = (b[0] + dx, b[1] + dy, b[2] + dx, b[3] + dy)
-    masks, names = {}, [gr['name_box'] for gr in groups]
+    masks, names, geos = {}, [gr['name_box'] for gr in groups], {}
     for gr in groups:
         own = [box(m) for m in gr['free']]
         fb = (min(b[0] for b in own), min(b[1] for b in own), max(b[2] for b in own), max(b[3] for b in own))
@@ -1466,7 +1531,7 @@ def main():
         mk = block_mask(own, avoid)
         masks[gr['title']] = mk
         for loop in trace(mk):
-            draw_outline(board, loop)
+            geos.setdefault(gr['title'], []).extend(draw_outline(board, loop))
         nb = gr['name_box']
         silk(board, gr['name'], nb[0] + 0.1, (nb[1] + nb[3]) / 2, size=gr['size'], justify=1)
     import numpy as np
@@ -1489,7 +1554,7 @@ def main():
         if err:
             problems.append(err)
     obstacles = [box(byref[r]) for r in placed if not byref[r].IsFlipped()]
-    failed = connection_lines(board, byref, block_of, masks, obstacles, names)
+    failed = connection_lines(board, byref, block_of, masks, obstacles, names, geos)
     if failed:
         problems.append('%d connection lines found no path' % failed)
 

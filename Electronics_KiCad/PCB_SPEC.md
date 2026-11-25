@@ -178,7 +178,8 @@ All 19 usable pins of 'io' are used; 'main' has 11/12 left for the UART0 header.
 | LDR (with divider) | MCP3008 ch 5 | | next to the VEML7700, to compare |
 | MCP3008 | SPI ('main') | | ch 7 on an analog input header (ch 0–3: pots) |
 | ADS1115 16-bit ADC | I2C main | 0x48 | inputs on a header (compare with the MCP3008's 10 bits) |
-| 2× WF100DPZ pressure | TCA9548 ch 0, 1 | 0x6D | hose barbs on the board edge |
+| 4× WF100DPZ pressure | TCA9548 ch 0–3 | 0x6D | hose barbs on the board edge |
+| Film pressure sensor (FSR, resistive) | MCP3008 CH7 | | 2-pin socket (2.54 mm), sensor upright; 10 kΩ divider; solder jumper selects FSR (default) or the AIN 7 header |
 | VL53L7CX ToF | I2C 2 ('io') | 0x29 | **on the board, facing up**: nothing taller within its 60° cone; AVDD and IOVDD 3.3 V *(verify)* |
 | IMU LSM6DS3TR-C | I2C main | 0x6A (0x6B is the charger) | |
 | AHT20: temperature, humidity | I2C main | 0x38 | away from the regulators (self-heating); no barometer (none is cheap and in stock; the pressure demo is the WF100DPZ pair) |
@@ -187,7 +188,9 @@ All 19 usable pins of 'io' are used; 'main' has 11/12 left for the UART0 header.
 | INA226 current / power, with a shunt resistor | I2C main | 0x40 | on V_BUS |
 | HX711 | GPIO ('main') | | load cell on a connector; RATE on a jumper (10/80 Hz) |
 | HC-SR04 | GPIO ('main') | | on a connector, level-shifted ECHO |
-| Buttons (4) | MCP23017 bank B | | |
+| Buttons (2) | MCP23017 GPB0, GPB1 | | |
+| Capacitive touch pads (2) | MCP23017 GPB2, GPB3 | | TTP223-BA6 each, in place of buttons 2 and 3; output low while touched |
+| TTP223 touch module socket | MCP23017 GPA6 | | 3-pin socket: GND, I/O, VCC (3.3 V) |
 | Toggle switches (2) | MCP23017 GPA4, GPA5 | | front edge; miniature SPDT with PCB pins (Dailywell 2MS1T1B1M1QES-5) |
 | Motor encoders (2) | PCNT ('io') | | 3.3 V supply, RC filter footprints (DNP) |
 
@@ -196,9 +199,9 @@ All 19 usable pins of 'io' are used; 'main' has 11/12 left for the UART0 header.
 | Part | Bus / pin | Address | Notes |
 | --- | --- | --- | --- |
 | TFT 2.4" 240×320, ST7789 (Zhongjingyuan module: GND, VCC, SCL, SDA, RES, DC, CS, BLK) | SPI ('main') | | 8-pin female header, the module plugs in; mounting holes under it |
-| MCP23017 | I2C main | 0x20 | bank A: 4 LEDs, 2 toggle switches, GPA6/GPA7 free (A7 output-only *(verify)*); bank B: buttons, MH digital out, header; also V_DXL enable and PCA9685 OE |
+| MCP23017 | I2C main | 0x20 | bank A: 4 LEDs, 2 toggle switches, GPA6 TTP223 module, GPA7 free (output-only *(verify)*); bank B: 2 buttons, 2 touch pads, MH digital out, header; also V_DXL enable and PCA9685 OE |
 | PCA9685 | I2C main | **0x41** | 8 servo headers (ch 0–7); ch 8: buzzer through a MOSFET; ch 9–15 on a header; OE pulled high until firmware enables |
-| TCA9548 | I2C main | **0x71** | ch 0–1 pressure; ch 2–7 Qwiic connectors |
+| TCA9548 | I2C main | **0x71** | ch 0–3 pressure; ch 4–5 Qwiic connectors; ch 6–7 unused |
 | TB6612FNG | GPIO ('io') | | two motor ports (A: the gear motor; B: spare), VM = V_BUS, thermal copper |
 | Dynamixel XL430 port | UART ('io') | | as LynXP §11.3: 2× JST EH 3-pin (GND, V_DXL, DATA), DATA is **5 V TTL** (ROBOTIS: a level shifter for 3.3 V controllers): TX through a 74AHCT1G125 at 5 V (TTL inputs take 3.3 V), enabled by DIR (RTS, inverted in the UART if needed); RX through a 74LVC1G34 at 3.3 V (5 V-tolerant input); 10 kΩ pull-up on DATA to 5 V *(verify against the ROBOTIS communication circuit)* |
 | RGB status LED | GPIO27 ('main') | | |
@@ -208,7 +211,7 @@ All 19 usable pins of 'io' are used; 'main' has 11/12 left for the UART0 header.
 ### I2C addresses (main bus)
 
 0x08 HUSB238 · 0x10 VEML7700 · 0x20 MCP23017 · 0x36 AS5600 · 0x40 INA226 · 0x41 PCA9685 · 0x48 ADS1115 · 0x6A IMU ·
-0x6B charger · 0x70 (PCA9685 All-Call: kept free) · 0x71 TCA9548 · 0x38 AHT20. Behind the TCA9548: 0x6D ×2 + spares.
+0x6B charger · 0x70 (PCA9685 All-Call: kept free) · 0x71 TCA9548 · 0x38 AHT20. Behind the TCA9548: 0x6D ×4, 2 Qwiic.
 Second bus ('io'): 0x29 VL53L7CX + one Qwiic connector.
 
 The PCA9685 stays on the main bus, not behind the TCA9548: with the TCA9548 at 0x71 there is no clash, and behind the
@@ -230,7 +233,7 @@ bus has room now that the VL53L7CX has its own; the register map is the same, so
 | Dynamixel | JST EH 3-pin (B3B-EH-A *(verify)*), in parallel | 2 |
 | Load cell | JST-PH 4-pin (E+, E−, A+, A−) | 1 |
 | HC-SR04 | 4-pin 2.54 mm female (VCC, TRIG, ECHO, GND) | 1 |
-| Qwiic / STEMMA QT (JST-SH 4-pin, 3.3 V) | main bus: 2; behind the TCA9548: 6; 'io' bus: 1 | 9 |
+| Qwiic / STEMMA QT (JST-SH 4-pin, 3.3 V) | main bus: 1; behind the TCA9548: 2; 'io' bus: 1 (Qwiic boards daisy-chain) | 4 |
 | Analog in (GND, 3.3 V, signal) | MCP3008 ch 7, ADS1115 ch 0–3 | 5 |
 | MH sensor module | 4-pin female (VCC, GND, DO, AO) | 1 |
 | MCP23017 bank B header | 2×5 (I/O, GND, 3.3 V) | 1 |
@@ -334,7 +337,7 @@ Low stock (under ~100) is marked: enough for a few prototypes, order soon or res
 | 10-bit ADC (SPI) | MCP3008T-I/SL | C2651321 | 1387 | (the -I/SL, C1520159, has 490) |
 | 16-bit ADC (I2C) | ADS1115IDGSR | C37593 | 3842 | |
 | Load cell amplifier | HX711 | C6705483 | 124495 | |
-| Pressure ×2 | WF100DPZ 10BG S6 DT | C22388673 | **75** | 0–1 MPa, SMD; the 0–40 kPa version (1BG S6, C3001182, 340) is more sensitive for blowing |
+| Pressure ×4 | WF100DPZ 10BG S6 DT | C22388673 | **75** | 0–1 MPa, SMD; the 0–40 kPa version (1BG S6, C3001182, 340) is more sensitive for blowing |
 | Time-of-flight | VL53L7CXV0GC/1 | C5270520 | **31** | ~$11 |
 | IMU | LSM6DS3TR-C | C967633 | 16104 | ~$1.32 (LSM6DSO: $3.99) |
 | Temperature, humidity | AHT20 | C2757850 | 28332 | ~$0.80 (a BME280 is ~$9, a BME688 ~$11.50; no barometer needed) |
@@ -343,7 +346,8 @@ Low stock (under ~100) is marked: enough for a few prototypes, order soon or res
 | IR reflective | ITR20001/T | C264269 | 14397 | through-hole |
 | Comparator | LM393DR2G | C7955 | 317261 | **basic** part |
 | LDR | GL5528 | C125627 | 17107 | through-hole |
-| RGB status LED | SK6812MINI-B-012 (3535, top-emitting) | C5183448 | | |
+| RGB status LED | SK6812MINI-B-012 (3535, top-emitting) | C5183448 | | pinout against KiCad's SK6812MINI footprint *(verify)* |
+| Touch detector ×2 | TTP223-BA6 (SOT-23-6) | C80757 | | touch pads: 11 mm copper discs under the mask, no copper below |
 | Buzzer | MLT-8530 | C94599 | 114824 | with an N-MOSFET from a PCA9685 channel |
 | Toggle switch ×2 | Dailywell 2MS1T1B1M1QES-5 (miniature SPDT, PC pins) | C496169 | 3743 | ~$1.50; wave soldering |
 | Dynamixel TX buffer (3.3 → 5 V) | 74AHCT1G125GV | C52140417 | 8934 | |

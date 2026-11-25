@@ -5070,7 +5070,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Value" "Qwiic main 1"
+		(property "Value" "Qwiic main"
 			(at 252.73 39.37 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5405,361 +5405,8 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector_Generic_MountingPin:Conn_01x04_MountingPin")
-		(at 287.02 31.75 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "fcb79765-e768-543f-9f26-dad42c84f719")
-		(property "Reference" "J10"
-			(at 287.02 26.67 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "Value" "Qwiic main 2"
-			(at 288.29 39.37 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-				(justify left)
-			)
-		)
-		(property "Footprint" "Connector_JST:JST_SH_SM04B-SRSS-TB_1x04-1MP_P1.00mm_Horizontal"
-			(at 287.02 31.75 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "Datasheet" ""
-			(at 287.02 31.75 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "Description" "Generic connectable mounting pin connector, single row, 01x04, script generated (kicad-library-utils/schlib/autogen/connector/)"
-			(at 287.02 31.75 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "LCSC" "C51940130"
-			(at 287.02 31.75 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(pin "1"
-			(uuid "510cbd1e-d43f-5e64-9f97-ecdd2e680ff5")
-		)
-		(pin "2"
-			(uuid "fadc89ef-14f6-53a2-849b-64bab595d75b")
-		)
-		(pin "3"
-			(uuid "205c425d-3406-59dc-94b8-223df1522f3e")
-		)
-		(pin "4"
-			(uuid "233622f3-29eb-55d1-8832-e1077d27856a")
-		)
-		(pin "MP"
-			(uuid "ce38d349-85b1-50e2-ad96-0375bc6da18b")
-		)
-		(instances
-			(project "OfficeDeskSetup"
-				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/adda822a-f955-5891-a788-2f841ce78265"
-					(reference "J10")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(wire
-		(pts (xy 281.94 29.21) (xy 279.4 29.21))
-		(stroke (width 0) (type default))
-		(uuid "44b1e89e-341c-5c8c-8055-57080be454c3")
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 279.4 29.21 270)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "903c7a68-e8d6-58a2-bd48-8eb3e8a20e61")
-		(property "Reference" "#PWR167"
-			(at 279.4 29.21 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "Value" "GND"
-			(at 274.7 29.21 90)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "Footprint" ""
-			(at 279.4 29.21 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "Datasheet" ""
-			(at 279.4 29.21 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 279.4 29.21 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(pin "1"
-			(uuid "c75d47de-6aca-5d3a-89cd-075493cdd488")
-		)
-		(instances
-			(project "OfficeDeskSetup"
-				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/adda822a-f955-5891-a788-2f841ce78265"
-					(reference "#PWR167")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(wire
-		(pts (xy 281.94 31.75) (xy 279.4 31.75))
-		(stroke (width 0) (type default))
-		(uuid "d5a5417f-ecc9-534b-9c31-2ef79bebf4cf")
-	)
-	(symbol
-		(lib_id "power:+3V3")
-		(at 279.4 31.75 90)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "8a1e6297-aed9-5437-9011-023b913044f3")
-		(property "Reference" "#PWR168"
-			(at 279.4 31.75 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "Value" "+3V3"
-			(at 274.2 31.75 90)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "Footprint" ""
-			(at 279.4 31.75 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "Datasheet" ""
-			(at 279.4 31.75 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"+3V3\""
-			(at 279.4 31.75 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(pin "1"
-			(uuid "4fbdc8d7-91e0-5a0a-9475-4479691717a2")
-		)
-		(instances
-			(project "OfficeDeskSetup"
-				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/adda822a-f955-5891-a788-2f841ce78265"
-					(reference "#PWR168")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(wire
-		(pts (xy 281.94 34.29) (xy 279.4 34.29))
-		(stroke (width 0) (type default))
-		(uuid "63ac5647-eda8-50ac-9cb0-3d85f8abe7d3")
-	)
-	(global_label "I2C_SDA"
-		(shape passive)
-		(at 279.4 34.29 180)
-		(fields_autoplaced yes)
-		(effects
-			(font (size 1 1))
-			(justify right)
-		)
-		(uuid "6b4b9c6c-ce33-55ac-b6aa-f691df19616d")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 279.4 34.29 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-	)
-	(wire
-		(pts (xy 281.94 36.83) (xy 279.4 36.83))
-		(stroke (width 0) (type default))
-		(uuid "05a1d28e-6130-5967-ad25-930a07fa5132")
-	)
-	(global_label "I2C_SCL"
-		(shape passive)
-		(at 279.4 36.83 180)
-		(fields_autoplaced yes)
-		(effects
-			(font (size 1 1))
-			(justify right)
-		)
-		(uuid "937d1bc9-7e8f-5463-9bc5-67307c0623b4")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 279.4 36.83 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-	)
-	(wire
-		(pts (xy 287.02 41.91) (xy 287.02 44.45))
-		(stroke (width 0) (type default))
-		(uuid "472dbb2c-b937-5ebd-80f7-926eb87700bb")
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 287.02 44.45 0)
-		(unit 1)
-		(body_style 1)
-		(exclude_from_sim no)
-		(in_bom no)
-		(on_board yes)
-		(in_pos_files yes)
-		(dnp no)
-		(uuid "ad0406b7-5406-5fdb-8e9e-0d8ae836dc62")
-		(property "Reference" "#PWR169"
-			(at 287.02 44.45 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "Value" "GND"
-			(at 287.02 48.25 0)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "Footprint" ""
-			(at 287.02 44.45 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "Datasheet" ""
-			(at 287.02 44.45 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 287.02 44.45 0)
-			(hide yes)
-			(show_name no)
-			(do_not_autoplace no)
-			(effects
-				(font (size 1.27 1.27))
-			)
-		)
-		(pin "1"
-			(uuid "050ac2b3-e3a6-54cb-9305-2dfbb0a043d2")
-		)
-		(instances
-			(project "OfficeDeskSetup"
-				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/adda822a-f955-5891-a788-2f841ce78265"
-					(reference "#PWR169")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Power_Protection:USBLC6-2SC6")
-		(at 327.66 39.37 0)
+		(at 289.56 39.37 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5769,7 +5416,7 @@
 		(dnp no)
 		(uuid "da641ecb-034e-57db-9bab-6bc12c225c8d")
 		(property "Reference" "U16"
-			(at 328.29 33.66 0)
+			(at 290.19 33.66 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5778,7 +5425,7 @@
 			)
 		)
 		(property "Value" "USBLC6-2SC6"
-			(at 328.29 35.56 0)
+			(at 290.19 35.56 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5787,7 +5434,7 @@
 			)
 		)
 		(property "Footprint" "Package_TO_SOT_SMD:SOT-23-6"
-			(at 327.66 39.37 0)
+			(at 289.56 39.37 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5796,7 +5443,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.st.com/resource/en/datasheet/usblc6-2.pdf"
-			(at 327.66 39.37 0)
+			(at 289.56 39.37 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5805,7 +5452,7 @@
 			)
 		)
 		(property "Description" "Very low capacitance ESD protection diode, 2 data-line, SOT-23-6"
-			(at 327.66 39.37 0)
+			(at 289.56 39.37 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5814,7 +5461,7 @@
 			)
 		)
 		(property "LCSC" "C2827654"
-			(at 327.66 39.37 0)
+			(at 289.56 39.37 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5850,21 +5497,21 @@
 		)
 	)
 	(wire
-		(pts (xy 322.58 39.37) (xy 320.04 39.37))
+		(pts (xy 284.48 39.37) (xy 281.94 39.37))
 		(stroke (width 0) (type default))
-		(uuid "f74a5091-321a-5a97-a9ea-f2fde63c6f07")
+		(uuid "44b1e89e-341c-5c8c-8055-57080be454c3")
 	)
 	(global_label "I2C_SDA"
 		(shape passive)
-		(at 320.04 39.37 180)
+		(at 281.94 39.37 180)
 		(fields_autoplaced yes)
 		(effects
 			(font (size 1 1))
 			(justify right)
 		)
-		(uuid "8b60fe86-8736-5e06-93e6-204a0e3437d7")
+		(uuid "8e509723-c19c-548e-97ab-1ecebc479b11")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 320.04 39.37 0)
+			(at 281.94 39.37 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5874,13 +5521,13 @@
 		)
 	)
 	(wire
-		(pts (xy 327.66 46.99) (xy 327.66 49.53))
+		(pts (xy 289.56 46.99) (xy 289.56 49.53))
 		(stroke (width 0) (type default))
-		(uuid "29bdd381-8fc3-5863-a018-8c437f133686")
+		(uuid "63ac5647-eda8-50ac-9cb0-3d85f8abe7d3")
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 327.66 49.53 0)
+		(at 289.56 49.53 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -5888,9 +5535,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "7a58d32e-032d-59c7-8b66-c60dffd9cfb6")
-		(property "Reference" "#PWR170"
-			(at 327.66 49.53 0)
+		(uuid "903c7a68-e8d6-58a2-bd48-8eb3e8a20e61")
+		(property "Reference" "#PWR167"
+			(at 289.56 49.53 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5899,7 +5546,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 327.66 53.33 0)
+			(at 289.56 53.33 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -5907,7 +5554,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 327.66 49.53 0)
+			(at 289.56 49.53 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5916,7 +5563,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 327.66 49.53 0)
+			(at 289.56 49.53 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5925,7 +5572,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 327.66 49.53 0)
+			(at 289.56 49.53 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5934,33 +5581,33 @@
 			)
 		)
 		(pin "1"
-			(uuid "55e66d06-fd2f-5103-9244-f893490aa732")
+			(uuid "c75d47de-6aca-5d3a-89cd-075493cdd488")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/adda822a-f955-5891-a788-2f841ce78265"
-					(reference "#PWR170")
+					(reference "#PWR167")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(wire
-		(pts (xy 322.58 41.91) (xy 320.04 41.91))
+		(pts (xy 284.48 41.91) (xy 281.94 41.91))
 		(stroke (width 0) (type default))
-		(uuid "2a3c24df-00ed-5a58-851c-6cda24c0b17f")
+		(uuid "8b53b76d-f03f-5d09-80de-fd6607d211c9")
 	)
 	(global_label "I2C_SCL"
 		(shape passive)
-		(at 320.04 41.91 180)
+		(at 281.94 41.91 180)
 		(fields_autoplaced yes)
 		(effects
 			(font (size 1 1))
 			(justify right)
 		)
-		(uuid "e9f3db8e-e480-5e9d-98fb-62dd5c0ddc14")
+		(uuid "3a399b96-eeb6-5a45-86ee-5a8e5e04cfe5")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 320.04 41.91 0)
+			(at 281.94 41.91 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5970,21 +5617,21 @@
 		)
 	)
 	(wire
-		(pts (xy 332.74 41.91) (xy 335.28 41.91))
+		(pts (xy 294.64 41.91) (xy 297.18 41.91))
 		(stroke (width 0) (type default))
-		(uuid "7c3f7538-b07d-54e4-a43d-75b1f3eac352")
+		(uuid "ff86b5d4-e0d8-5f59-9fb2-657cbf0f4fe8")
 	)
 	(global_label "I2C_SCL"
 		(shape passive)
-		(at 335.28 41.91 0)
+		(at 297.18 41.91 0)
 		(fields_autoplaced yes)
 		(effects
 			(font (size 1 1))
 			(justify left)
 		)
-		(uuid "50e03113-00f2-5ce6-9a4a-beabe69ac280")
+		(uuid "d6235cca-26f2-5afe-aec4-b5bda488184b")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 335.28 41.91 0)
+			(at 297.18 41.91 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -5994,13 +5641,13 @@
 		)
 	)
 	(wire
-		(pts (xy 327.66 34.29) (xy 327.66 31.75))
+		(pts (xy 289.56 34.29) (xy 289.56 31.75))
 		(stroke (width 0) (type default))
-		(uuid "6116f51e-1c30-5496-9ceb-131deedc0875")
+		(uuid "f74a5091-321a-5a97-a9ea-f2fde63c6f07")
 	)
 	(symbol
 		(lib_id "power:+3V3")
-		(at 327.66 31.75 0)
+		(at 289.56 31.75 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -6008,9 +5655,9 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "744ae318-db20-5c22-a09b-f95aa091a277")
-		(property "Reference" "#PWR171"
-			(at 327.66 31.75 0)
+		(uuid "8a1e6297-aed9-5437-9011-023b913044f3")
+		(property "Reference" "#PWR168"
+			(at 289.56 31.75 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6019,7 +5666,7 @@
 			)
 		)
 		(property "Value" "+3V3"
-			(at 327.66 27.95 0)
+			(at 289.56 27.95 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -6027,7 +5674,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 327.66 31.75 0)
+			(at 289.56 31.75 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6036,7 +5683,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 327.66 31.75 0)
+			(at 289.56 31.75 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6045,7 +5692,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"+3V3\""
-			(at 327.66 31.75 0)
+			(at 289.56 31.75 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6054,33 +5701,33 @@
 			)
 		)
 		(pin "1"
-			(uuid "a2c81e1e-8b36-5963-9b33-d40176aeaa2f")
+			(uuid "4fbdc8d7-91e0-5a0a-9475-4479691717a2")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/adda822a-f955-5891-a788-2f841ce78265"
-					(reference "#PWR171")
+					(reference "#PWR168")
 					(unit 1)
 				)
 			)
 		)
 	)
 	(wire
-		(pts (xy 332.74 39.37) (xy 335.28 39.37))
+		(pts (xy 294.64 39.37) (xy 297.18 39.37))
 		(stroke (width 0) (type default))
-		(uuid "c1a17d02-f452-584e-8f68-0fe70dd0c0af")
+		(uuid "d2fdbd12-a91f-5c9c-a659-e214779db0fe")
 	)
 	(global_label "I2C_SDA"
 		(shape passive)
-		(at 335.28 39.37 0)
+		(at 297.18 39.37 0)
 		(fields_autoplaced yes)
 		(effects
 			(font (size 1 1))
 			(justify left)
 		)
-		(uuid "863d204d-0cf1-5bfe-add2-7f4897926523")
+		(uuid "f17feaa9-1f80-5940-8572-f60928e6777f")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 335.28 39.37 0)
+			(at 297.18 39.37 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6091,19 +5738,19 @@
 	)
 	(rectangle
 		(start 193.04 15.24)
-		(end 350.52 69.85)
+		(end 312.42 69.85)
 		(stroke (width 0.15) (type dash))
 		(fill (type none))
-		(uuid "806b2f60-157b-5b73-b4ac-f0ed1bc7643b")
+		(uuid "65fc87c9-5dc5-509c-86e1-f01f7bc45b14")
 	)
-	(text "Main I2C bus: pull-ups, Qwiic x2"
+	(text "Main I2C bus: pull-ups, Qwiic"
 		(exclude_from_sim no)
 		(at 194.31 16.51 0)
 		(effects
 			(font (size 2 2) (bold yes))
 			(justify left top)
 		)
-		(uuid "5e91a4c9-3e36-5da0-8096-c5e20b3c9ace")
+		(uuid "054e8544-988c-5bb3-8a5c-6e1a14cfe863")
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x08")
@@ -6115,8 +5762,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "c0cd68a0-a4f2-598f-9fe8-4ccbac8438dd")
-		(property "Reference" "J11"
+		(uuid "fcb79765-e768-543f-9f26-dad42c84f719")
+		(property "Reference" "J10"
 			(at 45.72 125.73 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6169,33 +5816,33 @@
 			)
 		)
 		(pin "1"
-			(uuid "8a81eaf8-fe46-57ea-bae4-72adac688251")
+			(uuid "510cbd1e-d43f-5e64-9f97-ecdd2e680ff5")
 		)
 		(pin "2"
-			(uuid "a61ca745-a7da-5383-9319-c237cb5d733d")
+			(uuid "fadc89ef-14f6-53a2-849b-64bab595d75b")
 		)
 		(pin "3"
-			(uuid "8474c785-4aab-54d9-b244-8c5a555c0ebb")
+			(uuid "205c425d-3406-59dc-94b8-223df1522f3e")
 		)
 		(pin "4"
-			(uuid "b2a54260-5f4b-5753-b6b4-140823bd74cc")
+			(uuid "233622f3-29eb-55d1-8832-e1077d27856a")
 		)
 		(pin "5"
-			(uuid "7019500b-2e50-52c6-ac94-2f33de307282")
+			(uuid "5a7416e1-1ff0-5b88-80dd-15d8244bd431")
 		)
 		(pin "6"
-			(uuid "3f6ec3ab-2c6b-5c33-820d-1521dd3318f1")
+			(uuid "28fe2336-ae8e-5b35-a870-e6c1ef5a9afb")
 		)
 		(pin "7"
-			(uuid "b5e04061-ed5b-573a-aa4e-fa75cafff159")
+			(uuid "23e72267-2b2c-5a45-9810-6a761f2ac0f6")
 		)
 		(pin "8"
-			(uuid "8a69ac23-1302-5acc-9476-9ad9d7a55cf8")
+			(uuid "9167a867-22b9-5b05-afe0-5e8b5b2fa051")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/adda822a-f955-5891-a788-2f841ce78265"
-					(reference "J11")
+					(reference "J10")
 					(unit 1)
 				)
 			)
@@ -6204,7 +5851,7 @@
 	(wire
 		(pts (xy 40.64 128.27) (xy 38.1 128.27))
 		(stroke (width 0) (type default))
-		(uuid "033890b9-1cd7-5dbe-ac4a-ee7c501218e5")
+		(uuid "7c3f7538-b07d-54e4-a43d-75b1f3eac352")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -6216,8 +5863,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "87481677-6450-5c1a-b3f5-f020930d548f")
-		(property "Reference" "#PWR172"
+		(uuid "ad0406b7-5406-5fdb-8e9e-0d8ae836dc62")
+		(property "Reference" "#PWR169"
 			(at 38.1 128.27 0)
 			(hide yes)
 			(show_name no)
@@ -6263,12 +5910,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "02dce9f3-a0fb-52cb-9a80-f4df098bdf91")
+			(uuid "050ac2b3-e3a6-54cb-9305-2dfbb0a043d2")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/adda822a-f955-5891-a788-2f841ce78265"
-					(reference "#PWR172")
+					(reference "#PWR169")
 					(unit 1)
 				)
 			)
@@ -6277,7 +5924,7 @@
 	(wire
 		(pts (xy 40.64 130.81) (xy 38.1 130.81))
 		(stroke (width 0) (type default))
-		(uuid "b58bbc31-e655-59d6-b725-c2c40677b31f")
+		(uuid "d590bcac-6a96-516c-a4d3-1e02992f949a")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -6289,8 +5936,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "4d453467-0713-55b2-bbf4-79eb2ceb3d58")
-		(property "Reference" "#PWR173"
+		(uuid "7a58d32e-032d-59c7-8b66-c60dffd9cfb6")
+		(property "Reference" "#PWR170"
 			(at 38.1 130.81 0)
 			(hide yes)
 			(show_name no)
@@ -6335,12 +5982,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "e5f1a13e-dbc7-5f67-8877-e3aa99a72fc1")
+			(uuid "55e66d06-fd2f-5103-9244-f893490aa732")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/adda822a-f955-5891-a788-2f841ce78265"
-					(reference "#PWR173")
+					(reference "#PWR170")
 					(unit 1)
 				)
 			)
@@ -6349,7 +5996,7 @@
 	(wire
 		(pts (xy 40.64 133.35) (xy 38.1 133.35))
 		(stroke (width 0) (type default))
-		(uuid "311f7c74-8e57-5ad4-84c7-bc666a9b6315")
+		(uuid "6116f51e-1c30-5496-9ceb-131deedc0875")
 	)
 	(global_label "SPI_SCLK"
 		(shape passive)
@@ -6359,7 +6006,7 @@
 			(font (size 1 1))
 			(justify right)
 		)
-		(uuid "90d558ae-4109-5411-936a-ea16eacafb71")
+		(uuid "0401db33-96a4-59c8-b737-67d4b4bf51f8")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 38.1 133.35 0)
 			(hide yes)
@@ -6373,7 +6020,7 @@
 	(wire
 		(pts (xy 40.64 135.89) (xy 38.1 135.89))
 		(stroke (width 0) (type default))
-		(uuid "8679201a-55c8-515f-86f1-fd5ca595ed97")
+		(uuid "d04328d2-6702-5043-93ab-d51d013edf5e")
 	)
 	(global_label "SPI_MOSI"
 		(shape passive)
@@ -6383,7 +6030,7 @@
 			(font (size 1 1))
 			(justify right)
 		)
-		(uuid "e854dd66-bc95-56b9-aeb7-60aa92b606cd")
+		(uuid "59f32c22-edf2-594c-b8e4-148462ec2f43")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 38.1 135.89 0)
 			(hide yes)
@@ -6397,7 +6044,7 @@
 	(wire
 		(pts (xy 40.64 138.43) (xy 25.4 138.43))
 		(stroke (width 0) (type default))
-		(uuid "182fa7ab-df91-5f8d-8897-b3bedee41195")
+		(uuid "83cbbd7a-524c-599c-859f-b1fe068ebb82")
 	)
 	(label "TFT_RES"
 		(at 25.4 138.43 180)
@@ -6405,12 +6052,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "5ab8cc2e-e354-5e3d-986c-ab7b0a819f9b")
+		(uuid "c6e33107-09f2-5c57-b0cd-ff9605adfce0")
 	)
 	(wire
 		(pts (xy 40.64 140.97) (xy 38.1 140.97))
 		(stroke (width 0) (type default))
-		(uuid "f33ee93f-c160-56cc-8dac-776b9ddba13d")
+		(uuid "b58bbc31-e655-59d6-b725-c2c40677b31f")
 	)
 	(label "TFT_DC"
 		(at 38.1 140.97 180)
@@ -6418,12 +6065,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "2c773be6-2bf6-52f1-bee1-9f2ee3e4742b")
+		(uuid "ab0f1799-360d-5fb0-9d6d-5d77356394e3")
 	)
 	(wire
 		(pts (xy 40.64 143.51) (xy 38.1 143.51))
 		(stroke (width 0) (type default))
-		(uuid "64218dab-3711-586c-8484-c9126cd0a2ca")
+		(uuid "f7d90ecc-8293-5e6e-a887-06a10b620406")
 	)
 	(label "TFT_CS"
 		(at 38.1 143.51 180)
@@ -6431,12 +6078,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "021a6450-d097-5596-b52d-27c6f8f40687")
+		(uuid "0eb457bb-ed31-5375-9c34-a1cea629170e")
 	)
 	(wire
 		(pts (xy 40.64 146.05) (xy 38.1 146.05))
 		(stroke (width 0) (type default))
-		(uuid "c1fb03a8-d151-5f4d-8de8-f5b54b372002")
+		(uuid "6560b934-e1a8-5a69-80fc-e5cd7a0fd791")
 	)
 	(label "TFT_BLK"
 		(at 38.1 146.05 180)
@@ -6444,7 +6091,7 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "93e7157d-abdd-58ff-81ac-1bf26e098a5e")
+		(uuid "6e8a4acb-7390-591e-9b88-5ea526a9c9d8")
 	)
 	(symbol
 		(lib_id "Device:R")
@@ -6527,7 +6174,7 @@
 	(wire
 		(pts (xy 64.77 127) (xy 62.23 127))
 		(stroke (width 0) (type default))
-		(uuid "dc7ac119-bafd-510c-acf9-2ebc3bbcc757")
+		(uuid "04ea94af-aee1-553a-ad44-c912cab9c148")
 	)
 	(label "TFT_BLK"
 		(at 62.23 127 180)
@@ -6535,12 +6182,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "3c42a2f1-11b8-57c8-852b-9720a1ecc651")
+		(uuid "066d8de1-a3d8-5cb1-beb7-7d71eb654691")
 	)
 	(wire
 		(pts (xy 72.39 127) (xy 74.93 127))
 		(stroke (width 0) (type default))
-		(uuid "aefdd8d5-e3f1-536e-80be-5f00335e3206")
+		(uuid "9453463a-c46b-57c7-81a2-f1892e35a014")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -6552,8 +6199,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "a0760bef-b8db-55ad-b4f2-264a111de663")
-		(property "Reference" "#PWR174"
+		(uuid "744ae318-db20-5c22-a09b-f95aa091a277")
+		(property "Reference" "#PWR171"
 			(at 74.93 127 0)
 			(hide yes)
 			(show_name no)
@@ -6599,12 +6246,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "9653b849-3fea-5600-8692-140d74c2743b")
+			(uuid "a2c81e1e-8b36-5963-9b33-d40176aeaa2f")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/adda822a-f955-5891-a788-2f841ce78265"
-					(reference "#PWR174")
+					(reference "#PWR171")
 					(unit 1)
 				)
 			)
@@ -6617,7 +6264,7 @@
 			(font (size 1.27 1.27))
 			(justify left top)
 		)
-		(uuid "a43accf9-d5f9-5798-b804-780ed8725de9")
+		(uuid "73fb6a45-299f-5239-824b-ee25d0dbe57e")
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
@@ -6688,7 +6335,7 @@
 	(wire
 		(pts (xy 58.42 153.67) (xy 58.42 156.21))
 		(stroke (width 0) (type default))
-		(uuid "60c37211-f9c7-5fe4-a071-22493da6b8d5")
+		(uuid "1b4c10a4-baa6-590a-984e-12063c51efc7")
 	)
 	(global_label "SPI_SCLK"
 		(shape passive)
@@ -6698,7 +6345,7 @@
 			(font (size 1 1))
 			(justify right)
 		)
-		(uuid "eebee4bd-65fc-5eb8-8592-d3b47c304c61")
+		(uuid "afe3c296-c29d-5006-8be5-c405eadd2ff7")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 58.42 156.21 0)
 			(hide yes)
@@ -6778,7 +6425,7 @@
 	(wire
 		(pts (xy 71.12 153.67) (xy 71.12 156.21))
 		(stroke (width 0) (type default))
-		(uuid "bc499614-771e-533f-8c8f-d31becda2cbe")
+		(uuid "535c8a55-40b2-5da6-80d3-a1ddd2adee91")
 	)
 	(global_label "SPI_MOSI"
 		(shape passive)
@@ -6788,7 +6435,7 @@
 			(font (size 1 1))
 			(justify right)
 		)
-		(uuid "8864495b-3cc1-593c-863c-8ae127534d9d")
+		(uuid "26913f49-e5f2-581d-aef0-a505fe91e08d")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 71.12 156.21 0)
 			(hide yes)
@@ -6868,7 +6515,7 @@
 	(wire
 		(pts (xy 83.82 153.67) (xy 83.82 156.21))
 		(stroke (width 0) (type default))
-		(uuid "8af798cb-03d6-572a-9588-d860d398af04")
+		(uuid "a6850a28-d55d-5bf6-8c6f-4027573af405")
 	)
 	(global_label "SPI_MISO"
 		(shape passive)
@@ -6878,7 +6525,7 @@
 			(font (size 1 1))
 			(justify right)
 		)
-		(uuid "cdb3f99c-405d-5c83-b284-846abc2e1826")
+		(uuid "4ab24317-4270-5d0b-b4f1-609c068e1697")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 83.82 156.21 0)
 			(hide yes)
@@ -6894,7 +6541,7 @@
 		(end 101.58 171.45)
 		(stroke (width 0.15) (type dash))
 		(fill (type none))
-		(uuid "407016a6-05cd-52ca-9f26-dbd4f3b97388")
+		(uuid "dfa638af-b960-5cf2-ac8b-60f0cf105f66")
 	)
 	(text "TFT 2.4\" ST7789 (8-pin socket)"
 		(exclude_from_sim no)
@@ -6903,7 +6550,7 @@
 			(font (size 2 2) (bold yes))
 			(justify left top)
 		)
-		(uuid "7258e053-ccea-5319-bfb4-e59a123b3bed")
+		(uuid "e0162f89-8d5f-544e-a8ae-1673452edcea")
 	)
 	(symbol
 		(lib_id "Connector_Generic:Conn_01x05")
@@ -6915,8 +6562,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "2f876037-1375-52a9-8516-40d5772153ba")
-		(property "Reference" "J12"
+		(uuid "c0cd68a0-a4f2-598f-9fe8-4ccbac8438dd")
+		(property "Reference" "J11"
 			(at 129.54 125.73 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -6969,24 +6616,24 @@
 			)
 		)
 		(pin "1"
-			(uuid "cd7f2c87-69f5-56f5-841b-4888f15631ec")
+			(uuid "8a81eaf8-fe46-57ea-bae4-72adac688251")
 		)
 		(pin "2"
-			(uuid "dfeef82e-687b-5d5f-990e-d3c5c0887b41")
+			(uuid "a61ca745-a7da-5383-9319-c237cb5d733d")
 		)
 		(pin "3"
-			(uuid "f9131f5f-2d70-518e-aa54-5b8403c00341")
+			(uuid "8474c785-4aab-54d9-b244-8c5a555c0ebb")
 		)
 		(pin "4"
-			(uuid "292ca08b-652a-5048-89dd-2870f943c3cd")
+			(uuid "b2a54260-5f4b-5753-b6b4-140823bd74cc")
 		)
 		(pin "5"
-			(uuid "c2057bd2-955e-52d6-9e77-237d70e0e087")
+			(uuid "7019500b-2e50-52c6-ac94-2f33de307282")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/adda822a-f955-5891-a788-2f841ce78265"
-					(reference "J12")
+					(reference "J11")
 					(unit 1)
 				)
 			)
@@ -6995,7 +6642,7 @@
 	(wire
 		(pts (xy 124.46 128.27) (xy 121.92 128.27))
 		(stroke (width 0) (type default))
-		(uuid "8b8ed1d4-4720-5070-b489-edf800514dc9")
+		(uuid "452c651d-6ee8-579a-b04e-c80b718b3990")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -7007,8 +6654,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "c15a3de4-991f-5d32-be8b-f90f3b09ea25")
-		(property "Reference" "#PWR175"
+		(uuid "87481677-6450-5c1a-b3f5-f020930d548f")
+		(property "Reference" "#PWR172"
 			(at 121.92 128.27 0)
 			(hide yes)
 			(show_name no)
@@ -7054,12 +6701,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "1cf45e58-c212-59dd-b12d-3ac0e230cec3")
+			(uuid "02dce9f3-a0fb-52cb-9a80-f4df098bdf91")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/adda822a-f955-5891-a788-2f841ce78265"
-					(reference "#PWR175")
+					(reference "#PWR172")
 					(unit 1)
 				)
 			)
@@ -7068,7 +6715,7 @@
 	(wire
 		(pts (xy 124.46 130.81) (xy 121.92 130.81))
 		(stroke (width 0) (type default))
-		(uuid "c9d9a1d8-a6da-5c67-8eed-b1e9bd5063e8")
+		(uuid "bc499614-771e-533f-8c8f-d31becda2cbe")
 	)
 	(label "MAIN_TX0"
 		(at 121.92 130.81 180)
@@ -7076,12 +6723,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "6e761cfd-56f7-5d82-b187-84d1cbc17256")
+		(uuid "08d91301-7874-538e-bf03-85492480125a")
 	)
 	(wire
 		(pts (xy 124.46 133.35) (xy 121.92 133.35))
 		(stroke (width 0) (type default))
-		(uuid "28b0e27b-ecd9-50b8-a1cc-03f75351f1be")
+		(uuid "8af798cb-03d6-572a-9588-d860d398af04")
 	)
 	(label "MAIN_RX0"
 		(at 121.92 133.35 180)
@@ -7089,12 +6736,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "99bc3967-5789-520f-a955-ac5491add7c0")
+		(uuid "82532047-7f1f-5bc6-9db5-75b31565280a")
 	)
 	(wire
 		(pts (xy 124.46 135.89) (xy 121.92 135.89))
 		(stroke (width 0) (type default))
-		(uuid "6017689f-e2c3-5103-976f-c962558dfc65")
+		(uuid "a0a9be4f-5b5e-5c9d-b221-d238dd2f373c")
 	)
 	(label "MAIN_EN"
 		(at 121.92 135.89 180)
@@ -7102,12 +6749,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "2946496a-036c-50d4-8e3e-8a8db950c5d9")
+		(uuid "bb4b5907-621e-52c3-b50a-c534b471781e")
 	)
 	(wire
 		(pts (xy 124.46 138.43) (xy 121.92 138.43))
 		(stroke (width 0) (type default))
-		(uuid "11849e73-4600-5099-baf5-a3617786494c")
+		(uuid "8b8ed1d4-4720-5070-b489-edf800514dc9")
 	)
 	(label "MAIN_BOOT"
 		(at 121.92 138.43 180)
@@ -7115,7 +6762,7 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "1f5e8ac3-f563-5959-b960-ef4015b3adc4")
+		(uuid "1797a470-7215-5c0e-8397-6e3bd91fb169")
 	)
 	(symbol
 		(lib_id "LED:SK6812MINI")
@@ -7205,12 +6852,12 @@
 	)
 	(no_connect
 		(at 170.18 140.97)
-		(uuid "8f8f6548-191c-5007-a435-376b83ba96e9")
+		(uuid "b657615f-7e44-5c30-bed7-b11808ab10af")
 	)
 	(wire
 		(pts (xy 162.56 148.59) (xy 162.56 151.13))
 		(stroke (width 0) (type default))
-		(uuid "6cc7a592-594c-5ae8-b732-96c2ceee983e")
+		(uuid "28b0e27b-ecd9-50b8-a1cc-03f75351f1be")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -7222,8 +6869,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "e1e44600-9ebf-52f2-87a9-d1ee2e0096f9")
-		(property "Reference" "#PWR176"
+		(uuid "4d453467-0713-55b2-bbf4-79eb2ceb3d58")
+		(property "Reference" "#PWR173"
 			(at 162.56 151.13 0)
 			(hide yes)
 			(show_name no)
@@ -7268,12 +6915,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "6db4e734-dd3f-595d-83aa-63e855b1610c")
+			(uuid "e5f1a13e-dbc7-5f67-8877-e3aa99a72fc1")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/adda822a-f955-5891-a788-2f841ce78265"
-					(reference "#PWR176")
+					(reference "#PWR173")
 					(unit 1)
 				)
 			)
@@ -7282,7 +6929,7 @@
 	(wire
 		(pts (xy 154.94 140.97) (xy 152.4 140.97))
 		(stroke (width 0) (type default))
-		(uuid "844be670-a0e3-5139-87cd-ad940db14f30")
+		(uuid "91d1151c-9ae3-5d5d-bc1a-371bd4a64e30")
 	)
 	(label "RGB_DIN"
 		(at 152.4 140.97 180)
@@ -7290,12 +6937,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "c271775f-dc69-533a-80d2-3c0fdff17035")
+		(uuid "635e082c-cbf5-5085-b423-e6e7062265e7")
 	)
 	(wire
 		(pts (xy 162.56 133.35) (xy 162.56 130.81))
 		(stroke (width 0) (type default))
-		(uuid "87ea6848-171c-5569-9b20-b590ca2873af")
+		(uuid "03756c20-270e-5772-8cbd-f00a412f87bb")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -7307,8 +6954,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "ffb7b26b-8598-5ab7-9d8b-5de2585c7075")
-		(property "Reference" "#PWR177"
+		(uuid "a0760bef-b8db-55ad-b4f2-264a111de663")
+		(property "Reference" "#PWR174"
 			(at 162.56 130.81 0)
 			(hide yes)
 			(show_name no)
@@ -7353,12 +7000,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "fe2abf18-d58a-5df9-8702-39b29324cc85")
+			(uuid "9653b849-3fea-5600-8692-140d74c2743b")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/adda822a-f955-5891-a788-2f841ce78265"
-					(reference "#PWR177")
+					(reference "#PWR174")
 					(unit 1)
 				)
 			)
@@ -7447,7 +7094,7 @@
 	(wire
 		(pts (xy 144.78 168.91) (xy 144.78 166.37))
 		(stroke (width 0) (type default))
-		(uuid "ee44217e-b350-5a8a-9e95-7046590f3144")
+		(uuid "11849e73-4600-5099-baf5-a3617786494c")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -7459,8 +7106,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "6998643d-560f-58bc-81dd-e8ca9165112b")
-		(property "Reference" "#PWR178"
+		(uuid "c15a3de4-991f-5d32-be8b-f90f3b09ea25")
+		(property "Reference" "#PWR175"
 			(at 144.78 166.37 0)
 			(hide yes)
 			(show_name no)
@@ -7505,12 +7152,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "515cccca-2f5b-5af7-b4c4-a14907c77548")
+			(uuid "1cf45e58-c212-59dd-b12d-3ac0e230cec3")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/adda822a-f955-5891-a788-2f841ce78265"
-					(reference "#PWR178")
+					(reference "#PWR175")
 					(unit 1)
 				)
 			)
@@ -7519,7 +7166,7 @@
 	(wire
 		(pts (xy 144.78 176.53) (xy 144.78 179.07))
 		(stroke (width 0) (type default))
-		(uuid "d532278f-29b6-5ba2-b703-ad9491f4f563")
+		(uuid "fcd7c571-c1c9-537f-8926-1f1785a85f04")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -7531,8 +7178,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "0423e7b9-99b6-59e8-a2f7-7a9caf810801")
-		(property "Reference" "#PWR179"
+		(uuid "e1e44600-9ebf-52f2-87a9-d1ee2e0096f9")
+		(property "Reference" "#PWR176"
 			(at 144.78 179.07 0)
 			(hide yes)
 			(show_name no)
@@ -7577,12 +7224,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "36a748a4-723d-5d3b-b18b-1b4b7d81d095")
+			(uuid "6db4e734-dd3f-595d-83aa-63e855b1610c")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/adda822a-f955-5891-a788-2f841ce78265"
-					(reference "#PWR179")
+					(reference "#PWR176")
 					(unit 1)
 				)
 			)
@@ -7657,7 +7304,7 @@
 	(wire
 		(pts (xy 185.42 133.35) (xy 185.42 135.89))
 		(stroke (width 0) (type default))
-		(uuid "ebe149a4-4ad3-5eee-affb-4efab5de40b0")
+		(uuid "81eb009d-1f31-5890-8bf7-f3ffbb534d30")
 	)
 	(global_label "LINK_M2I"
 		(shape passive)
@@ -7667,7 +7314,7 @@
 			(font (size 1 1))
 			(justify right)
 		)
-		(uuid "63f125d2-6f39-5edb-8a1d-8a5bd1cfa3cc")
+		(uuid "d5e504d3-816d-5df4-8faf-1beae37e1646")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 185.42 135.89 0)
 			(hide yes)
@@ -7747,7 +7394,7 @@
 	(wire
 		(pts (xy 198.12 133.35) (xy 198.12 135.89))
 		(stroke (width 0) (type default))
-		(uuid "9748e669-434a-5f14-a1a8-ec7333e3e872")
+		(uuid "844be670-a0e3-5139-87cd-ad940db14f30")
 	)
 	(global_label "LINK_I2M"
 		(shape passive)
@@ -7757,7 +7404,7 @@
 			(font (size 1 1))
 			(justify right)
 		)
-		(uuid "6c303f48-c166-5fb1-8b41-0c535dfee17d")
+		(uuid "a5033bd2-2590-5f80-abf1-a4dd33d841b4")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
 			(at 198.12 135.89 0)
 			(hide yes)
@@ -7775,14 +7422,14 @@
 			(font (size 1.27 1.27))
 			(justify left top)
 		)
-		(uuid "f7749fa2-143a-5331-b52e-de7425583d3e")
+		(uuid "2ed1b1b8-6c55-5adc-bd02-d43b06ff43b4")
 	)
 	(rectangle
 		(start 109.22 114.3)
 		(end 228.58 191.42)
 		(stroke (width 0.15) (type dash))
 		(fill (type none))
-		(uuid "0fd5521e-147c-5df3-9113-9322552baa40")
+		(uuid "b0c41722-ca5a-5380-9c91-34f00d514f71")
 	)
 	(text "UART0 header, link UART, status LED"
 		(exclude_from_sim no)
@@ -7791,7 +7438,7 @@
 			(font (size 2 2) (bold yes))
 			(justify left top)
 		)
-		(uuid "07faab09-fbec-5ebf-a283-0b4372f6e639")
+		(uuid "453e59d7-e40d-5836-8aa0-0082dafa9b2a")
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole_Pad")
@@ -7871,7 +7518,7 @@
 	(wire
 		(pts (xy 246.38 133.35) (xy 246.38 135.89))
 		(stroke (width 0) (type default))
-		(uuid "4b6f8a2d-8996-58ce-82c4-f5a98357686e")
+		(uuid "ebe149a4-4ad3-5eee-affb-4efab5de40b0")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -7883,8 +7530,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "efdc5abe-f099-5bc2-abda-6717598e2af4")
-		(property "Reference" "#PWR180"
+		(uuid "ffb7b26b-8598-5ab7-9d8b-5de2585c7075")
+		(property "Reference" "#PWR177"
 			(at 246.38 135.89 0)
 			(hide yes)
 			(show_name no)
@@ -7929,12 +7576,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "29b84bb0-2614-5177-a8d7-49c58e9a5678")
+			(uuid "fe2abf18-d58a-5df9-8702-39b29324cc85")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/adda822a-f955-5891-a788-2f841ce78265"
-					(reference "#PWR180")
+					(reference "#PWR177")
 					(unit 1)
 				)
 			)
@@ -8018,7 +7665,7 @@
 	(wire
 		(pts (xy 264.16 133.35) (xy 264.16 135.89))
 		(stroke (width 0) (type default))
-		(uuid "113d0844-0f9c-5311-9864-13506b90f6dd")
+		(uuid "d7e1e914-0063-575f-b452-9bc13eb2c3c2")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -8030,8 +7677,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "e138174c-196e-5c7c-a911-2cb66512a00f")
-		(property "Reference" "#PWR181"
+		(uuid "6998643d-560f-58bc-81dd-e8ca9165112b")
+		(property "Reference" "#PWR178"
 			(at 264.16 135.89 0)
 			(hide yes)
 			(show_name no)
@@ -8076,12 +7723,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "9ebac647-f147-5ff9-87a1-47ab66430ff7")
+			(uuid "515cccca-2f5b-5af7-b4c4-a14907c77548")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/adda822a-f955-5891-a788-2f841ce78265"
-					(reference "#PWR181")
+					(reference "#PWR178")
 					(unit 1)
 				)
 			)
@@ -8165,7 +7812,7 @@
 	(wire
 		(pts (xy 281.94 133.35) (xy 281.94 135.89))
 		(stroke (width 0) (type default))
-		(uuid "069861d1-1502-5f32-bee0-776c72e231b3")
+		(uuid "9748e669-434a-5f14-a1a8-ec7333e3e872")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -8177,8 +7824,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "365841e0-532c-5afb-a9e5-f75801baffc6")
-		(property "Reference" "#PWR182"
+		(uuid "0423e7b9-99b6-59e8-a2f7-7a9caf810801")
+		(property "Reference" "#PWR179"
 			(at 281.94 135.89 0)
 			(hide yes)
 			(show_name no)
@@ -8223,12 +7870,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "3ab9f5d7-3c13-519d-8ec0-b341b64a997a")
+			(uuid "36a748a4-723d-5d3b-b18b-1b4b7d81d095")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/adda822a-f955-5891-a788-2f841ce78265"
-					(reference "#PWR182")
+					(reference "#PWR179")
 					(unit 1)
 				)
 			)
@@ -8312,7 +7959,7 @@
 	(wire
 		(pts (xy 299.72 133.35) (xy 299.72 135.89))
 		(stroke (width 0) (type default))
-		(uuid "7d2b5ef0-95a1-5b2b-82e5-88a666e80562")
+		(uuid "716585a5-5f71-57e5-b503-a2ea57962c77")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -8324,8 +7971,8 @@
 		(on_board yes)
 		(in_pos_files yes)
 		(dnp no)
-		(uuid "fa138052-a04e-5d29-a455-03cbaea3d9bd")
-		(property "Reference" "#PWR183"
+		(uuid "efdc5abe-f099-5bc2-abda-6717598e2af4")
+		(property "Reference" "#PWR180"
 			(at 299.72 135.89 0)
 			(hide yes)
 			(show_name no)
@@ -8370,12 +8017,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "db6b6d06-32cd-54bd-a853-168179f1c6dc")
+			(uuid "29b84bb0-2614-5177-a8d7-49c58e9a5678")
 		)
 		(instances
 			(project "OfficeDeskSetup"
 				(path "/7d6f2201-bb16-433b-a012-f387f0c014ff/adda822a-f955-5891-a788-2f841ce78265"
-					(reference "#PWR183")
+					(reference "#PWR180")
 					(unit 1)
 				)
 			)
@@ -8386,7 +8033,7 @@
 		(end 331.52 146.05)
 		(stroke (width 0.15) (type dash))
 		(fill (type none))
-		(uuid "ec332d3c-d712-5245-9247-961887b0dbb1")
+		(uuid "ddc7a49a-4f43-5620-b62a-baa6a454a922")
 	)
 	(text "TFT standoffs: M3 x 10 SMD, at the module holes"
 		(exclude_from_sim no)
@@ -8395,7 +8042,7 @@
 			(font (size 2 2) (bold yes))
 			(justify left top)
 		)
-		(uuid "64f8b7f3-1b4b-52d7-9932-7cc3a97dccf4")
+		(uuid "9f8e0867-b908-5855-a4b4-2dd1670501e1")
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole")
@@ -8780,7 +8427,7 @@
 		(end 396.24 133.35)
 		(stroke (width 0.15) (type dash))
 		(fill (type none))
-		(uuid "f6ce2f78-c18d-52f8-a976-904f32fdb18a")
+		(uuid "6b56de06-b371-5d09-93e8-e7be35824e6e")
 	)
 	(text "Mounting holes (M3)"
 		(exclude_from_sim no)
@@ -8789,7 +8436,7 @@
 			(font (size 2 2) (bold yes))
 			(justify left top)
 		)
-		(uuid "fb48c262-b6f6-5040-98e4-ee2af5d094c7")
+		(uuid "8a8742fb-29a1-5767-8000-034a1c62f233")
 	)
 	(embedded_fonts no)
 )

@@ -226,6 +226,18 @@ def key(t):
     return t.Type(), t.GetLayer(), t.GetNetname(), s.x, s.y, e.x, e.y
 
 
+def models_for_copy(path):
+    """A board saved outside the project folder (inspect/, the work directory): its ${KIPRJMOD} 3D model paths would
+    point into that folder, where the project's .3dshapes is not. Point them at the project's own folder instead."""
+    if os.path.normcase(os.path.dirname(os.path.abspath(path))) == os.path.normcase(HERE):
+        return
+    shapes = os.path.join(HERE, PROJECT + '.3dshapes').replace(os.sep, '/')
+    text = open(path, encoding='utf-8').read()
+    new = text.replace('${KIPRJMOD}/%s.3dshapes' % PROJECT, shapes)
+    if new != text:
+        open(path, 'w', encoding='utf-8').write(new)
+
+
 def save(board, path, pro):
     """SaveBoard with the project's own .kicad_pro next to it: SaveBoard rewrites that file and drops the schematic
     sections, and a board loaded without it falls back to default rules and net classes. Routing changes no
@@ -237,6 +249,7 @@ def save(board, path, pro):
     open(base + '.kicad_pro', 'w', encoding='utf-8').write(keep[pro])
     pcbnew.SaveBoard(path, board)
     open(base + '.kicad_pro', 'w', encoding='utf-8').write(keep[pro])
+    models_for_copy(path)
     if base + '.kicad_prl' in keep:
         open(base + '.kicad_prl', 'w', encoding='utf-8').write(keep[base + '.kicad_prl'])
 

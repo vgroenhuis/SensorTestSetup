@@ -34,8 +34,9 @@ FP.update({k: 'OfficeDeskSetup:' + v for k, v in dict(
     WF100DPZ='SOP-6_L7.0-W7.0-P2.54-LS10.3-TL', ITR20001='OPTO-TH_4P_ITR20001-T-F316', AHT20='SENSOR-SMD_L3.0-W3.0-P1.00-BR',
     VEML7700='SENSOR-SMD_EML7700-TT', TOGGLE='SW-TH_2MS1T1B1M1QES-5', TOGGLE2='SW-TH_2MD1T1B1M1QES-5',
     ROCKER='SW-TH_SS21-BBIWG2-B', DCJACK='DC-IN-TH_HX-DC007B-2.5', B3F='KEY-TH_4P-L12.0-W12.0-P5.00-LS13.4-EH',
-    STANDOFF='SCREW-SMD_BD5.6-D4.1-H10', BANANA='BananaHole_4.1mm_Pad').items()})
+    STANDOFF='SCREW-SMD_BD5.6-D4.1-H10', BANANA='BananaHole_4.1mm_Pad', TOUCH='TouchPad_D11mm').items()})
 FP['TDSON8'] = 'Package_TO_SOT_SMD:TDSON-8-1'
+FP['SOT236'] = 'Package_TO_SOT_SMD:SOT-23-6'
 
 
 def fet(b, s, g, d, note):
@@ -183,6 +184,11 @@ def custom_symbols(lib):
                             description='Time-of-flight 8x8 multizone sensor, 90 deg FoV (DS13865 Rev 8, Table 3)')
     s['WF100DPZ'] = lib.box('WF100DPZ', [(5, 'VDD', PW), (4, 'CSB', NCT), (6, 'NC', NCT), (1, 'GND', PW)], [(3, 'SDA', P), (2, 'SCL', P)],
                             footprint=FP['WF100DPZ'], description='Digital gauge pressure sensor, I2C 0x6D (pin numbers: verify)')
+    s['TTP223'] = lib.box('TTP223-BA6', [(5, 'VDD', PW), (2, 'VSS', PW), (4, 'AHLB', I), (6, 'TOG', I)], [(3, 'I', P), (1, 'Q', P)],
+                          footprint=FP['SOT236'], datasheet='https://www.lcsc.com/datasheet/C80757.pdf',
+                          description='1-key capacitive touch detector (1 Q, 2 VSS, 3 I sense, 4 AHLB, 5 VDD, 6 TOG)')
+    s['TOUCH'] = lib.box('TOUCH_PAD', [(1, 'PAD', P)], [], ref='E', footprint=FP['TOUCH'],
+                         description='Capacitive touch electrode (copper disc under the solder mask)')
     s['AHT20'] = lib.box('AHT20', [(2, 'VDD', PW), (1, 'NC', NCT), (6, 'NC', NCT), (5, 'GND', PW)], [(4, 'SDA', P), (3, 'SCL', P)],
                          footprint=FP['AHT20'], description='Temperature and humidity sensor, I2C 0x38 (datasheet V1.0 Table 5)')
     s['VEML7700'] = lib.box('VEML7700-TT', [(2, 'VDD', PW), (3, 'GND', PW)], [(4, 'SDA', P), (1, 'SCL', P)],
@@ -560,14 +566,13 @@ def mcu_main(d, X):
                               7: 'SPI_SCLK', 8: 'SPI_MOSI', 9: 'TFT_DC', 10: 'TFT_RES', 11: 'MAIN_TX0', 12: 'MAIN_RX0', 23: 'LINK_M2I',
                               24: 'TFT_BLK', 25: 'TFT_CS', 26: 'LINK_I2M', 27: 'RGB_DIN', 28: 'MCP3008_CS'}, 'USB_MAIN')
 
-    b = sh.block('Main I2C bus: pull-ups, Qwiic x2')
+    b = sh.block('Main I2C bus: pull-ups, Qwiic')
     R(b, '2.2k', '+3V3', 'I2C_SDA')
     R(b, '2.2k', '+3V3', 'I2C_SCL')
     tp(b, 'I2C_SDA')
     tp(b, 'I2C_SCL')
     b.col()
-    qwiic(b, 'main 1', 'I2C_SDA', 'I2C_SCL')
-    qwiic(b, 'main 2', 'I2C_SDA', 'I2C_SCL')
+    qwiic(b, 'main', 'I2C_SDA', 'I2C_SCL')
     b.col()
     esd(b, 'I2C_SDA', 'I2C_SCL')
 
@@ -682,10 +687,10 @@ def i2c_parts(d, X):
 
     b = sh.block('MCP23017 (0x20): LEDs and toggle switches on bank A, buttons and controls on bank B')
     nets = {'V_{DD}': '+3V3', 'V_{SS}': 'GND', 'SCK': 'I2C_SCL', 'SDA': 'I2C_SDA', 'A0': 'GND', 'A1': 'GND', 'A2': 'GND',
-            '~{RESET}': 'MCP_RESET', 'INTA': NC, 'INTB': NC, 'GPA4': 'TOGGLE0', 'GPA5': 'TOGGLE1', 'GPA6': NC, 'GPA7': NC}
+            '~{RESET}': 'MCP_RESET', 'INTA': NC, 'INTB': NC, 'GPA4': 'TOGGLE0', 'GPA5': 'TOGGLE1', 'GPA6': 'TOUCH_EXT', 'GPA7': NC}
     for i in range(4):
         nets['GPA%d' % i] = 'LED%d' % i
-    for i, n in enumerate(['BTN0', 'BTN1', 'BTN2', 'BTN3', 'MH_DO', 'IR_DO', 'DXL_EN', 'PCA_OE']):
+    for i, n in enumerate(['BTN0', 'BTN1', 'TOUCH0', 'TOUCH1', 'MH_DO', 'IR_DO', 'DXL_EN', 'PCA_OE']):
         nets['GPB%d' % i] = n
     b.ic('Interface_Expansion:MCP23017x-x-SO', 'U', 'MCP23017-E/SO', nets, fields=fields('Package_SO:SOIC-28W_7.5x17.9mm_P1.27mm', 'C47023'))
     R(b, '10k', '+3V3', 'MCP_RESET')
@@ -697,14 +702,29 @@ def i2c_parts(d, X):
     for i in range(4):
         two(b, 'LED', 'LED%d' % i, 'GND', 'LED%d_A' % i)
     b.col()
-    for i in range(4):      # Omron B3F-4055, 12 x 12 mm: room for a cap
+    for i in range(2):      # Omron B3F-4055, 12 x 12 mm: room for a cap (BTN2/3 became touch pads)
         b.ic(X['B3F'], 'SW', 'BTN%d' % i, {'1': 'BTN%d' % i, '4': 'GND', '2': NC, '3': NC}, flow=True, fields=fields(FP['B3F'], 'C84931'))
     for i in range(2):      # Dailywell 2MS1T1B1M1QES-5: miniature SPDT toggle, PCB pins (footprint: EasyEDA, C496169)
         b.ic('Switch:SW_SPDT', 'SW', 'TOGGLE%d' % i, {'A': 'TOGGLE%d' % i, 'B': 'GND', 'C': NC}, fields=fields(FP['TOGGLE'], 'C496169'))
     b.ic('Connector_Generic:Conn_02x05_Odd_Even', 'J', 'MCP23017 bank B',
-         {'1': 'BTN0', '2': 'BTN1', '3': 'BTN2', '4': 'BTN3', '5': 'MH_DO', '6': 'IR_DO', '7': 'DXL_EN', '8': 'PCA_OE', '9': 'GND', '10': '+3V3'},
+         {'1': 'BTN0', '2': 'BTN1', '3': 'TOUCH0', '4': 'TOUCH1', '5': 'MH_DO', '6': 'IR_DO', '7': 'DXL_EN', '8': 'PCA_OE', '9': 'GND', '10': '+3V3'},
          fields=fields('Connector_PinHeader_2.54mm:PinHeader_2x05_P2.54mm_Vertical'))
-    b.note('Buttons and toggle switches use the MCP23017\npull-ups. GPB7 is output only (PCA_OE); GPA6\nand GPA7 are free (GPA7 output only).')
+    conn(b, 'TTP223 module', ['GND', 'TOUCH_EXT', '+3V3'], socket(3))     # a TTP223 touch module: GND I/O VCC
+    b.note('Buttons and toggle switches use the MCP23017\npull-ups. GPB7 is output only (PCA_OE); GPA7\nis free (output only). GPA6: TTP223 module socket\n(GND I/O VCC; module output active high by default).')
+
+    b = sh.block('Touch: 2 TTP223 pads')
+    for i in range(2):      # in place of BTN2/BTN3; AHLB high: output low when touched, like the buttons
+        b.ic(X['TTP223'], 'U', 'TTP223-BA6', {'VDD': '+3V3', 'VSS': 'GND', 'AHLB': '+3V3', 'TOG': 'GND',
+                                              'I': 'TOUCH%d_PAD' % i, 'Q': 'TOUCH%d' % i}, fields=fields(FP['SOT236'], 'C80757'))
+    b.col()
+    for i in range(2):
+        b.ic(X['TOUCH'], 'E', 'TOUCH%d' % i, {'PAD': 'TOUCH%d_PAD' % i}, flow=True, fields=fields(FP['TOUCH']))
+    b.col()
+    for i in range(2):
+        C(b, '100nF', '+3V3')
+    for i in range(2):
+        C(b, '15pF', 'TOUCH%d_PAD' % i, dnp=True)
+    b.note('TTP223 (AHLB high, TOG low): Q low while\ntouched, like BTN0/1. Cs (DNP, 0-50 pF):\nlower sensitivity.')
 
     b = sh.block('PCA9685 (0x41): 8 servos, buzzer, 7 spare channels')
     nets = {'VDD': '+3V3', 'VSS': 'GND', 'SCL': 'I2C_SCL', 'SDA': 'I2C_SDA', 'A0': '+3V3', 'A1': 'GND', 'A2': 'GND', 'A3': 'GND', 'A4': 'GND',
@@ -735,29 +755,29 @@ def i2c_parts(d, X):
         R(b, '220R', 'PWM%d' % i, 'PWM%d_H' % i)
     conn(b, 'PWM 9-15', ['+5V', 'GND'] + ['PWM%d_H' % i for i in range(9, 16)], header(9))
 
-    b = sh.block('TCA9548A (0x71): pressure sensors on ch 0-1, Qwiic on ch 2-7')
+    b = sh.block('TCA9548A (0x71): pressure sensors on ch 0-3, Qwiic on ch 4-5')
     nets = {'VCC': '+3V3', 'GND': 'GND', 'SCL': 'I2C_SCL', 'SDA': 'I2C_SDA', 'A0': '+3V3', 'A1': 'GND', 'A2': 'GND', '~{RESET}': 'TCA_RESET'}
     for i in range(8):
-        nets['SD%d' % i] = 'MUX%d_SDA' % i
-        nets['SC%d' % i] = 'MUX%d_SCL' % i
+        nets['SD%d' % i] = 'MUX%d_SDA' % i if i < 6 else NC       # ch 6-7 unused
+        nets['SC%d' % i] = 'MUX%d_SCL' % i if i < 6 else NC
     b.ic('Interface_Expansion:TCA9548APWR', 'U', 'TCA9548APWR', nets, fields=fields(FP['TSSOP24'], 'C130026'))
     R(b, '10k', '+3V3', 'TCA_RESET')
     C(b, '100nF', '+3V3')
     b.col()
-    for i in range(8):
-        R(b, '4.7k' if i < 2 else '10k', '+3V3', 'MUX%d_SDA' % i)
-        R(b, '4.7k' if i < 2 else '10k', '+3V3', 'MUX%d_SCL' % i)
+    for i in range(6):
+        R(b, '4.7k' if i < 4 else '10k', '+3V3', 'MUX%d_SDA' % i)
+        R(b, '4.7k' if i < 4 else '10k', '+3V3', 'MUX%d_SCL' % i)
     b.col()
-    for i in range(2):
+    for i in range(4):
         b.ic(X['WF100DPZ'], 'U', 'WF100DPZ 10BG S6 DT', {'VDD': '+3V3', 'GND': 'GND', 'SDA': 'MUX%d_SDA' % i, 'SCL': 'MUX%d_SCL' % i},
              fields=fields(FP['WF100DPZ'], 'C22388673'))
-    C(b, '100nF', '+3V3')
-    C(b, '100nF', '+3V3')
+    for i in range(4):
+        C(b, '100nF', '+3V3')
     b.note('WF100DPZ: fixed address 0x6D.')
     b.col()
-    for i in range(2, 8):
+    for i in range(4, 6):
         qwiic(b, 'ch %d' % i, 'MUX%d_SDA' % i, 'MUX%d_SCL' % i)
-    for i in range(2, 8):
+    for i in range(4, 6):
         esd(b, 'MUX%d_SDA' % i, 'MUX%d_SCL' % i)
 
 
@@ -779,10 +799,17 @@ def sensors(d, X):
     b.col()
     for i in range(4):
         C(b, '100nF', 'POT%d' % i)
-    R(b, '1k', 'A10_7_CONN', 'A10_7')
+    R(b, '1k', 'A10_7_SEL', 'A10_7')
     C(b, '10nF', 'A10_7')
+    b.ic('Jumper:SolderJumper_3_Bridged12', 'JP', 'AIN 7 FSR/header', {'1': 'FSR_AO', '2': 'A10_7_SEL', '3': 'A10_7_CONN'},
+         fields=fields(FP['JP3']))
     b.col()
     conn(b, 'AIN 7 (10 bit)', ['GND', '+3V3', 'A10_7_CONN'], header(3))
+
+    b = sh.block('Film pressure sensor (FSR) socket')
+    conn(b, 'FSR', ['+3V3', 'FSR_AO'], socket(2))
+    R(b, '10k', 'FSR_AO', 'GND')
+    b.note('Resistive film pressure sensor, 2 pins at 2.54 mm,\nupright in the socket: divider with 10k to GND on\nMCP3008 CH7 (solder jumper: FSR by default; cut\n1-2 and bridge 2-3 for the AIN 7 header).')
 
     b = sh.block('LDR')
     two(b, 'LDR', 'GL5528', '+3V3', 'LDR_AO', lcsc='C125627')
@@ -902,7 +929,8 @@ Nets that cross sheets have global labels; power rails: GND, +3V3, +5V (symbols)
 
 Main I2C bus (ESP 'main' GPIO2/3): 0x08 HUSB238, 0x10 VEML7700, 0x20 MCP23017, 0x36 AS5600, 0x38 AHT20, 0x40 INA226,
 0x41 PCA9685, 0x48 ADS1115, 0x6A LSM6DS3TR-C, 0x6B BQ25792, 0x71 TCA9548A (0x70 kept free: PCA9685 All-Call).
-Behind the TCA9548A: 0x6D WF100DPZ on ch 0 and 1; ch 2-7 Qwiic. I2C 2 (ESP 'io' GPIO2/3): 0x29 VL53L7CX + Qwiic.
+Behind the TCA9548A: 0x6D WF100DPZ on ch 0-3; ch 4-5 Qwiic; ch 6-7 unused. I2C 2 (ESP 'io' GPIO2/3): 0x29 VL53L7CX
++ Qwiic. Qwiic: 4 in all (main bus, TCA ch 4, ch 5, I2C 2).
 
 The files are written by gen/make.py from gen/design.py. Values and pin numbers marked "verify" (see SCHEMATIC_NOTES.md)
 have to be checked against the datasheets before layout.""" % REV
