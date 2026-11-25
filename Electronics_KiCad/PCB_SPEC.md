@@ -343,7 +343,7 @@ Low stock (under ~100) is marked: enough for a few prototypes, order soon or res
 | IR reflective | ITR20001/T | C264269 | 14397 | through-hole |
 | Comparator | LM393DR2G | C7955 | 317261 | **basic** part |
 | LDR | GL5528 | C125627 | 17107 | through-hole |
-| RGB status LED | SK6812MINI-E | C5149201 | 192368 | |
+| RGB status LED | SK6812MINI-B-012 (3535, top-emitting) | C5183448 | | |
 | Buzzer | MLT-8530 | C94599 | 114824 | with an N-MOSFET from a PCA9685 channel |
 | Toggle switch ×2 | Dailywell 2MS1T1B1M1QES-5 (miniature SPDT, PC pins) | C496169 | 3743 | ~$1.50; wave soldering |
 | Dynamixel TX buffer (3.3 → 5 V) | 74AHCT1G125GV | C52140417 | 8934 | |

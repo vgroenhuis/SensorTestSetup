@@ -582,8 +582,9 @@ def mcu_main(d, X):
     b = sh.block('UART0 header, link UART, status LED')
     conn(b, 'UART0 main', ['GND', 'MAIN_TX0', 'MAIN_RX0', 'MAIN_EN', 'MAIN_BOOT'], header(5))
     b.col()
-    b.ic('LED:SK6812MINI-E', 'D', 'SK6812MINI-E', {'VDD': '+3V3', 'VSS': 'GND', 'DIN': 'RGB_DIN', 'DOUT': NC},
-         fields=fields('LED_SMD:LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount', 'C5149201'))
+    # top-emitting 3535 (the reverse-mount SK6812MINI-E shone through its board cut-out into battery holder BT3)
+    b.ic('LED:SK6812MINI', 'D', 'SK6812MINI', {'VDD': '+3V3', 'VSS': 'GND', 'DIN': 'RGB_DIN', 'DOUT': NC},
+         fields=fields('LED_SMD:LED_SK6812MINI_PLCC4_3.5x3.5mm_P1.75mm', 'C5183448'))
     C(b, '100nF', '+3V3')
     b.col()
     tp(b, 'LINK_M2I')

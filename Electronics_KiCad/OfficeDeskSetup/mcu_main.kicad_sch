@@ -952,7 +952,7 @@
 			)
 			(embedded_fonts no)
 		)
-		(symbol "LED:SK6812MINI-E"
+		(symbol "LED:SK6812MINI"
 			(pin_names
 				(offset 0.254)
 			)
@@ -970,7 +970,7 @@
 					(justify right bottom)
 				)
 			)
-			(property "Value" "SK6812MINI-E"
+			(property "Value" "SK6812MINI"
 				(at 1.27 -5.715 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -979,7 +979,7 @@
 					(justify left top)
 				)
 			)
-			(property "Footprint" "LED_SMD:LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount"
+			(property "Footprint" "LED_SMD:LED_SK6812MINI_PLCC4_3.5x3.5mm_P1.75mm"
 				(at 1.27 -7.62 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -989,7 +989,7 @@
 					(justify left top)
 				)
 			)
-			(property "Datasheet" "https://www.lcsc.com/datasheet/C5149201.pdf"
+			(property "Datasheet" "https://cdn-shop.adafruit.com/product-files/2686/SK6812MINI_REV.01-1-2.pdf"
 				(at 2.54 -9.525 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1008,7 +1008,7 @@
 					(font (size 1.27 1.27))
 				)
 			)
-			(property "ki_keywords" "RGB LED NeoPixel addressable"
+			(property "ki_keywords" "RGB LED NeoPixel Mini addressable"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1017,7 +1017,7 @@
 					(font (size 1.27 1.27))
 				)
 			)
-			(property "ki_fp_filters" "LED?SK6812MINI?E?3.2x2.8mm?P1.5mm*"
+			(property "ki_fp_filters" "LED*SK6812MINI*PLCC*3.5x3.5mm*P1.75mm*"
 				(at 0 0 0)
 				(show_name no)
 				(do_not_autoplace no)
@@ -1026,7 +1026,7 @@
 					(font (size 1.27 1.27))
 				)
 			)
-			(symbol "SK6812MINI-E_0_0"
+			(symbol "SK6812MINI_0_0"
 				(text "RGB"
 					(at 2.286 -4.191 0)
 					(effects
@@ -1034,7 +1034,7 @@
 					)
 				)
 			)
-			(symbol "SK6812MINI-E_0_1"
+			(symbol "SK6812MINI_0_1"
 				(polyline
 					(pts (xy 1.27 -2.54) (xy 1.778 -2.54))
 					(stroke (width 0) (type default))
@@ -1077,7 +1077,21 @@
 					(fill (type background))
 				)
 			)
-			(symbol "SK6812MINI-E_1_1"
+			(symbol "SK6812MINI_1_1"
+				(pin output line
+					(at 7.62 0 180)
+					(length 2.54)
+					(name "DOUT"
+						(effects
+							(font (size 1.27 1.27))
+						)
+					)
+					(number "1"
+						(effects
+							(font (size 1.27 1.27))
+						)
+					)
+				)
 				(pin power_in line
 					(at 0 -7.62 90)
 					(length 2.54)
@@ -1086,7 +1100,7 @@
 							(font (size 1.27 1.27))
 						)
 					)
-					(number "1"
+					(number "2"
 						(effects
 							(font (size 1.27 1.27))
 						)
@@ -1100,7 +1114,7 @@
 							(font (size 1.27 1.27))
 						)
 					)
-					(number "2"
+					(number "3"
 						(effects
 							(font (size 1.27 1.27))
 						)
@@ -1110,20 +1124,6 @@
 					(at 0 7.62 270)
 					(length 2.54)
 					(name "VDD"
-						(effects
-							(font (size 1.27 1.27))
-						)
-					)
-					(number "3"
-						(effects
-							(font (size 1.27 1.27))
-						)
-					)
-				)
-				(pin output line
-					(at 7.62 0 180)
-					(length 2.54)
-					(name "DOUT"
 						(effects
 							(font (size 1.27 1.27))
 						)
@@ -7118,7 +7118,7 @@
 		(uuid "1f5e8ac3-f563-5959-b960-ef4015b3adc4")
 	)
 	(symbol
-		(lib_id "LED:SK6812MINI-E")
+		(lib_id "LED:SK6812MINI")
 		(at 162.56 140.97 0)
 		(unit 1)
 		(body_style 1)
@@ -7137,7 +7137,7 @@
 				(justify right bottom)
 			)
 		)
-		(property "Value" "SK6812MINI-E"
+		(property "Value" "SK6812MINI"
 			(at 163.83 146.68 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7146,7 +7146,7 @@
 				(justify left top)
 			)
 		)
-		(property "Footprint" "LED_SMD:LED_SK6812MINI-E_3.2x2.8mm_P1.5mm_ReverseMount"
+		(property "Footprint" "LED_SMD:LED_SK6812MINI_PLCC4_3.5x3.5mm_P1.75mm"
 			(at 162.56 140.97 0)
 			(hide yes)
 			(show_name no)
@@ -7155,7 +7155,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "Datasheet" "https://www.lcsc.com/datasheet/C5149201.pdf"
+		(property "Datasheet" "https://cdn-shop.adafruit.com/product-files/2686/SK6812MINI_REV.01-1-2.pdf"
 			(at 162.56 140.97 0)
 			(hide yes)
 			(show_name no)
@@ -7173,7 +7173,7 @@
 				(font (size 1.27 1.27))
 			)
 		)
-		(property "LCSC" "C5149201"
+		(property "LCSC" "C5183448"
 			(at 162.56 140.97 0)
 			(hide yes)
 			(show_name no)
@@ -7203,10 +7203,14 @@
 			)
 		)
 	)
+	(no_connect
+		(at 170.18 140.97)
+		(uuid "8f8f6548-191c-5007-a435-376b83ba96e9")
+	)
 	(wire
 		(pts (xy 162.56 148.59) (xy 162.56 151.13))
 		(stroke (width 0) (type default))
-		(uuid "81eb009d-1f31-5890-8bf7-f3ffbb534d30")
+		(uuid "6cc7a592-594c-5ae8-b732-96c2ceee983e")
 	)
 	(symbol
 		(lib_id "power:GND")
@@ -7278,7 +7282,7 @@
 	(wire
 		(pts (xy 154.94 140.97) (xy 152.4 140.97))
 		(stroke (width 0) (type default))
-		(uuid "6cc7a592-594c-5ae8-b732-96c2ceee983e")
+		(uuid "844be670-a0e3-5139-87cd-ad940db14f30")
 	)
 	(label "RGB_DIN"
 		(at 152.4 140.97 180)
@@ -7286,12 +7290,12 @@
 			(font (size 1.27 1.27))
 			(justify right bottom)
 		)
-		(uuid "f8fc66ef-d90c-5fcf-8422-7775eb675ae6")
+		(uuid "c271775f-dc69-533a-80d2-3c0fdff17035")
 	)
 	(wire
 		(pts (xy 162.56 133.35) (xy 162.56 130.81))
 		(stroke (width 0) (type default))
-		(uuid "40b9c79b-0135-5fa0-be37-37e624f9a086")
+		(uuid "87ea6848-171c-5569-9b20-b590ca2873af")
 	)
 	(symbol
 		(lib_id "power:+3V3")
@@ -7359,10 +7363,6 @@
 				)
 			)
 		)
-	)
-	(no_connect
-		(at 170.18 140.97)
-		(uuid "672d577a-8a91-525d-9505-d44295c54c96")
 	)
 	(symbol
 		(lib_id "Device:C")
@@ -7590,7 +7590,7 @@
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 187.96 133.35 0)
+		(at 185.42 133.35 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7600,7 +7600,7 @@
 		(dnp no)
 		(uuid "68d2f4f9-e6a1-587e-9224-7102c27f3daf")
 		(property "Reference" "TP25"
-			(at 187.96 126.49 0)
+			(at 185.42 126.49 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7608,7 +7608,7 @@
 			)
 		)
 		(property "Value" "LINK_M2I"
-			(at 187.96 128.27 0)
+			(at 185.42 128.27 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7616,7 +7616,7 @@
 			)
 		)
 		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
-			(at 187.96 133.35 0)
+			(at 185.42 133.35 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7625,7 +7625,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 187.96 133.35 0)
+			(at 185.42 133.35 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7634,7 +7634,7 @@
 			)
 		)
 		(property "Description" "test point"
-			(at 187.96 133.35 0)
+			(at 185.42 133.35 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7655,13 +7655,13 @@
 		)
 	)
 	(wire
-		(pts (xy 187.96 133.35) (xy 187.96 135.89))
+		(pts (xy 185.42 133.35) (xy 185.42 135.89))
 		(stroke (width 0) (type default))
 		(uuid "ebe149a4-4ad3-5eee-affb-4efab5de40b0")
 	)
 	(global_label "LINK_M2I"
 		(shape passive)
-		(at 187.96 135.89 270)
+		(at 185.42 135.89 270)
 		(fields_autoplaced yes)
 		(effects
 			(font (size 1 1))
@@ -7669,7 +7669,7 @@
 		)
 		(uuid "63f125d2-6f39-5edb-8a1d-8a5bd1cfa3cc")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 187.96 135.89 0)
+			(at 185.42 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7680,7 +7680,7 @@
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 200.66 133.35 0)
+		(at 198.12 133.35 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7690,7 +7690,7 @@
 		(dnp no)
 		(uuid "a56ab05b-6acb-5746-892c-80ef1d60e30e")
 		(property "Reference" "TP26"
-			(at 200.66 126.49 0)
+			(at 198.12 126.49 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7698,7 +7698,7 @@
 			)
 		)
 		(property "Value" "LINK_I2M"
-			(at 200.66 128.27 0)
+			(at 198.12 128.27 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7706,7 +7706,7 @@
 			)
 		)
 		(property "Footprint" "TestPoint:TestPoint_Pad_D1.5mm"
-			(at 200.66 133.35 0)
+			(at 198.12 133.35 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7715,7 +7715,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 200.66 133.35 0)
+			(at 198.12 133.35 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7724,7 +7724,7 @@
 			)
 		)
 		(property "Description" "test point"
-			(at 200.66 133.35 0)
+			(at 198.12 133.35 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7745,13 +7745,13 @@
 		)
 	)
 	(wire
-		(pts (xy 200.66 133.35) (xy 200.66 135.89))
+		(pts (xy 198.12 133.35) (xy 198.12 135.89))
 		(stroke (width 0) (type default))
 		(uuid "9748e669-434a-5f14-a1a8-ec7333e3e872")
 	)
 	(global_label "LINK_I2M"
 		(shape passive)
-		(at 200.66 135.89 270)
+		(at 198.12 135.89 270)
 		(fields_autoplaced yes)
 		(effects
 			(font (size 1 1))
@@ -7759,7 +7759,7 @@
 		)
 		(uuid "6c303f48-c166-5fb1-8b41-0c535dfee17d")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 200.66 135.89 0)
+			(at 198.12 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7770,7 +7770,7 @@
 	)
 	(text "Link UART: main TX (GPIO23) to io RX (GPIO23),\nio TX (GPIO26) to main RX (GPIO26)."
 		(exclude_from_sim no)
-		(at 182.88 152.4 0)
+		(at 180.34 152.4 0)
 		(effects
 			(font (size 1.27 1.27))
 			(justify left top)
@@ -7779,7 +7779,7 @@
 	)
 	(rectangle
 		(start 109.22 114.3)
-		(end 231.12 191.42)
+		(end 228.58 191.42)
 		(stroke (width 0.15) (type dash))
 		(fill (type none))
 		(uuid "0fd5521e-147c-5df3-9113-9322552baa40")
@@ -7795,7 +7795,7 @@
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole_Pad")
-		(at 248.92 130.81 0)
+		(at 246.38 130.81 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7805,7 +7805,7 @@
 		(dnp no)
 		(uuid "a233bde0-9e7c-5ba8-9fde-9d7b3c71d418")
 		(property "Reference" "H2"
-			(at 248.92 124.46 0)
+			(at 246.38 124.46 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7813,7 +7813,7 @@
 			)
 		)
 		(property "Value" "TFT standoff"
-			(at 248.92 126.36 0)
+			(at 246.38 126.36 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7821,7 +7821,7 @@
 			)
 		)
 		(property "Footprint" "OfficeDeskSetup:SCREW-SMD_BD5.6-D4.1-H10"
-			(at 248.92 130.81 0)
+			(at 246.38 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7830,7 +7830,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 248.92 130.81 0)
+			(at 246.38 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7839,7 +7839,7 @@
 			)
 		)
 		(property "Description" "Mounting Hole with connection"
-			(at 248.92 130.81 0)
+			(at 246.38 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7848,7 +7848,7 @@
 			)
 		)
 		(property "LCSC" "C2916370"
-			(at 248.92 130.81 0)
+			(at 246.38 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7869,13 +7869,13 @@
 		)
 	)
 	(wire
-		(pts (xy 248.92 133.35) (xy 248.92 135.89))
+		(pts (xy 246.38 133.35) (xy 246.38 135.89))
 		(stroke (width 0) (type default))
 		(uuid "4b6f8a2d-8996-58ce-82c4-f5a98357686e")
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 248.92 135.89 0)
+		(at 246.38 135.89 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7885,7 +7885,7 @@
 		(dnp no)
 		(uuid "efdc5abe-f099-5bc2-abda-6717598e2af4")
 		(property "Reference" "#PWR180"
-			(at 248.92 135.89 0)
+			(at 246.38 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7894,7 +7894,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 248.92 139.69 0)
+			(at 246.38 139.69 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7902,7 +7902,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 248.92 135.89 0)
+			(at 246.38 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7911,7 +7911,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 248.92 135.89 0)
+			(at 246.38 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7920,7 +7920,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 248.92 135.89 0)
+			(at 246.38 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7942,7 +7942,7 @@
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole_Pad")
-		(at 266.7 130.81 0)
+		(at 264.16 130.81 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -7952,7 +7952,7 @@
 		(dnp no)
 		(uuid "99470c57-e43d-59c4-9126-f7abd78e2fb6")
 		(property "Reference" "H3"
-			(at 266.7 124.46 0)
+			(at 264.16 124.46 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7960,7 +7960,7 @@
 			)
 		)
 		(property "Value" "TFT standoff"
-			(at 266.7 126.36 0)
+			(at 264.16 126.36 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -7968,7 +7968,7 @@
 			)
 		)
 		(property "Footprint" "OfficeDeskSetup:SCREW-SMD_BD5.6-D4.1-H10"
-			(at 266.7 130.81 0)
+			(at 264.16 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7977,7 +7977,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 266.7 130.81 0)
+			(at 264.16 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7986,7 +7986,7 @@
 			)
 		)
 		(property "Description" "Mounting Hole with connection"
-			(at 266.7 130.81 0)
+			(at 264.16 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -7995,7 +7995,7 @@
 			)
 		)
 		(property "LCSC" "C2916370"
-			(at 266.7 130.81 0)
+			(at 264.16 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8016,13 +8016,13 @@
 		)
 	)
 	(wire
-		(pts (xy 266.7 133.35) (xy 266.7 135.89))
+		(pts (xy 264.16 133.35) (xy 264.16 135.89))
 		(stroke (width 0) (type default))
 		(uuid "113d0844-0f9c-5311-9864-13506b90f6dd")
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 266.7 135.89 0)
+		(at 264.16 135.89 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -8032,7 +8032,7 @@
 		(dnp no)
 		(uuid "e138174c-196e-5c7c-a911-2cb66512a00f")
 		(property "Reference" "#PWR181"
-			(at 266.7 135.89 0)
+			(at 264.16 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8041,7 +8041,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 266.7 139.69 0)
+			(at 264.16 139.69 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8049,7 +8049,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 266.7 135.89 0)
+			(at 264.16 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8058,7 +8058,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 266.7 135.89 0)
+			(at 264.16 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8067,7 +8067,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 266.7 135.89 0)
+			(at 264.16 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8089,7 +8089,7 @@
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole_Pad")
-		(at 284.48 130.81 0)
+		(at 281.94 130.81 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -8099,7 +8099,7 @@
 		(dnp no)
 		(uuid "020eb43b-f6f6-51a5-aac6-bda30d99000c")
 		(property "Reference" "H4"
-			(at 284.48 124.46 0)
+			(at 281.94 124.46 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8107,7 +8107,7 @@
 			)
 		)
 		(property "Value" "TFT standoff"
-			(at 284.48 126.36 0)
+			(at 281.94 126.36 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8115,7 +8115,7 @@
 			)
 		)
 		(property "Footprint" "OfficeDeskSetup:SCREW-SMD_BD5.6-D4.1-H10"
-			(at 284.48 130.81 0)
+			(at 281.94 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8124,7 +8124,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 284.48 130.81 0)
+			(at 281.94 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8133,7 +8133,7 @@
 			)
 		)
 		(property "Description" "Mounting Hole with connection"
-			(at 284.48 130.81 0)
+			(at 281.94 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8142,7 +8142,7 @@
 			)
 		)
 		(property "LCSC" "C2916370"
-			(at 284.48 130.81 0)
+			(at 281.94 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8163,13 +8163,13 @@
 		)
 	)
 	(wire
-		(pts (xy 284.48 133.35) (xy 284.48 135.89))
+		(pts (xy 281.94 133.35) (xy 281.94 135.89))
 		(stroke (width 0) (type default))
 		(uuid "069861d1-1502-5f32-bee0-776c72e231b3")
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 284.48 135.89 0)
+		(at 281.94 135.89 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -8179,7 +8179,7 @@
 		(dnp no)
 		(uuid "365841e0-532c-5afb-a9e5-f75801baffc6")
 		(property "Reference" "#PWR182"
-			(at 284.48 135.89 0)
+			(at 281.94 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8188,7 +8188,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 284.48 139.69 0)
+			(at 281.94 139.69 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8196,7 +8196,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 284.48 135.89 0)
+			(at 281.94 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8205,7 +8205,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 284.48 135.89 0)
+			(at 281.94 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8214,7 +8214,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 284.48 135.89 0)
+			(at 281.94 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8236,7 +8236,7 @@
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole_Pad")
-		(at 302.26 130.81 0)
+		(at 299.72 130.81 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -8246,7 +8246,7 @@
 		(dnp no)
 		(uuid "1ade66ce-8612-5d72-a925-845b67050181")
 		(property "Reference" "H5"
-			(at 302.26 124.46 0)
+			(at 299.72 124.46 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8254,7 +8254,7 @@
 			)
 		)
 		(property "Value" "TFT standoff"
-			(at 302.26 126.36 0)
+			(at 299.72 126.36 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8262,7 +8262,7 @@
 			)
 		)
 		(property "Footprint" "OfficeDeskSetup:SCREW-SMD_BD5.6-D4.1-H10"
-			(at 302.26 130.81 0)
+			(at 299.72 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8271,7 +8271,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 302.26 130.81 0)
+			(at 299.72 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8280,7 +8280,7 @@
 			)
 		)
 		(property "Description" "Mounting Hole with connection"
-			(at 302.26 130.81 0)
+			(at 299.72 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8289,7 +8289,7 @@
 			)
 		)
 		(property "LCSC" "C2916370"
-			(at 302.26 130.81 0)
+			(at 299.72 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8310,13 +8310,13 @@
 		)
 	)
 	(wire
-		(pts (xy 302.26 133.35) (xy 302.26 135.89))
+		(pts (xy 299.72 133.35) (xy 299.72 135.89))
 		(stroke (width 0) (type default))
 		(uuid "7d2b5ef0-95a1-5b2b-82e5-88a666e80562")
 	)
 	(symbol
 		(lib_id "power:GND")
-		(at 302.26 135.89 0)
+		(at 299.72 135.89 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -8326,7 +8326,7 @@
 		(dnp no)
 		(uuid "fa138052-a04e-5d29-a455-03cbaea3d9bd")
 		(property "Reference" "#PWR183"
-			(at 302.26 135.89 0)
+			(at 299.72 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8335,7 +8335,7 @@
 			)
 		)
 		(property "Value" "GND"
-			(at 302.26 139.69 0)
+			(at 299.72 139.69 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8343,7 +8343,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 302.26 135.89 0)
+			(at 299.72 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8352,7 +8352,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 302.26 135.89 0)
+			(at 299.72 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8361,7 +8361,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 302.26 135.89 0)
+			(at 299.72 135.89 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8382,15 +8382,15 @@
 		)
 	)
 	(rectangle
-		(start 238.76 114.3)
-		(end 334.06 146.05)
+		(start 236.22 114.3)
+		(end 331.52 146.05)
 		(stroke (width 0.15) (type dash))
 		(fill (type none))
 		(uuid "ec332d3c-d712-5245-9247-961887b0dbb1")
 	)
 	(text "TFT standoffs: M3 x 10 SMD, at the module holes"
 		(exclude_from_sim no)
-		(at 240.03 115.57 0)
+		(at 237.49 115.57 0)
 		(effects
 			(font (size 2 2) (bold yes))
 			(justify left top)
@@ -8399,7 +8399,7 @@
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole")
-		(at 347.98 130.81 0)
+		(at 345.44 130.81 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -8409,7 +8409,7 @@
 		(dnp no)
 		(uuid "4ec104b9-9ad1-54e3-b216-eba03c6d5a0f")
 		(property "Reference" "H6"
-			(at 347.98 125.73 0)
+			(at 345.44 125.73 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8417,7 +8417,7 @@
 			)
 		)
 		(property "Value" "M3"
-			(at 347.98 127.64 0)
+			(at 345.44 127.64 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8425,7 +8425,7 @@
 			)
 		)
 		(property "Footprint" "MountingHole:MountingHole_3.2mm_M3"
-			(at 347.98 130.81 0)
+			(at 345.44 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8434,7 +8434,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 347.98 130.81 0)
+			(at 345.44 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8443,7 +8443,7 @@
 			)
 		)
 		(property "Description" "Mounting Hole without connection"
-			(at 347.98 130.81 0)
+			(at 345.44 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8462,7 +8462,7 @@
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole")
-		(at 355.6 130.81 0)
+		(at 353.06 130.81 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -8472,7 +8472,7 @@
 		(dnp no)
 		(uuid "b8c772e0-4350-5680-9d97-0cdc9a6d3adb")
 		(property "Reference" "H7"
-			(at 355.6 125.73 0)
+			(at 353.06 125.73 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8480,7 +8480,7 @@
 			)
 		)
 		(property "Value" "M3"
-			(at 355.6 127.64 0)
+			(at 353.06 127.64 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8488,7 +8488,7 @@
 			)
 		)
 		(property "Footprint" "MountingHole:MountingHole_3.2mm_M3"
-			(at 355.6 130.81 0)
+			(at 353.06 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8497,7 +8497,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 355.6 130.81 0)
+			(at 353.06 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8506,7 +8506,7 @@
 			)
 		)
 		(property "Description" "Mounting Hole without connection"
-			(at 355.6 130.81 0)
+			(at 353.06 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8525,7 +8525,7 @@
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole")
-		(at 363.22 130.81 0)
+		(at 360.68 130.81 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -8535,7 +8535,7 @@
 		(dnp no)
 		(uuid "2d6d1919-acda-57f8-9097-f5589e7bdae6")
 		(property "Reference" "H8"
-			(at 363.22 125.73 0)
+			(at 360.68 125.73 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8543,7 +8543,7 @@
 			)
 		)
 		(property "Value" "M3"
-			(at 363.22 127.64 0)
+			(at 360.68 127.64 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8551,7 +8551,7 @@
 			)
 		)
 		(property "Footprint" "MountingHole:MountingHole_3.2mm_M3"
-			(at 363.22 130.81 0)
+			(at 360.68 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8560,7 +8560,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 363.22 130.81 0)
+			(at 360.68 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8569,7 +8569,7 @@
 			)
 		)
 		(property "Description" "Mounting Hole without connection"
-			(at 363.22 130.81 0)
+			(at 360.68 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8588,7 +8588,7 @@
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole")
-		(at 375.92 130.81 0)
+		(at 373.38 130.81 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -8598,7 +8598,7 @@
 		(dnp no)
 		(uuid "b27c2259-4907-5d47-9bde-e81fd1da5d8b")
 		(property "Reference" "H9"
-			(at 375.92 125.73 0)
+			(at 373.38 125.73 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8606,7 +8606,7 @@
 			)
 		)
 		(property "Value" "M3"
-			(at 375.92 127.64 0)
+			(at 373.38 127.64 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8614,7 +8614,7 @@
 			)
 		)
 		(property "Footprint" "MountingHole:MountingHole_3.2mm_M3"
-			(at 375.92 130.81 0)
+			(at 373.38 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8623,7 +8623,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 375.92 130.81 0)
+			(at 373.38 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8632,7 +8632,7 @@
 			)
 		)
 		(property "Description" "Mounting Hole without connection"
-			(at 375.92 130.81 0)
+			(at 373.38 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8651,7 +8651,7 @@
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole")
-		(at 383.54 130.81 0)
+		(at 381 130.81 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -8661,7 +8661,7 @@
 		(dnp no)
 		(uuid "4cf1ae2e-707a-574e-9e43-8f5d08fa518c")
 		(property "Reference" "H10"
-			(at 383.54 125.73 0)
+			(at 381 125.73 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8669,7 +8669,7 @@
 			)
 		)
 		(property "Value" "M3"
-			(at 383.54 127.64 0)
+			(at 381 127.64 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8677,7 +8677,7 @@
 			)
 		)
 		(property "Footprint" "MountingHole:MountingHole_3.2mm_M3"
-			(at 383.54 130.81 0)
+			(at 381 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8686,7 +8686,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 383.54 130.81 0)
+			(at 381 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8695,7 +8695,7 @@
 			)
 		)
 		(property "Description" "Mounting Hole without connection"
-			(at 383.54 130.81 0)
+			(at 381 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8714,7 +8714,7 @@
 	)
 	(symbol
 		(lib_id "Mechanical:MountingHole")
-		(at 391.16 130.81 0)
+		(at 388.62 130.81 0)
 		(unit 1)
 		(body_style 1)
 		(exclude_from_sim no)
@@ -8724,7 +8724,7 @@
 		(dnp no)
 		(uuid "14e03d45-90a4-5989-b371-3be90d53653b")
 		(property "Reference" "H11"
-			(at 391.16 125.73 0)
+			(at 388.62 125.73 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8732,7 +8732,7 @@
 			)
 		)
 		(property "Value" "M3"
-			(at 391.16 127.64 0)
+			(at 388.62 127.64 0)
 			(show_name no)
 			(do_not_autoplace no)
 			(effects
@@ -8740,7 +8740,7 @@
 			)
 		)
 		(property "Footprint" "MountingHole:MountingHole_3.2mm_M3"
-			(at 391.16 130.81 0)
+			(at 388.62 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8749,7 +8749,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 391.16 130.81 0)
+			(at 388.62 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8758,7 +8758,7 @@
 			)
 		)
 		(property "Description" "Mounting Hole without connection"
-			(at 391.16 130.81 0)
+			(at 388.62 130.81 0)
 			(hide yes)
 			(show_name no)
 			(do_not_autoplace no)
@@ -8776,15 +8776,15 @@
 		)
 	)
 	(rectangle
-		(start 342.9 114.3)
-		(end 398.78 133.35)
+		(start 340.36 114.3)
+		(end 396.24 133.35)
 		(stroke (width 0.15) (type dash))
 		(fill (type none))
 		(uuid "f6ce2f78-c18d-52f8-a976-904f32fdb18a")
 	)
 	(text "Mounting holes (M3)"
 		(exclude_from_sim no)
-		(at 344.17 115.57 0)
+		(at 341.63 115.57 0)
 		(effects
 			(font (size 2 2) (bold yes))
 			(justify left top)
