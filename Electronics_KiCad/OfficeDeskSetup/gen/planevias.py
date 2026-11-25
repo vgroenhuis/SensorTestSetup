@@ -119,6 +119,72 @@ def _track(board, cu, p, x, y, width, layer):
     cu.add(seg, p.GetNetCode(), (layer,))
 
 
+def usbc_bridges(board, d=0.6, drill=0.3, width=0.2, gap=0.5):
+    """The D+/D- bridge of a USB-C receptacle (pads A6 B6 D+, A7 B7 D-, interleaved B6 A7 A6 B7 at 0.5 mm): before
+    any routing, as the user drew it at J1. D-: a via beyond the body-side end of A7 and of B7, joined on the pads'
+    layer. D+: a via beyond the inner end of B6, and one beyond the inner end of B7 reached diagonally from A6,
+    joined on the other outer layer. Escape vias by score never got there: A7/B7 (D-) always took the room first and
+    A6/B6 stayed open in every run. Skipped where one of the four pads already has a locked track. Returns the
+    references done."""
+    done = []
+    ends = track_ends(board)
+    for fp in board.GetFootprints():
+        pads = {n: fp.FindPadByNumber(n) for n in ('A6', 'B6', 'A7', 'B7')}
+        if any(p is None or p.GetNetCode() <= 0 for p in pads.values()):
+            continue
+        if pads['A6'].GetNetCode() != pads['B6'].GetNetCode() or pads['A7'].GetNetCode() != pads['B7'].GetNetCode():
+            continue
+        if any(any(p.HitTest(e) for e in ends.get(p.GetNetCode(), ())) for p in pads.values()):
+            continue
+        layer = pcbnew.F_Cu if pads['A6'].IsOnLayer(pcbnew.F_Cu) else pcbnew.B_Cu
+        other = pcbnew.B_Cu if layer == pcbnew.F_Cu else pcbnew.F_Cu
+        xy = {n: (pcbnew.ToMM(p.GetPosition().x), pcbnew.ToMM(p.GetPosition().y)) for n, p in pads.items()}
+        bb = pads['A6'].GetBoundingBox()
+        w, h = pcbnew.ToMM(bb.GetWidth()), pcbnew.ToMM(bb.GetHeight())
+        half = max(w, h) / 2
+        ox, oy = pcbnew.ToMM(fp.GetPosition().x), pcbnew.ToMM(fp.GetPosition().y)
+        if h >= w:                                      # inward: along the pad, away from the footprint origin
+            u = (0.0, 1.0 if xy['A6'][1] >= oy else -1.0)
+        else:
+            u = (1.0 if xy['A6'][0] >= ox else -1.0, 0.0)
+        at = lambda n, k, dx=(0, 0): (xy[n][0] + dx[0] + u[0] * k, xy[n][1] + dx[1] + u[1] * k)
+        def track(a, b, lay, net):
+            t = pcbnew.PCB_TRACK(board)
+            t.SetStart(pcbnew.VECTOR2I(mm(a[0]), mm(a[1])))
+            t.SetEnd(pcbnew.VECTOR2I(mm(b[0]), mm(b[1])))
+            t.SetWidth(mm(width))
+            t.SetLayer(lay)
+            t.SetNet(net)
+            t.SetLocked(True)
+            board.Add(t)
+        def via(c, net):
+            v = pcbnew.PCB_VIA(board)
+            v.SetViaType(pcbnew.VIATYPE_THROUGH)
+            v.SetPosition(pcbnew.VECTOR2I(mm(c[0]), mm(c[1])))
+            v.SetWidth(mm(d))
+            v.SetDrill(mm(drill))
+            v.SetNet(net)
+            v.SetLocked(True)
+            board.Add(v)
+        dm, dp = pads['A7'].GetNet(), pads['A6'].GetNet()
+        m7, m8 = at('A7', -(half + gap)), at('B7', -(half + gap))          # D-: body side
+        for n, c in (('A7', m7), ('B7', m8)):
+            track(xy[n], c, layer, dm)
+            via(c, dm)
+        track(m7, m8, layer, dm)
+        p6 = at('B6', half + gap)                                          # D+: inner side
+        shift = (xy['B7'][0] - xy['A6'][0], xy['B7'][1] - xy['A6'][1])
+        p7 = at('A6', half + gap + 0.05, shift)
+        track(xy['B6'], p6, layer, dp)
+        via(p6, dp)
+        track(xy['A6'], at('A6', half), layer, dp)
+        track(at('A6', half), p7, layer, dp)
+        via(p7, dp)
+        track(p6, p7, other, dp)
+        done.append(fp.GetReference())
+    return done
+
+
 def track_ends(board):
     """{net code: [ends of its locked tracks]}: a pad with one of these on it already has its track (an escape or
     plane via track, or one drawn by hand: that may end on the pad rather than start there, a few um off centre)."""

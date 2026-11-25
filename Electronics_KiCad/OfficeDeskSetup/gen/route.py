@@ -696,6 +696,9 @@ def prep0(args, pcb):
             t.SetLocked(True)
     else:
         board, refs = bare(pcb)
+    usb = planevias.usbc_bridges(board)
+    if usb:
+        print('USB-C D+/D- bridges: %s' % ' '.join(usb), flush=True)
     if args.stubs:
         power = power_nets(board)
         ns = board.GetDesignSettings().m_NetSettings
