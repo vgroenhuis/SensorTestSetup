@@ -608,7 +608,7 @@ def spread(items, scale=SPREAD, step=0.05):
     mov = [i for i, it in enumerate(items) if it.get('move')]
     cent = {}
     for b in set(blk[mov].tolist()):
-        bs = B0[[i for i in mov if blk[i] == b and kind[i] == PART]]
+        bs = B0[[i for i in range(n) if blk[i] == b and kind[i] == PART]]     # (a kept block: its fixed parts)
         cent[b] = ((bs[:, 0].min() + bs[:, 2].max()) / 2, (bs[:, 1].min() + bs[:, 3].max()) / 2)
     c0 = np.column_stack(((B0[:, 0] + B0[:, 2]) / 2, (B0[:, 1] + B0[:, 3]) / 2))
     order = sorted(mov, key=lambda i: -math.hypot(c0[i, 0] - cent[blk[i]][0], c0[i, 1] - cent[blk[i]][1]))
@@ -1208,7 +1208,21 @@ def main():
     ap.add_argument('--footprints', default='C:/Program Files/KiCad/10.0/share/kicad/footprints')
     ap.add_argument('--fp-espressif', default='')
     ap.add_argument('--out', default=os.path.join(HERE, PROJECT + '.kicad_pcb'))
+    ap.add_argument('--keep', default='', help='a board with routing work on it: every block with tracks or vias on '
+                    'its pads there, whose parts all match it (reference, value, footprint), keeps their positions, '
+                    'so that work still fits')
     args = ap.parse_args()
+    kept, routed = {}, set()
+    if args.keep:
+        kb = pcbnew.LoadBoard(args.keep)
+        ends = []
+        for t in kb.GetTracks():
+            ends += [(t.GetNetCode(), t.GetPosition())] if t.Type() == pcbnew.PCB_VIA_T else                     [(t.GetNetCode(), t.GetStart()), (t.GetNetCode(), t.GetEnd())]
+        for f in kb.GetFootprints():
+            kept[f.GetReference()] = (f.GetValue(), f.GetFPIDAsString(), f.GetPosition(), f.GetOrientationDegrees(),
+                                      f.IsFlipped())
+            if any(p.GetNetCode() == c and p.HitTest(e) for p in f.Pads() for c, e in ends):
+                routed.add(f.GetReference())
     FP_STD = args.footprints
     esp_fp = args.fp_espressif or os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(args.espressif))), 'footprints',
                                                os.path.basename(os.path.dirname(args.espressif)), 'Espressif.pretty')
@@ -1438,14 +1452,31 @@ def main():
                  if not str(k).startswith('BANK ')} | servo_rows
     def area(ms):
         return sum((b[2] - b[0] + 1) * (b[3] - b[1] + 1) for b in (box(m) for m in ms if m.GetReference() not in placed))
-    def order(kv):                         # the FIRST blocks in that order (tied to their edge parts), then large first
-        hit = [i for i, f in enumerate(FIRST) if kv[0].startswith(f)]
-        return (hit[0] if hit else len(FIRST), -area(kv[1]))
-    groups = []
+    def unchanged(ms):                     # every part as on the --keep board
+        free = [m for m in ms if m.GetReference() not in placed and m.GetReference() not in ties]
+        old = [kept.get(m.GetReference()) for m in free]
+        return bool(kept) and bool(free) and any(m.GetReference() in routed for m in free) and all(o and o[0] == m.GetValue() and o[1] == m.GetFPIDAsString() and
+                                                 o[4] == m.IsFlipped() for o, m in zip(old, free))
+    def order(kv):                         # kept blocks; the FIRST blocks in that order (tied to their edge parts), then
+        hit = [i for i, f in enumerate(FIRST) if kv[0].startswith(f)]      # large first
+        return (not unchanged(kv[1]), hit[0] if hit else len(FIRST), -area(kv[1]))
+    groups, keep_blocks = [], []
     for title, ms in sorted(blocks.items(), key=order):
         r, name = region(title)
         free = [m for m in ms if m.GetReference() not in placed and m.GetReference() not in ties]
-        if free:
+        if free and unchanged(ms):         # back to where it was on the kept board
+            keep_blocks.append(title)
+            for m in free:
+                if m.GetReference().startswith('J'):
+                    pin_labels(m)
+                o = kept[m.GetReference()]
+                m.SetOrientationDegrees(o[3])
+                m.SetPosition(o[2])
+            bs = [box(m) for m in free]
+            grid.mark(min(q[0] for q in bs) - BLOCK_GAP / 2, min(q[1] for q in bs) - BLOCK_GAP / 2,
+                      max(q[2] for q in bs) + BLOCK_GAP / 2, max(q[3] for q in bs) + BLOCK_GAP / 2)
+            cut = []
+        elif free:
             for m in free:
                 if m.GetReference().startswith('J'):
                     pin_labels(m)
@@ -1492,8 +1523,9 @@ def main():
     gi = {gr['title']: k for k, gr in enumerate(groups)}
     for k, gr in enumerate(groups):
         unc = gr['title'].startswith(UNCOVERED)
+        fix = gr['title'] in keep_blocks
         for m in gr['free']:
-            items.append({'box': box(m), 'block': k, 'kind': PART, 'gap': gap(m), 'move': True, 'mod': m,
+            items.append({'box': box(m), 'block': k, 'kind': PART, 'gap': gap(m), 'move': not fix, 'mod': m,
                           'cut': m.GetReference() in gr['cut'], 'uncovered': unc})
         items.append({'box': gr['name_box'], 'block': k, 'kind': NAME, 'move': True, 'group': gr})
     for ref in placed:
@@ -1507,6 +1539,14 @@ def main():
         else:
             items.append({'box': box(m), 'block': gi.get(block_of.get(ref), -1), 'kind': PART, 'gap': gap(m)})
     items.append({'box': tft_area, 'block': -1, 'kind': KEEPOUT})
+    if kept:
+        print('kept from %s: %d of %d blocks' % (args.keep, len(keep_blocks), len(groups)))
+        print('  moved again: ' + '; '.join(gr['title'][:30] for gr in groups if gr['title'] not in keep_blocks))
+        pb = [(it['box'], it['mod'].GetReference(), it['block']) for it in items if it['kind'] == PART and it.get('mod')]
+        for i, (a, ra, ka) in enumerate(pb):   # a kept block on top of a part placed anew: say so
+            for b, rb, kb in pb[i + 1:]:
+                if ka != kb and min(a[2], b[2]) - max(a[0], b[0]) > 0 and min(a[3], b[3]) - max(a[1], b[1]) > 0:
+                    problems.append('kept placement: %s and %s overlap' % (ra, rb))
     for it, (dx, dy) in zip(items, spread(items)):
         if it.get('mod') is not None and (dx or dy):
             it['mod'].Move(V(dx, dy))
