@@ -1096,6 +1096,72 @@ def silk(parent, text, x, y, size=0.8, angle=0, justify=0, layer=None):
     return t
 
 
+CREDITS_FRONT = 'Claude & Vincent  rev %s' % design.REV
+CREDITS_BACK = ['SensorTestSetup PCB rev %s, %s' % (design.REV, design.DATE), 'Vincent Groenhuis, RaM, University of Twente',
+                'layout and routing: Claude Opus 5.5']
+THT_CLEAR = 2.0                 # back-side text stays this far from through-hole parts (their pins and solder fillets)
+
+
+def credit_grid(board, back, tft_area=None):
+    """What one silkscreen side has taken (Grid): parts on that side and through-hole parts (on the back with
+    THT_CLEAR around the whole part), that side's silkscreen drawings and texts, on the front the TFT area."""
+    grid = Grid()
+    layer = pcbnew.B_SilkS if back else pcbnew.F_SilkS
+    for m in board.GetFootprints():
+        tht = any(p.GetAttribute() == pcbnew.PAD_ATTRIB_PTH for p in m.Pads())
+        if not tht and m.IsFlipped() != back:
+            continue
+        x0, y0, x1, y1 = box(m)
+        g = THT_CLEAR if (back and tht) else 0.5
+        grid.mark(x0 - g, y0 - g, x1 + g, y1 + g)
+    for d in board.GetDrawings():
+        if d.GetLayer() == layer:
+            x0, y0, x1, y1 = bbox_mm(d.GetBoundingBox())
+            grid.mark(x0 - 0.5, y0 - 0.5, x1 + 0.5, y1 + 0.5)
+    if tft_area and not back:
+        grid.mark(*tft_area)
+    return grid
+
+
+def place_credits(board, tft_area=None):
+    """'Claude & Vincent' and the revision upright (along y) on the front, as near the middle of the board as there is
+    room; the credits block on the back, clear of the through-hole parts. Returns problems."""
+    problems = []
+    front = credit_grid(board, False, tft_area)
+    for size in (2.0, 1.8, 1.6, 1.4, 1.2):
+        t = silk(board, CREDITS_FRONT, 0, 0, size=size, angle=90)
+        x0, y0, x1, y1 = bbox_mm(t.GetBoundingBox())
+        spot = front.near(x1 - x0 + 1, y1 - y0 + 1, (W / 2, H / 2))
+        if spot:
+            t.SetPosition(V(spot[0] + (x1 - x0 + 1) / 2, spot[1] + (y1 - y0 + 1) / 2))
+            break
+        board.Delete(t)
+    else:
+        problems.append('no room on the front for "%s"' % CREDITS_FRONT)
+    back = credit_grid(board, True)
+    texts = [silk(board, line, 0, 3 * i, size=1.2 if i == 0 else 1.0, layer=pcbnew.B_SilkS) for i, line in enumerate(CREDITS_BACK)]
+    for t in texts:
+        t.SetMirrored(True)
+    bbs = [bbox_mm(t.GetBoundingBox()) for t in texts]
+    x0, y0 = min(b[0] for b in bbs), min(b[1] for b in bbs)
+    w, h = max(b[2] for b in bbs) - x0 + 1, max(b[3] for b in bbs) - y0 + 1
+    spot = back.near(w, h, (W / 2, H - 30))
+    if spot:
+        for i, t in enumerate(texts):
+            t.SetPosition(V(spot[0] + w / 2, spot[1] + 0.5 + (bbs[i][1] - y0) + (bbs[i][3] - bbs[i][1]) / 2))
+    else:
+        for t in texts:
+            board.Delete(t)
+        problems.append('no room on the back for the credits')
+    return problems
+
+
+def remove_credits(board):
+    for d in list(board.GetDrawings()):
+        if isinstance(d, pcbnew.PCB_TEXT) and d.GetText() in [CREDITS_FRONT] + CREDITS_BACK:
+            board.Delete(d)
+
+
 def short(net):
     n = net.split('/')[-1].replace('_CONN', '').lstrip('+')
     for suffix in ('_5V', '_H'):
@@ -1639,16 +1705,7 @@ def main():
     t.SetPosition(V((tft_area[0] + tft_area[2]) / 2, tft_area[1] + 2))
     t.SetLayer(pcbnew.Dwgs_User)
     board.Add(t)
-    credits = ['SensorTestSetup PCB rev %s, %s' % (design.REV, design.DATE), 'Vincent Groenhuis, RaM, University of Twente',
-               'layout and routing: Claude Opus 5.5']
-    spot = grid.near(50, 10, (W / 2, H - 30))
-    if spot:
-        for i, line in enumerate(credits):
-            silk(board, line, spot[0] + 1, spot[1] + 1.5 + 3 * i, size=1.2 if i == 0 else 1.0, justify=1)
-    else:
-        for i, line in enumerate(credits):
-            silk(board, line, W / 2, H - 20 + 3 * i, size=1.5, layer=pcbnew.B_SilkS).SetMirrored(True)
-        problems.append('credits on the back: no room on the front')
+    problems += place_credits(board, tft_area)
 
     # inner planes
     board.GetDesignSettings().m_TrackMinWidth = mm(MIN_TRACK)

@@ -126167,38 +126167,49 @@
 			)
 		)
 	)
-	(gr_text "SensorTestSetup PCB rev 0.2, 2026-11-20"
-		(at 110 130 0)
-		(layer "B.SilkS")
-		(uuid "91f59034-7336-47c0-8474-ac26570d6ce0")
+	(gr_text "Claude & Vincent  rev 0.2"
+		(at 103.6965 65.940478 90)
+		(layer "F.SilkS")
+		(uuid "e3eef7da-85dc-4a90-ba7e-eae7c77d0074")
 		(effects
 			(font
-				(size 1.5 1.5)
-				(thickness 0.224999)
+				(size 2 2)
+				(thickness 0.3)
 			)
-			(justify mirror)
 		)
 	)
 	(gr_text "Vincent Groenhuis, RaM, University of Twente"
-		(at 110 133 0)
+		(at 106.735713 120.0179 0)
 		(layer "B.SilkS")
-		(uuid "d1c696da-63bc-42f6-b734-03bf60ad2f33")
+		(uuid "fd12e622-e607-4cd1-9be4-27e0faa26b6a")
 		(effects
 			(font
-				(size 1.5 1.5)
-				(thickness 0.224999)
+				(size 1 1)
+				(thickness 0.15)
 			)
 			(justify mirror)
 		)
 	)
 	(gr_text "layout and routing: Claude Opus 5.5"
-		(at 110 136 0)
+		(at 106.735713 123.0179 0)
 		(layer "B.SilkS")
-		(uuid "6c807b62-f453-4dad-b2f4-b6ce38fb8e13")
+		(uuid "05d883fc-451f-436a-acf0-f4ac7343748b")
 		(effects
 			(font
-				(size 1.5 1.5)
-				(thickness 0.224999)
+				(size 1 1)
+				(thickness 0.15)
+			)
+			(justify mirror)
+		)
+	)
+	(gr_text "SensorTestSetup PCB rev 0.2, 2026-11-20"
+		(at 106.735713 117.0179 0)
+		(layer "B.SilkS")
+		(uuid "200de2a0-85cd-44c6-befd-79eecbccc05a")
+		(effects
+			(font
+				(size 1.2 1.2)
+				(thickness 0.18)
 			)
 			(justify mirror)
 		)
