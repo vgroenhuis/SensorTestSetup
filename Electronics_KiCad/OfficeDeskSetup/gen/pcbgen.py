@@ -1198,6 +1198,8 @@ def part_label(m, value, fpname):
             if re.match(pattern, v):
                 return label
         return v
+    if prefix == 'E':                             # touch pads TOUCH0, TOUCH1: T0, T1 beside the circle
+        return 'T' + value[len('TOUCH'):]
     if prefix in ('J', 'SW', 'JP'):
         return value
     if prefix == 'BZ':
@@ -1206,15 +1208,63 @@ def part_label(m, value, fpname):
 
 
 def label_part(m, text):
-    """Label at the footprint's value position (below the body), before the part is placed (orientation 0)."""
+    """Label at the footprint's value position (below the body), before the part is placed (orientation 0). A touch
+    pad's value sits off the front edge: its label (T0, T1) goes at the bottom right, outside the silkscreen circle."""
     v = m.Value().GetPosition()
-    size = 1.0 if m.GetPadCount() > 3 or re.match(r'(J|SW|U|RV)\d', m.GetReference()) else 0.8
-    silk(m, text, pcbnew.ToMM(v.x), pcbnew.ToMM(v.y) + 0.2, size=size)
+    size = 1.0 if m.GetPadCount() > 3 or re.match(r'(J|SW|U|RV|E)\d', m.GetReference()) else 0.8
+    x, y = pcbnew.ToMM(v.x), pcbnew.ToMM(v.y) + 0.2
+    circle = [g for g in m.GraphicalItems() if isinstance(g, pcbnew.PCB_SHAPE) and g.GetLayer() == pcbnew.F_SilkS
+              and g.GetShape() == pcbnew.SHAPE_T_CIRCLE]
+    if m.GetReference().startswith('E') and circle:
+        cx, cy = pcbnew.ToMM(circle[0].GetCenter().x), pcbnew.ToMM(circle[0].GetCenter().y)
+        r = pcbnew.ToMM(circle[0].GetRadius()) + pcbnew.ToMM(circle[0].GetWidth()) / 2
+        y = cy + r - size / 2 - 0.1                    # the text's bottom on the circle's lowest line
+        t = silk(m, text, 0, 0, size=size)
+        w = pcbnew.ToMM(t.GetBoundingBox().GetWidth())
+        t.SetPosition(V(cx + math.sqrt(r * r - (y - size / 2 - cy) ** 2) + 0.3 + w / 2, y))
+        return
+    silk(m, text, x, y, size=size)
 
 
-def pin_labels(m, side=None):
+def label_tft(m):
+    """The TFT socket's pin names to its right, outside the module's area (visible with the module on), short as on
+    the module: GND 3V3 SCLK MOSI RES DC CS BLK. Moved 1.2 mm further out, past the TFT area's block outline."""
+    before = {t.m_Uuid.AsString() for t in m.GraphicalItems()}
+    pin_labels(m, (1, 0), strip=('SPI_', 'TFT_'))
+    for t in m.GraphicalItems():
+        if t.m_Uuid.AsString() not in before:
+            t.Move(V(1.2, 0))
+
+
+def label_unlabelled(board, prefixes=('E',)):
+    """Labels for parts of these kinds (reference prefix) that have none yet, on a board made before they got one
+    (the touch pads); unrotated front parts only. Returns the references labelled."""
+    done = []
+    for m in board.GetFootprints():
+        if re.match(r'[A-Z]+', m.GetReference()).group() not in prefixes:
+            continue
+        fpname = str(m.GetFPID().GetUniStringLibItemName())
+        text = part_label(m, m.GetValue(), fpname)
+        if not text or m.IsFlipped() or m.GetOrientationDegrees() != 0:
+            continue
+        if any(isinstance(t, pcbnew.PCB_TEXT) and t.GetLayer() == pcbnew.F_SilkS and t.GetText() == text for t in m.GraphicalItems()):
+            continue
+        for t in list(m.GraphicalItems()):            # an earlier label (TOUCH0) in its place
+            if isinstance(t, pcbnew.PCB_TEXT) and t.GetLayer() == pcbnew.F_SilkS and t.GetText() == m.GetValue():
+                m.Remove(t)
+        label_part(m, text)
+        done.append(m.GetReference())
+    tft = [m for m in board.GetFootprints() if m.GetValue() == 'TFT' and m.GetReference().startswith('J')]
+    if tft and not any(isinstance(t, pcbnew.PCB_TEXT) and t.GetText() == 'BLK' for t in tft[0].GraphicalItems()):
+        label_tft(tft[0])
+        done.append(tft[0].GetReference())
+    return done
+
+
+def pin_labels(m, side=None, strip=()):
     """Net names beside the pads of a connector with 2 mm pitch or more (rows of pads), in board coordinates of the
-    part as it is now. side: (dx, dy) towards the board inside for edge parts; else -x (vertical rows) or -y."""
+    part as it is now. side: (dx, dy) towards the board inside for edge parts; else -x (vertical rows) or -y. strip:
+    prefixes left out of the names (short labels where there is little room)."""
     pads = [p for p in m.Pads() if p.GetNumber() and p.GetNetname() and not p.GetNetname().startswith('unconnected')
             and p.GetNumber() not in ('MP',)]
     if len(pads) < 2:
@@ -1241,6 +1291,8 @@ def pin_labels(m, side=None):
             s = -1 if a == across[0] else 1
             mid = sum((y if vertical else x) for x, y, _ in col) / len(col)
             name = short(col[0][2].GetNetname())
+            for pre in strip:
+                name = name[len(pre):] if name.startswith(pre) else name
             if vertical:
                 new.append(silk(m, name, (c[0] - 0.8) if s < 0 else (c[2] + 0.8), mid, angle=90))
             else:
@@ -1259,6 +1311,8 @@ def pin_labels(m, side=None):
         if s == 0:                             # an edge part with its pad row across the edge: left, or below
             s = -1 if vertical else 1
         name = short(p.GetNetname())
+        for pre in strip:
+            name = name[len(pre):] if name.startswith(pre) else name
         off = 0.3
         if sign:                               # the sign, then the net name
             if vertical:
@@ -1451,6 +1505,7 @@ def main():
     tft = byref[tft_ref]
     tft.SetOrientationDegrees(0)
     tft.SetPosition(V(*TFT_PIN1))
+    label_tft(tft)
     placed.add(tft_ref)
     for i, (dx, dy) in enumerate(TFT_HOLES):
         key = 'H=TFT standoff#%d' % (i + 1)

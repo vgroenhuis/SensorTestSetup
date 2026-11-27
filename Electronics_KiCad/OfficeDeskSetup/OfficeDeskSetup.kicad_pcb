@@ -29951,6 +29951,17 @@
 			(layer "F.Fab")
 			(uuid "0169c7f0-2596-4d35-a68f-34c3ec7ba4bc")
 		)
+		(fp_text user "T1"
+			(at 4.763809 5.46 0)
+			(layer "F.SilkS")
+			(uuid "3b2560ed-7378-4106-8790-6a016f3e4a35")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
+		)
 		(pad "1" smd circle
 			(at 0 0)
 			(size 11 11)
@@ -69243,6 +69254,102 @@
 			(layer "F.Fab")
 			(uuid "79078cbb-4d7b-4d21-be4f-b74f63b25f54")
 		)
+		(fp_text user "GND"
+			(at 3.315 0 0)
+			(layer "F.SilkS")
+			(uuid "8014fc4a-0968-4fed-bd0d-1c725993ff8e")
+			(effects
+				(font
+					(size 0.8 0.8)
+					(thickness 0.12)
+				)
+				(justify left)
+			)
+		)
+		(fp_text user "3V3"
+			(at 3.315 2.54 0)
+			(layer "F.SilkS")
+			(uuid "ea3d9dcf-8def-4a03-a4d6-5d45f0a609eb")
+			(effects
+				(font
+					(size 0.8 0.8)
+					(thickness 0.12)
+				)
+				(justify left)
+			)
+		)
+		(fp_text user "SCLK"
+			(at 3.315 5.08 0)
+			(layer "F.SilkS")
+			(uuid "50b3e113-793b-4c22-8e52-a2ca88b3a9ab")
+			(effects
+				(font
+					(size 0.8 0.8)
+					(thickness 0.12)
+				)
+				(justify left)
+			)
+		)
+		(fp_text user "MOSI"
+			(at 3.315 7.62 0)
+			(layer "F.SilkS")
+			(uuid "c8c655ca-c3f4-4978-939f-1ccb44aec986")
+			(effects
+				(font
+					(size 0.8 0.8)
+					(thickness 0.12)
+				)
+				(justify left)
+			)
+		)
+		(fp_text user "RES"
+			(at 3.315 10.16 0)
+			(layer "F.SilkS")
+			(uuid "46cf8b4f-f798-497b-896b-c42ec09d9ad3")
+			(effects
+				(font
+					(size 0.8 0.8)
+					(thickness 0.12)
+				)
+				(justify left)
+			)
+		)
+		(fp_text user "DC"
+			(at 3.315 12.7 0)
+			(layer "F.SilkS")
+			(uuid "0016fbef-9fcc-4619-a1b5-caaae7fd4375")
+			(effects
+				(font
+					(size 0.8 0.8)
+					(thickness 0.12)
+				)
+				(justify left)
+			)
+		)
+		(fp_text user "CS"
+			(at 3.315 15.24 0)
+			(layer "F.SilkS")
+			(uuid "16404753-eb8f-46fc-8b6c-c4138625f6e5")
+			(effects
+				(font
+					(size 0.8 0.8)
+					(thickness 0.12)
+				)
+				(justify left)
+			)
+		)
+		(fp_text user "BLK"
+			(at 3.315 17.78 0)
+			(layer "F.SilkS")
+			(uuid "a52be5c1-fe8f-48c6-beff-8854d4b18fef")
+			(effects
+				(font
+					(size 0.8 0.8)
+					(thickness 0.12)
+				)
+				(justify left)
+			)
+		)
 		(fp_text user "${REFERENCE}"
 			(at 0 8.89 90)
 			(layer "F.Fab")
@@ -77127,6 +77234,17 @@
 			(fill no)
 			(layer "F.Fab")
 			(uuid "c32c3881-752a-4d66-a2ef-f49c2004d056")
+		)
+		(fp_text user "T0"
+			(at 4.763809 5.46 0)
+			(layer "F.SilkS")
+			(uuid "1a6f63fe-d031-4859-8dd7-021ed4c8be21")
+			(effects
+				(font
+					(size 1 1)
+					(thickness 0.15)
+				)
+			)
 		)
 		(pad "1" smd circle
 			(at 0 0)
@@ -126170,7 +126288,7 @@
 	(gr_text "Claude & Vincent  rev 0.2"
 		(at 103.6965 65.940478 90)
 		(layer "F.SilkS")
-		(uuid "e3eef7da-85dc-4a90-ba7e-eae7c77d0074")
+		(uuid "850cee90-9984-4614-af84-956a42f8d9f6")
 		(effects
 			(font
 				(size 2 2)
@@ -126181,7 +126299,7 @@
 	(gr_text "Vincent Groenhuis, RaM, University of Twente"
 		(at 106.735713 120.0179 0)
 		(layer "B.SilkS")
-		(uuid "fd12e622-e607-4cd1-9be4-27e0faa26b6a")
+		(uuid "3b086194-bb63-410a-8ed5-2ab2dc06842c")
 		(effects
 			(font
 				(size 1 1)
@@ -126193,7 +126311,7 @@
 	(gr_text "layout and routing: Claude Opus 5.5"
 		(at 106.735713 123.0179 0)
 		(layer "B.SilkS")
-		(uuid "05d883fc-451f-436a-acf0-f4ac7343748b")
+		(uuid "7e2b2a22-35c7-4676-b6b3-fff8eca49a94")
 		(effects
 			(font
 				(size 1 1)
@@ -126205,7 +126323,7 @@
 	(gr_text "SensorTestSetup PCB rev 0.2, 2026-11-20"
 		(at 106.735713 117.0179 0)
 		(layer "B.SilkS")
-		(uuid "200de2a0-85cd-44c6-befd-79eecbccc05a")
+		(uuid "900a55ed-1c1c-4281-a5d4-bd3cc9c183d0")
 		(effects
 			(font
 				(size 1.2 1.2)

@@ -1,10 +1,12 @@
-"""credits.py BOARD [OUT]: put the credit texts (pcbgen.place_credits) on a finished board."""
+"""credits.py BOARD [OUT]: on a finished board, label the parts that have no label yet (pcbgen.label_unlabelled), then
+put the credit texts on again (pcbgen.place_credits)."""
 import os, shutil, sys
 G = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, G)
 import pcbnew, pcbgen, route
 src = sys.argv[1]; out = sys.argv[2] if len(sys.argv) > 2 else src
 b = pcbnew.LoadBoard(src)
+print('labelled', pcbgen.label_unlabelled(b))
 pcbgen.remove_credits(b)
 tft = None
 for d in b.GetDrawings():
