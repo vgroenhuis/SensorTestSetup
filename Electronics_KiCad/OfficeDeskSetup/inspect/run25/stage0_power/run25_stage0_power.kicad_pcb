@@ -2548,7 +2548,7 @@
 			(uuid "cbde0a15-b16a-4501-a863-b68f3f2cf2dd")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/RES-TH_RK09K1130A6S.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/RES-TH_RK09K1130A6S.wrl"
 			(offset
 				(xyz 4 -2.5 0)
 			)
@@ -3719,7 +3719,7 @@
 			(uuid "4baceded-c6ae-4b68-94d8-82773a410a03")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/SW-TH_2MS1T1B1M1QES-5.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/SW-TH_2MS1T1B1M1QES-5.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -4122,7 +4122,7 @@
 			(uuid "7ddaf542-908b-4e03-a0e1-2a0d23f25a66")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/SW-SMD_4P-L5.1-W5.1-P3.70-LS6.5-TL_H1.5.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/SW-SMD_4P-L5.1-W5.1-P3.70-LS6.5-TL_H1.5.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -6227,7 +6227,7 @@
 			(uuid "00872573-e2c4-4e4b-b8b1-9b61e63c3ad5")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/KEY-TH_4P-L12.0-W12.0-H7.5-LS12.5-P5.0.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/KEY-TH_4P-L12.0-W12.0-H7.5-LS12.5-P5.0.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -6845,7 +6845,7 @@
 			(uuid "22cbf296-47f8-430f-a0d3-9fcd81a12732")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/SENSOR-SMD_EML7700-TT.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/SENSOR-SMD_EML7700-TT.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -15647,7 +15647,7 @@
 			(uuid "45975088-1a37-4040-a7af-85281f62ee59")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/IND-SMD_L7.0-W6.6-H3.0.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/IND-SMD_L7.0-W6.6-H3.0.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -19122,7 +19122,7 @@
 			(uuid "a23d6a9f-ebcd-4190-bbe4-06d1f39a7046")
 		)
 		(embedded_fonts no)
-		(model "${KICAD10_3DMODEL_DIR}/Fuse.3dshapes/Fuse_1812_4532Metric.step"
+		(model "${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_1812_4532Metric.step"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -23311,7 +23311,7 @@
 			(uuid "1db4e8b8-3b19-43ca-8435-5011e2154b4b")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/SENSOR-SMD_L3.0-W3.0-P1.00-BL.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/SENSOR-SMD_L3.0-W3.0-P1.00-BL.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -24239,7 +24239,7 @@
 			(uuid "9cd0f97b-8ea5-4154-b218-3fd9a1a0654e")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/SW-SMD_4P-L5.1-W5.1-P3.70-LS6.5-TL_H1.5.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/SW-SMD_4P-L5.1-W5.1-P3.70-LS6.5-TL_H1.5.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -26424,7 +26424,7 @@
 			(uuid "a982b9aa-5cf4-49de-9984-17391a3aeace")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/SW-SMD_4P-L5.1-W5.1-P3.70-LS6.5-TL_H1.5.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/SW-SMD_4P-L5.1-W5.1-P3.70-LS6.5-TL_H1.5.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -28224,7 +28224,7 @@
 			(uuid "ebd06c89-10fd-4cfb-a5b6-9bdb7fcdcb24")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/USB-C_SMD-TYPE-C-31-M-12_1.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/USB-C_SMD-TYPE-C-31-M-12_1.wrl"
 			(offset
 				(xyz 0 -1.4 0)
 			)
@@ -30172,7 +30172,7 @@
 			(uuid "2ad57ab7-1caa-49fc-bc0a-85140a616276")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/SW-TH_SS21-BBIWG2-B.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/SW-TH_SS21-BBIWG2-B.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -30992,7 +30992,7 @@
 			(uuid "0e148248-55f0-424d-982c-c2d457416eda")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/BUZ-SMD_4P-L8.5-W8.5-H3.0.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/BUZ-SMD_4P-L8.5-W8.5-H3.0.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -31239,7 +31239,7 @@
 			(uuid "22b3415c-604b-43b7-bbf6-a5fc19fd21f3")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/IND-SMD_L7.0-W6.6-H3.0.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/IND-SMD_L7.0-W6.6-H3.0.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -35064,7 +35064,7 @@
 			(uuid "cd5249be-64ae-46c3-b9c6-9e2310519e27")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/SOP-6_L7.0-W7.0-P2.54-LS10.3-BL.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/SOP-6_L7.0-W7.0-P2.54-LS10.3-BL.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -37555,7 +37555,7 @@
 			(uuid "1c3d6dfb-6a77-42cd-bb54-6a276ec407e4")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/SCREW-SMD_BD5.6-D4.1-H10.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/SCREW-SMD_BD5.6-D4.1-H10.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -40191,7 +40191,7 @@
 			(uuid "2a99049a-f344-4ede-bdeb-beb182415e01")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/IND-SMD_L11.5-W10.0-H4.0.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/IND-SMD_L11.5-W10.0-H4.0.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -42653,7 +42653,7 @@
 			(uuid "a2233d68-6f0a-4dbb-bb03-fa370527daf3")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/VQFN-10_L2.0-W2.0-P0.45-TL.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/VQFN-10_L2.0-W2.0-P0.45-TL.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -43234,7 +43234,7 @@
 			(uuid "69a0b55d-6095-4bd6-9da9-b27bf3be787c")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/USB-C_SMD-TYPE-C-31-M-12_1.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/USB-C_SMD-TYPE-C-31-M-12_1.wrl"
 			(offset
 				(xyz 0 -1.4 0)
 			)
@@ -44242,7 +44242,7 @@
 			(uuid "947ca042-6659-473e-8340-f82d79bfe735")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/SW-SMD_4P-L5.1-W5.1-P3.70-LS6.5-TL_H1.5.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/SW-SMD_4P-L5.1-W5.1-P3.70-LS6.5-TL_H1.5.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -45613,7 +45613,7 @@
 			(uuid "2ce172e5-26a0-4a2a-aefc-5abb38567af6")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/SOP-6_L7.0-W7.0-P2.54-LS10.3-BL.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/SOP-6_L7.0-W7.0-P2.54-LS10.3-BL.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -50910,7 +50910,7 @@
 			(uuid "ea241cb4-d9ad-4b7c-854d-883537615751")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/LGA-16_L6.4-W3.0_VL53L5CXV0GC-1.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/LGA-16_L6.4-W3.0_VL53L5CXV0GC-1.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -53033,7 +53033,7 @@
 			(uuid "2c69d051-cf09-4ea2-b4ef-476f3496082f")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/SW-SMD_4P-L5.1-W5.1-P3.70-LS6.5-TL_H1.5.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/SW-SMD_4P-L5.1-W5.1-P3.70-LS6.5-TL_H1.5.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -68676,7 +68676,7 @@
 			(uuid "4a44169a-2034-4359-835c-8dbb78ae43ff")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/SOP-6_L7.0-W7.0-P2.54-LS10.3-BL.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/SOP-6_L7.0-W7.0-P2.54-LS10.3-BL.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -73843,7 +73843,7 @@
 			(uuid "54fb2959-0b4b-4591-a7e0-bd9f78720323")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/RES-TH_RK09K1130A6S.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/RES-TH_RK09K1130A6S.wrl"
 			(offset
 				(xyz 4 -2.5 0)
 			)
@@ -74242,7 +74242,7 @@
 			(uuid "a21fcfb2-0fbb-4916-8380-4f3f45c6b34d")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/SOP-6_L7.0-W7.0-P2.54-LS10.3-BL.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/SOP-6_L7.0-W7.0-P2.54-LS10.3-BL.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -75875,7 +75875,7 @@
 			(uuid "18817406-36d5-49c1-b25d-6d24b0377cbb")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/KEY-TH_4P-L12.0-W12.0-H7.5-LS12.5-P5.0.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/KEY-TH_4P-L12.0-W12.0-H7.5-LS12.5-P5.0.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -77351,7 +77351,7 @@
 			(uuid "616784fc-3ae4-4ba4-9ec5-dc8a5b59e654")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/SCREW-SMD_BD5.6-D4.1-H10.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/SCREW-SMD_BD5.6-D4.1-H10.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -78156,7 +78156,7 @@
 			(uuid "eb2d3daa-8bf9-468a-a308-5243da428047")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/VQFN-10_L2.0-W2.0-P0.45-TL.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/VQFN-10_L2.0-W2.0-P0.45-TL.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -83008,7 +83008,7 @@
 			(uuid "407edfc5-e8fb-49e5-9aad-d89b1a7b7d8b")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/RES-TH_RK09K1130A6S.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/RES-TH_RK09K1130A6S.wrl"
 			(offset
 				(xyz 4 -2.5 0)
 			)
@@ -88083,7 +88083,7 @@
 			(uuid "47142195-c8b7-4819-847f-f5727cef2ce9")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/SW-TH_2MS1T1B1M1QES-5.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/SW-TH_2MS1T1B1M1QES-5.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -88431,7 +88431,7 @@
 			(uuid "060ab040-8a18-42a2-b945-0817c9506086")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/DC-IN-TH_HX-DC007B-2.5.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/DC-IN-TH_HX-DC007B-2.5.wrl"
 			(offset
 				(xyz -2.2 2.25 0)
 			)
@@ -89668,7 +89668,7 @@
 			(uuid "2af21425-8848-4b70-83a1-42c9f2fef134")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/VQFN-10_L2.0-W2.0-P0.45-TL.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/VQFN-10_L2.0-W2.0-P0.45-TL.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -90463,7 +90463,7 @@
 			(uuid "bf4883d7-f622-480a-a49e-b9887b5b42ec")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/OPTO-TH_4P_ITR20001-T-F316.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/OPTO-TH_4P_ITR20001-T-F316.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -94916,7 +94916,7 @@
 			(uuid "e8d06b1c-8db7-4697-a60b-d48cc17a7815")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/SCREW-SMD_BD5.6-D4.1-H10.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/SCREW-SMD_BD5.6-D4.1-H10.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -96383,7 +96383,7 @@
 			(uuid "935e7988-cba6-4558-bf9c-6cf21ea1c52c")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/RES-TH_RK09K1130A6S.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/RES-TH_RK09K1130A6S.wrl"
 			(offset
 				(xyz 4 -2.5 0)
 			)
@@ -97116,7 +97116,7 @@
 			(uuid "7653ffdf-0a89-448b-b856-8650f6a99b9c")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/IND-SMD_L7.0-W6.6-H3.0.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/IND-SMD_L7.0-W6.6-H3.0.wrl"
 			(offset
 				(xyz 0 0 0)
 			)
@@ -104849,7 +104849,7 @@
 			(uuid "e90d1fd2-988d-43d8-9020-cb167f1b5dfc")
 		)
 		(embedded_fonts no)
-		(model "C:/Users/vince/Git/SensorTestSetup/Electronics_KiCad/OfficeDeskSetup/OfficeDeskSetup.3dshapes/SCREW-SMD_BD5.6-D4.1-H10.wrl"
+		(model "${KIPRJMOD}/../../../OfficeDeskSetup.3dshapes/SCREW-SMD_BD5.6-D4.1-H10.wrl"
 			(offset
 				(xyz 0 0 0)
 			)

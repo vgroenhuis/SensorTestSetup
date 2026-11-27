@@ -227,13 +227,20 @@ def key(t):
 
 
 def models_for_copy(path):
-    """A board saved outside the project folder (inspect/, the work directory): its ${KIPRJMOD} 3D model paths would
-    point into that folder, where the project's .3dshapes is not. Point them at the project's own folder instead."""
-    if os.path.normcase(os.path.dirname(os.path.abspath(path))) == os.path.normcase(HERE):
-        return
-    shapes = os.path.join(HERE, PROJECT + '.3dshapes').replace(os.sep, '/')
+    """The project's own 3D models (.3dshapes) as seen from the board's folder: ${KIPRJMOD} for a board in the
+    project folder, ${KIPRJMOD}/../.. for a copy under inspect/ (relative, so the copies open on any computer with
+    the repository checked out), an absolute path only for a folder on another drive. An absolute path written by an
+    earlier version is put right too."""
+    shapes = os.path.join(HERE, PROJECT + '.3dshapes')
+    try:
+        rel = os.path.relpath(shapes, os.path.dirname(os.path.abspath(path))).replace(os.sep, '/')
+        want = '${KIPRJMOD}' if rel == PROJECT + '.3dshapes' else '${KIPRJMOD}/' + rel.rsplit('/', 1)[0]
+        want += '/' + PROJECT + '.3dshapes'
+    except ValueError:                                  # another drive
+        want = shapes.replace(os.sep, '/')
     text = open(path, encoding='utf-8').read()
-    new = text.replace('${KIPRJMOD}/%s.3dshapes' % PROJECT, shapes)
+    new = re.sub(r'\(model "[^"]*?/%s\.3dshapes' % re.escape(PROJECT),
+                 lambda m: '(model "' + want, text)
     if new != text:
         open(path, 'w', encoding='utf-8').write(new)
 

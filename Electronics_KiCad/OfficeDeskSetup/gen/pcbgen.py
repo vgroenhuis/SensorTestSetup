@@ -157,6 +157,7 @@ MODELS = {
     'WDFN-10-1EP_3x3mm_P0.5mm_EP1.8x2.5mm': ('${KICAD10_3DMODEL_DIR}/Package_DFN_QFN.3dshapes/DFN-10-1EP_3x3mm_P0.5mm_EP1.65x2.38mm.step',
                                              (0, 0, 0), (0, 0, 0)),
     'Fuse_Littelfuse-NANO2-451_453': ('${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_2512_6332Metric.step', (0, 0, 0), (0, 0, 0)),
+    'Fuse_1812_4532Metric': ('${KICAD10_3DMODEL_DIR}/Resistor_SMD.3dshapes/R_1812_4532Metric.step', (0, 0, 0), (0, 0, 0)),
     'LED_SK6812MINI_PLCC4_3.5x3.5mm_P1.75mm': ('${KICAD10_3DMODEL_DIR}/LED_SMD.3dshapes/LED_WS2812B-Mini_PLCC4_3.5x3.5mm.step',
                                                (0, 0, 0), (0, 0, 0)),
 }

@@ -129,9 +129,10 @@ the footprints reference them). Each was checked against the datasheet, and the 
 (`USB-C_SMD-TYPE-C-31-M-12_1.wrl`, offset 0, −1.4 mm, rotated 180°) and the RK09K pot (`RES-TH_RK09K1130A6S.wrl`,
 offset 4, −2.5 mm, rotated 90°); `MODELS` in `gen/pcbgen.py` attaches them. Where KiCad's footprint names a model
 KiCad does not ship, `MODELS` gives a stand-in of the same body: the TPS259472's VQFN-29 a 4×4 mm QFN-28, the
-WDFN-10 a 3×3 mm DFN-10, the NANO2 fuse a 2512 resistor, the SK6812MINI a WS2812B-Mini (both 3.5 × 3.5 mm). The
+WDFN-10 a 3×3 mm DFN-10, the NANO2 fuse a 2512 resistor, the 1812 polyfuse an 1812 resistor, the SK6812MINI a WS2812B-Mini (both 3.5 × 3.5 mm). The
 Espressif module's model path is moved from `${KICAD9_3RD_PARTY}` to `${KICAD10_3RD_PARTY}`. Board copies under
-`inspect/` get the project's `.3dshapes` folder as an absolute path (`route.models_for_copy`).
+`inspect/` reach the project's `.3dshapes` folder by a relative path (`${KIPRJMOD}/../../../`, `route.models_for_copy`),
+so they show their models on any computer with the repository checked out.
 
 Also found by the pad check: the INA226 shunt used KiCad's 4-terminal `R_Shunt` on a 2-pad 2512 footprint, so the
 sense lines had no pads. Now a 2-terminal 2512 with two net ties (NT1, NT2) for the Kelvin sense lines: place them on
