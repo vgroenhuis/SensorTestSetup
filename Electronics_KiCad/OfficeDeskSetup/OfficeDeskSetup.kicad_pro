@@ -681,6 +681,10 @@
       },
       {
         "netclass": "Power",
+        "pattern": "/6 Main I2C bus: MCP23017, PCA9685, TCA9548 with pressure sensors/V_SOL"
+      },
+      {
+        "netclass": "Power",
         "pattern": "CHG_SYS"
       },
       {
@@ -738,6 +742,38 @@
       {
         "netclass": "Supply",
         "pattern": "+5V"
+      },
+      {
+        "netclass": "Supply",
+        "pattern": "/6 Main I2C bus: MCP23017, PCA9685, TCA9548 with pressure sensors/SOL0"
+      },
+      {
+        "netclass": "Supply",
+        "pattern": "/6 Main I2C bus: MCP23017, PCA9685, TCA9548 with pressure sensors/SOL1"
+      },
+      {
+        "netclass": "Supply",
+        "pattern": "/6 Main I2C bus: MCP23017, PCA9685, TCA9548 with pressure sensors/SOL2"
+      },
+      {
+        "netclass": "Supply",
+        "pattern": "/6 Main I2C bus: MCP23017, PCA9685, TCA9548 with pressure sensors/SOL3"
+      },
+      {
+        "netclass": "Supply",
+        "pattern": "/6 Main I2C bus: MCP23017, PCA9685, TCA9548 with pressure sensors/SOL4"
+      },
+      {
+        "netclass": "Supply",
+        "pattern": "/6 Main I2C bus: MCP23017, PCA9685, TCA9548 with pressure sensors/SOL5"
+      },
+      {
+        "netclass": "Supply",
+        "pattern": "/6 Main I2C bus: MCP23017, PCA9685, TCA9548 with pressure sensors/SOL6"
+      },
+      {
+        "netclass": "Supply",
+        "pattern": "/6 Main I2C bus: MCP23017, PCA9685, TCA9548 with pressure sensors/SOL7"
       }
     ]
   },

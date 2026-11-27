@@ -712,6 +712,35 @@ def i2c_parts(d, X):
     conn(b, 'TTP223 module', ['GND', 'TOUCH_EXT', '+3V3'], socket(3))     # a TTP223 touch module: GND I/O VCC
     b.note('Buttons and toggle switches use the MCP23017\npull-ups. GPB7 is output only (PCA_OE); GPA7\nis free (output only). GPA6: TTP223 module socket\n(GND I/O VCC; module output active high by default).')
 
+    b = sh.block('Solenoid outputs: MCP23008 (0x21), 8 low-side MOSFETs, 12 V (V_BUS) through a 2 A polyfuse')
+    nets = {'VDD': '+3V3', 'VSS': 'GND', 'SCL': 'I2C_SCL', 'SDA': 'I2C_SDA', 'A0': '+3V3', 'A1': 'GND', 'A2': 'GND',
+            '~{RESET}': 'MCP2_RESET', 'INT': NC}
+    for i in range(8):      # driven straight into the gates (a few pF): no series resistors
+        nets['GP%d' % i] = 'SOL%d_G' % i
+    b.ic('Interface_Expansion:MCP23008-xSS', 'U', 'MCP23008-E/SS', nets, fields=fields('Package_SO:SSOP-20_5.3x7.2mm_P0.65mm', 'C148011'))
+    R(b, '10k', '+3V3', 'MCP2_RESET')
+    C(b, '100nF', '+3V3')
+    two(b, 'FUSE', '2A hold', 'V_SOL', 'V_BUS', fp='Fuse:Fuse_1812_4532Metric', lcsc='C545213')   # SMD1812P200TF/16
+    C(b, '10uF 25V', 'V_SOL', fp=FP['C1206'])
+    b.col()
+    for i in range(8):      # off at reset: the expander's pins are inputs then, the 100 k holds the gate low
+        R(b, '100k', 'SOL%d_G' % i, 'GND')
+    b.col()
+    for i in range(8):      # AO3400A: 30 V, ~50 mOhm at 2.5 V gate: 500 mA costs ~12 mW
+        b.ic('Transistor_FET:AO3400A', 'Q', 'AO3400A', {'G': 'SOL%d_G' % i, 'S': 'GND', 'D': 'SOL%d' % i}, flow=True,
+             fields=fields(FP['SOT23'], 'C20917'))
+    b.col()
+    for i in range(8):      # flyback: the solenoid's current circulates through it at switch-off (B5819W: 1 A, 40 V)
+        two(b, 'D', 'B5819W', 'V_SOL', 'SOL%d' % i, fp='Diode_SMD:D_SOD-123', lcsc='C8598')
+    b.col()
+    pins = {}
+    for i in range(8):      # each row a solenoid: pin 2i+1 12 V, pin 2i+2 its switched return
+        pins[str(2 * i + 1)] = 'V_SOL'
+        pins[str(2 * i + 2)] = 'SOL%d' % i
+    b.ic('Connector_Generic:Conn_02x08_Odd_Even', 'J', 'SOLENOIDS', pins,
+         fields=fields('Connector_PinHeader_2.54mm:PinHeader_2x08_P2.54mm_Vertical'))
+    b.note('8 solenoids, 12 V (V_BUS: 9-12.6 V on the pack),\nup to 500 mA each. Row n: pin 2n+1 V_SOL, pin\n2n+2 SOLn (switched to GND). MCP23008 0x21\nGP0-7: high = on; off at reset (pull-downs).\nPolyfuse 2 A hold, 3.5 A trip: four at 500 mA\nhold; all eight trip it after a while.')
+
     b = sh.block('Touch: 2 TTP223 pads')
     for i in range(2):      # in place of BTN2/BTN3; AHLB high: output low when touched, like the buttons
         b.ic(X['TTP223'], 'U', 'TTP223-BA6', {'VDD': '+3V3', 'VSS': 'GND', 'AHLB': '+3V3', 'TOG': 'GND',

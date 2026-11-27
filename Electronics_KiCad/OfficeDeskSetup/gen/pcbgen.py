@@ -34,7 +34,7 @@ HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT = 'OfficeDeskSetup'
 IO = pcbnew.PCB_IO_MGR.FindPlugin(pcbnew.PCB_IO_MGR.KICAD_SEXP)
 
-W, H = 200.0, 150.0          # board size, mm; the rear edge is y = 0, the front edge (user side) is y = H
+W, H = 220.0, 150.0          # board size, mm (rev 0.2: 20 mm longer for the solenoid drivers); the rear edge is y = 0, the front edge (user side) is y = H
 GAP = 0.5                    # space between courtyards when packing (routing channels)
 GAP_IC = 1.2                 # around parts with 8 or more pads, for their fanout
 EDGE = 1.0                   # keep courtyards this far from the board edge
@@ -73,7 +73,7 @@ EDGE_ROWS = [
     # left edge (x = 0): Qwiic (main bus, TCA9548 ch 4-5, ToF bus) and the four pressure sensors
     (['J=Qwiic main', 'J=Qwiic ch 4', 'J=Qwiic ch 5', 'J=Qwiic io'], 'left', 13, 0.8, 270),
     (['U=WF100DPZ 10BG S6 DT#%d' % i for i in range(1, 5)], 'left', None, 1.0, 0),
-    (['J=TTP223 module'], 'left', None, 2.0, 0),
+    ([('J=TTP223 module', 90), ('J=UART0 main', 90), ('J=SOLENOIDS', 90)], 'left', None, 1.0, 0),   # across the edge: no room along it
     # right edge (x = W): servo banks and the 16-bit analog inputs (BANKS), PWM 9-15, Dynamixel; the MH and HC-SR04
     # sockets, their modules facing out (the HC-SR04 board, 45 mm wide, stands over the edge from y 110 to past
     # the front edge: nothing tall at the edge there; the MH module, about 14 mm wide, lies flat over the edge)
@@ -103,8 +103,15 @@ FIRST = ('Power switch', 'Motor driver', 'USB-C POWER', 'USB-C PROG', 'Input sel
          '3.3 V buck', '5 V buck',
          'Buck-boost charger', '3S pack', 'TCA9548A', 'MCP23017', 'MCP3008', 'USB hub', 'IR reflective', 'VL53L7CX', 'AHT20',
          'LDR')
-UNCOVERED = ('IR reflective', 'AHT20', 'LDR', 'VL53L7CX', 'UART0 header', 'Film pressure')   # blocks not under the TFT: sensors, and
-                             # the UART0 header (reachable with the module on)
+UNCOVERED = ('IR reflective', 'AHT20', 'LDR', 'VL53L7CX', 'Film pressure')   # blocks not under the TFT: sensors
+# in the other blocks only the tall parts keep out from under the TFT (and LEDs, which must be seen): headers, sockets,
+# switches, the buzzer, pots, electrolytics; the TFT block's own socket goes under it
+
+
+def tall(m):
+    ref, fp = m.GetReference(), m.GetFPIDAsString()
+    return (re.match(r'(J|SW|BZ|RV|BT)\d', ref) is not None or 'CP_Elec' in fp
+            or (re.match(r'D\d', ref) is not None and 'LED' in fp))
 # placed inside (not on an edge, but fixed): key -> (x, y, rotation, side)
 FIXED = {
     'U=AS5600-ASOT': (172, 126, 0, 'F'),                      # under the knob
@@ -121,11 +128,11 @@ NETCLASSES = {
     'Power': (1.0, 0.15, 0.8, 0.4, ['VBUS_PD', 'VBUS_PROG', 'CHG_VBUS', 'CHG_PMID', 'CHG_SYS', 'CHG_SW1', 'CHG_SW2',
                                     'CHG_IN1_MID', 'CHG_IN2_MID', 'BAT_P', 'VBUS_SW',
                                     'V_BUS', 'V_SERVO', 'SW_SERVO', 'SW_3V3', 'V_DXL', 'MOTA_P', 'MOTA_N', 'MOTB_P',
-                                    'MOTB_N', 'DC_12V',
+                                    'MOTB_N', 'DC_12V', 'V_SOL',
                                     'SW_5V']),                      # 3 A buck switch node
     'Pack': (2.0, 0.15, 0.8, 0.4, ['CELL1', 'CELL2', 'CELL3', 'BAT_N', 'BQ_SRN', 'BQ_FET_MID']),   # the cells in series
                                                                     # and the protection FETs: the full pack current
-    'Supply': (0.5, 0.15, 0.6, 0.3, ['+3V3', '+5V']),
+    'Supply': (0.5, 0.15, 0.6, 0.3, ['+3V3', '+5V'] + ['SOL%d' % i for i in range(8)]),   # solenoids: 0.5 A each
 }
 # low-current supplies stay in the Default class (0.2 mm): CHG_REGN (BQ25792 gate-drive LDO, tens of mA), HUB_3V3
 # (CH334R LDO), AHT_VDD (330 R in series), BQ_VDD (1 k in series), VBUS_EN_SW (1 M pull-downs), HX_AVDD (HX711 and
@@ -166,11 +173,11 @@ FLOORPLAN = [
     ('5 V buck', 86, 22, '5 V'),
     ('3.3 V buck', 106, 22, '3.3 V'),
     ('Power-good LEDs', 126, 22, 'RAILS'),
-    ('Motor driver', 155, 22, 'MOTOR DRIVER'),
-    ('Motor A', 148, 40, 'ENCODER A'),
-    ('Motor B', 165, 40, 'ENCODER B'),
-    ('PCA9685', 174, 50, 'SERVO / PWM PCA9685'),
-    ('V_SERVO buck', 160, 62, 'V_SERVO'),
+    ('Motor driver', 175, 22, 'MOTOR DRIVER'),
+    ('Motor A', 168, 40, 'ENCODER A'),
+    ('Motor B', 185, 40, 'ENCODER B'),
+    ('PCA9685', 194, 50, 'SERVO / PWM PCA9685'),
+    ('V_SERVO buck', 180, 62, 'V_SERVO'),
     # left column: USB hub, input selection, ESP 'main', buses
     ('USB hub', 22, 38, 'USB HUB'),
     ('Input selection', 45, 40, 'INPUT SELECT'),
@@ -179,6 +186,7 @@ FLOORPLAN = [
     ('UART0 header', 50, 85, 'UART0'),
     ('TCA9548A', 25, 105, 'I2C MUX, PRESSURE'),
     ('MCP23017', 42, 125, 'BUTTONS, LEDS MCP23017'),
+    ('Solenoid', 14, 122, 'SOLENOIDS 12 V'),
     # middle: charger and pack
     ('Buck-boost charger', 86, 62, 'CHARGER BQ25792'),
     ('3S pack', 116, 64, '3S PACK BQ77915'),
@@ -188,18 +196,18 @@ FLOORPLAN = [
     ('LDR', 24, 130, 'LDR'),                 # far from the TFT (its shadow), by the VEML7700
     ('MCP3008', 124, 128, 'ADC MCP3008'),
     ('Touch', 78, 124, 'TOUCH TTP223'),     # low parts, under the TFT, by their pads
-    ('Film pressure', 150, 134, 'FSR'),
+    ('Film pressure', 170, 134, 'FSR'),
     # right: ESP 'io', ToF, TFT socket parts, Dynamixel, ADS1115, load cell, IR, HC-SR04, MH
-    ("ESP32-C5 'io'", 165, 86, 'ESP32 IO'),
+    ("ESP32-C5 'io'", 185, 86, 'ESP32 IO'),
     ('TFT 2.4', 126, 100, 'TFT'),
-    ('VL53L7CX', 152, 110, 'TOF'),
-    ('V_DXL', 176, 72, 'V_DXL'),
-    ('Dynamixel', 178, 86, 'DYNAMIXEL'),
-    ('ADS1115', 180, 90, 'ADC ADS1115'),
-    ('HX711', 168, 132, 'LOAD CELL'),
-    ('IR reflective', 155, 126, 'IR SENSOR'),
-    ('HC-SR04', 184, 126, 'HC-SR04'),
-    ('MH sensor', 183, 106, 'MH MODULE'),
+    ('VL53L7CX', 172, 110, 'TOF'),
+    ('V_DXL', 196, 72, 'V_DXL'),
+    ('Dynamixel', 198, 86, 'DYNAMIXEL'),
+    ('ADS1115', 200, 90, 'ADC ADS1115'),
+    ('HX711', 188, 132, 'LOAD CELL'),
+    ('IR reflective', 175, 126, 'IR SENSOR'),
+    ('HC-SR04', 204, 126, 'HC-SR04'),
+    ('MH sensor', 203, 106, 'MH MODULE'),
 ]
 
 
@@ -438,12 +446,13 @@ def dump(grid, path):
             f.write(bytes(1 - v for v in row))
 
 
-def cluster(grid, mods, r, avoid=None):
+def cluster(grid, mods, r, avoid=None, name=1.5):
     """Pack a block's parts into a cluster, then place it (BLOCK_GAP / 2 fence around it) at the free spot nearest to
     r. Clusters of several aspect ratios are tried (about square first); the one that lands nearest wins. Returns how
     far (mm) the cluster centre ended up from r."""
     area = sum((b[2] - b[0] + gap(m)) * (b[3] - b[1] + gap(m)) for m, b in ((m, box(m)) for m in mods))
-    least = max(min(b[2] - b[0], b[3] - b[1]) + GAP_IC for b in map(box, mods))
+    least = max((max if passive(m) else min)(b[2] - b[0], b[3] - b[1]) + max(GAP_IC, gap(m)) + 0.5
+                for m, b in ((m, box(m)) for m in mods))    # a passive stands in a column: its long side across
     f = BLOCK_GAP / 2
     cands = []
     for aspect in ASPECTS:                 # pack at several widths, keep the positions of each
@@ -452,8 +461,14 @@ def cluster(grid, mods, r, avoid=None):
         pack(local, mods, (0, 0, width, 400))
         bs = [box(m) for m in mods]
         bx = (min(b[0] for b in bs), min(b[1] for b in bs), max(b[2] for b in bs), max(b[3] for b in bs))
-        w, h = bx[2] - bx[0] + 2 * f, bx[3] - bx[1] + 2 * f + 1.5     # 1.5: the block name above the outline
+        w, h = bx[2] - bx[0] + 2 * f, bx[3] - bx[1] + 2 * f + name    # name: room for the block name above the outline
         cands.append((w * h, w, h, bx, [(m.GetPosition(), m.GetOrientationDegrees()) for m in mods]))
+    if len(mods) == 1:                     # a lone part (a tall header beside its block): also turned a quarter
+        m = mods[0]
+        put(m, 0, 0, rot=(m.GetOrientationDegrees() + 90) % 360)
+        bx = box(m)
+        w, h = bx[2] - bx[0] + 2 * f, bx[3] - bx[1] + 2 * f + name
+        cands.append((w * h, w, h, bx, [(m.GetPosition(), m.GetOrientationDegrees())]))
     least_area = min(c[0] for c in cands)
     best = None
     saved = [bytearray(row) for row in grid.rows]
@@ -474,7 +489,7 @@ def cluster(grid, mods, r, avoid=None):
             m.Move(V(0, H + 30))
         return None
     d, pos, spot, w, h, bx = best
-    dx, dy = spot[0] + f - bx[0], spot[1] + f + 1.5 - bx[1]
+    dx, dy = spot[0] + f - bx[0], spot[1] + f + name - bx[1]
     for m, (p, rot) in zip(mods, pos):
         m.SetOrientationDegrees(rot)
         m.SetPosition(p)
@@ -1093,7 +1108,7 @@ def short(net):
 # short IC labels (no package and grade suffixes): (value regex, label); single-gate logic is BUF
 IC_LABELS = [(r'74\w*1G(34|125)', 'BUF'), (r'ADS1115', 'ADS1115'), (r'AP63205', 'AP63205'), (r'AS5600', 'AS5600'),
              (r'BQ25792', 'BQ25792'), (r'BQ77915', 'BQ77915'), (r'HUSB238', 'HUSB238'), (r'INA226', 'INA226'),
-             (r'ITR20001', 'ITR20001'), (r'LM393', 'LM393'), (r'LSM6DS3', 'LSM6DS3'), (r'MCP23017', 'MCP23017'),
+             (r'ITR20001', 'ITR20001'), (r'LM393', 'LM393'), (r'LSM6DS3', 'LSM6DS3'), (r'MCP23017', 'MCP23017'), (r'MCP23008', 'MCP23008'),
              (r'MCP3008', 'MCP3008'), (r'PCA9685', 'PCA9685'), (r'TB6612', 'TB6612'), (r'TCA9548', 'TCA9548'),
              (r'TPS25947', 'TPS25947'), (r'TPS54331', 'TPS54331'), (r'USBLC6', 'USBLC6'), (r'VEML7700', 'VEML7700'),
              (r'VL53L7CX', 'VL53L7CX'), (r'WF100DP', 'WF100DP')]
@@ -1460,7 +1475,7 @@ def main():
     def order(kv):                         # kept blocks; the FIRST blocks in that order (tied to their edge parts), then
         hit = [i for i, f in enumerate(FIRST) if kv[0].startswith(f)]      # large first
         return (not unchanged(kv[1]), hit[0] if hit else len(FIRST), -area(kv[1]))
-    groups, keep_blocks = [], []
+    groups, keep_blocks, tall_refs = [], [], set()
     for title, ms in sorted(blocks.items(), key=order):
         r, name = region(title)
         free = [m for m in ms if m.GetReference() not in placed and m.GetReference() not in ties]
@@ -1483,10 +1498,12 @@ def main():
             if r is None:
                 problems.append('no region for block "%s": %s' % (title, ' '.join(m.GetReference() for m in free)))
                 continue
-            # a part with a cutout through the board (SK6812MINI-E) must also keep clear of SMD pads on the back
+            # a part with a cutout through the board (SK6812MINI-E) must also keep clear of SMD pads on the back, and
+            # so must through-hole pins (a header over a battery holder's contact on the back shorts to it)
             cut = [m for m in free if any(g.GetLayer() == pcbnew.Edge_Cuts for g in m.GraphicalItems())]
+            tht = [m for m in free if any(p.GetAttribute() == pcbnew.PAD_ATTRIB_PTH for p in m.Pads())]
             extra = []
-            if cut:
+            if cut or tht:
                 for ref in placed:
                     if byref[ref].IsFlipped():
                         for pad in byref[ref].Pads():
@@ -1496,13 +1513,24 @@ def main():
                                 extra += [(rr, cc) for rr in range(r0, r1) for cc in range(c0, c1) if not grid.rows[rr][cc]]
                 for rr, cc in extra:
                     grid.rows[rr][cc] = 1
-            d = cluster(grid, free, r, tft_area if title.startswith(UNCOVERED) else None)
-            if extra:                              # free those cells again, but keep the block itself and its gap
+            unc = title.startswith(UNCOVERED)  # a sensor block: its sensors (not its passives) must see out
+            hi = [] if title.startswith('TFT') else [m for m in free if tall(m) or (unc and not passive(m))]
+            lo = [m for m in free if m not in hi]
+            if hi and lo:                  # the low parts as before, the tall ones beside them, not under the TFT
+                d = cluster(grid, lo, r, None)
+                if d is not None:
+                    bs = [box(m) for m in lo]
+                    c = ((min(q[0] for q in bs) + max(q[2] for q in bs)) / 2, (min(q[1] for q in bs) + max(q[3] for q in bs)) / 2)
+                    if cluster(grid, hi, c, tft_area, name=0) is None:     # (the name is over the low parts)
+                        d = None
+            else:
+                d = cluster(grid, free, r, tft_area if hi else None)
+            tall_refs.update(m.GetReference() for m in hi)
+            if extra:                              # free those cells again, but keep the block's parts and their gap
                 for rr, cc in extra:
                     grid.rows[rr][cc] = 0
-                bs = [box(m) for m in free]
-                grid.mark(min(q[0] for q in bs) - BLOCK_GAP / 2, min(q[1] for q in bs) - BLOCK_GAP / 2,
-                          max(q[2] for q in bs) + BLOCK_GAP / 2, max(q[3] for q in bs) + BLOCK_GAP / 2)
+                for q in (box(m) for m in free):
+                    grid.mark(q[0] - BLOCK_GAP / 2, q[1] - BLOCK_GAP / 2, q[2] + BLOCK_GAP / 2, q[3] + BLOCK_GAP / 2)
             if d is None:
                 problems.append('NO ROOM for block "%s"' % title[:40])
             elif d > 12:
@@ -1526,7 +1554,7 @@ def main():
         fix = gr['title'] in keep_blocks
         for m in gr['free']:
             items.append({'box': box(m), 'block': k, 'kind': PART, 'gap': gap(m), 'move': not fix, 'mod': m,
-                          'cut': m.GetReference() in gr['cut'], 'uncovered': unc})
+                          'cut': m.GetReference() in gr['cut'], 'uncovered': m.GetReference() in tall_refs})
         items.append({'box': gr['name_box'], 'block': k, 'kind': NAME, 'move': True, 'group': gr})
     for ref in placed:
         m = byref[ref]
@@ -1542,10 +1570,10 @@ def main():
     if kept:
         print('kept from %s: %d of %d blocks' % (args.keep, len(keep_blocks), len(groups)))
         print('  moved again: ' + '; '.join(gr['title'][:30] for gr in groups if gr['title'] not in keep_blocks))
-        pb = [(it['box'], it['mod'].GetReference(), it['block']) for it in items if it['kind'] == PART and it.get('mod')]
-        for i, (a, ra, ka) in enumerate(pb):   # a kept block on top of a part placed anew: say so
-            for b, rb, kb in pb[i + 1:]:
-                if ka != kb and min(a[2], b[2]) - max(a[0], b[0]) > 0 and min(a[3], b[3]) - max(a[1], b[1]) > 0:
+        pb = [(it['box'], it['mod'].GetReference(), it['block'], it['move']) for it in items if it['kind'] == PART and it.get('mod')]
+        for i, (a, ra, ka, ma) in enumerate(pb):   # a kept block on top of a part placed anew: say so
+            for b, rb, kb, mb in pb[i + 1:]:
+                if ka != kb and not (ma and mb) and min(a[2], b[2]) - max(a[0], b[0]) > 0 and min(a[3], b[3]) - max(a[1], b[1]) > 0:
                     problems.append('kept placement: %s and %s overlap' % (ra, rb))
     for it, (dx, dy) in zip(items, spread(items)):
         if it.get('mod') is not None and (dx or dy):
@@ -1568,6 +1596,9 @@ def main():
         avoid = [(nb, 0.2) for nb in names]
         avoid += [(box(m), 0.5) for m in byref.values() if m.GetReference() not in mine and not m.IsFlipped()
                   and m.GetReference() not in ties]
+        if min(q[0] for q in own) >= W or min(q[1] for q in own) >= H or max(q[2] for q in own) <= 0 or max(q[3] for q in own) <= 0:
+            problems.append('block "%s" is off the board: no outline' % gr['title'][:40])
+            continue
         mk = block_mask(own, avoid)
         masks[gr['title']] = mk
         for loop in trace(mk):

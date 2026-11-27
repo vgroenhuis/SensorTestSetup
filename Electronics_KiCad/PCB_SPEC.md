@@ -191,6 +191,7 @@ All 19 usable pins of 'io' are used; 'main' has 11/12 left for the UART0 header.
 | Buttons (2) | MCP23017 GPB0, GPB1 | | |
 | Capacitive touch pads (2) | MCP23017 GPB2, GPB3 | | TTP223-BA6 each, in place of buttons 2 and 3; output low while touched |
 | TTP223 touch module socket | MCP23017 GPA6 | | 3-pin socket: GND, I/O, VCC (3.3 V) |
+| Solenoids ×8 (12 V, up to 500 mA each) | MCP23008 (0x21) GP0–7 | 0x21 | AO3400A low-side switches with flyback diodes; 2×8 header (row n: V_SOL, SOLn); V_SOL = V_BUS (9–12.6 V) through a 2 A polyfuse |
 | Toggle switches (2) | MCP23017 GPA4, GPA5 | | front edge; miniature SPDT with PCB pins (Dailywell 2MS1T1B1M1QES-5) |
 | Motor encoders (2) | PCNT ('io') | | 3.3 V supply, RC filter footprints (DNP) |
 
@@ -210,7 +211,7 @@ All 19 usable pins of 'io' are used; 'main' has 11/12 left for the UART0 header.
 
 ### I2C addresses (main bus)
 
-0x08 HUSB238 · 0x10 VEML7700 · 0x20 MCP23017 · 0x36 AS5600 · 0x40 INA226 · 0x41 PCA9685 · 0x48 ADS1115 · 0x6A IMU ·
+0x08 HUSB238 · 0x10 VEML7700 · 0x20 MCP23017 · 0x21 MCP23008 (solenoids) · 0x36 AS5600 · 0x40 INA226 · 0x41 PCA9685 · 0x48 ADS1115 · 0x6A IMU ·
 0x6B charger · 0x70 (PCA9685 All-Call: kept free) · 0x71 TCA9548 · 0x38 AHT20. Behind the TCA9548: 0x6D ×4, 2 Qwiic.
 Second bus ('io'): 0x29 VL53L7CX + one Qwiic connector.
 
@@ -332,6 +333,9 @@ Low stock (under ~100) is marked: enough for a few prototypes, order soon or res
 | Function | Part | JLCPCB / LCSC | Stock | Notes |
 | --- | --- | --- | --- | --- |
 | I/O expander | MCP23017-E/SO | C47023 | 1325 | SOIC-28 (the SSOP has 252) |
+| Solenoid expander | MCP23008-E/SS | C148011 | | SSOP-20; 0x21 |
+| Solenoid switches ×8 | AO3400A | C20917 | | SOT-23; flyback B5819W (C8598) each |
+| Solenoid supply fuse | SMD1812P200TF/16 (2 A hold, 3.5 A trip) | C545213 | | V_BUS to V_SOL *(verify stock)* |
 | PWM / servo driver | PCA9685PW,118 | C2678753 | 2277 | |
 | I2C multiplexer | TCA9548APWR | C130026 | 16053 | |
 | 10-bit ADC (SPI) | MCP3008T-I/SL | C2651321 | 1387 | (the -I/SL, C1520159, has 490) |
