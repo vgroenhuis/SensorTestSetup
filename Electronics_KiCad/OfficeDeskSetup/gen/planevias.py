@@ -403,6 +403,36 @@ def crosses(a, b, c, d):
     return side(a, b, c) * side(a, b, d) < 0 and side(c, d, a) * side(c, d, b) < 0
 
 
+def dangling_stubs(board):
+    """{net code: [(pad end, free end, width)]}: locked tracks with one end on a pad of their net and the other end
+    free (no track, via or pad of the net there): narrowing stubs nothing has reached yet. Such a pad is not
+    connected: its escape via goes at the stub's free end."""
+    ends, vias, out = {}, {}, {}
+    for t in board.GetTracks():
+        if t.Type() == pcbnew.PCB_VIA_T:
+            vias.setdefault(t.GetNetCode(), []).append(t)
+        else:
+            for e in (t.GetStart(), t.GetEnd()):
+                ends.setdefault(t.GetNetCode(), []).append((e, t.m_Uuid.AsString()))
+    pads = {}
+    for q in board.GetPads():
+        pads.setdefault(q.GetNetCode(), []).append(q)
+    def free(e, t, code):
+        if any(o != t.m_Uuid.AsString() and (o2 - e).EuclideanNorm() <= 1000 for o2, o in ends.get(code, ())):
+            return False
+        if any(v.HitTest(e) for v in vias.get(code, ())):
+            return False
+        return not any(q.HitTest(e) for q in pads.get(code, ()))
+    for t in board.GetTracks():
+        if t.Type() != pcbnew.PCB_TRACE_T or not t.IsLocked():
+            continue
+        code = t.GetNetCode()
+        for a, b in ((t.GetStart(), t.GetEnd()), (t.GetEnd(), t.GetStart())):
+            if any(q.HitTest(a) for q in pads.get(code, ())) and free(b, t, code):
+                out.setdefault(code, []).append((a, b, pcbnew.ToMM(t.GetWidth())))
+    return out
+
+
 def escape(board, pads, sizes, avoid=(), clr=0.2, edge=1.0, reach=3.0, inward=False):
     """Escape vias: a locked via beside each SMD pad in `pads` (in that order: the first get the best spots), with a
     short locked track to it, so the router can reach the pin from the other outer layer (or, by hand, from an
@@ -417,6 +447,7 @@ def escape(board, pads, sizes, avoid=(), clr=0.2, edge=1.0, reach=3.0, inward=Fa
     # stacked pads (USB-C A4/B9) share one spot: one escape via for it, so skip a pad where a locked track of its
     # net already starts
     starts = track_ends(board)
+    dangling = dangling_stubs(board)
     # the landing room of the escape vias already there (earlier rounds, pins placed in advance)
     for v in board.GetTracks():
         if v.Type() == pcbnew.PCB_VIA_T and v.IsLocked() and v.GetNetCode() in sizes:
@@ -441,14 +472,21 @@ def escape(board, pads, sizes, avoid=(), clr=0.2, edge=1.0, reach=3.0, inward=Fa
         if p.GetAttribute() not in (pcbnew.PAD_ATTRIB_SMD, pcbnew.PAD_ATTRIB_CONN):
             continue                                    # a through-hole pad is on every layer already
         code, net = p.GetNetCode(), p.GetNet()
-        if any(p.HitTest(e) for e in starts.get(code, ())):
+        stub = [st for st in dangling.get(code, ()) if p.HitTest(st[0])]
+        if any(p.HitTest(e) for e in starts.get(code, ())) and not stub:
             continue
+        if stub and sum(1 for e in starts.get(code, ()) if p.HitTest(e)) > len(stub):
+            continue                    # more track ends on the pad than its dangling stubs': another track leaves it
+        stub.sort(key=lambda st: -(st[1] - st[0]).EuclideanNorm())          # the longest (a widened copy is shorter)
         full, d, drill = sizes[code]
         fp = p.GetParentFootprint()
         layer = pcbnew.B_Cu if p.IsOnLayer(pcbnew.B_Cu) and not p.IsOnLayer(pcbnew.F_Cu) else pcbnew.F_Cu
         bb = p.GetBoundingBox()
         px, py = pcbnew.ToMM(p.GetPosition().x), pcbnew.ToMM(p.GetPosition().y)
         w, h = pcbnew.ToMM(bb.GetWidth()), pcbnew.ToMM(bb.GetHeight())
+        if stub:        # a narrowing stub nothing reached: the escape starts at its free end, as wide as the stub
+            px, py = pcbnew.ToMM(stub[0][1].x), pcbnew.ToMM(stub[0][1].y)
+            w = h = stub[0][2]
         across = max(0.2, min(w, h))
         widths = sorted({min(full, max(w, h)), min(full, across), min(full, across, 0.6), min(full, across, 0.4), 0.2},
                         reverse=True)
